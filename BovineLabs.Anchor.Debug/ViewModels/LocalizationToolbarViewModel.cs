@@ -3,7 +3,7 @@
 // </copyright>
 
 #if UNITY_LOCALIZATION
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
+namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using System.Linq;

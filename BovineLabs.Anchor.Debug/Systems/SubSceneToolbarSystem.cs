@@ -3,11 +3,11 @@
 // </copyright>
 
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
+namespace BovineLabs.Anchor.Debug.Systems
 {
     using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
-    using BovineLabs.Anchor.Debug.ToolbarTabs.Views;
+    using BovineLabs.Anchor.Debug.ViewModels;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Core;
     using BovineLabs.Core.SubScenes;
     using Unity.Burst;

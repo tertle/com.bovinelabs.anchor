@@ -3,9 +3,9 @@
 // </copyright>
 
 #if UNITY_ENTITIES
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
+namespace BovineLabs.Anchor.Debug.Views
 {
-    using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
+    using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Toolbar;
     using UnityEngine.UIElements;
 

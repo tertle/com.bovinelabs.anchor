@@ -3,10 +3,10 @@
 // </copyright>
 
 #if UNITY_ENTITIES
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
+namespace BovineLabs.Anchor.Debug.Systems
 {
-    using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
-    using BovineLabs.Anchor.Debug.ToolbarTabs.Views;
+    using BovineLabs.Anchor.Debug.ViewModels;
+    using BovineLabs.Anchor.Debug.Views;
     using Unity.Burst;
     using Unity.Entities;
 

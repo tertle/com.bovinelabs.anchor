@@ -2,12 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
+namespace BovineLabs.Anchor.Debug.Views
 {
-    using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
+    using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Toolbar;
     using Unity.Properties;
-    using UnityEngine;
     using UnityEngine.UIElements;
     using KeyValueElement = BovineLabs.Anchor.Toolbar.KeyValueElement;
 

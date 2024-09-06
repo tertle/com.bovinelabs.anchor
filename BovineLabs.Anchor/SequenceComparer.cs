@@ -7,6 +7,12 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using Unity.AppUI.UI;
 
+    public static class SequenceComparer
+    {
+        public static readonly SequenceComparer<int> Int = new();
+        public static readonly SequenceComparer<float> Float = new();
+    }
+
     public class SequenceComparer<T> : EqualityComparer<IEnumerable<T>>
     {
         public override bool Equals(IEnumerable<T> x, IEnumerable<T> y)

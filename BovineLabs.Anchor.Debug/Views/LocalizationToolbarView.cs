@@ -3,10 +3,10 @@
 // </copyright>
 
 #if UNITY_LOCALIZATION
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
+namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor;
-    using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
+    using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.UI;
     using Unity.Properties;

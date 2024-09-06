@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
+namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Toolbar;
     using Unity.Collections;

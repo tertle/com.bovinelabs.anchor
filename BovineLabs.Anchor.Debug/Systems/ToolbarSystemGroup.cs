@@ -3,7 +3,7 @@
 // </copyright>
 
 #if UNITY_ENTITIES
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
+namespace BovineLabs.Anchor.Debug.Systems
 {
     using Unity.Entities;
 

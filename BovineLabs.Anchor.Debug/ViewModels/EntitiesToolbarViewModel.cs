@@ -3,7 +3,7 @@
 // </copyright>
 
 #if UNITY_ENTITIES
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
+namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Binding;
     using Unity.Burst;

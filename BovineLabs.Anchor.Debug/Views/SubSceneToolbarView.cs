@@ -3,10 +3,10 @@
 // </copyright>
 
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
+namespace BovineLabs.Anchor.Debug.Views
 {
     using System.ComponentModel;
-    using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
+    using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
@@ -22,10 +22,11 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
             {
                 dataSource = this.viewModel,
                 selectionType = PickerSelectionType.Multiple,
+                closeOnSelection = false,
                 defaultMessage = "SubScenes",
                 bindTitle = (item, _) => item.labelElement.text = "SubScenes",
+                bindItem = (item, i) => item.label = this.viewModel.SubScenes[i].ToString(),
             };
-            this.dropdown.bindItem = (item, i) => item.label = this.dropdown.sourceItems[i].ToString();
 
             this.dropdown.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
             {

@@ -1,0 +1,99 @@
+.unity-text-element {
+    /*font-size: 12px;*/
+}
+
+.unity-label {
+    margin: 0;
+    padding: 1px;
+}
+
+.bl-toolbar {
+    background-color: var(--appui-backgrounds-50);
+    --scroller-size: 4px;
+}
+
+.bl-toolbar__menu {
+    height: 24px;
+    flex-direction: row;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.bl-toolbar__button {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+}
+
+.bl-toolbar__menu-container {
+    flex-direction: row;
+}
+
+.bl-toolbar__show {
+    margin: 3px 0;
+}
+
+.bl-toolbar__show__icon {
+    width: 16px;
+    height: 16px;
+    --unity-image: var(--appui-icon-caret-up-regular);
+}
+
+.bl-toolbar__show__icon-hidden {
+    /*display: none;*/
+    --unity-image: var(--appui-icon-caret-down-regular);
+}
+
+.bl-toolbar__filter {
+    margin: 3px 3px 3px 3px;
+}
+
+.bl-toolbar__filter .appui-icon.appui-picker__caret {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    --unity-image: var(--appui-icon-menu-regular);
+}
+
+.bl-toolbar__menu-button {
+    padding-left: 12px;
+    padding-right: 12px;
+    margin: 0 1px;
+    border-radius: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    min-height: 24px;
+}
+
+.bl-toolbar-group {
+    padding: 1px;
+}
+
+.bl-toolbar-tab {
+    margin: 0 1px;
+    justify-content: space-between;
+    padding: 2px;
+    background-color: var(--appui-backgrounds-100);
+}
+
+.bl-toolbar-tab__name {
+    font-size: 9px;
+    margin: 0;
+    -unity-text-align: lower-center;
+    min-height: 16px;
+}
+
+.bl-key-value {
+    min-width: 100px;
+}
+
+.bl-key-value__key {
+    padding-right: 2px;
+    flex-grow: 1;
+}
+
+.bl-key-value__value {
+    -unity-text-align: middle-right;
+}

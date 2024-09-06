@@ -288,7 +288,6 @@ namespace BovineLabs.Anchor.Toolbar
                 dataSource = this.filterBind,
                 selectionType = PickerSelectionType.Multiple,
                 closeOnSelection = false,
-                emphasized = false,
                 defaultMessage = string.Empty,
                 bindTitle = (item, _) => item.labelElement.text = string.Empty,
             };

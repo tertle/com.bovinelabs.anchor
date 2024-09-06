@@ -3,7 +3,7 @@
 // </copyright>
 
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
-namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
+namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using BovineLabs.Anchor.Binding;
@@ -65,13 +65,10 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
                     foreach (var v in this.values)
                     {
                         this.data.Values.Add(v);
-                        this.data.SubSceneSelectedChanged = true;
                     }
                 }
             }
         }
-
-        public bool SubSceneSelectedChanged { get; set; }
 
         public struct Data : IBindingObjectNotifyData
         {
