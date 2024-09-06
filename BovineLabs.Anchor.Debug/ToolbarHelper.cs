@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
 namespace BovineLabs.Anchor.Debug
 {
     using System;
@@ -96,4 +95,3 @@ namespace BovineLabs.Anchor.Debug
         }
     }
 }
-#endif

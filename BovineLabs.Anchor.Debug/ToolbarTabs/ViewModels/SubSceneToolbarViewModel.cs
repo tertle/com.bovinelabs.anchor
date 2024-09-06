@@ -1,8 +1,8 @@
-﻿// <copyright file="SubSceneViewModel.cs" company="BovineLabs">
+﻿// <copyright file="SubSceneToolbarViewModel.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
+#if BL_CORE
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
     using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
     using Unity.Collections;
     using Unity.Properties;
 
-    public class SubSceneViewModel : BLObservableObject<SubSceneViewModel.Data>
+    public class SubSceneToolbarViewModel : BLObservableObject<SubSceneToolbarViewModel.Data>
     {
         private readonly List<string> subScenes = new();
         private readonly List<int> valuesCache = new();

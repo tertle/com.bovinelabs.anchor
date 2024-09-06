@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
 namespace BovineLabs.Anchor.Debug.ToolbarTabs
 {
     using BovineLabs.Core;
@@ -14,4 +13,3 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs
     {
     }
 }
-#endif

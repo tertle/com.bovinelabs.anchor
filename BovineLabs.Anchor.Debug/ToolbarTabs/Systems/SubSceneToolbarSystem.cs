@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR && !BL_DISABLE_SUBSCENE
+#if UNITY_ENTITIES && !BL_DISABLE_SUBSCENE
 namespace BovineLabs.Anchor.Debug.ToolbarTabs
 {
     using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
@@ -18,7 +18,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct SubSceneToolbarSystem : ISystem, ISystemStartStop
     {
-        private ToolbarHelper<SubSceneToolbarView, SubSceneViewModel, SubSceneViewModel.Data> toolbar;
+        private ToolbarHelper<SubSceneToolbarView, SubSceneToolbarViewModel, SubSceneToolbarViewModel.Data> toolbar;
 
         private NativeList<int> values;
         private NativeList<Entity> subScenes;
@@ -27,7 +27,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs
         /// <inheritdoc/>
         public void OnCreate(ref SystemState state)
         {
-            this.toolbar = new ToolbarHelper<SubSceneToolbarView, SubSceneViewModel, SubSceneViewModel.Data>(ref state, "SubScene");
+            this.toolbar = new ToolbarHelper<SubSceneToolbarView, SubSceneToolbarViewModel, SubSceneToolbarViewModel.Data>(ref state, "SubScene");
 
             this.values = new NativeList<int>(16, Allocator.Persistent);
             this.subScenes = new NativeList<Entity>(16, Allocator.Persistent);
@@ -127,14 +127,14 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs
             {
                 data.Values.Clear();
                 data.Values.AddRange(this.values.AsArray());
-                data.NotifyExplicit($"{nameof(SubSceneViewModel.Data.Values)}");
+                data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.Values)}");
             }
 
             if (!this.subScenesBuffer.AsArray().ArraysEqual(data.SubScenes.AsArray()))
             {
                 data.SubScenes.Clear();
                 data.SubScenes.AddRange(this.subScenesBuffer.AsArray());
-                data.NotifyExplicit($"{nameof(SubSceneViewModel.Data.SubScenes)}");
+                data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.SubScenes)}");
             }
         }
     }

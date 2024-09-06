@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
+#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
     using BovineLabs.Core.UI;

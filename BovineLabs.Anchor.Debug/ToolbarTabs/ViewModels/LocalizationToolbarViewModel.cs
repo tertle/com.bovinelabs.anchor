@@ -2,12 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR && UNITY_LOCALIZATION
-namespace BovineLabs.Core.ToolbarTabs.ViewModels
+#if UNITY_LOCALIZATION
+namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
     using System.Collections.Generic;
     using System.Linq;
-    using BovineLabs.Core.UI;
+    using BovineLabs.Anchor;
     using Unity.Properties;
     using UnityEngine.Localization;
     using UnityEngine.Localization.Settings;

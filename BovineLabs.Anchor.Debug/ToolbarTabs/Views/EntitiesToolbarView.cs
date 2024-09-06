@@ -2,12 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
+#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
 {
     using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
+    using BovineLabs.Anchor.Toolbar;
     using UnityEngine.UIElements;
-    using KeyValueElement = BovineLabs.Anchor.Toolbar.KeyValueElement;
 
     public class EntitiesToolbarView : VisualElement, IView
     {

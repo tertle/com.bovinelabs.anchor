@@ -15,12 +15,14 @@
         "Unity.Entities.Graphics",
         "Unity.Entities.Hybrid",
         "Unity.InputSystem",
+        "Unity.Localization",
         "Unity.Logging",
         "Unity.Mathematics",
         "Unity.Mathematics.Extensions",
         "Unity.NetCode",
         "Unity.Networking.Transport",
         "Unity.Physics",
+        "Unity.ResourceManager",
         "Unity.Scenes",
         "Unity.Transforms"
     ],
@@ -33,6 +35,22 @@
     "defineConstraints": [
         "UNITY_EDITOR || BL_DEBUG"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.entities",
+            "expression": "",
+            "define": "UNITY_ENTITIES"
+        },
+        {
+            "name": "com.unity.localization",
+            "expression": "",
+            "define": "UNITY_LOCALIZATION"
+        },
+        {
+            "name": "com.bovinelabs.core",
+            "expression": "",
+            "define": "BL_CORE"
+        }
+    ],
     "noEngineReferences": false
 }

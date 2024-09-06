@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
     using Unity.Mathematics;
@@ -39,4 +38,3 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
         }
     }
 }
-#endif

@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR
+#if BL_CORE
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
 {
     using System.ComponentModel;
@@ -13,7 +13,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
 
     public class SubSceneToolbarView : VisualElement, IView
     {
-        private readonly SubSceneViewModel viewModel = new();
+        private readonly SubSceneToolbarViewModel viewModel = new();
         private readonly Dropdown dropdown;
 
         public SubSceneToolbarView()
@@ -30,10 +30,10 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
             this.dropdown.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
             {
                 bindingMode = BindingMode.ToTarget,
-                dataSourcePath = new PropertyPath(nameof(SubSceneViewModel.SubScenes)),
+                dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.SubScenes)),
             });
 
-            this.dropdown.SetBinding(nameof(Dropdown.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneViewModel.SubSceneSelected)) });
+            this.dropdown.SetBinding(nameof(Dropdown.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.SubSceneSelected)) });
             this.Add(this.dropdown);
 
             this.viewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
@@ -43,7 +43,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SubSceneViewModel.SubScenes))
+            if (e.PropertyName == nameof(SubSceneToolbarViewModel.SubScenes))
             {
                 this.dropdown.Refresh();
             }
