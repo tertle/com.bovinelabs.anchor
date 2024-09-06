@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE
+#if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
     using System.Collections.Generic;

@@ -3,13 +3,21 @@
 // </copyright>
 
 #if UNITY_ENTITIES
-namespace BovineLabs.Anchor.Debug.ToolbarTabs
+namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
 {
-    using BovineLabs.Core;
     using Unity.Entities;
 
-    [WorldSystemFilter(WorldSystemFilterFlags.Default | Worlds.Service)]
-    [UpdateInGroup(typeof(DebugSystemGroup))]
+#if BL_CORE
+    [WorldSystemFilter(WorldSystemFilterFlags.Default | BovineLabs.Core.Worlds.Service)]
+    [UpdateInGroup(typeof(BovineLabs.Core.DebugSystemGroup))]
+#else
+    using WorldFlag = Unity.Entities.WorldSystemFilterFlags;
+
+    [UpdateInGroup(typeof(PresentationSystemGroup))]
+    [WorldSystemFilter(
+        WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation | WorldFlag.Editor,
+        WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation)]
+#endif
     public partial class ToolbarSystemGroup : ComponentSystemGroup
     {
     }

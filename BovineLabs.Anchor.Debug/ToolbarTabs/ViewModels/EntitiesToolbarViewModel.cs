@@ -5,7 +5,7 @@
 #if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
-    using BovineLabs.Core.UI;
+    using BovineLabs.Anchor.Binding;
     using Unity.Burst;
     using Unity.Properties;
 
