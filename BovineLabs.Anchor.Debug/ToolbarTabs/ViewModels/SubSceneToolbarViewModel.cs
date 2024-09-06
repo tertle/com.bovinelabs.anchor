@@ -6,8 +6,8 @@
 namespace BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels
 {
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Binding;
     using BovineLabs.Core.Extensions;
-    using BovineLabs.Core.UI;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Properties;

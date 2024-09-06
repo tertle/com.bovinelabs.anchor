@@ -8,7 +8,6 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
     using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;
     using BovineLabs.Anchor.Debug.ToolbarTabs.Views;
     using Unity.Burst;
-    using Unity.Collections;
     using Unity.Entities;
 
     /// <summary> The toolbar for monitoring the number of entities, chunks and archetypes of a world. </summary>
@@ -18,7 +17,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
         private ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> toolbar;
 
 #if !BL_CORE
-        private NativeList<EntityArchetype> entityArchetypes;
+        private Unity.Collections.NativeList<EntityArchetype> entityArchetypes;
 #endif
 
         /// <inheritdoc/>
@@ -27,7 +26,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
             this.toolbar = new ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
 
 #if !BL_CORE
-            this.entityArchetypes = new NativeList<EntityArchetype>(1024, Allocator.Persistent);
+            this.entityArchetypes = new Unity.Collections.NativeList<EntityArchetype>(1024, Unity.Collections.Allocator.Persistent);
 #endif
         }
 
@@ -61,7 +60,7 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Systems
             ref var data = ref this.toolbar.Binding;
             data.Entities = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
 #if BL_CORE
-            data.Archetypes = BovineLabs.Core.Extensions.NumberOfArchetype(state.EntityManager);
+            data.Archetypes = Core.Extensions.EntityManagerExtensions.NumberOfArchetype(state.EntityManager);
 #else
             this.entityArchetypes.Clear();
             state.EntityManager.GetAllArchetypes(this.entityArchetypes);
