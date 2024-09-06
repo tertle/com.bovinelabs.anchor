@@ -28,8 +28,6 @@ namespace BovineLabs.Anchor.Debug.ToolbarTabs.Views
             this.Add(KeyValueElement.Create(this.viewModel, fpsConverter, "Max", nameof(FPSToolbarViewModel.MaxFPS)));
 
             this.schedule.Execute(this.viewModel.Update).Every(1);
-
-            Debug.Log("Setup");
         }
 
         object IView.ViewModel => this.viewModel;

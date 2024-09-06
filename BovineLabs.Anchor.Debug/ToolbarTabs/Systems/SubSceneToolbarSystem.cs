@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES && !BL_DISABLE_SUBSCENE
+#if UNITY_ENTITIES && BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
 namespace BovineLabs.Anchor.Debug.ToolbarTabs
 {
     using BovineLabs.Anchor.Debug.ToolbarTabs.ViewModels;

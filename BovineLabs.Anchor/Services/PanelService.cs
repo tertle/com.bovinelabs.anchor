@@ -2,12 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Services
+namespace BovineLabs.Anchor
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using BovineLabs.Core.Utility;
     using UnityEngine;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;

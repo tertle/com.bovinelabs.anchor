@@ -9,10 +9,7 @@ namespace BovineLabs.Anchor.Toolbar
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using BovineLabs.Anchor.Services;
-    using BovineLabs.Core.ConfigVars;
-    using BovineLabs.Core.UI;
-    using BovineLabs.Core.Utility;
+    using BovineLabs.Anchor.Binding;
     using Unity.AppUI.UI;
     using Unity.Burst;
     using Unity.Collections;
@@ -35,7 +32,6 @@ namespace BovineLabs.Anchor.Toolbar
     }
 
     [Preserve]
-    [Configurable]
     public class ToolbarView : VisualElement, IViewRoot
     {
         public const float DefaultUpdateRate = 1 / 4f;
@@ -65,8 +61,8 @@ namespace BovineLabs.Anchor.Toolbar
 
         public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
-        [ConfigVar("debug.toolbar", true, "Should the toolbar be hidden", true)]
-        private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
+        // [ConfigVar("debug.toolbar", false, "Should the toolbar be hidden", true)]
+        private static readonly SharedStatic<bool> Hide = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
@@ -108,7 +104,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.uiHeight = Screen.height; // TODO
 
-            if (!Show.Data)
+            if (Hide.Data)
             {
                 this.style.display = DisplayStyle.None;
             }
@@ -486,7 +482,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             public event EventHandler<BindablePropertyChangedEventArgs> propertyChanged;
 
-            public event EventHandler<FilterBind, (IReadOnlyList<int> Added, IReadOnlyList<int> Removed)> ValueChanged;
+            public event Action<FilterBind, (IReadOnlyList<int> Added, IReadOnlyList<int> Removed)> ValueChanged;
 
             public event Action<FilterBind> SourceChanged;
 

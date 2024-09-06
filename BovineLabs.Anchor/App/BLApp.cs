@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.Linq;
-    using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using UnityEngine.Scripting;

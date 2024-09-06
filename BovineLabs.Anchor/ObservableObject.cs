@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.ComponentModel;
-    using BovineLabs.Core.UI;
+    using BovineLabs.Anchor.Binding;
     using Unity.Collections;
     using UnityEngine.UIElements;
 

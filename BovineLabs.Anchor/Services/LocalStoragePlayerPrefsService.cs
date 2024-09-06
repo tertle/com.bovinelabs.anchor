@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Services
+namespace BovineLabs.Anchor
 {
     using System;
     using UnityEngine;

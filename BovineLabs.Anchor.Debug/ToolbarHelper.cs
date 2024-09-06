@@ -6,11 +6,10 @@ namespace BovineLabs.Anchor.Debug
 {
     using System;
     using System.Runtime.InteropServices;
+    using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Toolbar;
-    using BovineLabs.Core.UI;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
-    using Unity.Entities;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -36,10 +35,12 @@ namespace BovineLabs.Anchor.Debug
             this.key = 0;
         }
 
-        public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
+#if UNITY_ENTITIES
+        public ToolbarHelper(ref Unity.Entities.SystemState state, FixedString32Bytes groupName)
             : this(FormatWorld(state.World), groupName)
         {
         }
+#endif
 
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
@@ -88,10 +89,12 @@ namespace BovineLabs.Anchor.Debug
             return (T)ToolbarView.Instance.GetPanel(this.key);
         }
 
-        private static string FormatWorld(World world)
+#if UNITY_ENTITIES
+        private static string FormatWorld(Unity.Entities.World world)
         {
             var name = world.Name;
             return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
         }
+#endif
     }
 }
