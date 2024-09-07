@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Unity.AppUI.MVVM;
+    using Unity.AppUI.UI;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -72,7 +73,7 @@ namespace BovineLabs.Anchor
         protected virtual void RegisterViews(IServiceCollection services)
         {
             // Register all views
-            foreach (var view in ReflectionUtility.GetAllImplementations<IView>())
+            foreach (var view in Utility.GetAllImplementations<IView>())
             {
                 if (!typeof(VisualElement).IsAssignableFrom(view))
                 {
@@ -84,7 +85,7 @@ namespace BovineLabs.Anchor
             }
 
             // Register all view models
-            foreach (var viewModels in ReflectionUtility.GetAllImplementations<IViewModel>())
+            foreach (var viewModels in Utility.GetAllImplementations<IViewModel>())
             {
                 services.AddTransient(viewModels);
             }
@@ -100,6 +101,8 @@ namespace BovineLabs.Anchor
             }
 
             this.serviceCollection = new AppUIServiceCollection();
+            this.serviceCollection.AddSingleton<Panel>();
+
             var serviceProvider = new BlServiceProvider(this.serviceCollection);
 
             serviceProvider.AddServiceInstance<IServiceProvider, BlServiceProvider>(serviceProvider);

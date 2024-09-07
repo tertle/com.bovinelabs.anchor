@@ -14,9 +14,10 @@ namespace BovineLabs.Anchor
     [Preserve]
     public class BLApp : App
     {
-        public BLApp(IServiceProvider serviceProvider, IPanelService panelService)
+        public BLApp(Panel panel, IServiceProvider serviceProvider, IPanelService panelService)
         {
-            this.Panel = new Panel();
+            this.Panel = panel;
+
             foreach (var view in panelService.Panels.OrderBy(r => r.Priority))
             {
                 this.Panel.Add((VisualElement)view);

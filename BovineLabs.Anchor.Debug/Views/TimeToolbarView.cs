@@ -41,8 +41,8 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(timescale);
 
             TypeConverter<long, string> timeConverter = (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
-            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Real Time", nameof(TimeToolbarViewModel.UnscaledSeconds), BindingUpdateTrigger.EveryUpdate));
-            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Scaled Time", nameof(TimeToolbarViewModel.Seconds), BindingUpdateTrigger.EveryUpdate));
+            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Real", nameof(TimeToolbarViewModel.UnscaledSeconds), BindingUpdateTrigger.EveryUpdate));
+            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Scaled", nameof(TimeToolbarViewModel.Seconds), BindingUpdateTrigger.EveryUpdate));
 
             this.schedule.Execute(this.viewModel.Update).Every(1);
         }
