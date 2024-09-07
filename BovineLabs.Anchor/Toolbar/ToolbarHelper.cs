@@ -2,12 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Debug
+namespace BovineLabs.Anchor.Toolbar
 {
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.Toolbar;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using UnityEngine;

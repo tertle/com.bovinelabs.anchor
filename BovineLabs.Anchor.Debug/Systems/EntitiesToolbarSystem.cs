@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Debug.Systems
 {
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
+    using BovineLabs.Anchor.Toolbar;
     using Unity.Burst;
     using Unity.Entities;
 

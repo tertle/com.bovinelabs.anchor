@@ -5,6 +5,7 @@
         "BovineLabs.Anchor",
         "BovineLabs.Core",
         "BovineLabs.Core.Extensions",
+        "BovineLabs.Draw.Debug",
         "Unity.AppUI",
         "Unity.AppUI.MVVM",
         "Unity.AppUI.Navigation",
@@ -37,6 +38,16 @@
     ],
     "versionDefines": [
         {
+            "name": "com.bovinelabs.core",
+            "expression": "",
+            "define": "BL_CORE"
+        },
+        {
+            "name": "com.bovinelabs.draw",
+            "expression": "",
+            "define": "BL_DRAW"
+        },
+        {
             "name": "com.unity.entities",
             "expression": "",
             "define": "UNITY_ENTITIES"
@@ -47,9 +58,9 @@
             "define": "UNITY_LOCALIZATION"
         },
         {
-            "name": "com.bovinelabs.core",
+            "name": "com.unity.modules.physics",
             "expression": "",
-            "define": "BL_CORE"
+            "define": "UNITY_PHYSICS"
         }
     ],
     "noEngineReferences": false

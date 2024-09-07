@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_TOOLBAR && (BL_DEBUG || UNITY_EDITOR)
+#if BL_DEBUG || UNITY_EDITOR
 namespace BovineLabs.Anchor.Toolbar
 {
     using System.Collections.Generic;

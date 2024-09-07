@@ -3,13 +3,13 @@
 // </copyright>
 
 #if UNITY_ENTITIES
-namespace BovineLabs.Anchor.Debug.Systems
+namespace BovineLabs.Anchor.Toolbar
 {
     using Unity.Entities;
 
 #if BL_CORE
-    [WorldSystemFilter(WorldSystemFilterFlags.Default | BovineLabs.Core.Worlds.Service)]
-    [UpdateInGroup(typeof(BovineLabs.Core.DebugSystemGroup))]
+    [WorldSystemFilter(WorldSystemFilterFlags.Default | Core.Worlds.Service)]
+    [UpdateInGroup(typeof(Core.DebugSystemGroup))]
 #else
     using WorldFlag = Unity.Entities.WorldSystemFilterFlags;
 

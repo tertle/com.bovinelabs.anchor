@@ -17,8 +17,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private readonly List<string> subScenes = new();
         private readonly List<int> valuesCache = new();
 
-        private static readonly SequenceComparer<int> SelectedComparer = new();
-
         private IEnumerable<int> values = new List<int>();
         private Data data;
 
@@ -59,7 +57,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             set
             {
-                if (this.SetProperty(ref this.values, value, SelectedComparer))
+                if (this.SetProperty(ref this.values, value, SequenceComparer.Int))
                 {
                     this.data.Values.Clear();
                     foreach (var v in this.values)

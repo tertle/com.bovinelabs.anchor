@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
+    using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core;
     using BovineLabs.Core.SubScenes;
     using Unity.Burst;
