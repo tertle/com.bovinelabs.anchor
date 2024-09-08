@@ -26,7 +26,6 @@ namespace BovineLabs.Anchor.Debug.Views
                 closeOnSelection = false,
                 defaultMessage = "SubScenes",
                 bindTitle = (item, _) => item.labelElement.text = "SubScenes",
-                bindItem = (item, i) => item.label = this.viewModel.SubScenes[i].ToString(),
             };
 
             this.dropdown.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -35,7 +34,12 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.SubScenes)),
             });
 
-            this.dropdown.SetBinding(nameof(Dropdown.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.SubSceneSelected)) });
+            this.dropdown.SetBinding(
+                nameof(Dropdown.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.SubSceneValues)) });
+
+            this.dropdown.SetBinding(
+                nameof(Dropdown.bindItem), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.BindItem)) });
+
             this.Add(this.dropdown);
 
             this.viewModel.PropertyChanged += this.ViewModelOnPropertyChanged;

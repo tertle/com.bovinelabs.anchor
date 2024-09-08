@@ -61,7 +61,7 @@ namespace BovineLabs.Anchor.Debug.Systems
             ref var data = ref this.toolbar.Binding;
             data.Entities = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
 #if BL_CORE
-            data.Archetypes = Core.Extensions.EntityManagerExtensions.NumberOfArchetype(state.EntityManager);
+            data.Archetypes = BovineLabs.Core.Extensions.EntityManagerExtensions.NumberOfArchetype(state.EntityManager);
 #else
             this.entityArchetypes.Clear();
             state.EntityManager.GetAllArchetypes(this.entityArchetypes);

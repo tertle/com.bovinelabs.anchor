@@ -73,7 +73,7 @@ namespace BovineLabs.Anchor
         protected virtual void RegisterViews(IServiceCollection services)
         {
             // Register all views
-            foreach (var view in Utility.GetAllImplementations<IView>())
+            foreach (var view in Core.GetAllImplementations<IView>())
             {
                 if (!typeof(VisualElement).IsAssignableFrom(view))
                 {
@@ -85,7 +85,7 @@ namespace BovineLabs.Anchor
             }
 
             // Register all view models
-            foreach (var viewModels in Utility.GetAllImplementations<IViewModel>())
+            foreach (var viewModels in Core.GetAllImplementations<IViewModel>())
             {
                 services.AddTransient(viewModels);
             }

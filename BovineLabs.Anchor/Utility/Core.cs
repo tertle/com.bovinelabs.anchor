@@ -12,7 +12,7 @@ namespace BovineLabs.Anchor
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
-    internal static class Utility
+    internal static class Core
     {
         /// <summary> Searches all assemblies to find all types that implement a type. </summary>
         /// <typeparam name="T"> The base type that is inherited from. </typeparam>

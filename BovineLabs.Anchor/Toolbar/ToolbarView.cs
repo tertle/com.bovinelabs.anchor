@@ -112,7 +112,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
 
-            foreach (var t in Utility.GetAllWithAttribute<AutoToolbarAttribute>())
+            foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
             {
                 var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
                 var tabName = attr.TabName ?? "Service";

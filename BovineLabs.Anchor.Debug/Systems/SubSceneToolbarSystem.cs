@@ -9,12 +9,11 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;
-    using BovineLabs.Core;
     using BovineLabs.Core.SubScenes;
+    using BovineLabs.Core.Utility;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Entities;
-    using Unity.Scenes;
 
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct SubSceneToolbarSystem : ISystem, ISystemStartStop
@@ -22,8 +21,7 @@ namespace BovineLabs.Anchor.Debug.Systems
         private ToolbarHelper<SubSceneToolbarView, SubSceneToolbarViewModel, SubSceneToolbarViewModel.Data> toolbar;
 
         private NativeList<int> values;
-        private NativeList<Entity> subScenes;
-        private NativeList<FixedString64Bytes> subScenesBuffer;
+        private NativeList<SubSceneToolbarViewModel.Data.SubSceneName> subScenesBuffer;
 
         /// <inheritdoc/>
         public void OnCreate(ref SystemState state)
@@ -31,15 +29,13 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.toolbar = new ToolbarHelper<SubSceneToolbarView, SubSceneToolbarViewModel, SubSceneToolbarViewModel.Data>(ref state, "SubScene");
 
             this.values = new NativeList<int>(16, Allocator.Persistent);
-            this.subScenes = new NativeList<Entity>(16, Allocator.Persistent);
-            this.subScenesBuffer = new NativeList<FixedString64Bytes>(Allocator.Persistent);
+            this.subScenesBuffer = new NativeList<SubSceneToolbarViewModel.Data.SubSceneName>(Allocator.Persistent);
         }
 
         /// <inheritdoc/>
         public void OnDestroy(ref SystemState state)
         {
             this.values.Dispose();
-            this.subScenes.Dispose();
             this.subScenesBuffer.Dispose();
         }
 
@@ -49,8 +45,8 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.toolbar.Load();
             ref var data = ref this.toolbar.Binding;
 
-            data.SubScenes = new NativeList<FixedString64Bytes>(Allocator.Persistent);
-            data.Values = new NativeList<int>(Allocator.Persistent);
+            data.SubScenes = new NativeList<SubSceneToolbarViewModel.Data.SubSceneName>(Allocator.Persistent);
+            data.SubSceneValues = new NativeList<int>(Allocator.Persistent);
         }
 
         /// <inheritdoc/>
@@ -58,7 +54,7 @@ namespace BovineLabs.Anchor.Debug.Systems
         {
             ref var data = ref this.toolbar.Binding;
             data.SubScenes.Dispose();
-            data.Values.Dispose();
+            data.SubSceneValues.Dispose();
             this.toolbar.Unload();
         }
 
@@ -71,71 +67,75 @@ namespace BovineLabs.Anchor.Debug.Systems
                 return;
             }
 
-            this.values.Clear();
-            this.subScenesBuffer.Clear();
-            this.subScenes.Clear();
-
-            foreach (var (_, e) in SystemAPI.Query<RefRO<SceneReference>>().WithEntityAccess())
-            {
-                var index = this.subScenes.Length;
-                this.subScenes.Add(e);
-
-                state.EntityManager.GetName(e, out var name);
-                if (name == default)
-                {
-                    name = e.ToFixedString();
-                }
-
-                this.subScenesBuffer.Add(name);
-
-                var loaded = SceneSystem.IsSceneLoaded(state.WorldUnmanaged, e);
-                if (loaded)
-                {
-                    this.values.Add(index);
-                }
-            }
-
             ref var data = ref this.toolbar.Binding;
 
             if (data.SubSceneSelectedChanged)
             {
                 data.SubSceneSelectedChanged = false;
-                var ecb = SystemAPI.GetSingleton<InstantiateCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-                var resolvedSectionEntities = SystemAPI.GetBufferLookup<ResolvedSectionEntity>(true);
 
-                for (var index = 0; index < this.subScenes.Length; index++)
+                for (var index = 0; index < data.SubScenes.Length; index++)
                 {
-                    var entity = this.subScenes[index];
-                    var isOpen = this.values.Contains(index);
+                    var subScene = data.SubScenes[index];
+                    var isOpen = data.SubSceneValues.Contains(index);
+                    var isCurrentlyOpen = SubSceneUtility.IsLoading(ref state, subScene.Entity);
 
-                    if (isOpen == SceneSystem.IsSceneLoaded(state.WorldUnmanaged, entity))
+                    if (isOpen == isCurrentlyOpen)
                     {
                         continue;
                     }
 
                     if (isOpen)
                     {
-                        SubSceneUtil.LoadScene(ecb, entity, ref resolvedSectionEntities);
+                        SubSceneUtility.OpenScene(ref state, subScene.Entity);
                     }
                     else
                     {
-                        SubSceneUtil.UnloadScene(ecb, entity, ref resolvedSectionEntities);
+                        SubSceneUtility.CloseScene(ref state, subScene.Entity);
                     }
                 }
             }
 
-            if (!this.values.AsArray().ArraysEqual(data.Values.AsArray()))
+            this.values.Clear();
+            this.subScenesBuffer.Clear();
+
+            foreach (var (_, e) in SystemAPI.Query<RefRO<SceneReference>>().WithNone<RequiredSubScene>().WithEntityAccess())
             {
-                data.Values.Clear();
-                data.Values.AddRange(this.values.AsArray());
-                data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.Values)}");
+                state.EntityManager.GetName(e, out var name);
+                if (name == default)
+                {
+                    name = e.ToFixedString();
+                }
+
+                this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = e, Name = name });
             }
+
+            this.subScenesBuffer.Sort();
+
+            for (var index = 0; index < this.subScenesBuffer.Length; index++)
+            {
+                var loaded = SubSceneUtility.IsLoading(ref state, this.subScenesBuffer[index].Entity);
+                if (loaded)
+                {
+                    this.values.Add(index);
+                }
+            }
+
+            var listChanged = !this.subScenesBuffer.AsArray().ArraysEqual(data.SubScenes.AsArray());
+            var valuesChanged = !this.values.AsArray().ArraysEqual(data.SubSceneValues.AsArray());
 
             if (!this.subScenesBuffer.AsArray().ArraysEqual(data.SubScenes.AsArray()))
             {
+                data.IgnoreValueUpdate = true;
                 data.SubScenes.Clear();
                 data.SubScenes.AddRange(this.subScenesBuffer.AsArray());
                 data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.SubScenes)}");
+            }
+
+            if (listChanged || valuesChanged)
+            {
+                data.SubSceneValues.Clear();
+                data.SubSceneValues.AddRange(this.values.AsArray());
+                data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.SubSceneValues)}");
             }
         }
     }

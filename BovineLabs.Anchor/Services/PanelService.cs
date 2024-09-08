@@ -21,7 +21,7 @@ namespace BovineLabs.Anchor
     {
         public PanelService(IServiceProvider services)
         {
-            var roots = Utility.GetAllImplementations<IViewRoot>().ToArray();
+            var roots = Core.GetAllImplementations<IViewRoot>().ToArray();
 
             var viewRoots = new List<IViewRoot>(roots.Length);
 
