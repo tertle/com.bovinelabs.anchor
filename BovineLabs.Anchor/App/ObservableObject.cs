@@ -7,10 +7,11 @@ namespace BovineLabs.Anchor
     using System;
     using System.ComponentModel;
     using BovineLabs.Anchor.Binding;
+    using Unity.AppUI.MVVM;
     using Unity.Collections;
     using UnityEngine.UIElements;
 
-    public abstract class BLObservableObject : Unity.AppUI.MVVM.ObservableObject, INotifyBindablePropertyChanged
+    public abstract class BLObservableObject : ObservableObject, INotifyBindablePropertyChanged
     {
         private event EventHandler<BindablePropertyChangedEventArgs> PropertyChangedInternal;
 

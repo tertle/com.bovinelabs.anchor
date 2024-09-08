@@ -2,6 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if BL_DEBUG || UNITY_EDITOR
 #if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Toolbar
 {
@@ -22,4 +23,5 @@ namespace BovineLabs.Anchor.Toolbar
     {
     }
 }
+#endif
 #endif

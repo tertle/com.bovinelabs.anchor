@@ -6,8 +6,10 @@
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
+    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Toolbar;
     using UnityEngine.UIElements;
+    using KeyValueElement = BovineLabs.Anchor.Elements.KeyValueElement;
 
     public class EntitiesToolbarView : VisualElement, IView
     {
@@ -15,9 +17,12 @@ namespace BovineLabs.Anchor.Debug.Views
 
         public EntitiesToolbarView()
         {
-            this.Add(KeyValueElement.Create(this.viewModel, "Entities", nameof(EntitiesToolbarViewModel.Entities)));
-            this.Add(KeyValueElement.Create(this.viewModel, "Archetypes", nameof(EntitiesToolbarViewModel.Archetypes)));
-            this.Add(KeyValueElement.Create(this.viewModel, "Chunks", nameof(EntitiesToolbarViewModel.Chunks)));
+            this.Add(KeyValueGroup.Create(this.viewModel, new[]
+            {
+                ("Entities", nameof(EntitiesToolbarViewModel.Entities)),
+                ("Archetypes", nameof(EntitiesToolbarViewModel.Archetypes)),
+                ("Chunks", nameof(EntitiesToolbarViewModel.Chunks)),
+            }));
         }
 
         object IView.ViewModel => this.viewModel;

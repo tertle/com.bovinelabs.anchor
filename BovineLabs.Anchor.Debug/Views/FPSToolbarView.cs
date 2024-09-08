@@ -4,11 +4,13 @@
 
 namespace BovineLabs.Anchor.Debug.Views
 {
+    using System;
     using BovineLabs.Anchor.Debug.ViewModels;
+    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Toolbar;
+    using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
-    using KeyValueElement = BovineLabs.Anchor.Toolbar.KeyValueElement;
 
     [AutoToolbar("FPS")]
     public class FPSToolbarView : VisualElement, IView
@@ -20,11 +22,14 @@ namespace BovineLabs.Anchor.Debug.Views
             TypeConverter<int, string> fpsConverter = (ref int value) => $"{value} fps";
             TypeConverter<float, string> timeConverter = (ref float value) => $"{value:0.0} ms";
 
-            this.Add(KeyValueElement.Create(this.viewModel, fpsConverter, "Current", nameof(FPSToolbarViewModel.CurrentFPS)));
-            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Frame", nameof(FPSToolbarViewModel.FrameTime)));
-            this.Add(KeyValueElement.Create(this.viewModel, fpsConverter, "Average", nameof(FPSToolbarViewModel.AverageFPS)));
-            this.Add(KeyValueElement.Create(this.viewModel, fpsConverter, "Min", nameof(FPSToolbarViewModel.MinFPS)));
-            this.Add(KeyValueElement.Create(this.viewModel, fpsConverter, "Max", nameof(FPSToolbarViewModel.MaxFPS)));
+            this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
+            {
+                ("FPS", nameof(FPSToolbarViewModel.CurrentFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
+                ("Frame", nameof(FPSToolbarViewModel.FrameTime), db => db.sourceToUiConverters.AddConverter(timeConverter)),
+                ("Average", nameof(FPSToolbarViewModel.AverageFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
+                ("Min", nameof(FPSToolbarViewModel.MinFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
+                ("Max", nameof(FPSToolbarViewModel.MaxFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
+            }));
 
             this.schedule.Execute(this.viewModel.Update).Every(1);
         }

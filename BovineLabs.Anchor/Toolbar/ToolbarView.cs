@@ -70,6 +70,7 @@ namespace BovineLabs.Anchor.Toolbar
         private readonly IServiceProvider serviceProvider;
         private readonly ToolbarViewModel viewModel;
         private readonly VisualElement menuContainer;
+        private readonly Dropdown filterButton;
         private readonly Button showButton;
 
         private Panel appPanel;
@@ -92,13 +93,13 @@ namespace BovineLabs.Anchor.Toolbar
             menu.AddToClassList(MenuUssClassName);
 
             this.showButton = this.CreateShowButton();
-            var filterButton = this.CreateFilterButton();
+            this.filterButton = this.CreateFilterButton();
 
             this.menuContainer = new VisualElement();
             this.menuContainer.AddToClassList(MenuContainerUssClassName);
 
             menu.Add(this.showButton);
-            menu.Add(filterButton);
+            menu.Add(this.filterButton);
             menu.Add(this.menuContainer);
 
             this.Add(menu);
@@ -111,6 +112,7 @@ namespace BovineLabs.Anchor.Toolbar
             }
 
             this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
+            this.viewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
 
             foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
             {
@@ -120,8 +122,6 @@ namespace BovineLabs.Anchor.Toolbar
             }
 
             this.SetDefaultGroup();
-
-            this.viewModel.PropertyChanged += ViewModelOnPropertyChanged;
         }
 
         public static ToolbarView Instance { get; private set; }
@@ -321,20 +321,18 @@ namespace BovineLabs.Anchor.Toolbar
             var dropdown = new Dropdown
             {
                 dataSource = this.viewModel,
+                sourceItems = this.viewModel.FilterItems,
                 selectionType = PickerSelectionType.Multiple,
                 closeOnSelection = false,
                 defaultMessage = string.Empty,
                 bindTitle = (item, _) => item.labelElement.text = string.Empty,
                 bindItem = (item, i) => item.label = this.viewModel.FilterItems[i],
+                value = this.viewModel.FilterValues,
             };
 
-            dropdown.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
-            {
-                bindingMode = BindingMode.ToTarget,
-                dataSourcePath = new PropertyPath(nameof(ToolbarViewModel.FilterItems)),
-            });
             dropdown.SetBinding(nameof(Dropdown.value), new DataBinding
             {
+                bindingMode = BindingMode.ToSource,
                 dataSourcePath = new PropertyPath(nameof(ToolbarViewModel.FilterValues)),
             });
 
@@ -461,7 +459,12 @@ namespace BovineLabs.Anchor.Toolbar
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ToolbarViewModel.FilterValues))
+            if (e.PropertyName == nameof(ToolbarViewModel.FilterItems))
+            {
+                this.filterButton.value = this.viewModel.FilterValues;
+                this.filterButton.Refresh();
+            }
+            else if (e.PropertyName == nameof(ToolbarViewModel.FilterValues))
             {
                 foreach (var tabGroup in this.toolbarTabs.ToArray())
                 {

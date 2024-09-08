@@ -7,13 +7,13 @@ namespace BovineLabs.Anchor.Debug.Views
     using System;
     using System.Text;
     using BovineLabs.Anchor.Debug.ViewModels;
+    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.UIElements;
     using FloatField = Unity.AppUI.UI.FloatField;
-    using KeyValueElement = BovineLabs.Anchor.Toolbar.KeyValueElement;
 
     [AutoToolbar("Time")]
     public class TimeToolbarView : VisualElement, IView
@@ -41,8 +41,12 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(timescale);
 
             TypeConverter<long, string> timeConverter = (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
-            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Real", nameof(TimeToolbarViewModel.UnscaledSeconds), BindingUpdateTrigger.EveryUpdate));
-            this.Add(KeyValueElement.Create(this.viewModel, timeConverter, "Scaled", nameof(TimeToolbarViewModel.Seconds), BindingUpdateTrigger.EveryUpdate));
+            this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
+                {
+                    ("Allocated", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
+                    ("Reserved", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
+                },
+                BindingUpdateTrigger.EveryUpdate));
 
             this.schedule.Execute(this.viewModel.Update).Every(1);
         }

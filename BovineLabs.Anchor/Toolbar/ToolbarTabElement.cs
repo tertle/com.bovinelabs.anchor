@@ -5,6 +5,7 @@
 #if BL_DEBUG || UNITY_EDITOR
 namespace BovineLabs.Anchor.Toolbar
 {
+    using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
 
@@ -16,7 +17,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private readonly VisualElement content;
 
-        private readonly Label groupLabel;
+        private readonly Text groupLabel;
 
         public ToolbarTabElement(string label)
         {
@@ -25,7 +26,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.content = new VisualElement();
             this.hierarchy.Add(this.content);
 
-            this.groupLabel = new Label(label);
+            this.groupLabel = new Text(label);
             this.groupLabel.AddToClassList(NameClass);
             this.hierarchy.Add(this.groupLabel);
         }

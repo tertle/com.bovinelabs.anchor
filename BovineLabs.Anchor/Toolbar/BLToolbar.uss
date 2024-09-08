@@ -85,15 +85,15 @@
     min-height: 16px;
 }
 
-.bl-key-value {
-    min-width: 100px;
-}
+/*.bl-key-value {*/
+/*    min-width: 100px;*/
+/*}*/
 
-.bl-key-value__key {
-    padding-right: 2px;
-    flex-grow: 1;
-}
+/*.bl-key-value__key {*/
+/*    padding-right: 2px;*/
+/*    flex-grow: 1;*/
+/*}*/
 
-.bl-key-value__value {
-    -unity-text-align: middle-right;
-}
+/*.bl-key-value__value {*/
+/*    -unity-text-align: middle-right;*/
+/*}*/

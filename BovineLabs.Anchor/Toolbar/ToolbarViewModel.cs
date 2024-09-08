@@ -18,8 +18,8 @@ namespace BovineLabs.Anchor.Toolbar
         private readonly Dictionary<string, int> selectionsCount = new();
         private readonly HashSet<string> selectionsHidden = new();
         private readonly List<string> filterItems = new();
-        private readonly List<int> filterValuesCached = new();
-        private IEnumerable<int> filterValues = Array.Empty<int>();
+        private readonly List<int> filterValuesPrevious = new();
+        private readonly List<int> filterValues = new();
 
         public ToolbarViewModel(ILocalStorageService storageService)
         {
@@ -33,8 +33,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         public IReadOnlyCollection<string> SelectionsHidden => this.selectionsHidden;
 
-        [CreateProperty]
-        public List<string> FilterItems => this.filterItems.ToList();
+        public List<string> FilterItems => this.filterItems;
 
         [CreateProperty]
         public IEnumerable<int> FilterValues
@@ -42,26 +41,33 @@ namespace BovineLabs.Anchor.Toolbar
             get => this.filterValues;
             set
             {
-                this.SetProperty(this.filterValuesCached, value, SequenceComparer.Int, value =>
+                if (SequenceComparer.Int.Equals(this.filterValues, value))
                 {
-                    this.filterValues = value.ToArray();
+                    return;
+                }
 
-                    foreach (var oldValue in this.filterValuesCached.Where(oldValue => !this.filterValues.Contains(oldValue)))
-                    {
-                        this.selectionsHidden.Add(this.filterItems[oldValue]);
-                    }
+                this.OnPropertyChanging();
 
-                    foreach (var newValue in this.filterValues.Where(newValue => !this.filterValuesCached.Contains(newValue)))
-                    {
-                        this.selectionsHidden.Remove(this.filterItems[newValue]);
-                    }
+                this.filterValues.Clear();
+                this.filterValues.AddRange(value);
 
-                    var serializedString = string.Join(",", this.selectionsHidden);
-                    this.storageService.SetValue(SelectionKey, serializedString);
+                foreach (var oldValue in this.filterValuesPrevious.Where(oldValue => !this.filterValues.Contains(oldValue)))
+                {
+                    this.selectionsHidden.Add(this.filterItems[oldValue]);
+                }
 
-                    this.filterValuesCached.Clear();
-                    this.filterValuesCached.AddRange(this.filterValues);
-                });
+                foreach (var newValue in this.filterValues.Where(newValue => !this.filterValuesPrevious.Contains(newValue)))
+                {
+                    this.selectionsHidden.Remove(this.filterItems[newValue]);
+                }
+
+                var serializedString = string.Join(",", this.selectionsHidden);
+                this.storageService.SetValue(SelectionKey, serializedString);
+
+                this.filterValuesPrevious.Clear();
+                this.filterValuesPrevious.AddRange(this.filterValues);
+
+                this.OnPropertyChanged();
             }
         }
 
@@ -72,8 +78,8 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 this.filterItems.Add(filterName);
                 this.filterItems.Sort();
-                this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.FilterItems)));
-                this.UpdateValue();
+
+                this.RefreshItems();
             }
 
             this.selectionsCount[filterName] = count + 1;
@@ -91,8 +97,8 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 this.selectionsCount.Remove(filterName);
                 this.filterItems.Remove(filterName);
-                this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.FilterItems)));
-                this.UpdateValue();
+
+                this.RefreshItems();
             }
             else
             {
@@ -100,21 +106,24 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private void UpdateValue()
+        private void RefreshItems()
         {
-            this.filterValuesCached.Clear();
+            // Override the previous so that when tabs are removed it doesn't add them to hidden list thus avoiding disabling them
+            this.filterValuesPrevious.Clear();
 
             for (var index = 0; index < this.FilterItems.Count; index++)
             {
                 var filter = this.FilterItems[index];
                 if (!this.SelectionsHidden.Contains(filter))
                 {
-                    this.filterValuesCached.Add(index);
+                    this.filterValuesPrevious.Add(index);
                 }
             }
 
-            this.filterValues = this.filterValuesCached.ToArray();
-            this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.FilterValues)));
+            this.filterValues.Clear();
+            this.filterValues.AddRange(this.filterValuesPrevious);
+
+            this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.FilterItems)));
         }
     }
 }

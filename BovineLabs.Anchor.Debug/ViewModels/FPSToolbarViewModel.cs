@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using BovineLabs.Anchor.Toolbar;
     using Unity.Collections;
     using Unity.Properties;
+    using UnityEngine;
 
     public class FPSToolbarViewModel : BLObservableObject
     {
@@ -37,7 +38,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             {
                 if (this.SetProperty(ref this.currentFPS, value))
                 {
-                    this.FrameTime = this.CurrentFPS == 0 ? 0 : 1000f / this.CurrentFPS;
+                    this.FrameTime = this.currentFPS == 0 ? 0 : 1000f / this.currentFPS;
                 }
             }
         }
@@ -72,7 +73,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public void Update()
         {
-            var unscaledDeltaTime = UnityEngine.Time.unscaledDeltaTime;
+            var unscaledDeltaTime = Time.unscaledDeltaTime;
             this.timeToTriggerUpdatesPassed += unscaledDeltaTime;
 
             this.CalculateStatistics(unscaledDeltaTime);
