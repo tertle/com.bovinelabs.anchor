@@ -66,8 +66,8 @@ namespace BovineLabs.Anchor.Toolbar
         public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
 #if BL_CORE
-        [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", false, "Should the toolbar be hidden", true)]
-        private static readonly SharedStatic<bool> Hide = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
+        [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", false, "Should the toolbar be shown", true)]
+        private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
 #endif
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
@@ -111,11 +111,6 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.uiHeight = Screen.height; // TODO
 
-            if (Hide.Data)
-            {
-                this.style.display = DisplayStyle.None;
-            }
-
             this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
             this.viewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
 
@@ -127,6 +122,13 @@ namespace BovineLabs.Anchor.Toolbar
             }
 
             this.SetDefaultGroup();
+
+#if BL_CORE
+            if (!Show.Data)
+            {
+                this.style.display = DisplayStyle.None;
+            }
+#endif
         }
 
         public static ToolbarView Instance { get; private set; }
