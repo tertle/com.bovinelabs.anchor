@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Toolbar
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Binding;
@@ -66,8 +67,8 @@ namespace BovineLabs.Anchor.Toolbar
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
-        private readonly FilterBind filterBind;
         private readonly IServiceProvider serviceProvider;
+        private readonly ToolbarViewModel viewModel;
         private readonly VisualElement menuContainer;
         private readonly Button showButton;
 
@@ -78,13 +79,13 @@ namespace BovineLabs.Anchor.Toolbar
         private bool showRibbon;
         private int key;
 
-        public ToolbarView(IServiceProvider serviceProvider, ILocalStorageService storageService)
+        public ToolbarView(IServiceProvider serviceProvider, ToolbarViewModel viewModel)
         {
             Instance = this;
 
-            this.filterBind = new FilterBind(storageService);
-
             this.serviceProvider = serviceProvider;
+            this.viewModel = viewModel;
+
             this.AddToClassList(UssClassName);
 
             var menu = new VisualElement();
@@ -115,10 +116,12 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
                 var tabName = attr.TabName ?? "Service";
-                this.AddGroup(t, tabName, attr.ElementName, out _, out _);
+                this.AddTab(t, tabName, attr.ElementName, out _, out _);
             }
 
             this.SetDefaultGroup();
+
+            this.viewModel.PropertyChanged += ViewModelOnPropertyChanged;
         }
 
         public static ToolbarView Instance { get; private set; }
@@ -134,18 +137,23 @@ namespace BovineLabs.Anchor.Toolbar
             this.appPanel.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
         }
 
-        public void AddGroup<T>(string tabName, string groupName, out int id, out T view)
+        public void AddTab<T>(string tabName, string groupName, out int id, out T view)
             where T : VisualElement, IView
         {
-            this.AddGroup(typeof(T), tabName, groupName, out id, out var viewElement);
+            this.AddTab(typeof(T), tabName, groupName, out id, out var viewElement);
             view = (T)viewElement;
         }
 
-        public void AddGroup(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
+        public void AddTab(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
         {
             if (!typeof(VisualElement).IsAssignableFrom(viewType))
             {
                 throw new ArgumentException($"{viewType} is not a {nameof(VisualElement)}", nameof(viewType));
+            }
+
+            if (!typeof(IView).IsAssignableFrom(viewType))
+            {
+                throw new ArgumentException($"{viewType} is not a {nameof(IView)}", nameof(viewType));
             }
 
             id = ++this.key;
@@ -166,27 +174,49 @@ namespace BovineLabs.Anchor.Toolbar
             tab.Groups.Add(group);
             tab.Groups.Sort((t1, t2) => string.Compare(t1.Name, t2.Name, StringComparison.Ordinal));
 
-            this.filterBind.AddSelection(group.Name);
+            this.viewModel.AddSelection(group.Name);
 
-            if (!this.filterBind.SelectionsHidden.Contains(group.Name))
+            if (!this.viewModel.SelectionsHidden.Contains(group.Name))
             {
-                this.ShowGroup(group);
+                this.ShowTab(group);
+            }
+
+            var groupViewModel = ((IView)group.View).ViewModel;
+
+            if (groupViewModel is IBindingObject bindingObject)
+            {
+                bindingObject.Load();
             }
         }
 
-        public IBindingObject RemoveGroup(int id)
+        public void RemoveTab(int id)
         {
             if (!this.toolbarGroups.Remove(id, out var group))
             {
-                return null;
+                return;
             }
 
-            this.filterBind.RemoveSelection(group.Name);
+            this.viewModel.RemoveSelection(group.Name);
 
-            this.HideGroup(group);
+            this.HideTab(group);
             group.Group.Groups.Remove(group);
 
-            return ((IView)group.View).ViewModel as IBindingObject;
+            var groupViewModel = ((IView)group.View).ViewModel;
+
+            if (groupViewModel is IBindingObject bindingObject)
+            {
+                bindingObject.Unload();
+            }
+
+            if (group.View is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            if (groupViewModel is IDisposable vmDisposable)
+            {
+                vmDisposable.Dispose();
+            }
         }
 
         public VisualElement GetPanel(int id)
@@ -213,7 +243,7 @@ namespace BovineLabs.Anchor.Toolbar
             return 0;
         }
 
-        private void ShowGroup(ToolbarGroup.Tab tab)
+        private void ShowTab(ToolbarGroup.Tab tab)
         {
             // Already visible
             if (tab.Container.parent != null)
@@ -239,8 +269,13 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private void HideGroup(ToolbarGroup.Tab tab)
+        private void HideTab(ToolbarGroup.Tab tab)
         {
+            if (tab.Container.parent == null)
+            {
+                return;
+            }
+
             var group = tab.Group;
             tab.Container.RemoveFromHierarchy();
 
@@ -285,30 +320,26 @@ namespace BovineLabs.Anchor.Toolbar
         {
             var dropdown = new Dropdown
             {
-                dataSource = this.filterBind,
+                dataSource = this.viewModel,
                 selectionType = PickerSelectionType.Multiple,
                 closeOnSelection = false,
                 defaultMessage = string.Empty,
                 bindTitle = (item, _) => item.labelElement.text = string.Empty,
+                bindItem = (item, i) => item.label = this.viewModel.FilterItems[i],
             };
 
             dropdown.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
             {
                 bindingMode = BindingMode.ToTarget,
-                dataSourcePath = new PropertyPath(nameof(FilterBind.SourceItems)),
+                dataSourcePath = new PropertyPath(nameof(ToolbarViewModel.FilterItems)),
             });
-            dropdown.SetBinding(nameof(Dropdown.bindItem), new DataBinding
+            dropdown.SetBinding(nameof(Dropdown.value), new DataBinding
             {
-                bindingMode = BindingMode.ToTarget,
-                dataSourcePath = new PropertyPath(nameof(FilterBind.BindItem)),
+                dataSourcePath = new PropertyPath(nameof(ToolbarViewModel.FilterValues)),
             });
-            dropdown.SetBinding(nameof(Dropdown.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(FilterBind.Value)) });
 
             dropdown.AddToClassList(MenuButtonClassName);
             dropdown.AddToClassList(FilterUssClassName);
-
-            this.filterBind.ValueChanged += this.FilterBindOnValueChanged;
-            this.filterBind.SourceChanged += _ => dropdown.Refresh();
 
             return dropdown;
         }
@@ -428,163 +459,29 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private void FilterBindOnValueChanged(FilterBind sender, (IReadOnlyList<int> Added, IReadOnlyList<int> Removed) e)
+        private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            foreach (var added in e.Added)
+            if (e.PropertyName == nameof(ToolbarViewModel.FilterValues))
             {
-                var s = sender.SourceItems[added];
-                foreach (var g in this.toolbarTabs.SelectMany(t => t.Value.Groups.Where(g => g.Name == s)))
+                foreach (var tabGroup in this.toolbarTabs.ToArray())
                 {
-                    this.ShowGroup(g);
-                }
-            }
-
-            foreach (var removed in e.Removed)
-            {
-                var s = sender.SourceItems[removed];
-                foreach (var g in this.toolbarTabs.SelectMany(t => t.Value.Groups.Where(g => g.Name == s)))
-                {
-                    this.HideGroup(g);
+                    foreach (var t in tabGroup.Value.Groups)
+                    {
+                        if (this.viewModel.SelectionsHidden.Contains(t.Name))
+                        {
+                            this.HideTab(t);
+                        }
+                        else
+                        {
+                            this.ShowTab(t);
+                        }
+                    }
                 }
             }
         }
 
         private struct EnabledVar
         {
-        }
-
-        private class FilterBind : INotifyBindablePropertyChanged
-        {
-            private const string SelectionKey = "bl.toolbarmanager.filter.selections";
-
-            private readonly List<int> value = new();
-            private readonly HashSet<int> newValues = new();
-
-            private readonly List<int> added = new();
-            private readonly List<int> removed = new();
-
-            private readonly Dictionary<string, int> selectionsCount = new();
-            private readonly HashSet<string> selectionsHidden;
-
-            private readonly List<string> sourceItems = new();
-
-            private readonly ILocalStorageService storageService;
-
-            public FilterBind(ILocalStorageService storageService)
-            {
-                this.storageService = storageService;
-                var selectionSaved = storageService.GetValue(SelectionKey, string.Empty);
-                var selectionArray = selectionSaved.Split(",");
-                this.selectionsHidden = new HashSet<string>(selectionArray);
-                this.selectionsHidden.Remove(string.Empty);
-            }
-
-            public event EventHandler<BindablePropertyChangedEventArgs> propertyChanged;
-
-            public event Action<FilterBind, (IReadOnlyList<int> Added, IReadOnlyList<int> Removed)> ValueChanged;
-
-            public event Action<FilterBind> SourceChanged;
-
-            public IReadOnlyCollection<string> SelectionsHidden => this.selectionsHidden;
-
-            [CreateProperty]
-            public List<string> SourceItems => this.sourceItems;
-
-            [CreateProperty]
-            public IEnumerable<int> Value
-            {
-                get => this.value;
-                set
-                {
-                    this.added.Clear();
-                    this.removed.Clear();
-                    this.newValues.Clear();
-
-                    this.newValues.UnionWith(value);
-
-                    foreach (var oldValue in this.value.Where(oldValue => !this.newValues.Contains(oldValue)))
-                    {
-                        this.removed.Add(oldValue);
-                        this.selectionsHidden.Add(this.sourceItems[oldValue]);
-                    }
-
-                    foreach (var newValue in this.newValues.Where(newValue => !this.value.Contains(newValue)))
-                    {
-                        this.added.Add(newValue);
-                        this.selectionsHidden.Remove(this.sourceItems[newValue]);
-                    }
-
-                    this.value.Clear();
-                    this.value.AddRange(value);
-
-                    var serializedString = string.Join(",", this.selectionsHidden);
-                    this.storageService.SetValue(SelectionKey, serializedString);
-
-                    this.ValueChanged?.Invoke(this, (this.added, this.removed));
-                    this.propertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(nameof(this.Value)));
-                }
-            }
-
-            [CreateProperty]
-            public Action<DropdownItem, int> BindItem => (item, i) => item.label = this.sourceItems[i];
-
-            public void AddSelection(string filterName)
-            {
-                this.selectionsCount.TryGetValue(filterName, out var count);
-                if (count == 0)
-                {
-                    this.sourceItems.Add(filterName);
-                    this.sourceItems.Sort();
-
-                    this.UpdateValue();
-                    this.UpdateSelections();
-                }
-
-                this.selectionsCount[filterName] = count + 1;
-            }
-
-            public void RemoveSelection(string filterName)
-            {
-                if (!this.selectionsCount.TryGetValue(filterName, out var currentValue))
-                {
-                    return;
-                }
-
-                currentValue--;
-                if (currentValue == 0)
-                {
-                    this.selectionsCount.Remove(filterName);
-                    this.sourceItems.Remove(filterName);
-                    this.UpdateValue();
-                    this.UpdateSelections();
-                }
-                else
-                {
-                    this.selectionsCount[filterName] = currentValue;
-                }
-            }
-
-            private void UpdateValue()
-            {
-                this.value.Clear();
-
-                for (var i = 0; i < this.sourceItems.Count; i++)
-                {
-                    var selection = this.sourceItems[i];
-                    if (!this.SelectionsHidden.Contains(selection))
-                    {
-                        this.value.Add(i);
-                    }
-                }
-
-                this.propertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(nameof(this.Value)));
-            }
-
-            private void UpdateSelections()
-            {
-                this.propertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(nameof(this.SourceItems)));
-                this.SourceChanged?.Invoke(this);
-            }
         }
     }
 }

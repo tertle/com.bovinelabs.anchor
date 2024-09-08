@@ -5,13 +5,14 @@
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
 namespace BovineLabs.Anchor.Debug.Views
 {
+    using System;
     using System.ComponentModel;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
 
-    public class SubSceneToolbarView : VisualElement, IView
+    public class SubSceneToolbarView : VisualElement, IView, IDisposable
     {
         private readonly SubSceneToolbarViewModel viewModel = new();
         private readonly Dropdown dropdown;
@@ -41,6 +42,11 @@ namespace BovineLabs.Anchor.Debug.Views
         }
 
         object IView.ViewModel => this.viewModel;
+
+        public void Dispose()
+        {
+            this.viewModel.PropertyChanged -= this.ViewModelOnPropertyChanged;
+        }
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

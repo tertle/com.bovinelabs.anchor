@@ -46,35 +46,19 @@ namespace BovineLabs.Anchor.Toolbar
         // Load the tab onto the group. Usually called from OnStartRunning.
         public void Load()
         {
-            ToolbarView.Instance.AddGroup<T>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
+            ToolbarView.Instance.AddTab<T>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
             var binding = (TM)view.ViewModel;
             this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref binding.Value);
-
-            binding.Load();
         }
 
         public void Unload()
         {
-            var binding = (TM)ToolbarView.Instance.RemoveGroup(this.key);
-
-            if (this.handle.IsAllocated)
-            {
-                binding.Unload();
-                if (binding is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-
-                this.handle.Free();
-                this.handle = default;
-                this.data = default;
-            }
-            else
-            {
-                Debug.LogError("Did not unload");
-            }
+            ToolbarView.Instance.RemoveTab(this.key);
+            this.handle.Free();
+            this.handle = default;
+            this.data = default;
         }
 
         public bool IsVisible()

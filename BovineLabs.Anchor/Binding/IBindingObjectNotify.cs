@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if !BL_DISABLE_UI
 namespace BovineLabs.Anchor.Binding
 {
     using System;
@@ -98,4 +97,3 @@ namespace BovineLabs.Anchor.Binding
         }
     }
 }
-#endif

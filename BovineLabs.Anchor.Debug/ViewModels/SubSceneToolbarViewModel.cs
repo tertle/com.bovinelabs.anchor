@@ -6,10 +6,12 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using System.Linq;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Core.Extensions;
     using Unity.Burst;
     using Unity.Collections;
+    using Unity.Collections.LowLevel.Unsafe;
     using Unity.Properties;
 
     public class SubSceneToolbarViewModel : BLObservableObject<SubSceneToolbarViewModel.Data>
@@ -57,7 +59,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             set
             {
-                if (this.SetProperty(ref this.values, value, SequenceComparer.Int))
+                if (this.SetProperty(this.values, value, SequenceComparer.Int, value => this.values = value.ToArray()))
                 {
                     this.data.Values.Clear();
                     foreach (var v in this.values)
