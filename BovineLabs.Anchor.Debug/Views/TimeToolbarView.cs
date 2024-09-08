@@ -18,11 +18,15 @@ namespace BovineLabs.Anchor.Debug.Views
     [AutoToolbar("Time")]
     public class TimeToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-time-tab";
+
         private readonly TimeToolbarViewModel viewModel = new();
 
         /// <summary> Initializes a new instance of the <see cref="TimeToolbarView"/> class. </summary>
         public TimeToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             var label = new Text("Timescale");
 
             var timescale = new FloatField

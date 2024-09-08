@@ -13,10 +13,14 @@ namespace BovineLabs.Anchor.Debug.Views
     [AutoToolbar("UI")]
     public class AppUIToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-appui-tab";
+
         private readonly AppUIToolbarViewModel viewModel;
 
         public AppUIToolbarView(AppUIToolbarViewModel viewModel)
         {
+            this.AddToClassList(UssClassName);
+
             this.viewModel = viewModel;
 
             var theme = new Dropdown

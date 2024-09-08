@@ -8,17 +8,20 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Toolbar;
-    using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
 
     [AutoToolbar("FPS")]
     public class FPSToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-fps-tab";
+
         private readonly FPSToolbarViewModel viewModel = new();
 
         public FPSToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             TypeConverter<int, string> fpsConverter = (ref int value) => $"{value} fps";
             TypeConverter<float, string> timeConverter = (ref float value) => $"{value:0.0} ms";
 

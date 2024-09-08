@@ -13,12 +13,16 @@ namespace BovineLabs.Anchor.Debug.Views
     [AutoToolbar("Quality")]
     public class QualityToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-quality-tab";
+
         private readonly QualityToolbarViewModel viewModel = new();
 
         /// <summary> Initializes a new instance of the <see cref="QualityToolbarView"/> class. </summary>
         /// <param name="viewModel"> The view model. </param>
         public QualityToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             var dropdownField = new Dropdown
             {
                 dataSource = this.viewModel,

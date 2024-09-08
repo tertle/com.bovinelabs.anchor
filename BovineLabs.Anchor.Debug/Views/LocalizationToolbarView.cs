@@ -16,10 +16,14 @@ namespace BovineLabs.Anchor.Debug.Views
     [AutoToolbar("Localization")]
     public class LocalizationToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-localization-tab";
+
         private readonly LocalizationToolbarViewModel viewModel = new();
 
         public LocalizationToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             if (!LocalizationSettings.HasSettings)
             {
                 this.Add(new Text("No LocalizationSettings"));

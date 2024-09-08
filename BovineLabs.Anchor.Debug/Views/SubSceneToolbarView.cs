@@ -14,11 +14,15 @@ namespace BovineLabs.Anchor.Debug.Views
 
     public class SubSceneToolbarView : VisualElement, IView, IDisposable
     {
+        public const string UssClassName = "bl-subscene-tab";
+
         private readonly SubSceneToolbarViewModel viewModel = new();
         private readonly Dropdown dropdown;
 
         public SubSceneToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             this.dropdown = new Dropdown
             {
                 dataSource = this.viewModel,

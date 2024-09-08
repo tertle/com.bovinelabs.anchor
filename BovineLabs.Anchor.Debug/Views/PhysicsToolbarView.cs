@@ -13,10 +13,14 @@ namespace BovineLabs.Anchor.Debug.Views
 
     public class PhysicsToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-physics-tab";
+
         private readonly PhysicsToolbarViewModel viewModel;
 
         public PhysicsToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             this.viewModel = new PhysicsToolbarViewModel();
 
             this.style.flexDirection = FlexDirection.Row;

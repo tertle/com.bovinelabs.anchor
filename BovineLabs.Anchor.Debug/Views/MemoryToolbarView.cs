@@ -14,10 +14,14 @@ namespace BovineLabs.Anchor.Debug.Views
     [AutoToolbar("Memory")]
     public class MemoryToolbarView : VisualElement, IView
     {
+        public const string UssClassName = "bl-memory-tab";
+
         private readonly MemoryToolbarViewModel viewModel = new();
 
         public MemoryToolbarView()
         {
+            this.AddToClassList(UssClassName);
+
             TypeConverter<int, string> typeConverter = (ref int value) => $"{value} MB";
 
             this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
