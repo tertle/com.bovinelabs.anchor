@@ -32,6 +32,9 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 
+#if BL_CORE
+    [BovineLabs.Core.ConfigVars.Configurable]
+#endif
     [Preserve]
     public class ToolbarView : VisualElement, IViewRoot
     {
@@ -62,8 +65,10 @@ namespace BovineLabs.Anchor.Toolbar
 
         public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
-        // [ConfigVar("debug.toolbar", false, "Should the toolbar be hidden", true)]
+#if BL_CORE
+        [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", false, "Should the toolbar be hidden", true)]
         private static readonly SharedStatic<bool> Hide = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
+#endif
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
@@ -483,7 +488,7 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private struct EnabledVar
+        public struct EnabledVar
         {
         }
     }
