@@ -1,7 +1,3 @@
-.unity-text-element {
-    /*font-size: 12px;*/
-}
-
 .unity-label {
     margin: 0;
     padding: 1px;
@@ -40,7 +36,6 @@
 }
 
 .bl-toolbar__show__icon-hidden {
-    /*display: none;*/
     --unity-image: var(--appui-icon-caret-down-regular);
 }
 
