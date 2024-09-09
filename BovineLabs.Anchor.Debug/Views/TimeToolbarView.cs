@@ -47,8 +47,8 @@ namespace BovineLabs.Anchor.Debug.Views
             TypeConverter<long, string> timeConverter = (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
             this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
                 {
-                    ("Allocated", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
-                    ("Reserved", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
+                    ("Real", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
+                    ("Scale", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                 },
                 BindingUpdateTrigger.EveryUpdate));
 
