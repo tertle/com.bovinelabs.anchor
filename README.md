@@ -27,6 +27,8 @@ Beyond this, BovineLabs Anchor has no other dependencies. However, it does offer
 
 Additionally, if you have my [Core](https://gitlab.com/tertle/com.bovinelabs.core) library, Unity [Physics](https://docs.unity3d.com/Packages/com.unity.physics@latest) or [Localization](https://docs.unity3d.com/Packages/com.unity.localization@latest) installed, BovineLabs Anchor will provide extra built-in tabs.
 
+Note, if you're using Core, you currently need to use the 1.3.2-net branch.
+
 ### Setup
 Setting up BovineLabs Anchor is similar to a regular AppUI application, with the key difference being that you'll use `BLUIAppBuilder` or your own inherited version instead of `UIToolkitAppBuilder`. If you're unfamiliar with AppUI, please check out its MVVM and Redux sample.
 
