@@ -94,6 +94,10 @@
     min-width: 65px;
 }
 
+.bl-memory-tab .bl-key-value-group__right {
+    min-width: 60px;
+}
+
 .bl-time-tab .bl-key-value-group__right {
     min-width: 40px;
 }
