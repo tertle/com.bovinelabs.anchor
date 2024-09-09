@@ -1,4 +1,4 @@
-﻿// <copyright file="Utility.cs" company="BovineLabs">
+﻿// <copyright file="Core.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -8,9 +8,6 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using BovineLabs.Core.Utility;
-    using Unity.Collections;
-    using Unity.Collections.LowLevel.Unsafe;
 
     internal static class Core
     {
@@ -38,47 +35,6 @@ namespace BovineLabs.Anchor
             return AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(t => t.GetCustomAttribute<T>() != null);
-        }
-
-        public static void AddRangeNative<T>(this List<T> list, NativeArray<T> array)
-            where T : struct
-        {
-            AddRangeNative(list, array, array.Length);
-        }
-
-        public static unsafe void AddRangeNative<T>(this List<T> list, NativeArray<T> array, int length)
-            where T : struct
-        {
-            list.AddRangeNative(array.GetUnsafeReadOnlyPtr(), length);
-        }
-
-        public static unsafe void AddRangeNative<T>(this List<T> list, void* arrayBuffer, int length)
-            where T : struct
-        {
-            if (length == 0)
-            {
-                return;
-            }
-
-            var index = list.Count;
-            var newLength = index + length;
-
-            // Resize our list if we require
-            if (list.Capacity < newLength)
-            {
-                list.Capacity = newLength;
-            }
-
-            var items = NoAllocHelpers.ExtractArrayFromList(list);
-            var size = UnsafeUtility.SizeOf<T>();
-
-            // Get the pointer to the end of the list
-            var bufferStart = (IntPtr)UnsafeUtility.AddressOf(ref items[0]);
-            var buffer = (byte*)(bufferStart + (size * index));
-
-            UnsafeUtility.MemCpy(buffer, arrayBuffer, length * (long)size);
-
-            NoAllocHelpers.ResizeList(list, newLength);
         }
     }
 }

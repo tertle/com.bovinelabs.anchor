@@ -58,7 +58,7 @@
             "define": "UNITY_LOCALIZATION"
         },
         {
-            "name": "com.unity.modules.physics",
+            "name": "com.unity.physics",
             "expression": "",
             "define": "UNITY_PHYSICS"
         }
