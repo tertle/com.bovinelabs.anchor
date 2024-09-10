@@ -1,8 +1,10 @@
+/* Global styling*/
 .bl-toolbar .unity-label {
     margin: 0;
     padding: 1px;
 }
 
+/* Toolbar styling */
 .bl-toolbar {
     background-color: var(--appui-backgrounds-50);
     --scroller-size: 4px;
