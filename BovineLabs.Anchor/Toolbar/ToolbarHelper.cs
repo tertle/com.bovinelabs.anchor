@@ -13,8 +13,8 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public unsafe struct ToolbarHelper<T, TM, TD>
-        where T : VisualElement, IView
+    public unsafe struct ToolbarHelper<TV, TM, TD>
+        where TV : VisualElement, IView
         where TM : class, IBindingObject<TD>
         where TD : unmanaged
     {
@@ -47,7 +47,7 @@ namespace BovineLabs.Anchor.Toolbar
         // Load the tab onto the group. Usually called from OnStartRunning.
         public void Load()
         {
-            ToolbarView.Instance.AddTab<T>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
+            ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
             var binding = (TM)view.ViewModel;
             this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
@@ -68,9 +68,9 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <remarks> Not burst compatible. </remarks>
-        public T GetView()
+        public TV GetView()
         {
-            return (T)ToolbarView.Instance.GetPanel(this.key);
+            return (TV)ToolbarView.Instance.GetPanel(this.key);
         }
 
 #if UNITY_ENTITIES

@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
 
+    [Transient]
     public class PhysicsToolbarView : VisualElement, IView
     {
         public const string UssClassName = "bl-physics-tab";

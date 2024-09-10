@@ -8,6 +8,8 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Reflection;
+    using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using UnityEngine;
@@ -66,6 +68,7 @@ namespace BovineLabs.Anchor
         /// <param name="services"> The app services. </param>
         protected virtual void OnConfiguringApp(IServiceCollection services)
         {
+            services.AddSingleton<BindingService>();
             services.AddSingleton(typeof(IStoreService), this.StoreService);
             services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
         }
@@ -81,13 +84,27 @@ namespace BovineLabs.Anchor
                     continue;
                 }
 
-                services.AddTransient(view);
+                if (view.GetCustomAttribute<TransientAttribute>() != null)
+                {
+                    services.AddTransient(view);
+                }
+                else
+                {
+                    services.AddSingleton(view);
+                }
             }
 
             // Register all view models
-            foreach (var viewModels in Core.GetAllImplementations<IViewModel>())
+            foreach (var viewModel in Core.GetAllImplementations<IViewModel>())
             {
-                services.AddTransient(viewModels);
+                if (viewModel.GetCustomAttribute<TransientAttribute>() != null)
+                {
+                    services.AddTransient(viewModel);
+                }
+                else
+                {
+                    services.AddSingleton(viewModel);
+                }
             }
         }
 

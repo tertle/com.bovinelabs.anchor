@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Elements;
     using UnityEngine.UIElements;
 
+    [Transient]
     public class EntitiesToolbarView : VisualElement, IView
     {
         public const string UssClassName = "bl-entities-tab";

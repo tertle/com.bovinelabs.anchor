@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Toolbar
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
+    using BovineLabs.Anchor.Services;
     using Unity.Properties;
 
     public class ToolbarViewModel : BLObservableObject, IViewModel

@@ -12,6 +12,7 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.Properties;
     using UnityEngine.UIElements;
 
+    [Transient]
     public class SubSceneToolbarView : VisualElement, IView, IDisposable
     {
         public const string UssClassName = "bl-subscene-tab";

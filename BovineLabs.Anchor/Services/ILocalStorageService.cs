@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor
+namespace BovineLabs.Anchor.Services
 {
     public interface ILocalStorageService
     {
