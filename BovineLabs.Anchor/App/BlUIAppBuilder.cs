@@ -68,7 +68,6 @@ namespace BovineLabs.Anchor
         /// <param name="services"> The app services. </param>
         protected virtual void OnConfiguringApp(IServiceCollection services)
         {
-            services.AddSingleton<BindingService>();
             services.AddSingleton(typeof(IStoreService), this.StoreService);
             services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
         }
@@ -124,6 +123,7 @@ namespace BovineLabs.Anchor
 
             serviceProvider.AddServiceInstance<IServiceProvider, BlServiceProvider>(serviceProvider);
             serviceProvider.AddServiceInstance<GameObject, GameObject>(this.gameObject);
+            serviceProvider.AddServiceInstance<ViewProvider, ViewProvider>(new ViewProvider(serviceProvider));
 
             this.serviceCollection.TryAddSingleton<IApp, T>();
 
