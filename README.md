@@ -75,7 +75,7 @@ To integrate with Entity Worlds, use `ToolbarHelper<View, ViewModel, ViewModel.U
 [UpdateInGroup(typeof(ToolbarSystemGroup))]
 internal partial struct TestToolbarSystem : ISystem, ISystemStartStop
 {
-    private ToolbarHelper<TesToolbarView, TesToolbarViewModel, TesToolbarViewModel.Data> toolbar;
+    private ToolbarHelper<TestToolbarView, TestToolbarViewModel, TestToolbarViewModel.Data> toolbar;
 
     public void OnCreate(ref SystemState state)
     {
