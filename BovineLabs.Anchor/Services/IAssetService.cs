@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Services
 
     public interface IAssetService
     {
-        Object Get(string key);
+        bool TryGet<T>(string key, out T obj)
+            where T : Object;
     }
 }

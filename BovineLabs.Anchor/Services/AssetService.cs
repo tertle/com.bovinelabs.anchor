@@ -32,14 +32,23 @@ namespace BovineLabs.Anchor.Services
             }
         }
 
-        public Object Get(string key)
+        public bool TryGet<T>(string key, out T obj)
+            where T : Object
         {
             if (!this.objects.TryGetValue(key, out var asset))
             {
-                throw new ArgumentException($"Key ({key}) not found", nameof(key));
+                obj = null;
+                return false;
             }
 
-            return asset;
+            obj = asset as T;
+            if (obj == null)
+            {
+                Debug.LogWarning($"Asset {key} was found but not of type {typeof(T)}");
+                return false;
+            }
+
+            return true;
         }
     }
 }
