@@ -1,6 +1,5 @@
 /* Global styling*/
 .bl-toolbar .unity-label {
-    margin: 0;
     padding: 1px;
 }
 
@@ -11,29 +10,27 @@
 }
 
 .bl-toolbar__menu {
-    height: 24px;
     flex-direction: row;
+    flex-grow: 0;
+    align-items: center;
     padding-left: 4px;
     padding-right: 4px;
 }
 
 .bl-toolbar__button {
-    width: 18px;
-    height: 18px;
     padding: 0;
+}
+
+.bl-toolbar__button .appui-button__trailingcontainer {
+    margin-right: 0;
 }
 
 .bl-toolbar__menu-container {
     flex-direction: row;
-}
-
-.bl-toolbar__show {
-    margin: 3px 0;
+    align-content: center;
 }
 
 .bl-toolbar__show__icon {
-    width: 16px;
-    height: 16px;
     --unity-image: var(--appui-icon-caret-up-regular);
 }
 
@@ -42,26 +39,24 @@
 }
 
 .bl-toolbar__filter {
-    margin: 3px 3px 3px 3px;
+    margin: 0 3px;
+    justify-content: center;
+    width: var(--appui-alias-control-sizing-sm-height);
 }
 
 .bl-toolbar__filter .appui-icon.appui-picker__caret {
     margin: 0;
-    width: 16px;
-    height: 16px;
+    padding: 1px;
     --unity-image: var(--appui-icon-menu-regular);
 }
 
 .bl-toolbar__menu-button {
-    padding-left: 12px;
-    padding-right: 12px;
     margin: 0 1px;
     border-radius: 0;
     border-left-width: 0;
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
-    min-height: 24px;
 }
 
 .bl-toolbar-group {
@@ -76,10 +71,8 @@
 }
 
 .bl-toolbar-tab__name {
-    font-size: 9px;
-    margin: 0;
+    margin-top: 4px;
     -unity-text-align: lower-center;
-    min-height: 16px;
 }
 
 .bl-key-value-group__right {
@@ -88,13 +81,13 @@
 
 /* Custom tab styling */
 .bl-fps-tab .bl-key-value-group__right {
-    min-width: 65px;
+    min-width: var(--appui-sizing-1100);
 }
 
 .bl-memory-tab .bl-key-value-group__right {
-    min-width: 60px;
+    min-width: var(--appui-sizing-1000);
 }
 
 .bl-time-tab .bl-key-value-group__right {
-    min-width: 40px;
+    min-width: var(--appui-sizing-650);
 }

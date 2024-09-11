@@ -65,6 +65,8 @@ namespace BovineLabs.Anchor.Toolbar
 
         public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
+        private const string ShowIconTargetClass = "appui-button__trailingicon";
+
 #if BL_CORE
         [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", false, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
@@ -313,12 +315,13 @@ namespace BovineLabs.Anchor.Toolbar
         {
             var button = new Button(() => this.ShowRibbon(!this.showRibbon))
             {
-                leadingIcon = "caret-down",
+                trailingIcon = "caret-down",
             };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
-            button.Q<Icon>("appui-button__leadingicon").AddToClassList(ShowIconUssClassName);
+            button.Q<Icon>(ShowIconTargetClass).AddToClassList(ShowIconUssClassName);
+            button.size = Size.S;
 
             return button;
         }
@@ -345,6 +348,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             dropdown.AddToClassList(MenuButtonClassName);
             dropdown.AddToClassList(FilterUssClassName);
+            dropdown.size = Size.S;
 
             return dropdown;
         }
@@ -419,7 +423,7 @@ namespace BovineLabs.Anchor.Toolbar
         {
             if (show)
             {
-                this.showButton.Q<Icon>("appui-button__leadingicon").RemoveFromClassList(ShowHiddenUssClassName);
+                this.showButton.Q<Icon>(ShowIconTargetClass).RemoveFromClassList(ShowHiddenUssClassName);
 
                 if (this.activeGroup != null)
                 {
@@ -434,7 +438,7 @@ namespace BovineLabs.Anchor.Toolbar
             }
             else
             {
-                this.showButton.Q<Icon>("appui-button__leadingicon").AddToClassList(ShowHiddenUssClassName);
+                this.showButton.Q<Icon>(ShowIconTargetClass).AddToClassList(ShowHiddenUssClassName);
 
                 if (this.activeGroup != null)
                 {

@@ -28,6 +28,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.groupLabel = new Text(label);
             this.groupLabel.AddToClassList(NameClass);
+            this.groupLabel.size = TextSize.XS;
             this.hierarchy.Add(this.groupLabel);
         }
 

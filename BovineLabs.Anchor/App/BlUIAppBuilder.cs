@@ -38,8 +38,6 @@ namespace BovineLabs.Anchor
         [Tooltip("The UIDocument to host the app in.")]
         public UIDocument UIDocument;
 
-        public StyleSheet[] StyleSheets = Array.Empty<StyleSheet>();
-
         private AppUIServiceCollection serviceCollection;
 
         protected virtual Type StoreService { get; } = typeof(StoreService);
@@ -137,19 +135,7 @@ namespace BovineLabs.Anchor
             var app = serviceProvider.GetRequiredService<IApp>();
             app.Initialize(serviceProvider, host);
 
-            var tapp = (T)app;
-
-            foreach (var stylesheet in this.StyleSheets)
-            {
-                if (stylesheet == null)
-                {
-                    continue;
-                }
-
-                tapp.Panel.styleSheets.Add(stylesheet);
-            }
-
-            this.OnAppInitialized(tapp);
+            this.OnAppInitialized((T)app);
         }
 
         private void OnDisable()
