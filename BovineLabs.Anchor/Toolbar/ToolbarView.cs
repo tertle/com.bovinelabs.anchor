@@ -23,7 +23,7 @@ namespace BovineLabs.Anchor.Toolbar
     using Button = Unity.AppUI.UI.Button;
 
     /// <summary> Burst data separate to avoid compiling issues with static variables. </summary>
-    public static class ToolbarViewrData
+    public static class ToolbarViewData
     {
         public static readonly SharedStatic<FixedString32Bytes> ActiveTab = SharedStatic<FixedString32Bytes>.GetOrCreate<ActiveTabVar>();
 
@@ -389,7 +389,7 @@ namespace BovineLabs.Anchor.Toolbar
                 }
 
                 this.activeGroup = default;
-                ToolbarViewrData.ActiveTab.Data = string.Empty;
+                ToolbarViewData.ActiveTab.Data = string.Empty;
             }
 
             if (group == null)
@@ -398,7 +398,7 @@ namespace BovineLabs.Anchor.Toolbar
             }
 
             this.activeGroup = group;
-            ToolbarViewrData.ActiveTab.Data = group.Name;
+            ToolbarViewData.ActiveTab.Data = group.Name;
             group.Button.variant = ButtonVariant.Accent;
 
             this.ShowRibbon(true);

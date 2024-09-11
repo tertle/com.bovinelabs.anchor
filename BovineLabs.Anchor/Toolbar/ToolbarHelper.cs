@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DEBUG || UNITY_EDITOR
+#if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
 namespace BovineLabs.Anchor.Toolbar
 {
     using System;
@@ -64,7 +64,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         public bool IsVisible()
         {
-            return ToolbarViewrData.ActiveTab.Data == this.tabName;
+            return ToolbarViewData.ActiveTab.Data == this.tabName;
         }
 
         /// <remarks> Not burst compatible. </remarks>
