@@ -5,54 +5,35 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
     using Unity.AppUI.UI;
     using Unity.Properties;
 
     public class AppUIToolbarViewModel : BLObservableObject, IViewModel
     {
+        private const string ThemeKey = "bl.ui.theme";
+        private const string ScaleKey = "bl.ui.scale";
+
         private readonly Panel panel;
+        private readonly ILocalStorageService localStorageService;
 
         private readonly List<string> themeItems = new();
         private readonly List<string> themes = new();
         private readonly List<string> scaleItems = new();
         private readonly List<string> scales = new();
 
-        private int themeValue;
-        private int scaleValue;
+        private int themeValue = -1;
+        private int scaleValue = -1;
 
-        public AppUIToolbarViewModel(Panel panel)
+        public AppUIToolbarViewModel(Panel panel, ILocalStorageService localStorageService)
         {
             this.panel = panel;
-            this.themeItems.Add("System");
-            this.themes.Add("system");
+            this.localStorageService = localStorageService;
 
-            this.themeItems.Add("Dark");
-            this.themes.Add("dark");
-
-            this.themeItems.Add("Light");
-            this.themes.Add("light");
-
-            this.themeItems.Add("Editor Dark");
-            this.themes.Add("editor-dark");
-
-            this.themeItems.Add("Editor Light");
-            this.themes.Add("editor-light");
-
-            this.scaleItems.Add("Small");
-            this.scales.Add("small");
-
-            this.scaleItems.Add("Medium");
-            this.scales.Add("medium");
-
-            this.scaleItems.Add("Large");
-            this.scales.Add("large");
-
-            this.scaleValue = 1;
-
-            // TODO needed?
-            this.SetTheme("system");
-            this.SetScale("medium");
+            this.PopulateTheme();
+            this.PopulateScale();
+            this.LoadStoredValue();
         }
 
         [CreateProperty]
@@ -99,16 +80,61 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             {
                 this.panel.theme = theme;
             }
+
+            this.localStorageService.SetValue(ThemeKey, theme);
         }
 
         private void SetScale(string scale)
         {
             this.panel.scale = scale;
+            this.localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
         {
             this.panel.theme = darkMode ? "dark" : "light";
+        }
+
+        private void PopulateTheme()
+        {
+            this.themeItems.Add("System");
+            this.themes.Add("system");
+
+            this.themeItems.Add("Dark");
+            this.themes.Add("dark");
+
+            this.themeItems.Add("Light");
+            this.themes.Add("light");
+
+            this.themeItems.Add("Editor Dark");
+            this.themes.Add("editor-dark");
+
+            this.themeItems.Add("Editor Light");
+            this.themes.Add("editor-light");
+        }
+
+        private void PopulateScale()
+        {
+            this.scaleItems.Add("Small");
+            this.scales.Add("small");
+
+            this.scaleItems.Add("Medium");
+            this.scales.Add("medium");
+
+            this.scaleItems.Add("Large");
+            this.scales.Add("large");
+        }
+
+        private void LoadStoredValue()
+        {
+            var theme = this.localStorageService.GetValue(ThemeKey, "system");
+            var scale = this.localStorageService.GetValue(ScaleKey, "medium");
+
+            var themeIndex = this.themes.IndexOf(theme);
+            this.ThemeValue = themeIndex != -1 ? themeIndex : 0;
+
+            var scaleIndex = this.scales.IndexOf(scale);
+            this.ScaleValue = scaleIndex != -1 ? scaleIndex : 1;
         }
     }
 }
