@@ -81,7 +81,7 @@
 
 /* Custom tab styling */
 .bl-fps-tab .bl-key-value-group__right {
-    min-width: var(--appui-sizing-1100);
+    min-width: var(--appui-sizing-1150);
 }
 
 .bl-memory-tab .bl-key-value-group__right {
