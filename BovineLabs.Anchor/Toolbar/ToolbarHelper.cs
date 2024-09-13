@@ -14,7 +14,7 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.UIElements;
 
     public unsafe struct ToolbarHelper<TV, TM, TD>
-        where TV : VisualElement, IView
+        where TV : VisualElement, IView<TM>
         where TM : class, IBindingObject<TD>
         where TD : unmanaged
     {
@@ -47,7 +47,7 @@ namespace BovineLabs.Anchor.Toolbar
         // Load the tab onto the group. Usually called from OnStartRunning.
         public void Load()
         {
-            ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
+            ToolbarView.Instance.AddTab<TV, TM>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
             var binding = (TM)view.ViewModel;
             this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);

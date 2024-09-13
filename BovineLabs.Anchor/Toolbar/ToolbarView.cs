@@ -120,6 +120,7 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
                 var tabName = attr.TabName ?? "Service";
+
                 this.AddTab(t, tabName, attr.ElementName, out _, out _);
             }
 
@@ -137,8 +138,6 @@ namespace BovineLabs.Anchor.Toolbar
 
         public int Priority => -1000;
 
-        object IView.ViewModel => null;
-
         /// <inheritdoc/>
         void IViewRoot.AttachedToPanel(Panel value)
         {
@@ -146,11 +145,18 @@ namespace BovineLabs.Anchor.Toolbar
             this.appPanel.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
         }
 
-        public void AddTab<T>(string tabName, string groupName, out int id, out T view)
-            where T : VisualElement, IView
+        public void AddTab<T, TM>(string tabName, string elementName, out int id, out T view)
+            where T : VisualElement, IView<TM>
         {
-            this.AddTab(typeof(T), tabName, groupName, out id, out var viewElement);
-            view = (T)viewElement;
+            this.AddTab(typeof(T), tabName, elementName, out id, out var visualElement);
+            view = (T)visualElement;
+
+            var groupViewModel = view.ViewModel;
+
+            if (groupViewModel is IBindingObject bindingObject)
+            {
+                bindingObject.Load();
+            }
         }
 
         public void AddTab(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
@@ -189,20 +195,13 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 this.ShowTab(group);
             }
-
-            var groupViewModel = ((IView)group.View).ViewModel;
-
-            if (groupViewModel is IBindingObject bindingObject)
-            {
-                bindingObject.Load();
-            }
         }
 
-        public void RemoveTab(int id)
+        public VisualElement RemoveTab(int id)
         {
             if (!this.toolbarGroups.Remove(id, out var group))
             {
-                return;
+                return null;
             }
 
             this.viewModel.RemoveSelection(group.Name);
@@ -210,22 +209,12 @@ namespace BovineLabs.Anchor.Toolbar
             this.HideTab(group);
             group.Group.Groups.Remove(group);
 
-            var groupViewModel = ((IView)group.View).ViewModel;
-
-            if (groupViewModel is IBindingObject bindingObject)
-            {
-                bindingObject.Unload();
-            }
-
             if (group.View is IDisposable disposable)
             {
                 disposable.Dispose();
             }
 
-            if (groupViewModel is IDisposable vmDisposable)
-            {
-                vmDisposable.Dispose();
-            }
+            return group.View;
         }
 
         public VisualElement GetPanel(int id)

@@ -12,11 +12,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("Memory")]
-    public class MemoryToolbarView : VisualElement, IView
+    public class MemoryToolbarView : VisualElement, IView<MemoryToolbarViewModel>
     {
         public const string UssClassName = "bl-memory-tab";
-
-        private readonly MemoryToolbarViewModel viewModel = new();
 
         public MemoryToolbarView()
         {
@@ -24,7 +22,7 @@ namespace BovineLabs.Anchor.Debug.Views
 
             TypeConverter<int, string> typeConverter = (ref int value) => $"{value} MB";
 
-            this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
+            this.Add(KeyValueGroup.Create(this.ViewModel, new (string, string, Action<DataBinding>)[]
             {
                 ("Allocated", nameof(MemoryToolbarViewModel.TotalAllocatedMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
                 ("Reserved", nameof(MemoryToolbarViewModel.TotalReservedMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
@@ -32,10 +30,10 @@ namespace BovineLabs.Anchor.Debug.Views
                 ("Graphics", nameof(MemoryToolbarViewModel.AllocatedMemoryForGraphicsMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
             }));
 
-            this.schedule.Execute(this.viewModel.Update).Every(1);
+            this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
 
         /// <inheritdoc/>
-        object IView.ViewModel => this.viewModel;
+        public MemoryToolbarViewModel ViewModel { get; } = new();
     }
 }

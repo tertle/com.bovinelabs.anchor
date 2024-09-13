@@ -6,6 +6,10 @@ namespace BovineLabs.Anchor
 {
     public interface IView
     {
-        object ViewModel { get; }
+    }
+
+    public interface IView<out T> : IView
+    {
+        T ViewModel { get; }
     }
 }

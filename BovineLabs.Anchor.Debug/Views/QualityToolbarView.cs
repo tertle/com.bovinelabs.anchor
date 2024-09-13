@@ -11,11 +11,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("Quality")]
-    public class QualityToolbarView : VisualElement, IView
+    public class QualityToolbarView : VisualElement, IView<QualityToolbarViewModel>
     {
         public const string UssClassName = "bl-quality-tab";
-
-        private readonly QualityToolbarViewModel viewModel = new();
 
         /// <summary> Initializes a new instance of the <see cref="QualityToolbarView"/> class. </summary>
         /// <param name="viewModel"> The view model. </param>
@@ -25,9 +23,9 @@ namespace BovineLabs.Anchor.Debug.Views
 
             var dropdownField = new Dropdown
             {
-                dataSource = this.viewModel,
+                dataSource = this.ViewModel,
                 defaultMessage = string.Empty,
-                bindItem = (item, i) => item.label = this.viewModel.QualityChoices[i],
+                bindItem = (item, i) => item.label = this.ViewModel.QualityChoices[i],
             };
 
             dropdownField.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -43,10 +41,10 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.Add(dropdownField);
 
-            this.schedule.Execute(this.viewModel.Update).Every(1); // Every frame
+            this.schedule.Execute(this.ViewModel.Update).Every(1); // Every frame
         }
 
         /// <inheritdoc/>
-        object IView.ViewModel => this.viewModel;
+        public QualityToolbarViewModel ViewModel { get; } = new();
     }
 }

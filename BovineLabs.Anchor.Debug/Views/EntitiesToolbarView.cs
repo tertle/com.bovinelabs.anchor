@@ -10,17 +10,15 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [Transient]
-    public class EntitiesToolbarView : VisualElement, IView
+    public class EntitiesToolbarView : VisualElement, IView<EntitiesToolbarViewModel>
     {
         public const string UssClassName = "bl-entities-tab";
-
-        private readonly EntitiesToolbarViewModel viewModel = new();
 
         public EntitiesToolbarView()
         {
             this.AddToClassList(UssClassName);
 
-            this.Add(KeyValueGroup.Create(this.viewModel, new[]
+            this.Add(KeyValueGroup.Create(this.ViewModel, new[]
             {
                 ("Entities", nameof(EntitiesToolbarViewModel.Entities)),
                 ("Archetypes", nameof(EntitiesToolbarViewModel.Archetypes)),
@@ -28,7 +26,8 @@ namespace BovineLabs.Anchor.Debug.Views
             }));
         }
 
-        object IView.ViewModel => this.viewModel;
+        /// <inheritdoc/>
+        public EntitiesToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

@@ -13,11 +13,10 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [Transient]
-    public class SubSceneToolbarView : VisualElement, IView, IDisposable
+    public class SubSceneToolbarView : VisualElement, IView<SubSceneToolbarViewModel>, IDisposable
     {
         public const string UssClassName = "bl-subscene-tab";
 
-        private readonly SubSceneToolbarViewModel viewModel = new();
         private readonly Dropdown dropdown;
 
         public SubSceneToolbarView()
@@ -26,7 +25,7 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.dropdown = new Dropdown
             {
-                dataSource = this.viewModel,
+                dataSource = this.ViewModel,
                 selectionType = PickerSelectionType.Multiple,
                 closeOnSelection = false,
                 defaultMessage = "SubScenes",
@@ -47,14 +46,14 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.Add(this.dropdown);
 
-            this.viewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
+            this.ViewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
         }
 
-        object IView.ViewModel => this.viewModel;
+        public SubSceneToolbarViewModel ViewModel { get; } = new();
 
         public void Dispose()
         {
-            this.viewModel.PropertyChanged -= this.ViewModelOnPropertyChanged;
+            this.ViewModel.PropertyChanged -= this.ViewModelOnPropertyChanged;
         }
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)

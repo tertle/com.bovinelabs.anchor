@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor
     using UnityEngine.UIElements;
 
     public unsafe struct UIHelper<TV, TM, TD>
-        where TV : VisualElement, IView
+        where TV : VisualElement, IView<TM>
         where TM : class, IBindingObject<TD>
         where TD : unmanaged
     {
@@ -24,7 +24,7 @@ namespace BovineLabs.Anchor
         {
             var view = ViewProvider.Instance.GetView<TV>();
 
-            var binding = (TM)view.ViewModel;
+            var binding = view.ViewModel;
             this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref binding.Value);
 

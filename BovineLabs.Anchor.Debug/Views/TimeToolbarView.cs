@@ -16,11 +16,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using FloatField = Unity.AppUI.UI.FloatField;
 
     [AutoToolbar("Time")]
-    public class TimeToolbarView : VisualElement, IView
+    public class TimeToolbarView : VisualElement, IView<TimeToolbarViewModel>
     {
         public const string UssClassName = "bl-time-tab";
-
-        private readonly TimeToolbarViewModel viewModel = new();
 
         /// <summary> Initializes a new instance of the <see cref="TimeToolbarView"/> class. </summary>
         public TimeToolbarView()
@@ -31,7 +29,7 @@ namespace BovineLabs.Anchor.Debug.Views
 
             var timescale = new FloatField
             {
-                dataSource = this.viewModel,
+                dataSource = this.ViewModel,
                 lowValue = 0f,
                 value = Time.timeScale,
             };
@@ -45,18 +43,18 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(timescale);
 
             TypeConverter<long, string> timeConverter = (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
-            this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
+            this.Add(KeyValueGroup.Create(this.ViewModel, new (string, string, Action<DataBinding>)[]
                 {
                     ("Real", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                     ("Scale", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                 },
                 BindingUpdateTrigger.EveryUpdate));
 
-            this.schedule.Execute(this.viewModel.Update).Every(1);
+            this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
 
         /// <inheritdoc/>
-        object IView.ViewModel => this.viewModel;
+        public TimeToolbarViewModel ViewModel { get; } = new();
 
         private static string ToFormattedString(TimeSpan ts)
         {

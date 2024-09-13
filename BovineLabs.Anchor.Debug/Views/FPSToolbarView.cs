@@ -12,11 +12,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("FPS")]
-    public class FPSToolbarView : VisualElement, IView
+    public class FPSToolbarView : VisualElement, IView<FPSToolbarViewModel>
     {
         public const string UssClassName = "bl-fps-tab";
-
-        private readonly FPSToolbarViewModel viewModel = new();
 
         public FPSToolbarView()
         {
@@ -25,7 +23,7 @@ namespace BovineLabs.Anchor.Debug.Views
             TypeConverter<int, string> fpsConverter = (ref int value) => $"{value} fps";
             TypeConverter<float, string> timeConverter = (ref float value) => $"{value:0.0} ms";
 
-            this.Add(KeyValueGroup.Create(this.viewModel, new (string, string, Action<DataBinding>)[]
+            this.Add(KeyValueGroup.Create(this.ViewModel, new (string, string, Action<DataBinding>)[]
             {
                 ("FPS", nameof(FPSToolbarViewModel.CurrentFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
                 ("Frame", nameof(FPSToolbarViewModel.FrameTime), db => db.sourceToUiConverters.AddConverter(timeConverter)),
@@ -34,9 +32,10 @@ namespace BovineLabs.Anchor.Debug.Views
                 ("Max", nameof(FPSToolbarViewModel.MaxFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
             }));
 
-            this.schedule.Execute(this.viewModel.Update).Every(1);
+            this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
 
-        object IView.ViewModel => this.viewModel;
+        /// <inheritdoc/>
+        public FPSToolbarViewModel ViewModel { get; } = new();
     }
 }

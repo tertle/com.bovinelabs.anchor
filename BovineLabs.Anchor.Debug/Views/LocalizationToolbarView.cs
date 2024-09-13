@@ -14,11 +14,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("Localization")]
-    public class LocalizationToolbarView : VisualElement, IView
+    public class LocalizationToolbarView : VisualElement, IView<LocalizationToolbarViewModel>
     {
         public const string UssClassName = "bl-localization-tab";
-
-        private readonly LocalizationToolbarViewModel viewModel = new();
 
         public LocalizationToolbarView()
         {
@@ -32,9 +30,9 @@ namespace BovineLabs.Anchor.Debug.Views
 
             var dropdownField = new Dropdown
             {
-                dataSource = this.viewModel,
+                dataSource = this.ViewModel,
                 defaultMessage = string.Empty,
-                bindItem = (item, i) => item.label = this.viewModel.Locales[i],
+                bindItem = (item, i) => item.label = this.ViewModel.Locales[i],
             };
 
             dropdownField.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -51,7 +49,7 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(dropdownField);
         }
 
-        object IView.ViewModel => this.viewModel;
+        public LocalizationToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

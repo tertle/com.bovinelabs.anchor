@@ -11,17 +11,15 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("UI")]
-    public class AppUIToolbarView : VisualElement, IView
+    public class AppUIToolbarView : VisualElement, IView<AppUIToolbarViewModel>
     {
         public const string UssClassName = "bl-appui-tab";
-
-        private readonly AppUIToolbarViewModel viewModel;
 
         public AppUIToolbarView(AppUIToolbarViewModel viewModel)
         {
             this.AddToClassList(UssClassName);
 
-            this.viewModel = viewModel;
+            this.ViewModel = viewModel;
 
             var theme = new Dropdown
             {
@@ -59,6 +57,6 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(scale);
         }
 
-        object IView.ViewModel => this.viewModel;
+        public AppUIToolbarViewModel ViewModel { get; }
     }
 }
