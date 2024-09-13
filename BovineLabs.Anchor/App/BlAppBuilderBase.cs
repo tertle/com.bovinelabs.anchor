@@ -1,4 +1,4 @@
-﻿// <copyright file="BlUIAppBuilder.cs" company="BovineLabs">
+﻿// <copyright file="BlAppBuilderBase.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -9,11 +9,10 @@ namespace BovineLabs.Anchor
     using System.Reflection;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
-    using Unity.AppUI.UI;
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class BLUIAppBuilder : BlUIAppBuilderBase<BLApp>
+    public class BlAppBuilderBase : BlAppBuilderBase<BLApp>
     {
         protected override void OnConfiguringApp(IServiceCollection services)
         {
@@ -29,7 +28,7 @@ namespace BovineLabs.Anchor
     /// </summary>
     /// <typeparam name="T"> The type of the app to build. It is expected that this type is a subclass of <see cref="App"/>. </typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
-    public class BlUIAppBuilderBase<T> : MonoBehaviour
+    public class BlAppBuilderBase<T> : MonoBehaviour
         where T : BLApp
     {
         /// <summary> The UIDocument to host the app in. </summary>
@@ -113,7 +112,6 @@ namespace BovineLabs.Anchor
             }
 
             this.serviceCollection = new AppUIServiceCollection();
-            this.serviceCollection.AddSingleton<Panel>();
 
             var serviceProvider = new BlServiceProvider(this.serviceCollection);
 
@@ -126,10 +124,11 @@ namespace BovineLabs.Anchor
             this.OnConfiguringApp(this.serviceCollection);
             this.RegisterViews(this.serviceCollection);
 
+            var host = new UIToolkitHost(this.UIDocument);
+
             this.serviceCollection.AddSingleton<IPanelService, PanelService>(); // Panels last so everything can be setup beforehand
             this.serviceCollection.IsReadOnly = true;
 
-            var host = new UIToolkitHost(this.UIDocument);
             var app = serviceProvider.GetRequiredService<IApp>();
             app.Initialize(serviceProvider, host);
 

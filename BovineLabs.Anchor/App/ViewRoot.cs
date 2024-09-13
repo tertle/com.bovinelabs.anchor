@@ -4,13 +4,13 @@
 
 namespace BovineLabs.Anchor
 {
-    using Unity.AppUI.UI;
+    using UnityEngine.UIElements;
 
     public interface IViewRoot : IView
     {
         int Priority { get; }
 
-        void AttachedToPanel(Panel value)
+        void AttachedToPanel(VisualElement value)
         {
         }
     }

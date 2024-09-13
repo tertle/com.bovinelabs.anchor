@@ -10,8 +10,8 @@ namespace BovineLabs.Anchor.Elements
     using JetBrains.Annotations;
     using Unity.AppUI.UI;
     using Unity.Properties;
+    using UnityEngine.Assertions;
     using UnityEngine.UIElements;
-    using Assert = NUnit.Framework.Assert;
 
     [UxmlElement]
     public partial class KeyValueGroup : VisualElement

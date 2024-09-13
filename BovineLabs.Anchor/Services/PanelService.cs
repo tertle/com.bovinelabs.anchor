@@ -4,7 +4,6 @@
 
 namespace BovineLabs.Anchor.Services
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
@@ -19,27 +18,33 @@ namespace BovineLabs.Anchor.Services
     [Preserve]
     internal class PanelService : IPanelService
     {
-        public PanelService(IServiceProvider services)
+        private List<IViewRoot> panels;
+
+        public IReadOnlyCollection<IViewRoot> Panels
         {
-            var roots = Core.GetAllImplementations<IViewRoot>().ToArray();
-
-            var viewRoots = new List<IViewRoot>(roots.Length);
-
-            foreach (var type in roots)
+            get
             {
-                var root = (IViewRoot)services.GetService(type);
-                if (root is not VisualElement)
+                if (this.panels == null)
                 {
-                    Debug.LogError($"{nameof(IViewRoot)} must be used on a {nameof(VisualElement)}");
-                    continue;
+                    var roots = Core.GetAllImplementations<IViewRoot>().ToArray();
+
+                    this.panels = new List<IViewRoot>(roots.Length);
+
+                    foreach (var type in roots)
+                    {
+                        var root = (IViewRoot)BLApp.Current.services.GetService(type);
+                        if (root is not VisualElement)
+                        {
+                            Debug.LogError($"{nameof(IViewRoot)} must be used on a {nameof(VisualElement)}");
+                            continue;
+                        }
+
+                        this.panels.Add(root);
+                    }
                 }
 
-                viewRoots.Add(root);
+                return this.panels;
             }
-
-            this.Panels = viewRoots;
         }
-
-        public IReadOnlyCollection<IViewRoot> Panels { get; }
     }
 }

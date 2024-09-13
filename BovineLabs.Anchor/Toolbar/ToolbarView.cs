@@ -80,7 +80,7 @@ namespace BovineLabs.Anchor.Toolbar
         private readonly Dropdown filterButton;
         private readonly Button showButton;
 
-        private Panel appPanel;
+        private VisualElement appRoot;
         private ToolbarGroup activeGroup;
 
         private float uiHeight;
@@ -139,10 +139,10 @@ namespace BovineLabs.Anchor.Toolbar
         public int Priority => -1000;
 
         /// <inheritdoc/>
-        void IViewRoot.AttachedToPanel(Panel value)
+        void IViewRoot.AttachedToPanel(VisualElement value)
         {
-            this.appPanel = value;
-            this.appPanel.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
+            this.appRoot = value;
+            this.appRoot.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
         }
 
         public void AddTab<T, TM>(string tabName, string elementName, out int id, out T view)
@@ -291,7 +291,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private void OnRootContentChanged(GeometryChangedEvent evt)
         {
-            var height = this.appPanel.contentRect.height;
+            var height = this.appRoot.contentRect.height;
 
             if (math.abs(this.uiHeight - height) > float.Epsilon)
             {

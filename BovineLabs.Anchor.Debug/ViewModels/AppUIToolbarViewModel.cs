@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System.Collections.Generic;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
+    using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Properties;
 
@@ -15,7 +16,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private const string ThemeKey = "bl.ui.theme";
         private const string ScaleKey = "bl.ui.scale";
 
-        private readonly Panel panel;
         private readonly ILocalStorageService localStorageService;
 
         private readonly List<string> themeItems = new();
@@ -26,9 +26,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private int themeValue = -1;
         private int scaleValue = -1;
 
-        public AppUIToolbarViewModel(Panel panel, ILocalStorageService localStorageService)
+        public AppUIToolbarViewModel(ILocalStorageService localStorageService)
         {
-            this.panel = panel;
             this.localStorageService = localStorageService;
 
             this.PopulateTheme();
@@ -74,11 +73,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             if (theme == "system")
             {
                 Platform.darkModeChanged += this.OnSystemThemeChanged;
-                this.panel.theme = Platform.darkMode ? "dark" : "light";
+                BLApp.Current.Panel.theme = Platform.darkMode ? "dark" : "light";
             }
             else
             {
-                this.panel.theme = theme;
+                BLApp.Current.Panel.theme = theme;
             }
 
             this.localStorageService.SetValue(ThemeKey, theme);
@@ -86,13 +85,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void SetScale(string scale)
         {
-            this.panel.scale = scale;
+            BLApp.Current.Panel.scale = scale;
             this.localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
         {
-            this.panel.theme = darkMode ? "dark" : "light";
+            BLApp.Current.Panel.theme = darkMode ? "dark" : "light";
         }
 
         private void PopulateTheme()
