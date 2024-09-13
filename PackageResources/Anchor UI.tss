@@ -2,6 +2,7 @@
 @import url("/Packages/com.unity.dt.app-ui/PackageResources/Styles/Themes/App UI.tss");
 
 /* The custom toolbar */
-@import url("BLToolbar.uss");
+@import url("Toolbar.uss");
+@import url("Anchor.uss");
 
 VisualElement {}

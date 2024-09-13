@@ -68,7 +68,7 @@ namespace BovineLabs.Anchor.Toolbar
         private const string ShowIconTargetClass = "appui-button__trailingicon";
 
 #if BL_CORE
-        [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", false, "Should the toolbar be shown", true)]
+        [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
 #endif
 

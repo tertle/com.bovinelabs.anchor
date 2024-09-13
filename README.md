@@ -17,10 +17,6 @@ Alternatively, you can add it directly to your manifest.json file:
 
 This package depends on [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest).
 
-However, due to bugs in the official AppUI package, this package currently requires a forked version that I have patched. You can install the forked version from the following git URL:
-
-`https://github.com/tertle/com.unity.dt.app-ui.git`
-
 These bugs have been reported and should be fixed in the pre.10 release.
 
 Beyond this, BovineLabs Anchor has no other dependencies. However, it does offer custom support for [Entities](https://docs.unity3d.com/Packages/com.unity.entities@latest/), including the generation of per-World tabs. It also includes a binding process compatible with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest).
