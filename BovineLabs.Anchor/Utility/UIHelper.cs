@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Services;
+    using Unity.AppUI.MVVM;
     using Unity.Collections.LowLevel.Unsafe;
     using UnityEngine.UIElements;
 
@@ -22,7 +23,7 @@ namespace BovineLabs.Anchor
 
         public void Bind()
         {
-            var view = ViewProvider.Instance.GetView<TV>();
+            var view = App.current.services.GetService<TV>();
 
             var binding = view.ViewModel;
             this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
@@ -41,7 +42,8 @@ namespace BovineLabs.Anchor
         // Not burst compatible
         public TV GetView()
         {
-            return ViewProvider.Instance.GetView<TV>();
+            // TODO cache maybe?
+            return App.current.services.GetService<TV>();
         }
     }
 }

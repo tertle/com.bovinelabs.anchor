@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor.Toolbar
     using BovineLabs.Anchor.Binding;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
-    using UnityEngine;
     using UnityEngine.UIElements;
 
     public unsafe struct ToolbarHelper<TV, TM, TD>
@@ -49,7 +48,7 @@ namespace BovineLabs.Anchor.Toolbar
         {
             ToolbarView.Instance.AddTab<TV, TM>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
-            var binding = (TM)view.ViewModel;
+            var binding = view.ViewModel;
             this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref binding.Value);
         }
@@ -67,6 +66,8 @@ namespace BovineLabs.Anchor.Toolbar
             return ToolbarViewData.ActiveTab.Data == this.tabName;
         }
 
+        /// <summary> Gets the view. </summary>
+        /// <returns> The view that was loaded from this helper. </returns>
         /// <remarks> Not burst compatible. </remarks>
         public TV GetView()
         {

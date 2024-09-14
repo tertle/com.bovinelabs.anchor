@@ -11,9 +11,9 @@ namespace BovineLabs.Anchor.Toolbar
     using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Binding;
+    using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
-    using Unity.Collections;
     using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
@@ -21,16 +21,6 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
-
-    /// <summary> Burst data separate to avoid compiling issues with static variables. </summary>
-    public static class ToolbarViewData
-    {
-        public static readonly SharedStatic<FixedString32Bytes> ActiveTab = SharedStatic<FixedString32Bytes>.GetOrCreate<ActiveTabVar>();
-
-        private struct ActiveTabVar
-        {
-        }
-    }
 
 #if BL_CORE
     [BovineLabs.Core.ConfigVars.Configurable]
@@ -74,24 +64,21 @@ namespace BovineLabs.Anchor.Toolbar
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
-        private readonly IServiceProvider serviceProvider;
         private readonly ToolbarViewModel viewModel;
         private readonly VisualElement menuContainer;
         private readonly Dropdown filterButton;
         private readonly Button showButton;
 
-        private VisualElement appRoot;
         private ToolbarGroup activeGroup;
 
         private float uiHeight;
         private bool showRibbon;
         private int key;
 
-        public ToolbarView(IServiceProvider serviceProvider, ToolbarViewModel viewModel)
+        public ToolbarView(ToolbarViewModel viewModel)
         {
             Instance = this;
 
-            this.serviceProvider = serviceProvider;
             this.viewModel = viewModel;
 
             this.AddToClassList(UssClassName);
@@ -132,18 +119,13 @@ namespace BovineLabs.Anchor.Toolbar
                 this.style.display = DisplayStyle.None;
             }
 #endif
+
+            this.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
         }
 
         public static ToolbarView Instance { get; private set; }
 
         public int Priority => -1000;
-
-        /// <inheritdoc/>
-        void IViewRoot.AttachedToPanel(VisualElement value)
-        {
-            this.appRoot = value;
-            this.appRoot.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
-        }
 
         public void AddTab<T, TM>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement, IView<TM>
@@ -173,7 +155,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             id = ++this.key;
 
-            view = (VisualElement)this.serviceProvider.GetService(viewType);
+            view = (VisualElement)App.current.services.GetService(viewType);
 
             if (!this.toolbarTabs.TryGetValue(tabName, out var tab))
             {
@@ -291,7 +273,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private void OnRootContentChanged(GeometryChangedEvent evt)
         {
-            var height = this.appRoot.contentRect.height;
+            var height = App.current.rootVisualElement.contentRect.height;
 
             if (math.abs(this.uiHeight - height) > float.Epsilon)
             {
@@ -483,7 +465,7 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        public struct EnabledVar
+        private struct EnabledVar
         {
         }
     }

@@ -4,6 +4,7 @@
 
 namespace BovineLabs.Anchor.Services
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using UnityEngine;
@@ -32,7 +33,19 @@ namespace BovineLabs.Anchor.Services
 
                     foreach (var type in roots)
                     {
-                        var root = (IViewRoot)BLApp.Current.services.GetService(type);
+                        IViewRoot root;
+
+                        try
+                        {
+                            root = (IViewRoot)BLApp.current.services.GetService(type);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogException(ex);
+                            continue;
+                        }
+
+
                         if (root is not VisualElement)
                         {
                             Debug.LogError($"{nameof(IViewRoot)} must be used on a {nameof(VisualElement)}");

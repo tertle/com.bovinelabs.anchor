@@ -4,6 +4,7 @@
 
 namespace BovineLabs.Anchor
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
@@ -21,7 +22,9 @@ namespace BovineLabs.Anchor
             this.panelService = panelService;
         }
 
-        public static BLApp Current => current as BLApp;
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Overwriting AppUI standard")]
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Overwriting AppUI standard")]
+        public static new BLApp current => App.current as BLApp;
 
         public virtual Panel Panel => (Panel)this.rootVisualElement;
 
@@ -32,7 +35,6 @@ namespace BovineLabs.Anchor
             foreach (var view in this.panelService.Panels.OrderBy(r => r.Priority))
             {
                 this.rootVisualElement.Add((VisualElement)view);
-                view.AttachedToPanel(this.rootVisualElement); // TODO can we do without?
             }
         }
     }

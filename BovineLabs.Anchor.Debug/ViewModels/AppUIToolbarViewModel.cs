@@ -7,8 +7,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System.Collections.Generic;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
-    using Unity.AppUI.MVVM;
-    using Unity.AppUI.UI;
     using Unity.Properties;
 
     public class AppUIToolbarViewModel : BLObservableObject, IViewModel
@@ -73,11 +71,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             if (theme == "system")
             {
                 Platform.darkModeChanged += this.OnSystemThemeChanged;
-                BLApp.Current.Panel.theme = Platform.darkMode ? "dark" : "light";
+                BLApp.current.Panel.theme = Platform.darkMode ? "dark" : "light";
             }
             else
             {
-                BLApp.Current.Panel.theme = theme;
+                BLApp.current.Panel.theme = theme;
             }
 
             this.localStorageService.SetValue(ThemeKey, theme);
@@ -85,13 +83,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void SetScale(string scale)
         {
-            BLApp.Current.Panel.scale = scale;
+            BLApp.current.Panel.scale = scale;
             this.localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
         {
-            BLApp.Current.Panel.theme = darkMode ? "dark" : "light";
+            BLApp.current.Panel.theme = darkMode ? "dark" : "light";
         }
 
         private void PopulateTheme()

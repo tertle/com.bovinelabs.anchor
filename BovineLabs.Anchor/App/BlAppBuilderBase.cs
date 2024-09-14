@@ -65,10 +65,8 @@ namespace BovineLabs.Anchor
         {
             services.AddSingleton(typeof(IStoreService), this.StoreService);
             services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-        }
+            services.AddSingleton<IPanelService, PanelService>();
 
-        protected virtual void RegisterViews(IServiceCollection services)
-        {
             // Register all views
             foreach (var view in Core.GetAllImplementations<IView>())
             {
@@ -115,18 +113,14 @@ namespace BovineLabs.Anchor
 
             var serviceProvider = new BlServiceProvider(this.serviceCollection);
 
-            serviceProvider.AddServiceInstance<IServiceProvider, BlServiceProvider>(serviceProvider);
             serviceProvider.AddServiceInstance<GameObject, GameObject>(this.gameObject);
-            serviceProvider.AddServiceInstance<ViewProvider, ViewProvider>(new ViewProvider(serviceProvider));
 
             this.serviceCollection.TryAddSingleton<IApp, T>();
 
             this.OnConfiguringApp(this.serviceCollection);
-            this.RegisterViews(this.serviceCollection);
 
             var host = new UIToolkitHost(this.UIDocument);
 
-            this.serviceCollection.AddSingleton<IPanelService, PanelService>(); // Panels last so everything can be setup beforehand
             this.serviceCollection.IsReadOnly = true;
 
             var app = serviceProvider.GetRequiredService<IApp>();
