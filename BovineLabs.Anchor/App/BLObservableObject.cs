@@ -1,4 +1,4 @@
-﻿// <copyright file="ObservableObject.cs" company="BovineLabs">
+﻿// <copyright file="BLObservableObject.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 

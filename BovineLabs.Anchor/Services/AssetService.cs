@@ -12,15 +12,14 @@ namespace BovineLabs.Anchor.Services
     {
         private readonly Dictionary<string, Object> objects = new();
 
-        public AssetService(GameObject gameObject)
+        public AssetService()
         {
-            var assets = gameObject.GetComponent<AssetList>();
-            if (assets == null)
+            if (AssetList.Instance == null)
             {
                 return;
             }
 
-            foreach (var asset in assets.Assets)
+            foreach (var asset in AssetList.Instance.Assets)
             {
                 if (asset.Asset == null)
                 {

@@ -12,6 +12,13 @@ namespace BovineLabs.Anchor
     {
         public KeyAsset[] Assets = Array.Empty<KeyAsset>();
 
+        public static AssetList Instance { get; private set; }
+
+        private void Awake()
+        {
+            Instance = this;
+        }
+
         [Serializable]
         public class KeyAsset
         {

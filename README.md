@@ -33,7 +33,7 @@ Setting up BovineLabs Anchor is similar to a regular AppUI application, with the
 3. In your `PanelSettings`, change the `Theme Style Sheet` field to point to the `Anchor UI` theme located at `/Packages/com.bovinelabs.anchor/BovineLabs.Anchor/Assets/Anchor UI.tss`.
 
    Alternatively, you can create your own `Theme Style Sheet`, making sure to import the `Anchor UI`.  
-4. Add a `BLUIAppBuilder` component to your `UIDocument`.
+4. Add a `BLAppBuilder` component to your `UIDocument`.
 
 Your inspector should look something like this:
 
