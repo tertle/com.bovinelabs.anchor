@@ -14,11 +14,6 @@ namespace BovineLabs.Anchor
 
     public class BlAppBuilder : BlAppBuilder<BLApp>
     {
-        protected override void OnConfiguringApp(AppBuilder builder)
-        {
-            base.OnConfiguringApp(builder);
-            builder.services.AddSingleton<IAssetService, AssetService>();
-        }
     }
 
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
