@@ -26,14 +26,14 @@ Additionally, if you have my [Core](https://gitlab.com/tertle/com.bovinelabs.cor
 Note, if you're using Core, you currently need to use the 1.3.2-net branch.
 
 ### Setup
-Setting up BovineLabs Anchor is similar to a regular AppUI application, with the key difference being that you'll use `BLUIAppBuilder` or your own inherited version instead of `UIToolkitAppBuilder`. If you're unfamiliar with AppUI, please check out its MVVM and Redux sample.
+Setting up BovineLabs Anchor is similar to a regular AppUI application, with the key difference being that you'll use `AnchorAppBuilder` or your own inherited version instead of `UIToolkitAppBuilder`. If you're unfamiliar with AppUI, please check out its MVVM and Redux sample.
 
 1. Add a `UIDocument` to your scene as usual.
 2. Set up `PanelSettings` and apply them to your `UIDocument`.
 3. In your `PanelSettings`, change the `Theme Style Sheet` field to point to the `Anchor UI` theme located at `/Packages/com.bovinelabs.anchor/BovineLabs.Anchor/Assets/Anchor UI.tss`.
 
    Alternatively, you can create your own `Theme Style Sheet`, making sure to import the `Anchor UI`.  
-4. Add a `BLAppBuilder` component to your `UIDocument`.
+4. Add a `AnchorAppBuilder` component to your `UIDocument`.
 
 Your inspector should look something like this:
 
