@@ -34,28 +34,28 @@ namespace BovineLabs.Anchor.Toolbar
             this.key = 0;
         }
 
-#if UNITY_ENTITIES
         public ToolbarHelper(ref Unity.Entities.SystemState state, FixedString32Bytes groupName)
             : this(FormatWorld(state.World), groupName)
         {
         }
-#endif
 
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
         // Load the tab onto the group. Usually called from OnStartRunning.
         public void Load()
         {
-            ToolbarView.Instance.AddTab<TV, TM>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
+            ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
-            var binding = view.ViewModel;
-            this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
-            this.data = (TD*)UnsafeUtility.AddressOf(ref binding.Value);
+            view.ViewModel.Load();
+            this.handle = GCHandle.Alloc(view.ViewModel, GCHandleType.Pinned);
+            this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
         }
 
         public void Unload()
         {
-            ToolbarView.Instance.RemoveTab(this.key);
+            var view = ToolbarView.Instance.RemoveTab<TV>(this.key);
+
+            view.ViewModel.Unload();
             this.handle.Free();
             this.handle = default;
             this.data = default;
@@ -74,13 +74,11 @@ namespace BovineLabs.Anchor.Toolbar
             return (TV)ToolbarView.Instance.GetPanel(this.key);
         }
 
-#if UNITY_ENTITIES
         private static string FormatWorld(Unity.Entities.World world)
         {
             var name = world.Name;
             return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
         }
-#endif
     }
 }
 #endif

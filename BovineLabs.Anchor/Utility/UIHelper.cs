@@ -2,11 +2,11 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
 namespace BovineLabs.Anchor
 {
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.Collections.LowLevel.Unsafe;
     using UnityEngine.UIElements;
@@ -23,27 +23,31 @@ namespace BovineLabs.Anchor
 
         public void Bind()
         {
-            var view = App.current.services.GetService<TV>();
+            var view = this.GetView();
 
-            var binding = view.ViewModel;
-            this.handle = GCHandle.Alloc(binding, GCHandleType.Pinned);
-            this.data = (TD*)UnsafeUtility.AddressOf(ref binding.Value);
-
-            binding.Load();
+            view.ViewModel.Load();
+            this.handle = GCHandle.Alloc(view.ViewModel, GCHandleType.Pinned);
+            this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
         }
 
         public void Unbind()
         {
+            var view = this.GetView();
+
+            view.ViewModel.Unload();
             this.handle.Free();
             this.handle = default;
             this.data = default;
         }
 
-        // Not burst compatible
+        /// <summary> Gets the view. </summary>
+        /// <returns> The view that was loaded from this helper. </returns>
+        /// <remarks> Not burst compatible. </remarks>
         public TV GetView()
         {
-            // TODO cache maybe?
+            // TODO cache
             return App.current.services.GetService<TV>();
         }
     }
 }
+#endif

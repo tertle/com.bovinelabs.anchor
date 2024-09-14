@@ -12,13 +12,13 @@ namespace BovineLabs.Anchor
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    public class BlAppBuilder : BlAppBuilder<BLApp>
+    public class AnchorAppBuilder : AnchorAppBuilder<AnchorApp>
     {
     }
 
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
-    public class BlAppBuilder<T> : UIToolkitAppBuilder<T>
-        where T : BLApp
+    public class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
+        where T : AnchorApp
     {
         protected virtual Type StoreService { get; } = typeof(StoreService);
 

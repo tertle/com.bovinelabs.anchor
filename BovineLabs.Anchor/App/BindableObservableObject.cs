@@ -1,4 +1,4 @@
-﻿// <copyright file="BLObservableObject.cs" company="BovineLabs">
+﻿// <copyright file="BindableObservableObject.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -6,12 +6,10 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.ComponentModel;
-    using BovineLabs.Anchor.Binding;
     using Unity.AppUI.MVVM;
-    using Unity.Collections;
     using UnityEngine.UIElements;
 
-    public abstract class BLObservableObject : ObservableObject, INotifyBindablePropertyChanged
+    public abstract class BindableObservableObject : ObservableObject, INotifyBindablePropertyChanged
     {
         private event EventHandler<BindablePropertyChangedEventArgs> PropertyChangedInternal;
 
@@ -30,14 +28,4 @@ namespace BovineLabs.Anchor
         }
     }
 
-    public abstract class BLObservableObject<T> : BLObservableObject, IBindingObjectNotify<T>
-        where T : unmanaged, IBindingObjectNotifyData
-    {
-        public abstract ref T Value { get; }
-
-        public void OnPropertyChanged(in FixedString64Bytes property)
-        {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(property.ToString()));
-        }
-    }
 }

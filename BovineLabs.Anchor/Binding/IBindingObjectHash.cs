@@ -2,6 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Binding
 {
     using UnityEngine.UIElements;
@@ -20,3 +21,4 @@ namespace BovineLabs.Anchor.Binding
         long Version { get; set; }
     }
 }
+#endif

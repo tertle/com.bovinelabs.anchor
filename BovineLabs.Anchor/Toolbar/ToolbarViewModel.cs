@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor.Toolbar
     using BovineLabs.Anchor.Services;
     using Unity.Properties;
 
-    public class ToolbarViewModel : BLObservableObject, IViewModel
+    public class ToolbarViewModel : BindableObservableObject, IViewModel
     {
         private const string SelectionKey = "bl.toolbarmanager.filter.selections";
 

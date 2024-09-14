@@ -2,6 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Binding
 {
     public interface IBindingObject
@@ -21,3 +22,4 @@ namespace BovineLabs.Anchor.Binding
         ref T Value { get; }
     }
 }
+#endif

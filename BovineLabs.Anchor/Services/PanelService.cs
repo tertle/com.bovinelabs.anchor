@@ -37,7 +37,7 @@ namespace BovineLabs.Anchor.Services
 
                         try
                         {
-                            root = (IViewRoot)BLApp.current.services.GetService(type);
+                            root = (IViewRoot)AnchorApp.current.services.GetService(type);
                         }
                         catch (Exception ex)
                         {

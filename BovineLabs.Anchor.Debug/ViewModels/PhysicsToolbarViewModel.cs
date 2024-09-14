@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using BovineLabs.Anchor.Binding;
     using Unity.Properties;
 
-    public class PhysicsToolbarViewModel : BLObservableObject, IBindingObject<PhysicsToolbarViewModel.Data>
+    public class PhysicsToolbarViewModel : BindableObservableObject, IBindingObject<PhysicsToolbarViewModel.Data>
     {
         private Data data;
 

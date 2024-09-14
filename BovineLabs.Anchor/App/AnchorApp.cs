@@ -1,4 +1,4 @@
-﻿// <copyright file="BLApp.cs" company="BovineLabs">
+﻿// <copyright file="AnchorApp.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -13,18 +13,18 @@ namespace BovineLabs.Anchor
     using UnityEngine.UIElements;
 
     [Preserve]
-    public class BLApp : App
+    public class AnchorApp : App
     {
         private readonly IPanelService panelService;
 
-        public BLApp(IPanelService panelService)
+        public AnchorApp(IPanelService panelService)
         {
             this.panelService = panelService;
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Overwriting AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Overwriting AppUI standard")]
-        public static new BLApp current => App.current as BLApp;
+        public static new AnchorApp current => App.current as AnchorApp;
 
         public virtual Panel Panel => (Panel)this.rootVisualElement;
 

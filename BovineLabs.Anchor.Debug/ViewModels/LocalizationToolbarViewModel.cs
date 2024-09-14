@@ -12,7 +12,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using UnityEngine.Localization;
     using UnityEngine.Localization.Settings;
 
-    public class LocalizationToolbarViewModel : BLObservableObject
+    public class LocalizationToolbarViewModel : BindableObservableObject
     {
         private int selectedLocale = -1;
         private List<string> locales = new();

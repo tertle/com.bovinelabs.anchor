@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Properties;
     using UnityEngine.Profiling;
 
-    public class MemoryToolbarViewModel : BLObservableObject
+    public class MemoryToolbarViewModel : BindableObservableObject
     {
         private int totalAllocatedMemoryMB;
         private int totalReservedMemoryMB;

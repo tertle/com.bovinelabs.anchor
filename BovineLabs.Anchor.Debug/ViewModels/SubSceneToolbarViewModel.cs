@@ -14,7 +14,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Entities;
     using Unity.Properties;
 
-    public class SubSceneToolbarViewModel : BLObservableObject<SubSceneToolbarViewModel.Data>
+    public class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>
     {
         private List<string> subScenes = new();
 

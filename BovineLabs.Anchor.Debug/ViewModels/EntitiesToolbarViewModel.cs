@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Burst;
     using Unity.Properties;
 
-    public class EntitiesToolbarViewModel : BLObservableObject<EntitiesToolbarViewModel.Data>
+    public class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>
     {
         private Data data;
 

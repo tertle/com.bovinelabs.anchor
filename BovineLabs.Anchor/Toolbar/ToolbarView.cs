@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor.Toolbar
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
-    using BovineLabs.Anchor.Binding;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
@@ -127,18 +126,11 @@ namespace BovineLabs.Anchor.Toolbar
 
         public int Priority => -1000;
 
-        public void AddTab<T, TM>(string tabName, string elementName, out int id, out T view)
-            where T : VisualElement, IView<TM>
+        public void AddTab<T>(string tabName, string elementName, out int id, out T view)
+            where T : VisualElement, IView
         {
             this.AddTab(typeof(T), tabName, elementName, out id, out var visualElement);
             view = (T)visualElement;
-
-            var groupViewModel = view.ViewModel;
-
-            if (groupViewModel is IBindingObject bindingObject)
-            {
-                bindingObject.Load();
-            }
         }
 
         public void AddTab(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
@@ -179,7 +171,8 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        public VisualElement RemoveTab(int id)
+        public T RemoveTab<T>(int id)
+            where T : VisualElement, IView
         {
             if (!this.toolbarGroups.Remove(id, out var group))
             {
@@ -196,7 +189,7 @@ namespace BovineLabs.Anchor.Toolbar
                 disposable.Dispose();
             }
 
-            return group.View;
+            return (T)group.View;
         }
 
         public VisualElement GetPanel(int id)
