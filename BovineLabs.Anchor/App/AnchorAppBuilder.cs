@@ -1,14 +1,17 @@
-﻿// <copyright file="BlAppBuilder.cs" company="BovineLabs">
+﻿// <copyright file="AnchorAppBuilder.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
 namespace BovineLabs.Anchor
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
+    using Unity.AppUI.Navigation;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -20,9 +23,16 @@ namespace BovineLabs.Anchor
     public class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
         where T : AnchorApp
     {
+        [SerializeField]
+        private NavGraphViewAsset navigationGraph;
+
+        protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
+
         protected virtual Type StoreService { get; } = typeof(StoreService);
 
         protected virtual Type LocalStorageService { get; } = typeof(LocalStoragePlayerPrefsService);
+
+        protected virtual Type NavVisualController => null;
 
         /// <inheritdoc/>
         protected override void OnConfiguringApp(AppBuilder builder)
@@ -31,7 +41,11 @@ namespace BovineLabs.Anchor
 
             builder.services.AddSingleton(typeof(IStoreService), this.StoreService);
             builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-            builder.services.AddSingleton<IPanelService, PanelService>();
+
+            if (this.NavVisualController != null)
+            {
+                builder.services.AddSingleton(typeof(INavVisualController), this.NavVisualController);
+            }
 
             // Register all views
             foreach (var view in Core.GetAllImplementations<IView>())
@@ -64,6 +78,51 @@ namespace BovineLabs.Anchor
                     builder.services.AddSingleton(viewModel);
                 }
             }
+        }
+
+        protected override void OnAppInitialized(T app)
+        {
+            base.OnAppInitialized(app);
+
+            app.GraphViewAsset = this.navigationGraph;
+
+            if (this.NavVisualController != null)
+            {
+                app.NavVisualController = app.services.GetService<INavVisualController>();
+            }
+
+            app.AddRoots(GetRoots());
+        }
+
+        private static IReadOnlyList<IViewRoot> GetRoots()
+        {
+            var roots = Core.GetAllImplementations<IViewRoot>().ToArray();
+            var panels = new List<IViewRoot>(roots.Length);
+
+            foreach (var type in roots)
+            {
+                IViewRoot root;
+
+                try
+                {
+                    root = (IViewRoot)AnchorApp.current.services.GetService(type);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                    continue;
+                }
+
+                if (root is not VisualElement)
+                {
+                    Debug.LogError($"{nameof(IViewRoot)} must be used on a {nameof(VisualElement)}");
+                    continue;
+                }
+
+                panels.Add(root);
+            }
+
+            return panels;
         }
 
         private void Reset()

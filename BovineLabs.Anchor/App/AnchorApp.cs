@@ -4,10 +4,11 @@
 
 namespace BovineLabs.Anchor
 {
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
+    using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
@@ -15,12 +16,6 @@ namespace BovineLabs.Anchor
     [Preserve]
     public class AnchorApp : App
     {
-        private readonly IPanelService panelService;
-
-        public AnchorApp(IPanelService panelService)
-        {
-            this.panelService = panelService;
-        }
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Overwriting AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Overwriting AppUI standard")]
@@ -28,11 +23,13 @@ namespace BovineLabs.Anchor
 
         public virtual Panel Panel => (Panel)this.rootVisualElement;
 
-        public override void InitializeComponent()
-        {
-            base.InitializeComponent();
+        public NavGraphViewAsset GraphViewAsset { get; internal set; }
 
-            foreach (var view in this.panelService.Panels.OrderBy(r => r.Priority))
+        public virtual INavVisualController NavVisualController { get; internal set; }
+
+        public virtual void AddRoots(IReadOnlyList<IViewRoot> panels)
+        {
+            foreach (var view in panels.OrderBy(r => r.Priority))
             {
                 this.rootVisualElement.Add((VisualElement)view);
             }
