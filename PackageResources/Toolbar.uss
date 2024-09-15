@@ -71,7 +71,8 @@
 }
 
 .bl-toolbar-tab__name {
-    margin-top: 4px;
+    /*margin-top: 4px;*/
+    padding: 4px 0 0 0;
     -unity-text-align: lower-center;
 }
 

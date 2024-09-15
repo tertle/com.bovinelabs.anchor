@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Binding;
     using Unity.Collections;
 
-    public abstract class SystemObservableObject<T> : BindableObservableObject, IBindingObjectNotify<T>
+    public abstract class SystemObservableObject<T> : BindableObservableObject, IBindingObjectNotify<T>, IViewModel
         where T : unmanaged, IBindingObjectNotifyData
     {
         public abstract ref T Value { get; }

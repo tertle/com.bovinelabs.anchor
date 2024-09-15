@@ -17,7 +17,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private readonly VisualElement content;
 
-        private readonly Text groupLabel;
+        private readonly Heading groupLabel;
 
         public ToolbarTabElement(string label)
         {
@@ -26,7 +26,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.content = new VisualElement();
             this.hierarchy.Add(this.content);
 
-            this.groupLabel = new Text(label) { size = TextSize.XS };
+            this.groupLabel = new Heading(label) { size = HeadingSize.XXS };
             this.groupLabel.AddToClassList(NameClass);
             this.hierarchy.Add(this.groupLabel);
         }

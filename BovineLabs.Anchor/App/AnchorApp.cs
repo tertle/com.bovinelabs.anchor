@@ -16,7 +16,6 @@ namespace BovineLabs.Anchor
     [Preserve]
     public class AnchorApp : App
     {
-
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Overwriting AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Overwriting AppUI standard")]
         public static new AnchorApp current => App.current as AnchorApp;
