@@ -5,7 +5,6 @@
 #if BL_DRAW || UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.Systems
 {
-    using BovineLabs.Anchor.Debug;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;
