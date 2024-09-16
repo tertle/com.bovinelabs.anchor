@@ -41,22 +41,25 @@ namespace BovineLabs.Anchor.Debug.Views
             this.dropdown.SetBinding(
                 nameof(Dropdown.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.SubSceneValues)) });
 
-            this.dropdown.SetBinding(
-                nameof(Dropdown.bindItem), new DataBinding { dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.BindItem)) });
+            this.dropdown.SetBinding(nameof(Dropdown.bindItem), new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget,
+                    dataSourcePath = new PropertyPath(nameof(SubSceneToolbarViewModel.BindItem)),
+                });
 
             this.Add(this.dropdown);
 
-            this.ViewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
+            this.ViewModel.PropertyChanged += this.OnPropertyChanged;
         }
 
         public SubSceneToolbarViewModel ViewModel { get; } = new();
 
         public void Dispose()
         {
-            this.ViewModel.PropertyChanged -= this.ViewModelOnPropertyChanged;
+            this.ViewModel.PropertyChanged -= this.OnPropertyChanged;
         }
 
-        private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SubSceneToolbarViewModel.SubScenes))
             {
