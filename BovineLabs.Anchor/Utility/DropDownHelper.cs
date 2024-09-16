@@ -11,6 +11,11 @@ namespace BovineLabs.Anchor
     using Unity.AppUI.UI;
     using Unity.Collections;
 
+    public interface IDropDownItem
+    {
+        string GetString();
+    }
+
     public static class DropDownHelper
     {
         public static List<string> GetItems(List<string> items, NativeArray<FixedString64Bytes> native)
@@ -41,6 +46,21 @@ namespace BovineLabs.Anchor
             return items;
         }
 
+        public static List<string> GetItems<T>(List<string> items, NativeArray<T> native)
+            where T : unmanaged, IDropDownItem
+        {
+            if (native.IsCreated)
+            {
+                items.Clear();
+                foreach (var c in native)
+                {
+                    items.Add(c.GetString());
+                }
+            }
+
+            return items;
+        }
+
         public static List<string> GetItems(List<string> items, NativeArray<FixedString64Bytes> native, Func<string, string> formatter)
         {
             var items2 = GetItems(items, native);
@@ -53,6 +73,18 @@ namespace BovineLabs.Anchor
         }
 
         public static List<string> GetItems(List<string> items, NativeArray<FixedString32Bytes> native, Func<string, string> formatter)
+        {
+            var items2 = GetItems(items, native);
+            for (var index = 0; index < items2.Count; index++)
+            {
+                items2[index] = formatter(items2[index]);
+            }
+
+            return items2;
+        }
+
+        public static List<string> GetItems<T>(List<string> items, NativeArray<T> native, Func<string, string> formatter)
+            where T : unmanaged, IDropDownItem
         {
             var items2 = GetItems(items, native);
             for (var index = 0; index < items2.Count; index++)

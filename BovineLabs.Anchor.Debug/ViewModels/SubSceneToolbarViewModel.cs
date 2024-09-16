@@ -16,56 +16,20 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
     public class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>
     {
-        private List<string> subScenes = new();
+        private readonly List<string> subScenes = new();
+        private readonly List<int> values = new();
 
-        // private IEnumerable<int> values = new List<int>();
         private Data data;
 
         public override ref Data Value => ref this.data;
 
         [CreateProperty]
-        public List<string> SubScenes
-        {
-            get
-            {
-                if (this.data.SubScenes.IsCreated)
-                {
-                    if (this.data.SubScenes.Length != this.subScenes.Count)
-                    {
-                        RebuildList();
-                    }
-                    else
-                    {
-                        for (var i = 0; i < this.data.SubScenes.Length; i++)
-                        {
-                            if (this.data.SubScenes[i].Name == this.subScenes[i])
-                            {
-                                continue;
-                            }
-
-                            RebuildList();
-                            break;
-                        }
-                    }
-                }
-
-                return this.subScenes;
-
-                void RebuildList()
-                {
-                    this.subScenes = new List<string>();
-                    foreach (var n in this.data.SubScenes.AsArray())
-                    {
-                        this.subScenes.Add(n.Name.ToString());
-                    }
-                }
-            }
-        }
+        public List<string> SubScenes => DropDownHelper.GetItems(this.subScenes, this.data.SubScenes.AsArray(), Formatter);
 
         [CreateProperty]
         public IEnumerable<int> SubSceneValues
         {
-            get => this.data.SubSceneValues.IsCreated ? this.data.SubSceneValues.AsArray().ToArray() : Array.Empty<int>();
+            get => DropDownHelper.GetMultiValues(this.values, this.data.SubSceneValues);
 
             set
             {
@@ -74,31 +38,28 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                     return;
                 }
 
-                if (this.data.IgnoreValueUpdate)
-                {
-                    this.data.IgnoreValueUpdate = false;
-                    return;
-                }
-
                 this.SetProperty(this.data.SubSceneValues.AsArray(), value, SequenceComparer.Int, value =>
                 {
                     this.data.SubSceneSelectedChanged = true;
-
-                    this.data.SubSceneValues.Clear();
-                    foreach (var v in value)
-                    {
-                        this.data.SubSceneValues.Add(v);
-                    }
+                    DropDownHelper.SetMultiValues(value, this.data.SubSceneValues);
                 });
             }
         }
 
         [CreateProperty]
-        public Action<DropdownItem, int> BindItem => this.BindItemMethod;
+        public Action<DropdownItem, int> BindItem => DropDownHelper.BindItem(this.subScenes);
 
-        private void BindItemMethod(DropdownItem item, int i)
+        private static string Formatter(string name)
         {
-            item.label = this.subScenes[i];
+            const string scenePrefix = "Scene: ";
+
+            var index = name.IndexOf(scenePrefix, StringComparison.Ordinal);
+            if (index != -1)
+            {
+                name = name.Remove(index, scenePrefix.Length);
+            }
+
+            return name;
         }
 
         public struct Data : IBindingObjectNotifyData
@@ -126,13 +87,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 }
             }
 
-            public bool IgnoreValueUpdate { get; set; }
-
             public bool SubSceneSelectedChanged { get; set; }
 
             public FunctionPointer<OnPropertyChangedDelegate> Notify { get; set; }
 
-            public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>
+            public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>, IDropDownItem
             {
                 public Entity Entity;
                 public FixedString64Bytes Name;
@@ -153,6 +112,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                     {
                         return (this.Entity.GetHashCode() * 397) ^ this.Name.GetHashCode();
                     }
+                }
+
+                public string GetString()
+                {
+                    return this.Name.ToString();
                 }
             }
         }

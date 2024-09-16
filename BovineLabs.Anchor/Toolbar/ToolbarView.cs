@@ -100,7 +100,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.uiHeight = Screen.height; // TODO
 
             this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
-            this.viewModel.PropertyChanged += this.ViewModelOnPropertyChanged;
+            this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
             foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
             {
@@ -432,11 +432,11 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(ToolbarViewModel.FilterItems))
             {
-                this.filterButton.value = this.viewModel.FilterValues;
+                this.filterButton.value = this.viewModel.FilterValues; // Can't rely on binding to have updated in time
                 this.filterButton.Refresh();
             }
             else if (e.PropertyName == nameof(ToolbarViewModel.FilterValues))

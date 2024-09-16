@@ -27,5 +27,4 @@ namespace BovineLabs.Anchor
             this.PropertyChangedInternal?.Invoke(this, new BindablePropertyChangedEventArgs(e.PropertyName));
         }
     }
-
 }

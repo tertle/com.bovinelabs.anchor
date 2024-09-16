@@ -63,6 +63,7 @@ namespace BovineLabs.Anchor.Debug.Views
         {
             if (e.PropertyName == nameof(SubSceneToolbarViewModel.SubScenes))
             {
+                this.dropdown.value = this.ViewModel.SubSceneValues; // Can't rely on binding to have updated in time
                 this.dropdown.Refresh();
             }
         }
