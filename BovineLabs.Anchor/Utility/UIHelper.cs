@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
+#if UNITY_ENTITIES
 namespace BovineLabs.Anchor
 {
     using System.Runtime.InteropServices;

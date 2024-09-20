@@ -6,7 +6,9 @@
 namespace BovineLabs.Anchor.Toolbar
 {
     using System;
+    using JetBrains.Annotations;
 
+    [MeansImplicitUse]
     public class AutoToolbarAttribute : Attribute
     {
         public AutoToolbarAttribute(string elementName, string tabName = null)
