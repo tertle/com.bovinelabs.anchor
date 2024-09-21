@@ -96,39 +96,8 @@ namespace BovineLabs.Anchor
                 app.NavVisualController = app.services.GetService<INavVisualController>();
             }
 
-            app.AddRoots();
+            app.Initialize();
         }
-
-        // private static IReadOnlyList<IViewRoot> GetRoots()
-        // {
-        //     var roots = Core.GetAllImplementations<IViewRoot>().ToArray();
-        //     var panels = new List<IViewRoot>(roots.Length);
-        //
-        //     foreach (var type in roots)
-        //     {
-        //         IViewRoot root;
-        //
-        //         try
-        //         {
-        //             root = (IViewRoot)AnchorApp.current.services.GetService(type);
-        //         }
-        //         catch (Exception ex)
-        //         {
-        //             Debug.LogException(ex);
-        //             continue;
-        //         }
-        //
-        //         if (root is not VisualElement)
-        //         {
-        //             Debug.LogError($"{nameof(IViewRoot)} must be used on a {nameof(VisualElement)}");
-        //             continue;
-        //         }
-        //
-        //         panels.Add(root);
-        //     }
-        //
-        //     return panels;
-        // }
 
         private void Reset()
         {

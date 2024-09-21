@@ -124,8 +124,6 @@ namespace BovineLabs.Anchor.Toolbar
 
         public static ToolbarView Instance { get; private set; }
 
-        public int Priority => -1000;
-
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement, IView
         {
