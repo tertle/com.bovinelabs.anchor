@@ -58,6 +58,11 @@
             "define": "UNITY_LOCALIZATION"
         },
         {
+            "name": "com.unity.netcode",
+            "expression": "",
+            "define": "UNITY_NETCODE"
+        },
+        {
             "name": "com.unity.physics",
             "expression": "",
             "define": "UNITY_PHYSICS"

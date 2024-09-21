@@ -1,4 +1,4 @@
-﻿// <copyright file="ViewRoot.cs" company="BovineLabs">
+﻿// <copyright file="IViewRoot.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
