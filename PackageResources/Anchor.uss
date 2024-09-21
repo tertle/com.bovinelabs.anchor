@@ -6,3 +6,7 @@
 .appui {
     background-color: rgba(0, 0, 0, 0);
 }
+
+.appui-navhost__container > .appui-navhost__item {
+    background-color: rgba(0, 0, 0, 0);
+}
