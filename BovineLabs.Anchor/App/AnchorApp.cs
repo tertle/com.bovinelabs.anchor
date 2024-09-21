@@ -4,9 +4,8 @@
 
 namespace BovineLabs.Anchor
 {
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
+    using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
@@ -24,14 +23,25 @@ namespace BovineLabs.Anchor
 
         public NavGraphViewAsset GraphViewAsset { get; internal set; }
 
+        public VisualElement PopupContainer { get; private set; }
+
+        public VisualElement NotificationContainer { get; private set; }
+
+        public VisualElement TooltipContainer { get; private set; }
+
         public virtual INavVisualController NavVisualController { get; internal set; }
 
-        public virtual void AddRoots(IReadOnlyList<IViewRoot> panels)
+        public virtual void AddRoots()
         {
-            foreach (var view in panels.OrderBy(r => r.Priority))
-            {
-                this.rootVisualElement.Add((VisualElement)view);
-            }
+            var toolbarView = this.services.GetService<ToolbarView>();
+            this.rootVisualElement.Add(toolbarView);
+
+            var navigationView = this.services.GetService<NavigationView>();
+            this.rootVisualElement.Add(navigationView);
+
+            this.PopupContainer = this.rootVisualElement.Q<VisualElement>("popup-container");
+            this.NotificationContainer = this.rootVisualElement.Q<VisualElement>("notification-container");
+            this.TooltipContainer = this.rootVisualElement.Q<VisualElement>("tooltip-container");
         }
     }
 }

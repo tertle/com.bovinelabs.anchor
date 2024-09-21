@@ -4,5 +4,3 @@
 /* The custom toolbar */
 @import url("Toolbar.uss");
 @import url("Anchor.uss");
-
-VisualElement {}

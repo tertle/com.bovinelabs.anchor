@@ -25,7 +25,7 @@ namespace BovineLabs.Anchor.Toolbar
     [BovineLabs.Core.ConfigVars.Configurable]
 #endif
     [Preserve]
-    public class ToolbarView : VisualElement, IViewRoot
+    public class ToolbarView : VisualElement, IView
     {
         public const float DefaultUpdateRate = 1 / 4f;
 
@@ -429,6 +429,21 @@ namespace BovineLabs.Anchor.Toolbar
                 var rect = cam.rect;
                 rect.height = cameraHeightNormalized;
                 cam.rect = rect;
+            }
+
+            if (AnchorApp.current.PopupContainer != null)
+            {
+                AnchorApp.current.PopupContainer.style.top = uiRect.height;
+            }
+
+            if (AnchorApp.current.NotificationContainer != null)
+            {
+                AnchorApp.current.NotificationContainer.style.top = uiRect.height;
+            }
+
+            if (AnchorApp.current.TooltipContainer != null)
+            {
+                AnchorApp.current.TooltipContainer.style.top = uiRect.height;
             }
         }
 

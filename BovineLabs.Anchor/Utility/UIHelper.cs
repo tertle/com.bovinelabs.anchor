@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor
 {
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
+    using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.Collections.LowLevel.Unsafe;
     using UnityEngine.UIElements;
@@ -23,7 +24,7 @@ namespace BovineLabs.Anchor
 
         public void Bind()
         {
-            var view = this.GetView();
+            var view = App.current.services.GetService<IViewService>().LoadView<TV>();
 
             view.ViewModel.Load();
             this.handle = GCHandle.Alloc(view.ViewModel, GCHandleType.Pinned);
@@ -38,6 +39,8 @@ namespace BovineLabs.Anchor
             this.handle.Free();
             this.handle = default;
             this.data = default;
+
+            App.current.services.GetService<IViewService>().UnloadView<TV>();
         }
 
         /// <summary> Gets the view. </summary>
@@ -46,7 +49,7 @@ namespace BovineLabs.Anchor
         public TV GetView()
         {
             // TODO cache
-            return App.current.services.GetService<TV>();
+            return App.current.services.GetService<IViewService>().GetView<TV>();
         }
     }
 }
