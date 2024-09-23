@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE
+#if BL_CORE && BL_CORE_EXTENSIONS
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Core;
