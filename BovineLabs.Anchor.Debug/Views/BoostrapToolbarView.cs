@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE && BL_CORE_EXTENSIONS
+#if BL_CORE_1_3_3_OR_NEWER && BL_CORE_EXTENSIONS
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor;
