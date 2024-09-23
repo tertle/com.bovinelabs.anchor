@@ -13,7 +13,6 @@ namespace BovineLabs.Anchor
     using Unity.AppUI.UI;
     using Unity.Burst;
     using Unity.Collections;
-    using Unity.Logging;
     using UnityEngine.UIElements;
 
     public class AnchorApp : App
@@ -23,8 +22,8 @@ namespace BovineLabs.Anchor
 
         private delegate void NavigateDelegate(in FixedString64Bytes screen);
 
-        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Overwriting AppUI standard")]
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "Overwriting AppUI standard")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
         public static new AnchorApp current => App.current as AnchorApp;
 
         public virtual Panel Panel => (Panel)this.rootVisualElement;
