@@ -4,38 +4,23 @@
 
 namespace BovineLabs.Anchor.Services
 {
-    using System;
     using UnityEngine;
 
     public class LocalStoragePlayerPrefsService : ILocalStorageService
     {
+        public bool HasValue(string key)
+        {
+            return PlayerPrefs.HasKey(key);
+        }
+
         public string GetValue(string key, string defaultValue = default)
         {
-            if (PlayerPrefs.HasKey(key))
+            if (this.HasValue(key))
             {
                 return PlayerPrefs.GetString(key);
             }
 
-            this.SetValue(key, defaultValue);
-            return defaultValue;
-        }
-
-        public T GetValue<T>(string key, T defaultValue = default)
-        {
-            if (PlayerPrefs.HasKey(key))
-            {
-                var json = PlayerPrefs.GetString(key);
-                try
-                {
-                    return JsonUtility.FromJson<T>(json);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
-
-            this.SetValue(key, defaultValue);
+            // this.SetValue(key, defaultValue);
             return defaultValue;
         }
 
@@ -44,15 +29,34 @@ namespace BovineLabs.Anchor.Services
             PlayerPrefs.SetString(key, value);
         }
 
-        public void SetValue<T>(string key, T value)
-        {
-            var json = JsonUtility.ToJson(value);
-            PlayerPrefs.SetString(key, json);
-        }
-
         public void Delete(string key)
         {
             PlayerPrefs.DeleteKey(key);
         }
+
+        // public T GetValue<T>(string key, T defaultValue = default)
+        // {
+        //     if (PlayerPrefs.HasKey(key))
+        //     {
+        //         var json = PlayerPrefs.GetString(key);
+        //         try
+        //         {
+        //             return JsonUtility.FromJson<T>(json);
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             Debug.LogException(ex);
+        //         }
+        //     }
+        //
+        //     // this.SetValue(key, defaultValue);
+        //     return defaultValue;
+        // }
+        //
+        // public void SetValue<T>(string key, T value)
+        // {
+        //     var json = JsonUtility.ToJson(value);
+        //     PlayerPrefs.SetString(key, json);
+        // }
     }
 }

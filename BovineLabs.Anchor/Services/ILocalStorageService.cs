@@ -6,13 +6,11 @@ namespace BovineLabs.Anchor.Services
 {
     public interface ILocalStorageService
     {
+        bool HasValue(string key);
+
         string GetValue(string key, string defaultValue = default);
 
-        T GetValue<T>(string key, T defaultValue = default);
-
         void SetValue(string key, string value);
-
-        void SetValue<T>(string key, T value);
 
         void Delete(string key);
     }

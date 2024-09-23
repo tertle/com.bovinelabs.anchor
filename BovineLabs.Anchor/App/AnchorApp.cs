@@ -71,10 +71,7 @@ namespace BovineLabs.Anchor
         /// <param name="screen"> The screen to navigate to. </param>
         public void Navigate(string screen)
         {
-            if (!this.Controller.Navigate(screen))
-            {
-                Log.Warning($"Tried to navigate to {screen} but it wasn't found");
-            }
+            this.Controller.Navigate(screen);
         }
 
         [AOT.MonoPInvokeCallback(typeof(OnPropertyChangedDelegate))]
