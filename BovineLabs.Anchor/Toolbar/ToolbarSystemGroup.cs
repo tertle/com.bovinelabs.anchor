@@ -7,7 +7,7 @@ namespace BovineLabs.Anchor.Toolbar
 {
     using Unity.Entities;
 
-#if BL_CORE
+#if BL_CORE && BL_CORE_EXTENSIONS
     [WorldSystemFilter(WorldSystemFilterFlags.Default | BovineLabs.Core.Worlds.Service)]
     [UpdateInGroup(typeof(BovineLabs.Core.DebugSystemGroup))]
 #else
@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Toolbar
 
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [WorldSystemFilter(
-        WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation | WorldFlag.Editor,
+        WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation,
         WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation)]
 #endif
     public partial class ToolbarSystemGroup : ComponentSystemGroup
