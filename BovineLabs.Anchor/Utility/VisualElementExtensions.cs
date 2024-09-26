@@ -13,5 +13,10 @@ namespace BovineLabs.Anchor
         {
             element?.FindNavController()?.Navigate(screen);
         }
+
+        public static void PopBackStack(this VisualElement element)
+        {
+            element?.FindNavController()?.PopBackStack();
+        }
     }
 }

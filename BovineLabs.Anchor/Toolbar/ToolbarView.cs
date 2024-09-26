@@ -120,6 +120,8 @@ namespace BovineLabs.Anchor.Toolbar
 #endif
 
             this.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
+
+            App.shuttingDown += this.AppOnShuttingDown;
         }
 
         public static ToolbarView Instance { get; private set; }
@@ -212,6 +214,16 @@ namespace BovineLabs.Anchor.Toolbar
             }
 
             return 0;
+        }
+
+        private void AppOnShuttingDown()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+
+            App.shuttingDown -= this.AppOnShuttingDown;
         }
 
         private void ShowTab(ToolbarGroup.Tab tab)
