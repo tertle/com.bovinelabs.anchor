@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using BovineLabs.Core.Extensions;
     using Unity.AppUI.UI;
     using Unity.Collections;
 
@@ -100,7 +99,14 @@ namespace BovineLabs.Anchor
             if (native.IsCreated)
             {
                 values.Clear();
-                values.AddRangeNative(native.AsArray());
+#if !BL_CORE
+                BovineLabs.Core.Extensions.ListExtensions.AddRangeNative(values, native.AsArray());
+#else
+                foreach (var i in native.AsArray())
+                {
+                    values.Add(i);
+                }
+#endif
             }
 
             return values;
