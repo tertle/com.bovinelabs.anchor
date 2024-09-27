@@ -99,7 +99,7 @@ namespace BovineLabs.Anchor
             if (native.IsCreated)
             {
                 values.Clear();
-#if !BL_CORE
+#if BL_CORE
                 BovineLabs.Core.Extensions.ListExtensions.AddRangeNative(values, native.AsArray());
 #else
                 foreach (var i in native.AsArray())
