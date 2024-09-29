@@ -12,8 +12,7 @@ namespace BovineLabs.Anchor
     using Unity.Collections.LowLevel.Unsafe;
     using UnityEngine.UIElements;
 
-    public unsafe struct UIHelper<TV, TM, TD>
-        where TV : VisualElement, IView<TM>
+    public unsafe struct UIHelper<TM, TD>
         where TM : class, IBindingObject<TD>
         where TD : unmanaged
     {
@@ -24,32 +23,23 @@ namespace BovineLabs.Anchor
 
         public void Bind()
         {
-            var view = App.current.services.GetService<IViewService>().LoadView<TV>();
+            var viewModel = App.current.services.GetService<IViewModelService>().Load<TM>();
 
-            view.ViewModel.Load();
-            this.handle = GCHandle.Alloc(view.ViewModel, GCHandleType.Pinned);
-            this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
+            viewModel.Load();
+            this.handle = GCHandle.Alloc(viewModel, GCHandleType.Pinned);
+            this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
         }
 
         public void Unbind()
         {
-            var view = this.GetView();
+            var viewModel = App.current.services.GetService<IViewModelService>().Get<TM>();
 
-            view.ViewModel.Unload();
+            viewModel.Unload();
             this.handle.Free();
             this.handle = default;
             this.data = default;
 
-            App.current.services.GetService<IViewService>().UnloadView<TV>();
-        }
-
-        /// <summary> Gets the view. </summary>
-        /// <returns> The view that was loaded from this helper. </returns>
-        /// <remarks> Not burst compatible. </remarks>
-        public TV GetView()
-        {
-            // TODO cache
-            return App.current.services.GetService<IViewService>().GetView<TV>();
+            App.current.services.GetService<IViewModelService>().Unload<TM>();
         }
     }
 }

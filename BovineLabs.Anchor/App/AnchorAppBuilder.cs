@@ -30,7 +30,7 @@ namespace BovineLabs.Anchor
 
         protected virtual Type LocalStorageService { get; } = typeof(LocalStoragePlayerPrefsService);
 
-        protected virtual Type ViewService { get; } = typeof(ViewService);
+        protected virtual Type ViewModelService { get; } = typeof(ViewModelService);
 
         protected virtual Type GameView { get; } = typeof(NavigationView);
 
@@ -43,7 +43,7 @@ namespace BovineLabs.Anchor
 
             builder.services.AddSingleton(typeof(IStoreService), this.StoreService);
             builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-            builder.services.AddSingleton(typeof(IViewService), this.ViewService);
+            builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
             if (this.NavVisualController != null)
             {

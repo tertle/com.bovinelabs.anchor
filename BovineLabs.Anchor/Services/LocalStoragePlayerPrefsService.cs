@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Services
 {
     using UnityEngine;
 
-    public class LocalStoragePlayerPrefsService : ILocalStorageService
+    internal record LocalStoragePlayerPrefsService : ILocalStorageService
     {
         public bool HasValue(string key)
         {
