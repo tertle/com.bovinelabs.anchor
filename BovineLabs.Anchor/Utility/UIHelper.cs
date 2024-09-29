@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.Collections.LowLevel.Unsafe;
-    using UnityEngine.UIElements;
 
     public unsafe struct UIHelper<TM, TD>
         where TM : class, IBindingObject<TD>

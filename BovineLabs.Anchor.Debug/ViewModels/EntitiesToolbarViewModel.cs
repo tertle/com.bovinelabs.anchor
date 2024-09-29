@@ -33,46 +33,19 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             public int Entities
             {
                 readonly get => this.entities;
-                set
-                {
-                    if (this.entities == value)
-                    {
-                        return;
-                    }
-
-                    this.entities = value;
-                    this.Notify();
-                }
+                set => this.SetProperty(ref this.entities, value);
             }
 
             public int Archetypes
             {
                 readonly get => this.archetypes;
-                set
-                {
-                    if (this.archetypes == value)
-                    {
-                        return;
-                    }
-
-                    this.archetypes = value;
-                    this.Notify();
-                }
+                set => this.SetProperty(ref this.archetypes, value);
             }
 
             public int Chunks
             {
                 readonly get => this.chunks;
-                set
-                {
-                    if (this.chunks == value)
-                    {
-                        return;
-                    }
-
-                    this.chunks = value;
-                    this.Notify();
-                }
+                set => this.SetProperty(ref this.chunks, value);
             }
 
             public FunctionPointer<OnPropertyChangedDelegate> Notify { get; set; }

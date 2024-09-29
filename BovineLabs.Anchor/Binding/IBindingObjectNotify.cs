@@ -79,21 +79,35 @@ namespace BovineLabs.Anchor.Binding
 
     public static class BindingObjectNotifyDataExtensions
     {
-        public static unsafe void Notify<T>(this ref T binding, [CallerMemberName] string property = "")
+        public static bool SetProperty<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
+            where T : unmanaged, IBindingObjectNotifyData
+            where TV : unmanaged, IEquatable<TV>
+        {
+            if (field.Equals(newValue))
+            {
+                return false;
+            }
+
+            field = newValue;
+            binding.NotifyExplicit(propertyName);
+            return true;
+        }
+
+        public static unsafe void Notify<T>(this ref T binding, [CallerMemberName] string propertyName = "")
             where T : unmanaged, IBindingObjectNotifyData
         {
             if (binding.Notify.IsCreated)
             {
-                binding.Notify.Invoke((IntPtr)UnsafeUtility.AddressOf(ref binding), property);
+                binding.Notify.Invoke((IntPtr)UnsafeUtility.AddressOf(ref binding), propertyName);
             }
         }
 
-        public static unsafe void NotifyExplicit<T>(this ref T binding, FixedString64Bytes property)
+        public static unsafe void NotifyExplicit<T>(this ref T binding, FixedString64Bytes propertyName)
             where T : unmanaged, IBindingObjectNotifyData
         {
             if (binding.Notify.IsCreated)
             {
-                binding.Notify.Invoke((IntPtr)UnsafeUtility.AddressOf(ref binding), property);
+                binding.Notify.Invoke((IntPtr)UnsafeUtility.AddressOf(ref binding), propertyName);
             }
         }
     }
