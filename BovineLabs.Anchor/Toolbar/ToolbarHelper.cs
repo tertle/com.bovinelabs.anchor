@@ -66,14 +66,6 @@ namespace BovineLabs.Anchor.Toolbar
             return ToolbarViewData.ActiveTab.Data == this.tabName;
         }
 
-        /// <summary> Gets the view. </summary>
-        /// <returns> The view that was loaded from this helper. </returns>
-        /// <remarks> Not burst compatible. </remarks>
-        public TV GetView()
-        {
-            return (TV)ToolbarView.Instance.GetPanel(this.key);
-        }
-
         private static string FormatWorld(Unity.Entities.World world)
         {
             var name = world.Name;
