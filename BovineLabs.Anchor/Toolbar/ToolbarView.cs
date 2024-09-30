@@ -221,7 +221,7 @@ namespace BovineLabs.Anchor.Toolbar
             if (Instance == this)
             {
                 // Instance = null;
-           }
+            }
 
             App.shuttingDown -= this.AppOnShuttingDown;
         }

@@ -30,7 +30,9 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             server.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Server)) });
-            server.SetBinding(nameof(this.enabledSelf), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ServerEnabled)) });
+            server.SetBinding(
+                nameof(this.enabledSelf),
+                new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ServerEnabled)) });
             this.Add(server);
 #endif
 #endif
@@ -44,7 +46,9 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             client.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Client)) });
-            client.SetBinding(nameof(this.enabledSelf), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ClientEnabled)) });
+            client.SetBinding(
+                nameof(this.enabledSelf),
+                new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ClientEnabled)) });
             this.Add(client);
 #endif
 
@@ -55,7 +59,9 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             game.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Local)) });
-            game.SetBinding(nameof(this.enabledSelf), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.LocalEnabled)) });
+            game.SetBinding(
+                nameof(this.enabledSelf),
+                new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.LocalEnabled)) });
             this.Add(game);
 #endif
         }
