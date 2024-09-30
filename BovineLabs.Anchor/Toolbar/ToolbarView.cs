@@ -220,8 +220,8 @@ namespace BovineLabs.Anchor.Toolbar
         {
             if (Instance == this)
             {
-                Instance = null;
-            }
+                // Instance = null;
+           }
 
             App.shuttingDown -= this.AppOnShuttingDown;
         }

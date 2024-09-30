@@ -1,4 +1,4 @@
-﻿// <copyright file="BoostrapToolbarView.cs" company="BovineLabs">
+﻿// <copyright file="BootstrapToolbarView.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -13,11 +13,11 @@ namespace BovineLabs.Anchor.Debug.Views
     using Toggle = Unity.AppUI.UI.Toggle;
 
     [AutoToolbar("Bootstrap")]
-    public class BoostrapToolbarView : VisualElement, IView<BootstrapToolbarViewModel>
+    public class BootstrapToolbarView : VisualElement, IView<BootstrapToolbarViewModel>
     {
         public const string UssClassName = "bl-net-bootstrap-tab";
 
-        public BoostrapToolbarView()
+        public BootstrapToolbarView()
         {
             this.AddToClassList(UssClassName);
 
@@ -30,6 +30,7 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             server.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Server)) });
+            server.SetBinding(nameof(this.enabledSelf), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ServerEnabled)) });
             this.Add(server);
 #endif
 #endif
@@ -43,6 +44,7 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             client.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Client)) });
+            client.SetBinding(nameof(this.enabledSelf), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ClientEnabled)) });
             this.Add(client);
 #endif
 
@@ -53,6 +55,7 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             game.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Local)) });
+            game.SetBinding(nameof(this.enabledSelf), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.LocalEnabled)) });
             this.Add(game);
 #endif
         }

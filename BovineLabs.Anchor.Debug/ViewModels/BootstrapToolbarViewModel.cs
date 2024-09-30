@@ -16,17 +16,31 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public bool Local
         {
             get => BovineLabsBootstrap.GameWorld != null;
-            set => this.SetProperty(this.Local, value, value =>
+            set =>
+                this.SetProperty(this.Local, value, value =>
+                {
+                    if (value)
+                    {
+                        BovineLabsBootstrap.Instance.CreateGameWorld();
+                    }
+                    else
+                    {
+                        BovineLabsBootstrap.Instance.DestroyGameWorld();
+                    }
+                });
+        }
+
+        [CreateProperty]
+        public bool LocalEnabled
+        {
+            get
             {
-                if (value)
-                {
-                    BovineLabsBootstrap.Instance.CreateGameWorld();
-                }
-                else
-                {
-                    BovineLabsBootstrap.Instance.DestroyGameWorld();
-                }
-            });
+#if UNITY_NETCODE
+                return !this.Client && !this.Server;
+#else
+                return true;
+#endif
+            }
         }
 
 #if UNITY_NETCODE
@@ -49,8 +63,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 });
             }
         }
-#endif
-#endif
+
+        [CreateProperty]
+        public bool ClientEnabled => !this.Local;
+
+#endif // UNITY_NETCODE
+#endif // !UNITY_SERVER
 
 #if !UNITY_CLIENT
 #if UNITY_NETCODE
@@ -69,6 +87,19 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                     BovineLabsBootstrap.Instance.DestroyServerWorld();
                 }
             });
+        }
+
+        [CreateProperty]
+        public bool ServerEnabled
+        {
+            get
+            {
+#if !UNITY_SERVER
+                return !this.Local;
+#else
+                return true;
+#endif
+            }
         }
 #endif
 #endif
