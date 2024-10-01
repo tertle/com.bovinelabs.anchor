@@ -7,9 +7,10 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System.Collections.Generic;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
+    using Unity.AppUI.MVVM;
     using Unity.Properties;
 
-    public class AppUIToolbarViewModel : BindableObservableObject, IViewModel
+    public class AppUIToolbarViewModel : ObservableObject, IViewModel
     {
         private const string ThemeKey = "bl.ui.theme";
         private const string ScaleKey = "bl.ui.scale";

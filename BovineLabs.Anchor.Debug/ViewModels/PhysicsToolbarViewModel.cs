@@ -5,11 +5,11 @@
 #if BL_DRAW || UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using BovineLabs.Anchor;
     using BovineLabs.Anchor.Binding;
+    using Unity.AppUI.MVVM;
     using Unity.Properties;
 
-    public class PhysicsToolbarViewModel : BindableObservableObject, IBindingObject<PhysicsToolbarViewModel.Data>
+    public class PhysicsToolbarViewModel : ObservableObject, IBindingObject<PhysicsToolbarViewModel.Data>
     {
         private Data data;
 

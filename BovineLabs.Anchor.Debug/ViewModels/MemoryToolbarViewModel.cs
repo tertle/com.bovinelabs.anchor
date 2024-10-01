@@ -5,11 +5,12 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Toolbar;
+    using Unity.AppUI.MVVM;
     using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine.Profiling;
 
-    public class MemoryToolbarViewModel : BindableObservableObject
+    public class MemoryToolbarViewModel : ObservableObject
     {
         private int totalAllocatedMemoryMB;
         private int totalReservedMemoryMB;

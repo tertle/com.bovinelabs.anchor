@@ -4,11 +4,12 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
+    using Unity.AppUI.MVVM;
     using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
 
-    public class TimeToolbarViewModel : BindableObservableObject
+    public class TimeToolbarViewModel : ObservableObject
     {
         private float timescale;
 

@@ -6,10 +6,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Unity.AppUI.MVVM;
     using Unity.Properties;
     using UnityEngine;
 
-    public class QualityToolbarViewModel : BindableObservableObject
+    public class QualityToolbarViewModel : ObservableObject
     {
         private int quality;
 
