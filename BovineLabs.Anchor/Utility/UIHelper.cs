@@ -22,7 +22,7 @@ namespace BovineLabs.Anchor
 
         public void Bind()
         {
-            var viewModel = App.current.services.GetService<IViewModelService>().Load<TM>();
+            var viewModel = App.current.services.GetRequiredService<IViewModelService>().Load<TM>();
 
             viewModel.Load();
             this.handle = GCHandle.Alloc(viewModel, GCHandleType.Pinned);
@@ -31,14 +31,14 @@ namespace BovineLabs.Anchor
 
         public void Unbind()
         {
-            var viewModel = App.current.services.GetService<IViewModelService>().Get<TM>();
+            var viewModel = App.current.services.GetRequiredService<IViewModelService>().Get<TM>();
 
             viewModel.Unload();
             this.handle.Free();
             this.handle = default;
             this.data = default;
 
-            App.current.services.GetService<IViewModelService>().Unload<TM>();
+            App.current.services.GetRequiredService<IViewModelService>().Unload<TM>();
         }
     }
 }

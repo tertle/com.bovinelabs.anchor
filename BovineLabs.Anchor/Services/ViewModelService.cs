@@ -17,7 +17,7 @@ namespace BovineLabs.Anchor.Services
         {
             if (!this.loadedElements.TryGetValue(typeof(T), out var element))
             {
-                element = this.loadedElements[typeof(T)] = App.current.services.GetService<T>();
+                element = this.loadedElements[typeof(T)] = App.current.services.GetRequiredService<T>();
             }
 
             return (T)element;

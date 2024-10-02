@@ -44,10 +44,10 @@ namespace BovineLabs.Anchor
         {
             Burst.Static.Data = NavigateFunction;
 
-            var toolbarView = this.services.GetService<ToolbarView>();
+            var toolbarView = this.services.GetRequiredService<ToolbarView>();
             this.rootVisualElement.Add(toolbarView);
 
-            var navigationView = this.services.GetService<NavigationView>();
+            var navigationView = this.services.GetRequiredService<NavigationView>();
             this.rootVisualElement.Add(navigationView);
             this.Controller = navigationView.Controller;
 

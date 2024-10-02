@@ -6,13 +6,22 @@ namespace BovineLabs.Anchor.Services
 {
     using System;
     using UnityEngine;
+    using UnityEngine.Windows;
 
     internal record LocalStoragePlayerPrefsService : ILocalStorageService
     {
+        private readonly string directory = Application.persistentDataPath + @"\SaveFiles";
+
         /// <inheritdoc/>
         public bool HasKey(string key)
         {
             return PlayerPrefs.HasKey(key);
+        }
+
+        /// <inheritdoc/>
+        public void DeleteKey(string key)
+        {
+            PlayerPrefs.DeleteKey(key);
         }
 
         /// <inheritdoc/>
@@ -28,15 +37,21 @@ namespace BovineLabs.Anchor.Services
         }
 
         /// <inheritdoc/>
-        public void DeleteKey(string key)
+        public bool HasJson(string key)
         {
-            PlayerPrefs.DeleteKey(key);
+            return this.HasKey(key);
         }
 
         /// <inheritdoc/>
-        public T GetValue<T>(string key, T defaultValue = default)
+        public void DeleteJson(string key)
         {
-            if (this.HasKey(key))
+            this.DeleteKey(key);
+        }
+
+        /// <inheritdoc/>
+        public T GetJson<T>(string key, T defaultValue = default)
+        {
+            if (this.HasJson(key))
             {
                 var json = PlayerPrefs.GetString(key);
                 try
@@ -53,7 +68,7 @@ namespace BovineLabs.Anchor.Services
         }
 
         /// <inheritdoc/>
-        public void SetValue<T>(string key, T value)
+        public void SetJson<T>(string key, T value)
         {
             if (value == null)
             {
@@ -67,6 +82,57 @@ namespace BovineLabs.Anchor.Services
             }
 
             PlayerPrefs.SetString(key, json);
+        }
+
+        public bool HasBytes(string key)
+        {
+            try
+            {
+                return File.Exists(this.directory + key);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                return false;
+            }
+        }
+
+        public void DeleteBytes(string key)
+        {
+            try
+            {
+                File.Delete(this.directory + key);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+        }
+
+        public byte[] GetBytes(string key)
+        {
+            try
+            {
+                return File.ReadAllBytes(this.directory + key);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                return null;
+            }
+        }
+
+        public void SetBytes(string key, byte[] value)
+        {
+            try
+            {
+                Directory.CreateDirectory(this.directory);
+                File.WriteAllBytes(this.directory + key, value);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
     }
 }

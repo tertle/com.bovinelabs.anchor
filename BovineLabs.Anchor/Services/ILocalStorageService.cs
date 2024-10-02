@@ -8,14 +8,26 @@ namespace BovineLabs.Anchor.Services
     {
         bool HasKey(string key);
 
+        void DeleteKey(string key);
+
         string GetValue(string key, string defaultValue = default);
 
         void SetValue(string key, string value);
 
-        void DeleteKey(string key);
+        bool HasJson(string key);
 
-        T GetValue<T>(string key, T defaultValue);
+        void DeleteJson(string key);
 
-        void SetValue<T>(string key, T value);
+        T GetJson<T>(string key, T defaultValue);
+
+        void SetJson<T>(string key, T value);
+
+        bool HasBytes(string key);
+
+        void DeleteBytes(string key);
+
+        byte[] GetBytes(string key);
+
+        void SetBytes(string key, byte[] value);
     }
 }

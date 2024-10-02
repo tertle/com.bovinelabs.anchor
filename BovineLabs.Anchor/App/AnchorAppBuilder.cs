@@ -91,7 +91,7 @@ namespace BovineLabs.Anchor
 
             if (this.NavVisualController != null)
             {
-                app.NavVisualController = app.services.GetService<INavVisualController>();
+                app.NavVisualController = app.services.GetRequiredService<INavVisualController>();
             }
 
             app.Initialize();
