@@ -99,6 +99,11 @@ namespace BovineLabs.Anchor.Services
 
         public void DeleteBytes(string key)
         {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             try
             {
                 File.Delete(this.directory + key);
@@ -111,6 +116,11 @@ namespace BovineLabs.Anchor.Services
 
         public byte[] GetBytes(string key)
         {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return null;
+            }
+
             try
             {
                 return File.ReadAllBytes(this.directory + key);
@@ -124,6 +134,12 @@ namespace BovineLabs.Anchor.Services
 
         public void SetBytes(string key, byte[] value)
         {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                Debug.LogError("Setting bytes to empty file");
+                return;
+            }
+
             try
             {
                 Directory.CreateDirectory(this.directory);

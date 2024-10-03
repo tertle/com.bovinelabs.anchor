@@ -77,7 +77,7 @@ namespace BovineLabs.Anchor.Debug.Systems
                 {
                     var subScene = data.SubScenes[index];
                     var isOpen = data.SubSceneValues.Contains(index);
-                    var isCurrentlyOpen = SubSceneUtility.IsLoadingOrLoaded(ref state, subScene.Entity);
+                    var isCurrentlyOpen = SubSceneUtil.IsLoadingOrLoaded(ref state, subScene.Entity);
 
                     if (isOpen == isCurrentlyOpen)
                     {
@@ -86,11 +86,11 @@ namespace BovineLabs.Anchor.Debug.Systems
 
                     if (isOpen)
                     {
-                        SubSceneUtility.OpenScene(ref state, subScene.Entity);
+                        SubSceneUtil.OpenScene(ref state, subScene.Entity);
                     }
                     else
                     {
-                        SubSceneUtility.CloseScene(ref state, subScene.Entity);
+                        SubSceneUtil.CloseScene(ref state, subScene.Entity);
                     }
                 }
             }
@@ -113,7 +113,7 @@ namespace BovineLabs.Anchor.Debug.Systems
 
             for (var index = 0; index < this.subScenesBuffer.Length; index++)
             {
-                var loaded = SubSceneUtility.IsLoadingOrLoaded(ref state, this.subScenesBuffer[index].Entity);
+                var loaded = SubSceneUtil.IsLoadingOrLoaded(ref state, this.subScenesBuffer[index].Entity);
                 if (loaded)
                 {
                     this.values.Add(index);
