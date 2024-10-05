@@ -14,6 +14,7 @@ namespace BovineLabs.Anchor.Debug.Systems
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Entities;
+    using Unity.Scenes;
 
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct SubSceneToolbarSystem : ISystem, ISystemStartStop
@@ -77,7 +78,7 @@ namespace BovineLabs.Anchor.Debug.Systems
                 {
                     var subScene = data.SubScenes[index];
                     var isOpen = data.SubSceneValues.Contains(index);
-                    var isCurrentlyOpen = SubSceneUtil.IsLoadingOrLoaded(ref state, subScene.Entity);
+                    var isCurrentlyOpen = SubSceneUtil.IsSectionLoadingOrLoaded(ref state, subScene.Entity);
 
                     if (isOpen == isCurrentlyOpen)
                     {
@@ -86,11 +87,11 @@ namespace BovineLabs.Anchor.Debug.Systems
 
                     if (isOpen)
                     {
-                        SubSceneUtil.OpenScene(ref state, subScene.Entity);
+                        SubSceneUtil.OpenSection(ref state, subScene.Entity);
                     }
                     else
                     {
-                        SubSceneUtil.CloseScene(ref state, subScene.Entity);
+                        SubSceneUtil.CloseSection(ref state, subScene.Entity);
                     }
                 }
             }
@@ -98,22 +99,30 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.values.Clear();
             this.subScenesBuffer.Clear();
 
-            foreach (var (_, e) in SystemAPI.Query<RefRO<SceneReference>>().WithNone<RequiredSubScene>().WithEntityAccess())
+            foreach (var (sections, e) in SystemAPI.Query<DynamicBuffer<ResolvedSectionEntity>>().WithAll<SceneReference>().WithNone<RequiredSubScene>().WithEntityAccess())
             {
-                state.EntityManager.GetName(e, out var name);
-                if (name == default)
+                foreach (var section in sections)
                 {
-                    name = e.ToFixedString();
-                }
+                    state.EntityManager.GetName(section.SectionEntity, out var name);
 
-                this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = e, Name = name });
+                    if (name == default)
+                    {
+                        name = e.ToFixedString();
+                    }
+
+                    // FixedString128Bytes sectionName = name;
+                    // FixedString32Bytes sectionDetails = $" ({sectionData.SubSectionIndex})";
+                    // sectionName.Append(sectionDetails);
+
+                    this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = section.SectionEntity, Name = name });
+                }
             }
 
             this.subScenesBuffer.Sort();
 
             for (var index = 0; index < this.subScenesBuffer.Length; index++)
             {
-                var loaded = SubSceneUtil.IsLoadingOrLoaded(ref state, this.subScenesBuffer[index].Entity);
+                var loaded = SubSceneUtil.IsSectionLoadingOrLoaded(ref state, this.subScenesBuffer[index].Entity);
                 if (loaded)
                 {
                     this.values.Add(index);
