@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Services
 
     internal record LocalStoragePlayerPrefsService : ILocalStorageService
     {
-        private readonly string directory = Application.persistentDataPath + @"\SaveFiles";
+        private readonly string directory = Application.persistentDataPath + @"\SaveFiles\";
 
         /// <inheritdoc/>
         public bool HasKey(string key)
@@ -117,6 +117,11 @@ namespace BovineLabs.Anchor.Services
         public byte[] GetBytes(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
+            {
+                return null;
+            }
+
+            if (!this.HasBytes(key))
             {
                 return null;
             }
