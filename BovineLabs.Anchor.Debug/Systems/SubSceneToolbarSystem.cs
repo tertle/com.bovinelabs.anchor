@@ -101,20 +101,31 @@ namespace BovineLabs.Anchor.Debug.Systems
 
             foreach (var (sections, e) in SystemAPI.Query<DynamicBuffer<ResolvedSectionEntity>>().WithAll<SceneReference>().WithNone<RequiredSubScene>().WithEntityAccess())
             {
-                foreach (var section in sections)
+                if (sections.Length == 1)
                 {
-                    state.EntityManager.GetName(section.SectionEntity, out var name);
+                    state.EntityManager.GetName(e, out var sectionName);
 
-                    if (name == default)
+                    if (sectionName == default)
                     {
-                        name = e.ToFixedString();
+                        sectionName = e.ToFixedString();
                     }
 
-                    // FixedString128Bytes sectionName = name;
-                    // FixedString32Bytes sectionDetails = $" ({sectionData.SubSectionIndex})";
-                    // sectionName.Append(sectionDetails);
+                    this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = sections[0].SectionEntity, Name = sectionName });
+                }
+                else
+                {
 
-                    this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = section.SectionEntity, Name = name });
+                    foreach (var section in sections)
+                    {
+                        state.EntityManager.GetName(section.SectionEntity, out var sectionName);
+
+                        if (sectionName == default)
+                        {
+                            sectionName = e.ToFixedString();
+                        }
+
+                        this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = section.SectionEntity, Name = sectionName });
+                    }
                 }
             }
 

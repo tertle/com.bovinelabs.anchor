@@ -52,11 +52,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private static string Formatter(string name)
         {
             const string scenePrefix = "Scene: ";
+            const string sceneSectionPrefix = "SceneSection: ";
 
-            var index = name.IndexOf(scenePrefix, StringComparison.Ordinal);
-            if (index != -1)
+            var sceneIndex = name.IndexOf(scenePrefix, StringComparison.Ordinal);
+            if (sceneIndex != -1)
             {
-                name = name.Remove(index, scenePrefix.Length);
+                name = name.Remove(sceneIndex, scenePrefix.Length);
+            }
+
+            var indexSection = name.IndexOf(sceneSectionPrefix, StringComparison.Ordinal);
+            if (indexSection != -1)
+            {
+                name = name.Remove(indexSection, sceneSectionPrefix.Length);
             }
 
             return name;
@@ -94,7 +101,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>, IDropDownItem
             {
                 public Entity Entity;
-                public FixedString64Bytes Name;
+                public FixedString128Bytes Name;
 
                 public int CompareTo(SubSceneName other)
                 {
