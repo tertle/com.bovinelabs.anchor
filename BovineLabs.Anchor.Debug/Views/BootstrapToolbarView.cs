@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Core;
     using Unity.Properties;
     using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
@@ -19,6 +20,12 @@ namespace BovineLabs.Anchor.Debug.Views
 
         public BootstrapToolbarView()
         {
+            if (BovineLabsBootstrap.Instance == null)
+            {
+                this.schedule.Execute(() => this.parent?.RemoveFromHierarchy());
+                return;
+            }
+
             this.AddToClassList(UssClassName);
 
 #if !UNITY_CLIENT

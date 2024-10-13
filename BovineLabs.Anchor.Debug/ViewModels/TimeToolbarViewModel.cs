@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using Unity.AppUI.MVVM;
-    using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
 
@@ -19,7 +18,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             get => this.timescale;
             set
             {
-                value = math.clamp(value, 0, 100);
+                value = Mathf.Clamp(value, 0, 100);
                 if (this.SetProperty(ref this.timescale, value))
                 {
                     Time.timeScale = this.TimeScale;

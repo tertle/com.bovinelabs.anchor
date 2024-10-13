@@ -13,7 +13,6 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
-    using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
@@ -102,10 +101,19 @@ namespace BovineLabs.Anchor.Toolbar
             this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
+            var serviceTabName = "Service";
+
+#if UNITY_ENTITIES
+            if (Unity.Entities.World.DefaultGameObjectInjectionWorld != null)
+            {
+                serviceTabName = FormatWorld(Unity.Entities.World.DefaultGameObjectInjectionWorld);
+            }
+#endif
+
             foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
             {
                 var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
-                var tabName = attr.TabName ?? "Service";
+                var tabName = attr.TabName ?? serviceTabName;
 
                 this.AddTab(t, tabName, attr.ElementName, out _, out _);
             }
@@ -125,6 +133,14 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         public static ToolbarView Instance { get; private set; }
+
+#if UNITY_ENTITIES
+        public static string FormatWorld(Unity.Entities.World world)
+        {
+            var name = world.Name;
+            return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
+        }
+#endif
 
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement, IView
@@ -278,7 +294,7 @@ namespace BovineLabs.Anchor.Toolbar
         {
             var height = App.current.rootVisualElement.contentRect.height;
 
-            if (math.abs(this.uiHeight - height) > float.Epsilon)
+            if (Mathf.Abs(this.uiHeight - height) > float.Epsilon)
             {
                 this.uiHeight = height;
                 this.ResizeViewRect(this.contentRect);

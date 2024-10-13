@@ -6,8 +6,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.MVVM;
-    using Unity.Mathematics;
     using Unity.Properties;
+    using UnityEngine;
     using UnityEngine.Profiling;
 
     public class MemoryToolbarViewModel : ObservableObject
@@ -48,7 +48,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public void Update()
         {
-            var unscaledDeltaTime = UnityEngine.Time.unscaledDeltaTime;
+            var unscaledDeltaTime = Time.unscaledDeltaTime;
             this.timeToTriggerUpdatesPassed += unscaledDeltaTime;
 
             if (this.timeToTriggerUpdatesPassed < ToolbarView.DefaultUpdateRate)
@@ -58,10 +58,10 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             const float megaByte = 1024 * 1024;
 
-            this.TotalAllocatedMemoryMB = (int)math.ceil(Profiler.GetTotalAllocatedMemoryLong() / megaByte);
-            this.TotalReservedMemoryMB = (int)math.ceil(Profiler.GetTotalReservedMemoryLong() / megaByte);
-            this.MonoUsedSizeMB = (int)math.ceil(Profiler.GetMonoUsedSizeLong() / megaByte);
-            this.AllocatedMemoryForGraphicsMB = (int)math.ceil(Profiler.GetAllocatedMemoryForGraphicsDriver() / megaByte);
+            this.TotalAllocatedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalAllocatedMemoryLong() / megaByte);
+            this.TotalReservedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalReservedMemoryLong() / megaByte);
+            this.MonoUsedSizeMB = Mathf.CeilToInt(Profiler.GetMonoUsedSizeLong() / megaByte);
+            this.AllocatedMemoryForGraphicsMB = Mathf.CeilToInt(Profiler.GetAllocatedMemoryForGraphicsDriver() / megaByte);
         }
     }
 }

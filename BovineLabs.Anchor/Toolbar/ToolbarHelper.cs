@@ -35,7 +35,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         public ToolbarHelper(ref Unity.Entities.SystemState state, FixedString32Bytes groupName)
-            : this(FormatWorld(state.World), groupName)
+            : this(ToolbarView.FormatWorld(state.World), groupName)
         {
         }
 
@@ -66,11 +66,7 @@ namespace BovineLabs.Anchor.Toolbar
             return ToolbarViewData.ActiveTab.Data == this.tabName;
         }
 
-        private static string FormatWorld(Unity.Entities.World world)
-        {
-            var name = world.Name;
-            return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
-        }
+
     }
 }
 #endif
