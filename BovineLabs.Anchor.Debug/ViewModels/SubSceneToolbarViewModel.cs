@@ -24,7 +24,9 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public override ref Data Value => ref this.data;
 
         [CreateProperty]
-        public List<string> SubScenes => DropDownHelper.GetItems(this.subScenes, this.data.SubScenes.AsArray(), Formatter);
+        public List<string> SubScenes => this.data.SubScenes.IsCreated
+            ? DropDownHelper.GetItems(this.subScenes, this.data.SubScenes.AsArray(), Formatter)
+            : this.subScenes;
 
         [CreateProperty]
         public IEnumerable<int> SubSceneValues

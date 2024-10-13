@@ -99,7 +99,8 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.values.Clear();
             this.subScenesBuffer.Clear();
 
-            foreach (var (sections, e) in SystemAPI.Query<DynamicBuffer<ResolvedSectionEntity>>().WithAll<SceneReference>().WithNone<RequiredSubScene>().WithEntityAccess())
+            foreach (var (sections, e) in SystemAPI.Query<DynamicBuffer<ResolvedSectionEntity>>()
+                         .WithAll<SceneReference>().WithNone<RequiredSubScene, PrefabRoot>().WithEntityAccess())
             {
                 if (sections.Length == 1)
                 {
@@ -114,7 +115,6 @@ namespace BovineLabs.Anchor.Debug.Systems
                 }
                 else
                 {
-
                     foreach (var section in sections)
                     {
                         state.EntityManager.GetName(section.SectionEntity, out var sectionName);
