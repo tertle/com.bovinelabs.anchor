@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
-    using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
@@ -73,7 +72,7 @@ namespace BovineLabs.Anchor
             this.Controller.Navigate(screen);
         }
 
-        [AOT.MonoPInvokeCallback(typeof(OnPropertyChangedDelegate))]
+        [AOT.MonoPInvokeCallback(typeof(NavigateDelegate))]
         private static void NavigateForwarding(in FixedString64Bytes screen)
         {
             current.Navigate(screen.ToString());
