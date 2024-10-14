@@ -37,7 +37,7 @@ namespace BovineLabs.Anchor
 
         public VisualElement TooltipContainer { get; private set; }
 
-        public virtual INavVisualController NavVisualController { get; internal set; }
+        public INavVisualController NavVisualController { get; internal set; }
 
         public virtual void Initialize()
         {
