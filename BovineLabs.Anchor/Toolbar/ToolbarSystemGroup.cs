@@ -5,6 +5,7 @@
 #if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
 namespace BovineLabs.Anchor.Toolbar
 {
+    using Unity.AppUI.MVVM;
     using Unity.Entities;
 
     /// <summary> Group that all Toolbar linked systems should be placed. </summary>
@@ -23,7 +24,7 @@ namespace BovineLabs.Anchor.Toolbar
     {
         protected override void OnUpdate()
         {
-            if (ToolbarView.Instance == null)
+            if (ToolbarView.Instance == null || AnchorApp.current == null)
             {
                 return;
             }
