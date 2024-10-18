@@ -28,6 +28,29 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.AddToClassList(UssClassName);
 
+#if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
+            var host = new Toggle
+            {
+                label = "Host",
+                dataSource = this.ViewModel,
+            };
+
+            host.SetBinding(
+                nameof(Toggle.value),
+                new DataBinding
+                {
+                    updateTrigger = BindingUpdateTrigger.EveryUpdate, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Host)),
+                });
+            host.SetBinding(
+                nameof(this.enabledSelf),
+                new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget, updateTrigger = BindingUpdateTrigger.EveryUpdate,
+                    dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.HostEnabled)),
+                });
+            this.Add(host);
+#endif
+
 #if !UNITY_CLIENT
 #if UNITY_NETCODE
             var server = new Toggle
@@ -36,10 +59,19 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            server.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Server)) });
+            server.SetBinding(
+                nameof(Toggle.value),
+                new DataBinding
+                {
+                    updateTrigger = BindingUpdateTrigger.EveryUpdate, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Server)),
+                });
             server.SetBinding(
                 nameof(this.enabledSelf),
-                new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ServerEnabled)) });
+                new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget, updateTrigger = BindingUpdateTrigger.EveryUpdate,
+                    dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ServerEnabled)),
+                });
             this.Add(server);
 #endif
 #endif
@@ -52,10 +84,19 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            client.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Client)) });
+            client.SetBinding(
+                nameof(Toggle.value),
+                new DataBinding
+                {
+                    updateTrigger = BindingUpdateTrigger.EveryUpdate, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Client)),
+                });
             client.SetBinding(
                 nameof(this.enabledSelf),
-                new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ClientEnabled)) });
+                new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget, updateTrigger = BindingUpdateTrigger.EveryUpdate,
+                    dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.ClientEnabled)),
+                });
             this.Add(client);
 #endif
 
@@ -65,10 +106,19 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            game.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Local)) });
+            game.SetBinding(
+                nameof(Toggle.value),
+                new DataBinding
+                {
+                    updateTrigger = BindingUpdateTrigger.EveryUpdate, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Local)),
+                });
             game.SetBinding(
                 nameof(this.enabledSelf),
-                new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.LocalEnabled)) });
+                new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget, updateTrigger = BindingUpdateTrigger.EveryUpdate,
+                    dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.LocalEnabled)),
+                });
             this.Add(game);
 #endif
         }

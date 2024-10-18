@@ -11,6 +11,33 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
     public class BootstrapToolbarViewModel : ObservableObject
     {
+#if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
+        [CreateProperty]
+        public bool Host
+        {
+            get => Unity.NetCode.ClientServerBootstrap.ClientWorld != null && Unity.NetCode.ClientServerBootstrap.ServerWorld != null;
+            set
+            {
+                this.SetProperty(this.Host, value, value =>
+                {
+                    if (value)
+                    {
+                        BovineLabsBootstrap.Instance.CreateClientServerWorlds();
+                    }
+                    else
+                    {
+                        BovineLabsBootstrap.Instance.DestroyClientServerWorlds();
+                    }
+                });
+            }
+        }
+
+        [CreateProperty]
+        public bool HostEnabled => !this.Local &&
+                                   (Unity.NetCode.ClientServerBootstrap.ClientWorld != null) ==
+                                   (Unity.NetCode.ClientServerBootstrap.ServerWorld != null);
+#endif
+
 #if !UNITY_SERVER
         [CreateProperty]
         public bool Local
@@ -76,17 +103,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public bool Server
         {
             get => Unity.NetCode.ClientServerBootstrap.ServerWorld != null;
-            set => this.SetProperty(this.Server, value, value =>
-            {
-                if (value)
+            set =>
+                this.SetProperty(this.Server, value, value =>
                 {
-                    BovineLabsBootstrap.Instance.CreateServerWorld();
-                }
-                else
-                {
-                    BovineLabsBootstrap.Instance.DestroyServerWorld();
-                }
-            });
+                    if (value)
+                    {
+                        BovineLabsBootstrap.Instance.CreateServerWorld();
+                    }
+                    else
+                    {
+                        BovineLabsBootstrap.Instance.DestroyServerWorld();
+                    }
+                });
         }
 
         [CreateProperty]
