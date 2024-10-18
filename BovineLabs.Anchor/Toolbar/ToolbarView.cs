@@ -10,6 +10,7 @@ namespace BovineLabs.Anchor.Toolbar
     using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
+    using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
@@ -54,6 +55,7 @@ namespace BovineLabs.Anchor.Toolbar
         public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
         private const string ShowIconTargetClass = "appui-button__trailingicon";
+        private const string ActiveTabKey = "bl.activetab";
 
 #if BL_CORE
         [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
@@ -63,6 +65,8 @@ namespace BovineLabs.Anchor.Toolbar
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
         private readonly ToolbarViewModel viewModel;
+        private readonly ILocalStorageService storageService;
+
         private readonly VisualElement menuContainer;
         private readonly Dropdown filterButton;
         private readonly Button showButton;
@@ -73,11 +77,12 @@ namespace BovineLabs.Anchor.Toolbar
         private bool showRibbon;
         private int key;
 
-        public ToolbarView(ToolbarViewModel viewModel)
+        public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
         {
             Instance = this;
 
             this.viewModel = viewModel;
+            this.storageService = storageService;
 
             this.AddToClassList(UssClassName);
 
@@ -352,9 +357,16 @@ namespace BovineLabs.Anchor.Toolbar
 
             var toolbarTab = new ToolbarGroup(tabName, button, contents);
 
-            button.clicked += () => this.SetToolbarActive(toolbarTab);
+            button.clicked += () =>
+            {
+                this.storageService.SetValue(ActiveTabKey, tabName);
+                this.SetToolbarActive(toolbarTab);
+            };
 
-            this.SetToolbarActive(toolbarTab);
+            if (this.storageService.GetValue(ActiveTabKey) == tabName)
+            {
+                this.SetToolbarActive(toolbarTab);
+            }
 
             return toolbarTab;
         }

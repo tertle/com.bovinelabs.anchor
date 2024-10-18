@@ -1,5 +1,5 @@
 ﻿// <copyright file="BindableSliderInt.cs" company="BovineLabs">
-// Copyright (c) BovineLabs. All rights reserved.
+//     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
 namespace BovineLabs.Anchor.Elements
