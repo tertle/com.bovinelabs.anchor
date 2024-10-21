@@ -52,16 +52,14 @@ To automatically create a tab, use the `[AutoToolbar("NAME")]` attribute, which 
 
 ```csharp
 [AutoToolbar("Test")]
-public class TestToolbarView : VisualElement, IView
+public class TestToolbarView : VisualElement, IView<TestToolbarViewModel>
 {
-    private readonly TestToolbarViewModel viewModel;
-
     public AppUIToolbarView(TestToolbarViewModel viewModel)
     {
-        this.viewModel = viewModel;
+        this.ViewModel = viewModel;
     }
-
-    object IView.ViewModel => this.viewModel;
+    
+    public TestToolbarViewModel ViewModel { get; }
 }
 ```
 If you want to inject the ViewModel as shown above, it needs to inherit from `IViewModel`. This step is optional and is typically done if you need to inject a service into the ViewModel. Otherwise, you can instantiate it directly within the View.
