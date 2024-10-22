@@ -43,8 +43,10 @@ namespace BovineLabs.Anchor
         {
             Burst.Static.Data = NavigateFunction;
 
+#if BL_DEBUG || UNITY_EDITOR
             var toolbarView = this.services.GetRequiredService<ToolbarView>();
             this.rootVisualElement.Add(toolbarView);
+#endif
 
             var navigationView = this.services.GetRequiredService<NavigationView>();
             this.rootVisualElement.Add(navigationView);
