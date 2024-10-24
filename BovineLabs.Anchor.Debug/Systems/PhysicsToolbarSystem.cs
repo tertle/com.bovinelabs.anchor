@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DRAW || UNITY_PHYSICS
+#if UNITY_PHYSICS && (BL_DRAW || UNITY_EDITOR) // Default physics doesn't support builds
 namespace BovineLabs.Anchor.Debug.Systems
 {
     using BovineLabs.Anchor.Debug.ViewModels;
@@ -10,6 +10,7 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Anchor.Toolbar;
     using Unity.Burst;
     using Unity.Entities;
+    using Unity.Physics.Systems;
 
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct PhysicsToolbarSystem : ISystem, ISystemStartStop
@@ -19,6 +20,12 @@ namespace BovineLabs.Anchor.Debug.Systems
         /// <inheritdoc/>
         public void OnCreate(ref SystemState state)
         {
+            if (state.World.GetExistingSystem<BuildPhysicsWorld>() == SystemHandle.Null)
+            {
+                state.Enabled = false;
+                return;
+            }
+
             this.toolbar = new ToolbarHelper<PhysicsToolbarView, PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data>(ref state, "Physics");
 
 #if BL_DRAW
