@@ -467,6 +467,25 @@ namespace BovineLabs.Anchor.Toolbar
                 var rect = cam.rect;
                 rect.height = cameraHeightNormalized;
                 cam.rect = rect;
+
+#if UNITY_URP
+                var additional = cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                if (additional != null)
+                {
+	                foreach (var camera in additional.cameraStack)
+	                {
+		                if (camera == null)
+		                {
+			                continue;
+		                }
+
+		                if (camera.rect != rect)
+		                {
+			                camera.rect = rect;
+		                }
+	                }
+                }
+#endif
             }
 
             if (AnchorApp.current.PopupContainer != null)

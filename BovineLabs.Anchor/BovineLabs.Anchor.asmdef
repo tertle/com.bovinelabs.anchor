@@ -20,6 +20,7 @@
         "Unity.NetCode",
         "Unity.Networking.Transport",
         "Unity.Physics",
+        "Unity.RenderPipelines.Universal.Runtime",
         "Unity.Transforms"
     ],
     "includePlatforms": [],
@@ -39,6 +40,11 @@
             "name": "com.unity.entities",
             "expression": "",
             "define": "UNITY_ENTITIES"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": "UNITY_URP"
         }
     ],
     "noEngineReferences": false
