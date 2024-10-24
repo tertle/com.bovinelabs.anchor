@@ -43,12 +43,15 @@ namespace BovineLabs.Anchor
         {
             Burst.Static.Data = NavigateFunction;
 
+            this.Panel.pickingMode = PickingMode.Ignore;
+
 #if BL_DEBUG || UNITY_EDITOR
             var toolbarView = this.services.GetRequiredService<ToolbarView>();
             this.rootVisualElement.Add(toolbarView);
 #endif
 
             var navigationView = this.services.GetRequiredService<NavigationView>();
+            navigationView.pickingMode = PickingMode.Ignore;
             this.rootVisualElement.Add(navigationView);
             this.Controller = navigationView.Controller;
 
@@ -72,6 +75,12 @@ namespace BovineLabs.Anchor
         public void Navigate(string screen)
         {
             this.Controller.Navigate(screen);
+        }
+
+        /// <summary> This has been disabled in favour of overriding <see cref="Initialize"/>. </summary>
+        public override sealed void InitializeComponent()
+        {
+            base.InitializeComponent();
         }
 
         [AOT.MonoPInvokeCallback(typeof(NavigateDelegate))]
