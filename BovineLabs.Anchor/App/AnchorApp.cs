@@ -51,7 +51,6 @@ namespace BovineLabs.Anchor
 #endif
 
             var navigationView = this.services.GetRequiredService<NavigationView>();
-            navigationView.pickingMode = PickingMode.Ignore;
             this.rootVisualElement.Add(navigationView);
             this.Controller = navigationView.Controller;
 

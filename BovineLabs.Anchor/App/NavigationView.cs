@@ -13,6 +13,8 @@ namespace BovineLabs.Anchor
     {
         public NavigationView()
         {
+            this.pickingMode = PickingMode.Ignore;
+
             var navHost = new AnchorNavHost();
             this.Add(navHost);
 
