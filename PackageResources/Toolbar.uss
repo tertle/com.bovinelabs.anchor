@@ -86,7 +86,7 @@
 }
 
 .bl-memory-tab .bl-key-value-group__right {
-    min-width: var(--appui-sizing-1000);
+    min-width: var(--appui-sizing-1150);
 }
 
 .bl-time-tab .bl-key-value-group__right {
