@@ -321,6 +321,10 @@ namespace BovineLabs.Anchor.Toolbar
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
+
+            var icon = button.Q<Icon>(ShowIconTargetClass);
+            icon.AddToClassList(ShowIconUssClassName);
+            icon.AddToClassList(ShowHiddenUssClassName);
             button.size = Size.S;
 
             return button;
@@ -366,6 +370,11 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 this.storageService.SetValue(ActiveTabKey, tabName);
                 this.SetToolbarActive(toolbarTab);
+
+                if (!this.IsRibbonVisible)
+                {
+                    this.ShowRibbon(true);
+                }
             };
 
             if (this.storageService.GetValue(ActiveTabKey) == tabName)
