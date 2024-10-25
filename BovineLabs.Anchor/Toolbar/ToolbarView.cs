@@ -55,7 +55,8 @@ namespace BovineLabs.Anchor.Toolbar
         public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
         private const string ShowIconTargetClass = "appui-button__trailingicon";
-        private const string ActiveTabKey = "bl.activetab";
+        private const string ActiveTabKey = "bl.active-tab";
+        private const string ShowRibbonKey = "bl.show-ribbon";
 
 #if BL_CORE
         [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
@@ -74,7 +75,6 @@ namespace BovineLabs.Anchor.Toolbar
         private ToolbarGroup activeGroup;
 
         private float uiHeight;
-        private bool showRibbon;
         private int key;
 
         public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
@@ -135,6 +135,12 @@ namespace BovineLabs.Anchor.Toolbar
             this.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
 
             App.shuttingDown += this.AppOnShuttingDown;
+        }
+
+        private bool IsRibbonVisible
+        {
+            get => bool.TryParse(this.storageService.GetValue(ShowRibbonKey), out var value) && value;
+            set => this.storageService.SetValue(ShowRibbonKey, value.ToString());
         }
 
         public static ToolbarView Instance { get; private set; }
@@ -308,14 +314,13 @@ namespace BovineLabs.Anchor.Toolbar
 
         private Button CreateShowButton()
         {
-            var button = new Button(() => this.ShowRibbon(!this.showRibbon))
+            var button = new Button(() => this.ShowRibbon(!this.IsRibbonVisible))
             {
                 trailingIcon = "caret-down",
             };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
-            button.Q<Icon>(ShowIconTargetClass).AddToClassList(ShowIconUssClassName);
             button.size = Size.S;
 
             return button;
@@ -375,7 +380,10 @@ namespace BovineLabs.Anchor.Toolbar
         {
             if (group == this.activeGroup)
             {
-                this.ShowRibbon(true);
+                if (this.IsRibbonVisible)
+                {
+                    this.ShowRibbon(true);
+                }
 
                 return;
             }
@@ -403,7 +411,10 @@ namespace BovineLabs.Anchor.Toolbar
             ToolbarViewData.ActiveTab.Data = group.Name;
             group.Button.variant = ButtonVariant.Accent;
 
-            this.ShowRibbon(true);
+            if (this.IsRibbonVisible)
+            {
+                this.ShowRibbon(true);
+            }
         }
 
         private void SetDefaultGroup()
@@ -449,7 +460,7 @@ namespace BovineLabs.Anchor.Toolbar
                 }
             }
 
-            this.showRibbon = show;
+            this.IsRibbonVisible = show;
         }
 
         private void ResizeViewRect(Rect uiRect)
