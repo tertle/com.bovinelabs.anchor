@@ -508,20 +508,20 @@ namespace BovineLabs.Anchor.Toolbar
 #endif
             }
 
-            if (AnchorApp.current.PopupContainer != null)
-            {
-                AnchorApp.current.PopupContainer.style.top = uiRect.height;
-            }
-
-            if (AnchorApp.current.NotificationContainer != null)
-            {
-                AnchorApp.current.NotificationContainer.style.top = uiRect.height;
-            }
-
-            if (AnchorApp.current.TooltipContainer != null)
-            {
-                AnchorApp.current.TooltipContainer.style.top = uiRect.height;
-            }
+            // if (AnchorApp.current.PopupContainer != null)
+            // {
+            //     AnchorApp.current.PopupContainer.style.top = uiRect.height;
+            // }
+            //
+            // if (AnchorApp.current.NotificationContainer != null)
+            // {
+            //     AnchorApp.current.NotificationContainer.style.top = uiRect.height;
+            // }
+            //
+            // if (AnchorApp.current.TooltipContainer != null)
+            // {
+            //     AnchorApp.current.TooltipContainer.style.top = uiRect.height;
+            // }
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
