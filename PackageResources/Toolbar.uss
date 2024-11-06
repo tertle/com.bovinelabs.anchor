@@ -80,6 +80,10 @@
     margin-left: 4px;
 }
 
+.bl-entities-tab .bl-key-value-group__right {
+    min-width: var(--appui-sizing-950);
+}
+
 /* Custom tab styling */
 .bl-fps-tab .bl-key-value-group__right {
     min-width: var(--appui-sizing-1150);
