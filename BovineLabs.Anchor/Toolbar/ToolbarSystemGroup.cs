@@ -5,7 +5,6 @@
 #if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
 namespace BovineLabs.Anchor.Toolbar
 {
-    using Unity.AppUI.MVVM;
     using Unity.Entities;
 
     /// <summary> Group that all Toolbar linked systems should be placed. </summary>
@@ -18,7 +17,7 @@ namespace BovineLabs.Anchor.Toolbar
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [WorldSystemFilter(
         WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation,
-        WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation | WorldFlag.ThinClientSimulation)]
+        WorldFlag.LocalSimulation | WorldFlag.ClientSimulation | WorldFlag.ServerSimulation)]
 #endif
     public partial class ToolbarSystemGroup : ComponentSystemGroup
     {
