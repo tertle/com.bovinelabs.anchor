@@ -25,7 +25,7 @@ namespace BovineLabs.Anchor
             var viewModel = App.current.services.GetRequiredService<IViewModelService>().Load<TM>();
 
             viewModel.Load();
-            this.handle = GCHandle.Alloc(viewModel, GCHandleType.Pinned);
+            this.handle = GCHandle.Alloc(viewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
         }
 

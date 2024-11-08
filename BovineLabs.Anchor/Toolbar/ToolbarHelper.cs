@@ -5,7 +5,6 @@
 #if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
 namespace BovineLabs.Anchor.Toolbar
 {
-    using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using Unity.Collections;
@@ -47,7 +46,7 @@ namespace BovineLabs.Anchor.Toolbar
             ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
             view.ViewModel.Load();
-            this.handle = GCHandle.Alloc(view.ViewModel, GCHandleType.Pinned);
+            this.handle = GCHandle.Alloc(view.ViewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
         }
 
