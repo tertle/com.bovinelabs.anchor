@@ -64,8 +64,6 @@ namespace BovineLabs.Anchor.Toolbar
         {
             return ToolbarViewData.ActiveTab.Data == this.tabName;
         }
-
-
     }
 }
 #endif
