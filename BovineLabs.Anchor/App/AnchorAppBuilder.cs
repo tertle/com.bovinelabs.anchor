@@ -24,6 +24,11 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private NavGraphViewAsset navigationGraph;
 
+#if UNITY_EDITOR || BL_DEBUG
+        [SerializeField]
+        private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
+#endif
+
         protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
 
         protected virtual Type StoreService { get; } = typeof(StoreService);
@@ -86,6 +91,13 @@ namespace BovineLabs.Anchor
         protected override void OnAppInitialized(T app)
         {
             base.OnAppInitialized(app);
+
+#if UNITY_EDITOR || BL_DEBUG
+            foreach (var style in this.debugStyleSheets)
+            {
+                app.rootVisualElement.styleSheets.Add(style);
+            }
+#endif
 
             app.GraphViewAsset = this.navigationGraph;
 

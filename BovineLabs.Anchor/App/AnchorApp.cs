@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Toolbar;
+    using JetBrains.Annotations;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
@@ -14,6 +15,7 @@ namespace BovineLabs.Anchor
     using Unity.Collections;
     using UnityEngine.UIElements;
 
+    [UsedImplicitly]
     public class AnchorApp : App
     {
         private static readonly FunctionPointer<NavigateDelegate> NavigateFunction =
@@ -80,6 +82,8 @@ namespace BovineLabs.Anchor
         public override sealed void InitializeComponent()
         {
             base.InitializeComponent();
+
+
         }
 
         [AOT.MonoPInvokeCallback(typeof(NavigateDelegate))]
