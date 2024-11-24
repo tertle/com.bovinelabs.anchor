@@ -41,7 +41,7 @@ namespace BovineLabs.Anchor
 
         protected virtual Type NavVisualController => null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override void OnConfiguringApp(AppBuilder builder)
         {
             base.OnConfiguringApp(builder);

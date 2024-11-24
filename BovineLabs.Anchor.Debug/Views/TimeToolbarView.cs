@@ -20,7 +20,7 @@ namespace BovineLabs.Anchor.Debug.Views
     {
         public const string UssClassName = "bl-time-tab";
 
-        /// <summary> Initializes a new instance of the <see cref="TimeToolbarView"/> class. </summary>
+        /// <summary> Initializes a new instance of the <see cref="TimeToolbarView" /> class. </summary>
         public TimeToolbarView()
         {
             this.AddToClassList(UssClassName);
@@ -43,17 +43,17 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(timescale);
 
             TypeConverter<long, string> timeConverter = (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
-            this.Add(KeyValueGroup.Create(this.ViewModel, new (string, string, Action<DataBinding>)[]
+            this.Add(KeyValueGroup.Create(this.ViewModel,
+                new (string, string, Action<DataBinding>)[]
                 {
                     ("Real", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                     ("Scale", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
-                },
-                BindingUpdateTrigger.EveryUpdate));
+                }, BindingUpdateTrigger.EveryUpdate));
 
             this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public TimeToolbarViewModel ViewModel { get; } = new();
 
         private static string ToFormattedString(TimeSpan ts)

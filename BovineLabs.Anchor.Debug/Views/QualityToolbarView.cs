@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Debug.Views
     {
         public const string UssClassName = "bl-quality-tab";
 
-        /// <summary> Initializes a new instance of the <see cref="QualityToolbarView"/> class. </summary>
+        /// <summary> Initializes a new instance of the <see cref="QualityToolbarView" /> class. </summary>
         /// <param name="viewModel"> The view model. </param>
         public QualityToolbarView()
         {
@@ -34,17 +34,18 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSourcePath = new PropertyPath(nameof(QualityToolbarViewModel.QualityChoices)),
             });
 
-            dropdownField.SetBinding(nameof(Dropdown.selectedIndex), new DataBinding
-            {
-                dataSourcePath = new PropertyPath(nameof(QualityToolbarViewModel.QualityValue)),
-            });
+            dropdownField.SetBinding(nameof(Dropdown.selectedIndex),
+                new DataBinding
+                {
+                    dataSourcePath = new PropertyPath(nameof(QualityToolbarViewModel.QualityValue)),
+                });
 
             this.Add(dropdownField);
 
             this.schedule.Execute(this.ViewModel.Update).Every(1); // Every frame
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public QualityToolbarViewModel ViewModel { get; } = new();
     }
 }

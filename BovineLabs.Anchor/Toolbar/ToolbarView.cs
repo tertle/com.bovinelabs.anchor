@@ -11,9 +11,15 @@ namespace BovineLabs.Anchor.Toolbar
     using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
+#if BL_CORE
+    using BovineLabs.Core.ConfigVars;
+#endif
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
+#if UNITY_ENTITIES
+    using Unity.Entities;
+#endif
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
@@ -22,7 +28,7 @@ namespace BovineLabs.Anchor.Toolbar
     using Button = Unity.AppUI.UI.Button;
 
 #if BL_CORE
-    [BovineLabs.Core.ConfigVars.Configurable]
+    [Configurable]
 #endif
     [Preserve]
     public class ToolbarView : VisualElement, IView
@@ -59,7 +65,7 @@ namespace BovineLabs.Anchor.Toolbar
         private const string ShowRibbonKey = "bl.show-ribbon";
 
 #if BL_CORE
-        [BovineLabs.Core.ConfigVars.ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
+        [ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
 #endif
 
@@ -109,9 +115,9 @@ namespace BovineLabs.Anchor.Toolbar
             var serviceTabName = "Service";
 
 #if UNITY_ENTITIES
-            if (Unity.Entities.World.DefaultGameObjectInjectionWorld != null)
+            if (World.DefaultGameObjectInjectionWorld != null)
             {
-                serviceTabName = FormatWorld(Unity.Entities.World.DefaultGameObjectInjectionWorld);
+                serviceTabName = FormatWorld(World.DefaultGameObjectInjectionWorld);
             }
 #endif
 
@@ -146,7 +152,7 @@ namespace BovineLabs.Anchor.Toolbar
         public static ToolbarView Instance { get; private set; }
 
 #if UNITY_ENTITIES
-        public static string FormatWorld(Unity.Entities.World world)
+        public static string FormatWorld(World world)
         {
             var name = world.Name;
             return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
@@ -258,7 +264,7 @@ namespace BovineLabs.Anchor.Toolbar
             // Already visible
             if (tab.Container.parent != null)
             {
-                 return;
+                return;
             }
 
             var insert = FindInsertIndex(tab);

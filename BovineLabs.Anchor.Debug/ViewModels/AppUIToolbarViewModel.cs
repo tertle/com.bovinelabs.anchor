@@ -17,9 +17,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private readonly ILocalStorageService localStorageService;
 
-        private readonly List<string> themeItems = new();
         private readonly List<string> themes = new();
-        private readonly List<string> scaleItems = new();
         private readonly List<string> scales = new();
 
         private int themeValue = -1;
@@ -35,7 +33,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 
         [CreateProperty]
-        public List<string> Themes => this.themeItems;
+        public List<string> Themes { get; } = new();
 
         [CreateProperty]
         public int ThemeValue
@@ -51,7 +49,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 
         [CreateProperty]
-        public List<string> Scales => this.scaleItems;
+        public List<string> Scales { get; } = new();
 
         [CreateProperty]
         public int ScaleValue
@@ -95,31 +93,31 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void PopulateTheme()
         {
-            this.themeItems.Add("System");
+            this.Themes.Add("System");
             this.themes.Add("system");
 
-            this.themeItems.Add("Dark");
+            this.Themes.Add("Dark");
             this.themes.Add("dark");
 
-            this.themeItems.Add("Light");
+            this.Themes.Add("Light");
             this.themes.Add("light");
 
-            this.themeItems.Add("Editor Dark");
+            this.Themes.Add("Editor Dark");
             this.themes.Add("editor-dark");
 
-            this.themeItems.Add("Editor Light");
+            this.Themes.Add("Editor Light");
             this.themes.Add("editor-light");
         }
 
         private void PopulateScale()
         {
-            this.scaleItems.Add("Small");
+            this.Scales.Add("Small");
             this.scales.Add("small");
 
-            this.scaleItems.Add("Medium");
+            this.Scales.Add("Medium");
             this.scales.Add("medium");
 
-            this.scaleItems.Add("Large");
+            this.Scales.Add("Large");
             this.scales.Add("large");
         }
 

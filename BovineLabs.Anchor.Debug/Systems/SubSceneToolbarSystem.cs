@@ -24,7 +24,7 @@ namespace BovineLabs.Anchor.Debug.Systems
         private NativeList<int> values;
         private NativeList<SubSceneToolbarViewModel.Data.SubSceneName> subScenesBuffer;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnCreate(ref SystemState state)
         {
             this.toolbar = new ToolbarHelper<SubSceneToolbarView, SubSceneToolbarViewModel, SubSceneToolbarViewModel.Data>(ref state, "SubScene");
@@ -33,14 +33,14 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.subScenesBuffer = new NativeList<SubSceneToolbarViewModel.Data.SubSceneName>(Allocator.Persistent);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnDestroy(ref SystemState state)
         {
             this.values.Dispose();
             this.subScenesBuffer.Dispose();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
@@ -50,7 +50,7 @@ namespace BovineLabs.Anchor.Debug.Systems
             data.SubSceneValues = new NativeList<int>(Allocator.Persistent);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnStopRunning(ref SystemState state)
         {
             ref var data = ref this.toolbar.Binding;
@@ -59,7 +59,7 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.toolbar.Unload();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -99,8 +99,11 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.values.Clear();
             this.subScenesBuffer.Clear();
 
-            foreach (var (sections, e) in SystemAPI.Query<DynamicBuffer<ResolvedSectionEntity>>()
-                         .WithAll<SceneReference>().WithNone<RequiredSubScene, PrefabRoot>().WithEntityAccess())
+            foreach (var (sections, e) in SystemAPI
+                .Query<DynamicBuffer<ResolvedSectionEntity>>()
+                .WithAll<SceneReference>()
+                .WithNone<RequiredSubScene, PrefabRoot>()
+                .WithEntityAccess())
             {
                 if (sections.Length == 1)
                 {
@@ -111,7 +114,11 @@ namespace BovineLabs.Anchor.Debug.Systems
                         sectionName = e.ToFixedString();
                     }
 
-                    this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = sections[0].SectionEntity, Name = sectionName });
+                    this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName
+                    {
+                        Entity = sections[0].SectionEntity,
+                        Name = sectionName,
+                    });
                 }
                 else
                 {
@@ -124,7 +131,11 @@ namespace BovineLabs.Anchor.Debug.Systems
                             sectionName = e.ToFixedString();
                         }
 
-                        this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName { Entity = section.SectionEntity, Name = sectionName });
+                        this.subScenesBuffer.Add(new SubSceneToolbarViewModel.Data.SubSceneName
+                        {
+                            Entity = section.SectionEntity,
+                            Name = sectionName,
+                        });
                     }
                 }
             }

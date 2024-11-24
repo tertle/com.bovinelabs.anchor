@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor.Binding
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using AOT;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -31,7 +32,7 @@ namespace BovineLabs.Anchor.Binding
                 Notify = new FunctionPointer<OnPropertyChangedDelegate>(Marshal.GetFunctionPointerForDelegate<OnPropertyChangedDelegate>(NotifyForwarding));
             }
 
-            [AOT.MonoPInvokeCallback(typeof(OnPropertyChangedDelegate))]
+            [MonoPInvokeCallback(typeof(OnPropertyChangedDelegate))]
             private static void NotifyForwarding(IntPtr target, in FixedString64Bytes property)
             {
                 if (Objects.TryGetValue(target, out var notify))
@@ -59,13 +60,13 @@ namespace BovineLabs.Anchor.Binding
             bindingObjectNotify.Value.Notify = default;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         void IBindingObject.Load()
         {
             Load(this);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         void IBindingObject.Unload()
         {
             Unload(this);

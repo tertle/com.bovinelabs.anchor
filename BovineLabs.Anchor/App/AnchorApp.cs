@@ -6,6 +6,7 @@ namespace BovineLabs.Anchor
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
+    using AOT;
     using BovineLabs.Anchor.Toolbar;
     using JetBrains.Annotations;
     using Unity.AppUI.MVVM;
@@ -61,7 +62,7 @@ namespace BovineLabs.Anchor
             this.TooltipContainer = this.rootVisualElement.Q<VisualElement>("tooltip-container");
         }
 
-        /// <summary> A burst compatible way to Navigate to a new screen in the <see cref="GraphViewAsset"/>.  </summary>
+        /// <summary> A burst compatible way to Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
         /// <param name="screen"> The screen to navigate to. </param>
         public static void Navigate(in FixedString64Bytes screen)
         {
@@ -71,22 +72,20 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <summary> Navigate to a new screen in the <see cref="GraphViewAsset"/>. </summary>
+        /// <summary> Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
         /// <param name="screen"> The screen to navigate to. </param>
         public void Navigate(string screen)
         {
             this.Controller.Navigate(screen);
         }
 
-        /// <summary> This has been disabled in favour of overriding <see cref="Initialize"/>. </summary>
-        public override sealed void InitializeComponent()
+        /// <summary> This has been disabled in favour of overriding <see cref="Initialize" />. </summary>
+        public sealed override void InitializeComponent()
         {
             base.InitializeComponent();
-
-
         }
 
-        [AOT.MonoPInvokeCallback(typeof(NavigateDelegate))]
+        [MonoPInvokeCallback(typeof(NavigateDelegate))]
         private static void NavigateForwarding(in FixedString64Bytes screen)
         {
             current.Navigate(screen.ToString());

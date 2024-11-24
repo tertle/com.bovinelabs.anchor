@@ -8,6 +8,9 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;
+#if BL_CORE
+    using BovineLabs.Core.Extensions;
+#endif
     using Unity.Burst;
     using Unity.Entities;
 
@@ -21,7 +24,7 @@ namespace BovineLabs.Anchor.Debug.Systems
         private Unity.Collections.NativeList<EntityArchetype> entityArchetypes;
 #endif
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnCreate(ref SystemState state)
         {
             this.toolbar = new ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
@@ -37,19 +40,19 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.entityArchetypes.Dispose();
         }
 #endif
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnStopRunning(ref SystemState state)
         {
             this.toolbar.Unload();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -61,7 +64,7 @@ namespace BovineLabs.Anchor.Debug.Systems
             ref var data = ref this.toolbar.Binding;
             data.Entities = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
 #if BL_CORE
-            data.Archetypes = BovineLabs.Core.Extensions.EntityManagerExtensions.NumberOfArchetype(state.EntityManager);
+            data.Archetypes = EntityManagerExtensions.NumberOfArchetype(state.EntityManager);
 #else
             this.entityArchetypes.Clear();
             state.EntityManager.GetAllArchetypes(this.entityArchetypes);

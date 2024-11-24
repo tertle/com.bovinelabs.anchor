@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor.Toolbar
     using BovineLabs.Anchor.Binding;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Entities;
     using UnityEngine.UIElements;
 
     public unsafe struct ToolbarHelper<TV, TM, TD>
@@ -33,7 +34,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.key = 0;
         }
 
-        public ToolbarHelper(ref Unity.Entities.SystemState state, FixedString32Bytes groupName)
+        public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
             : this(ToolbarView.FormatWorld(state.World), groupName)
         {
         }

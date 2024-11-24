@@ -7,6 +7,9 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Core;
     using Unity.AppUI.MVVM;
+#if UNITY_NETCODE
+    using Unity.NetCode;
+#endif
     using Unity.Properties;
 
     public class BootstrapToolbarViewModel : ObservableObject
@@ -15,7 +18,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool Host
         {
-            get => Unity.NetCode.ClientServerBootstrap.ClientWorld != null && Unity.NetCode.ClientServerBootstrap.ServerWorld != null;
+            get => ClientServerBootstrap.ClientWorld != null && ClientServerBootstrap.ServerWorld != null;
             set
             {
                 this.SetProperty(this.Host, value, value =>
@@ -33,9 +36,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 
         [CreateProperty]
-        public bool HostEnabled => !this.Local &&
-                                   (Unity.NetCode.ClientServerBootstrap.ClientWorld != null) ==
-                                   (Unity.NetCode.ClientServerBootstrap.ServerWorld != null);
+        public bool HostEnabled => !this.Local && (ClientServerBootstrap.ClientWorld != null) == (ClientServerBootstrap.ServerWorld != null);
 #endif
 
 #if !UNITY_SERVER
@@ -43,18 +44,17 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public bool Local
         {
             get => BovineLabsBootstrap.GameWorld != null;
-            set =>
-                this.SetProperty(this.Local, value, value =>
+            set => this.SetProperty(this.Local, value, value =>
+            {
+                if (value)
                 {
-                    if (value)
-                    {
-                        BovineLabsBootstrap.Instance.CreateGameWorld();
-                    }
-                    else
-                    {
-                        BovineLabsBootstrap.Instance.DestroyGameWorld();
-                    }
-                });
+                    BovineLabsBootstrap.Instance.CreateGameWorld();
+                }
+                else
+                {
+                    BovineLabsBootstrap.Instance.DestroyGameWorld();
+                }
+            });
         }
 
         [CreateProperty]
@@ -74,7 +74,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool Client
         {
-            get => Unity.NetCode.ClientServerBootstrap.ClientWorld != null;
+            get => ClientServerBootstrap.ClientWorld != null;
             set
             {
                 this.SetProperty(this.Client, value, value =>
@@ -102,19 +102,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool Server
         {
-            get => Unity.NetCode.ClientServerBootstrap.ServerWorld != null;
-            set =>
-                this.SetProperty(this.Server, value, value =>
+            get => ClientServerBootstrap.ServerWorld != null;
+            set => this.SetProperty(this.Server, value, value =>
+            {
+                if (value)
                 {
-                    if (value)
-                    {
-                        BovineLabsBootstrap.Instance.CreateServerWorld();
-                    }
-                    else
-                    {
-                        BovineLabsBootstrap.Instance.DestroyServerWorld();
-                    }
-                });
+                    BovineLabsBootstrap.Instance.CreateServerWorld();
+                }
+                else
+                {
+                    BovineLabsBootstrap.Instance.DestroyServerWorld();
+                }
+            });
         }
 
         [CreateProperty]

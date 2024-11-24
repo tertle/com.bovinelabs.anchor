@@ -18,7 +18,6 @@ namespace BovineLabs.Anchor.Toolbar
         private readonly ILocalStorageService storageService;
         private readonly Dictionary<string, int> selectionsCount = new();
         private readonly HashSet<string> selectionsHidden = new();
-        private readonly List<string> filterItems = new();
         private readonly List<int> filterValuesPrevious = new();
         private readonly List<int> filterValues = new();
 
@@ -34,7 +33,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         public IReadOnlyCollection<string> SelectionsHidden => this.selectionsHidden;
 
-        public List<string> FilterItems => this.filterItems;
+        public List<string> FilterItems { get; } = new();
 
         [CreateProperty]
         public IEnumerable<int> FilterValues
@@ -54,12 +53,12 @@ namespace BovineLabs.Anchor.Toolbar
 
                 foreach (var oldValue in this.filterValuesPrevious.Where(oldValue => !this.filterValues.Contains(oldValue)))
                 {
-                    this.selectionsHidden.Add(this.filterItems[oldValue]);
+                    this.selectionsHidden.Add(this.FilterItems[oldValue]);
                 }
 
                 foreach (var newValue in this.filterValues.Where(newValue => !this.filterValuesPrevious.Contains(newValue)))
                 {
-                    this.selectionsHidden.Remove(this.filterItems[newValue]);
+                    this.selectionsHidden.Remove(this.FilterItems[newValue]);
                 }
 
                 var serializedString = string.Join(",", this.selectionsHidden);
@@ -77,8 +76,8 @@ namespace BovineLabs.Anchor.Toolbar
             this.selectionsCount.TryGetValue(filterName, out var count);
             if (count == 0)
             {
-                this.filterItems.Add(filterName);
-                this.filterItems.Sort();
+                this.FilterItems.Add(filterName);
+                this.FilterItems.Sort();
 
                 this.RefreshItems();
             }
@@ -97,7 +96,7 @@ namespace BovineLabs.Anchor.Toolbar
             if (currentValue == 0)
             {
                 this.selectionsCount.Remove(filterName);
-                this.filterItems.Remove(filterName);
+                this.FilterItems.Remove(filterName);
 
                 this.RefreshItems();
             }

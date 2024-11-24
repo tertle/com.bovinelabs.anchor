@@ -5,7 +5,6 @@
 #if UNITY_LOCALIZATION
 namespace BovineLabs.Anchor.Debug.Views
 {
-    using BovineLabs.Anchor;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.UI;
@@ -41,10 +40,11 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSourcePath = new PropertyPath(nameof(LocalizationToolbarViewModel.Locales)),
             });
 
-            dropdownField.SetBinding(nameof(Dropdown.selectedIndex), new DataBinding
-            {
-                dataSourcePath = new PropertyPath(nameof(LocalizationToolbarViewModel.SelectedLocale)),
-            });
+            dropdownField.SetBinding(nameof(Dropdown.selectedIndex),
+                new DataBinding
+                {
+                    dataSourcePath = new PropertyPath(nameof(LocalizationToolbarViewModel.SelectedLocale)),
+                });
 
             this.Add(dropdownField);
         }

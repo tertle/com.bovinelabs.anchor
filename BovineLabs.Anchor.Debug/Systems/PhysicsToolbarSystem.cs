@@ -8,6 +8,9 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;
+#if BL_DRAW
+    using BovineLabs.Draw.Debug.Physics;
+#endif
     using Unity.Burst;
     using Unity.Entities;
     using Unity.Physics.Systems;
@@ -17,7 +20,7 @@ namespace BovineLabs.Anchor.Debug.Systems
     {
         private ToolbarHelper<PhysicsToolbarView, PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data> toolbar;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnCreate(ref SystemState state)
         {
             if (state.World.GetExistingSystem<BuildPhysicsWorld>() == SystemHandle.Null)
@@ -29,23 +32,23 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.toolbar = new ToolbarHelper<PhysicsToolbarView, PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data>(ref state, "Physics");
 
 #if BL_DRAW
-            state.EntityManager.AddComponent<BovineLabs.Draw.Debug.Physics.PhysicsDebugDraw>(state.SystemHandle);
+            state.EntityManager.AddComponent<PhysicsDebugDraw>(state.SystemHandle);
 #endif
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnStopRunning(ref SystemState state)
         {
             this.toolbar.Unload();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -57,7 +60,7 @@ namespace BovineLabs.Anchor.Debug.Systems
             ref var data = ref this.toolbar.Binding;
 
 #if BL_DRAW
-            ref var c = ref state.EntityManager.GetComponentDataRW<BovineLabs.Draw.Debug.Physics.PhysicsDebugDraw>(state.SystemHandle).ValueRW;
+            ref var c = ref state.EntityManager.GetComponentDataRW<PhysicsDebugDraw>(state.SystemHandle).ValueRW;
             c.DrawColliderEdges = data.DrawColliderEdges;
             c.DrawColliderAabbs = data.DrawColliderAabbs;
             c.DrawCollisionEvents = data.DrawCollisionEvents;

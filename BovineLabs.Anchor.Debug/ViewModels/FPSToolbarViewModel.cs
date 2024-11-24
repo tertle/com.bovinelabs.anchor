@@ -135,7 +135,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
 
             // Build min FPS
-            if ((this.fps.CurrentFPS < this.fps.MinFPS) || (this.fps.MinFPS <= 0))
+            if (this.fps.CurrentFPS < this.fps.MinFPS || this.fps.MinFPS <= 0)
             {
                 this.fps.MinFPS = this.fps.CurrentFPS;
 
@@ -143,7 +143,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
 
             // Build max FPS
-            if ((this.fps.CurrentFPS > this.fps.MaxFPS) || (this.fps.MaxFPS <= 0))
+            if (this.fps.CurrentFPS > this.fps.MaxFPS || this.fps.MaxFPS <= 0)
             {
                 this.fps.MaxFPS = this.fps.CurrentFPS;
 

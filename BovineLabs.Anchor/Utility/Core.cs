@@ -19,7 +19,9 @@ namespace BovineLabs.Anchor
         {
             var type = typeof(T);
 
-            return AppDomain.CurrentDomain.GetAssemblies()
+            return AppDomain
+                .CurrentDomain
+                .GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(t => t != type)
                 .Where(t => !t.IsInterface && !t.IsAbstract)
@@ -32,9 +34,7 @@ namespace BovineLabs.Anchor
         public static IEnumerable<Type> GetAllWithAttribute<T>()
             where T : Attribute
         {
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(t => t.GetCustomAttribute<T>() != null);
+            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(t => t.GetCustomAttribute<T>() != null);
         }
     }
 }

@@ -18,15 +18,16 @@ namespace BovineLabs.Anchor.Debug.Views
         {
             this.AddToClassList(UssClassName);
 
-            this.Add(KeyValueGroup.Create(this.ViewModel, new[]
-            {
-                ("Entities", nameof(EntitiesToolbarViewModel.Entities)),
-                ("Archetypes", nameof(EntitiesToolbarViewModel.Archetypes)),
-                ("Chunks", nameof(EntitiesToolbarViewModel.Chunks)),
-            }));
+            this.Add(KeyValueGroup.Create(this.ViewModel,
+                new[]
+                {
+                    ("Entities", nameof(EntitiesToolbarViewModel.Entities)),
+                    ("Archetypes", nameof(EntitiesToolbarViewModel.Archetypes)),
+                    ("Chunks", nameof(EntitiesToolbarViewModel.Chunks)),
+                }));
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public EntitiesToolbarViewModel ViewModel { get; } = new();
     }
 }

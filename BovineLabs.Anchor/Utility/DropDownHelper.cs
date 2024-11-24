@@ -9,6 +9,9 @@ namespace BovineLabs.Anchor
     using System.Linq;
     using Unity.AppUI.UI;
     using Unity.Collections;
+#if BL_CORE
+    using ListExtensions = BovineLabs.Core.Extensions.ListExtensions;
+#endif
 
     public interface IDropDownItem
     {
@@ -100,7 +103,7 @@ namespace BovineLabs.Anchor
             {
                 values.Clear();
 #if BL_CORE
-                BovineLabs.Core.Extensions.ListExtensions.AddRangeNative(values, native.AsArray());
+                ListExtensions.AddRangeNative(values, native.AsArray());
 #else
                 foreach (var i in native.AsArray())
                 {

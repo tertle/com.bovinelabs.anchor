@@ -61,7 +61,8 @@ namespace BovineLabs.Anchor.Elements
 
         public IReadOnlyList<KeyValueElement> Elements => this.elements;
 
-        public static KeyValueGroup Create(object viewModel, (string Key, string Path)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
+        public static KeyValueGroup Create(
+            object viewModel, (string Key, string Path)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
         {
             var group = new KeyValueGroup(fields.Select(k => k.Key));
             Assert.AreEqual(group.Elements.Count, fields.Length);
@@ -70,7 +71,12 @@ namespace BovineLabs.Anchor.Elements
             {
                 var element = group.elements[i];
                 var valuePath = fields[i].Path;
-                var db = new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(valuePath), updateTrigger = trigger };
+                var db = new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget,
+                    dataSourcePath = new PropertyPath(valuePath),
+                    updateTrigger = trigger,
+                };
 
                 element.ValueLabel.dataSource = viewModel;
                 element.ValueLabel.SetBinding(nameof(Label.text), db);
@@ -79,7 +85,9 @@ namespace BovineLabs.Anchor.Elements
             return group;
         }
 
-        public static KeyValueGroup Create(object viewModel, (string Key, string Path, Action<DataBinding> BindCallback)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
+        public static KeyValueGroup Create(
+            object viewModel, (string Key, string Path, Action<DataBinding> BindCallback)[] fields,
+            BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
         {
             var group = new KeyValueGroup(fields.Select(k => k.Key));
 
