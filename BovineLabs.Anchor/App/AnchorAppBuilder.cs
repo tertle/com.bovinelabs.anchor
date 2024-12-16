@@ -8,6 +8,9 @@ namespace BovineLabs.Anchor
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
+#if BL_CORE
+    using BovineLabs.Core.Utility;
+#endif
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
     using UnityEngine;
@@ -56,7 +59,11 @@ namespace BovineLabs.Anchor
             }
 
             // Register all views
+#if BL_CORE
+            foreach (var view in ReflectionUtility.GetAllImplementations<IView>())
+#else
             foreach (var view in Core.GetAllImplementations<IView>())
+#endif
             {
                 if (!typeof(VisualElement).IsAssignableFrom(view))
                 {
@@ -75,7 +82,11 @@ namespace BovineLabs.Anchor
             }
 
             // Register all view models
-            foreach (var viewModel in Core.GetAllImplementations<IViewModel>())
+#if BL_CORE
+            foreach (var viewModel in ReflectionUtility.GetAllImplementations<IViewModel>())
+#else
+            foreach (var view in Core.GetAllImplementations<IView>())
+#endif
             {
                 if (viewModel.GetCustomAttribute<TransientAttribute>() != null)
                 {
