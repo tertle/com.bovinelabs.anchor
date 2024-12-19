@@ -1,11 +1,11 @@
 {
   "name": "com.bovinelabs.anchor",
   "description": "UI and toolkit framework based on AppUI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "unity": "6000.1",
   "displayName": "BovineLabs Anchor",
   "dependencies": {
-    "com.unity.dt.app-ui": "2.0.0-pre.11"
+    "com.unity.dt.app-ui": "2.0.0-pre.15"
   },
   "keywords": [
     "UI"

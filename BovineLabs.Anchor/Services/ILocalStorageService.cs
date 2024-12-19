@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Services
 
         void DeleteKey(string key);
 
-        string GetValue(string key, string defaultValue = default);
+        string GetValue(string key, string defaultValue = null);
 
         void SetValue(string key, string value);
 

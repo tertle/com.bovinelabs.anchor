@@ -34,7 +34,8 @@ namespace BovineLabs.Anchor
 
         protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
 
-        protected virtual Type StoreService { get; } = typeof(StoreService);
+        /// <summary> Gets the optional <see cref="IStoreService"/> type. If not set, IStoreService will not be registered. </summary>
+        protected virtual Type StoreService => null;
 
         protected virtual Type LocalStorageService { get; } = typeof(LocalStoragePlayerPrefsService);
 
@@ -49,7 +50,11 @@ namespace BovineLabs.Anchor
         {
             base.OnConfiguringApp(builder);
 
-            builder.services.AddSingleton(typeof(IStoreService), this.StoreService);
+            if (this.StoreService != null)
+            {
+                builder.services.AddSingleton(typeof(IStoreService), this.StoreService);
+            }
+
             builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
             builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
