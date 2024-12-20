@@ -59,7 +59,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 #endif
 
-        public struct Data : IBindingObject
+        public struct Data
         {
             public bool DrawColliderEdges;
             public bool DrawColliderAabbs;
