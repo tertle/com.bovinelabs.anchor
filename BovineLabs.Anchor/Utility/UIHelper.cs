@@ -36,7 +36,7 @@ namespace BovineLabs.Anchor
             viewModel.Unload();
             this.handle.Free();
             this.handle = default;
-            this.data = default;
+            this.data = null;
 
             App.current.services.GetRequiredService<IViewModelService>().Unload<TM>();
         }

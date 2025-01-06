@@ -63,7 +63,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             get
             {
 #if UNITY_NETCODE
+#if UNITY_CLIENT || UNITY_SERVER
+                return false;
+#else
                 return !this.Client && !this.Server;
+#endif
 #else
                 return true;
 #endif
