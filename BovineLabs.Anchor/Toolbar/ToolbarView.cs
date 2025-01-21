@@ -138,6 +138,15 @@ namespace BovineLabs.Anchor.Toolbar
             }
 #endif
 
+            var safeSpace = Screen.safeArea;
+            var xMin = safeSpace.x / Screen.width * 100;
+            var xMax = (Screen.width - safeSpace.width - safeSpace.x) / Screen.width * 100;
+            var yMin = safeSpace.y / Screen.height * 100;
+
+            this.style.paddingLeft = new StyleLength(Length.Percent(xMin));
+            this.style.paddingRight = new StyleLength(Length.Percent(xMax));
+            this.style.paddingTop = new StyleLength(Length.Percent(yMin));
+
             this.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
 
             App.shuttingDown += this.AppOnShuttingDown;
