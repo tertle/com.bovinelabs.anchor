@@ -19,6 +19,8 @@ namespace BovineLabs.Anchor
     [UsedImplicitly]
     public class AnchorApp : App
     {
+        public const string DefaultServiceTabName = "Service";
+
         private static readonly FunctionPointer<NavigateDelegate> NavigateFunction =
             new(Marshal.GetFunctionPointerForDelegate<NavigateDelegate>(NavigateForwarding));
 
@@ -29,6 +31,8 @@ namespace BovineLabs.Anchor
         public static new AnchorApp current => App.current as AnchorApp;
 
         public virtual Panel Panel => (Panel)this.rootVisualElement;
+
+        public virtual string ServiceTabName => DefaultServiceTabName;
 
         public NavController Controller { get; private set; }
 

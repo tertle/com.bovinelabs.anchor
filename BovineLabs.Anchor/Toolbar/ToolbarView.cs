@@ -112,14 +112,11 @@ namespace BovineLabs.Anchor.Toolbar
             this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
-            var serviceTabName = "Service";
-
-#if UNITY_ENTITIES
-            if (World.DefaultGameObjectInjectionWorld != null)
+            var serviceTabName = AnchorApp.current?.ServiceTabName;
+            if (string.IsNullOrWhiteSpace(serviceTabName))
             {
-                serviceTabName = FormatWorld(World.DefaultGameObjectInjectionWorld);
+                serviceTabName = AnchorApp.DefaultServiceTabName;
             }
-#endif
 
             foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
             {
@@ -139,9 +136,9 @@ namespace BovineLabs.Anchor.Toolbar
 #endif
 
             var safeSpace = Screen.safeArea;
-            var xMin = safeSpace.x / Screen.width * 100;
-            var xMax = (Screen.width - safeSpace.width - safeSpace.x) / Screen.width * 100;
-            var yMin = safeSpace.y / Screen.height * 100;
+            var xMin = (safeSpace.x / Screen.width) * 100;
+            var xMax = ((Screen.width - safeSpace.width - safeSpace.x) / Screen.width) * 100;
+            var yMin = (safeSpace.y / Screen.height) * 100;
 
             this.style.paddingLeft = new StyleLength(Length.Percent(xMin));
             this.style.paddingRight = new StyleLength(Length.Percent(xMax));
