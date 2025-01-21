@@ -5,6 +5,7 @@
 #if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
 namespace BovineLabs.Anchor.Toolbar
 {
+    using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using Unity.Collections;
@@ -35,7 +36,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
-            : this(ToolbarView.FormatWorld(state.World), groupName)
+            : this(FormatWorld(state.World), groupName)
         {
         }
 
@@ -64,6 +65,12 @@ namespace BovineLabs.Anchor.Toolbar
         public bool IsVisible()
         {
             return ToolbarViewData.ActiveTab.Data == this.tabName;
+        }
+
+        private static string FormatWorld(World world)
+        {
+            var name = world.Name;
+            return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
         }
     }
 }

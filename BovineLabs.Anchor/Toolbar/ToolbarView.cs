@@ -17,9 +17,6 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
-#if UNITY_ENTITIES
-    using Unity.Entities;
-#endif
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
@@ -156,14 +153,6 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         public static ToolbarView Instance { get; private set; }
-
-#if UNITY_ENTITIES
-        public static string FormatWorld(World world)
-        {
-            var name = world.Name;
-            return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
-        }
-#endif
 
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement, IView
