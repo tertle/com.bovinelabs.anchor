@@ -8,6 +8,6 @@ namespace BovineLabs.Anchor.Services
 
     public interface IStoreService
     {
-        Store Store { get; }
+        IStore<PartitionedState> Store { get; }
     }
 }

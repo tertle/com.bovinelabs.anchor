@@ -10,12 +10,12 @@ namespace BovineLabs.Anchor.Elements
     [UxmlElement]
     public partial class BindableSliderFloat : SliderFloat
     {
-        protected override void SetValueFromDrag(float newPos)
-        {
-            var sliderRect = this.GetSliderRect();
-            var newValue = this.ComputeValueFromHandlePosition(sliderRect.width, newPos - sliderRect.x);
-
-            this.value = newValue;
-        }
+        // protected override void SetValueFromDrag(float newPos)
+        // {
+        //     var sliderRect = this.GetSliderRect();
+        //     var newValue = this.ComputeValueFromHandlePosition(sliderRect.width, newPos - sliderRect.x);
+        //
+        //     this.value = newValue;
+        // }
     }
 }
