@@ -6,10 +6,13 @@
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
+    using JetBrains.Annotations;
     using Unity.Properties;
     using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
 
+    [Transient]
+    [UsedImplicitly]
     public class PauseToolbarView : VisualElement, IView<PauseToolbarViewModel>
     {
         public PauseToolbarView()
