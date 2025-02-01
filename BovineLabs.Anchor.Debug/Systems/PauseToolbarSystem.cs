@@ -11,7 +11,6 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Core.Pause;
     using Unity.Burst;
     using Unity.Entities;
-    using Unity.Networking.Transport;
 
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct PauseToolbarSystem : ISystem, ISystemStartStop
@@ -45,20 +44,20 @@ namespace BovineLabs.Anchor.Debug.Systems
                 return;
             }
 
-            var isPaused = state.EntityManager.HasComponent<PauseGame>(state.SystemHandle);
+            var isPaused = PauseGame.IsPaused(ref state);
 
             if (isPaused)
             {
                 if (!this.toolbar.Binding.Pause)
                 {
-                    state.EntityManager.RemoveComponent<PauseGame>(state.SystemHandle);
+                    PauseGame.Unpause(ref state);
                 }
             }
             else
             {
                 if (this.toolbar.Binding.Pause)
                 {
-                    state.EntityManager.AddComponent<PauseGame>(state.SystemHandle);
+                    PauseGame.Pause(ref state);
                 }
             }
         }
