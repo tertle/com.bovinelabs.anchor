@@ -32,6 +32,10 @@ namespace BovineLabs.Anchor
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
 #endif
 
+        [SerializeField]
+        [Tooltip("If true, will disable instantiation to in builds without toolbar to speed up initialization.")]
+        private bool toolbarOnly;
+
         protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
 
         /// <summary> Gets the optional <see cref="IStoreService"/> type. If not set, IStoreService will not be registered. </summary>
@@ -48,6 +52,12 @@ namespace BovineLabs.Anchor
         /// <inheritdoc />
         protected override void OnConfiguringApp(AppBuilder builder)
         {
+#if !UNITY_EDITOR && !BL_DEBUG
+            if (this.toolbarOnly)
+            {
+                return;
+            }
+#endif
             base.OnConfiguringApp(builder);
 
             if (this.StoreService != null)
@@ -106,6 +116,12 @@ namespace BovineLabs.Anchor
 
         protected override void OnAppInitialized(T app)
         {
+#if !UNITY_EDITOR && !BL_DEBUG
+            if (this.toolbarOnly)
+            {
+                return;
+            }
+#endif
             base.OnAppInitialized(app);
 
 #if UNITY_EDITOR || BL_DEBUG
