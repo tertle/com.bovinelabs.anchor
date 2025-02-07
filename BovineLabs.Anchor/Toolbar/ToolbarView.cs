@@ -13,6 +13,7 @@ namespace BovineLabs.Anchor.Toolbar
     using BovineLabs.Anchor.Services;
 #if BL_CORE
     using BovineLabs.Core.ConfigVars;
+    using BovineLabs.Core.Utility;
 #endif
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
@@ -115,7 +116,11 @@ namespace BovineLabs.Anchor.Toolbar
                 serviceTabName = AnchorApp.DefaultServiceTabName;
             }
 
+#if BL_CORE
+            foreach (var t in ReflectionUtility.GetAllWithAttribute<AutoToolbarAttribute>())
+#else
             foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
+#endif
             {
                 var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
                 var tabName = attr.TabName ?? serviceTabName;
@@ -408,7 +413,7 @@ namespace BovineLabs.Anchor.Toolbar
                     this.activeGroup.Parent.RemoveFromTab();
                 }
 
-                this.activeGroup = default;
+                this.activeGroup = null;
                 ToolbarViewData.ActiveTab.Data = string.Empty;
             }
 

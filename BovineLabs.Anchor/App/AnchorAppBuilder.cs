@@ -72,7 +72,7 @@ namespace BovineLabs.Anchor
             {
                 if (!typeof(VisualElement).IsAssignableFrom(view))
                 {
-                    Debug.LogError("IView can only be assigned to VisualElements");
+                    Debug.LogError($"IView can only be assigned to VisualElements {view}");
                     continue;
                 }
 

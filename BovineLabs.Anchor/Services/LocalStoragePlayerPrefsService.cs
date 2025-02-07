@@ -25,7 +25,7 @@ namespace BovineLabs.Anchor.Services
         }
 
         /// <inheritdoc />
-        public string GetValue(string key, string defaultValue = default)
+        public string GetValue(string key, string defaultValue = "")
         {
             return this.HasKey(key) ? PlayerPrefs.GetString(key) : defaultValue;
         }
@@ -34,6 +34,26 @@ namespace BovineLabs.Anchor.Services
         public void SetValue(string key, string value)
         {
             PlayerPrefs.SetString(key, value);
+        }
+
+        public int GetValue(string key, int defaultValue)
+        {
+            return PlayerPrefs.GetInt(key, defaultValue);
+        }
+
+        public void SetValue(string key, int value)
+        {
+            PlayerPrefs.SetInt(key, value);
+        }
+
+        public bool GetValue(string key, bool defaultValue)
+        {
+            return this.GetValue(key, defaultValue ? 1 : 0) != 0;
+        }
+
+        public void SetValue(string key, bool value)
+        {
+            this.SetValue(key, value ? 1 : 0);
         }
 
         /// <inheritdoc />

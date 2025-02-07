@@ -14,6 +14,14 @@ namespace BovineLabs.Anchor.Services
 
         void SetValue(string key, string value);
 
+        int GetValue(string key, int defaultValue);
+
+        void SetValue(string key, int value);
+
+        bool GetValue(string key, bool defaultValue);
+
+        void SetValue(string key, bool value);
+
         bool HasJson(string key);
 
         void DeleteJson(string key);
