@@ -5,7 +5,7 @@
     "BovineLabs.Anchor",
     "BovineLabs.Core",
     "BovineLabs.Core.Extensions",
-    "BovineLabs.Draw.Debug",
+    "BovineLabs.Quill.Debug",
     "Unity.AppUI",
     "Unity.AppUI.MVVM",
     "Unity.AppUI.Navigation",
@@ -51,7 +51,7 @@
     {
       "name": "com.bovinelabs.draw",
       "expression": "",
-      "define": "BL_DRAW"
+      "define": "BL_QUILL"
     },
     {
       "name": "com.unity.entities",

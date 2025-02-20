@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DRAW || UNITY_PHYSICS
+#if BL_QUILL || UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
@@ -45,7 +45,7 @@ namespace BovineLabs.Anchor.Debug.Views
             aabbs.RegisterValueChangedCallback(evt => this.ViewModel.DrawColliderAabbs = evt.newValue);
             left.Add(aabbs);
 
-#if BL_DRAW
+#if BL_QUILL
             var terrain = new Toggle
             {
                 label = "Terrain",

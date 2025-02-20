@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DRAW || UNITY_PHYSICS
+#if BL_QUILL || UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Binding;
@@ -43,7 +43,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.data.DrawTriggerEvents, value);
         }
 
-#if BL_DRAW
+#if BL_QUILL
         [CreateProperty]
         public bool DrawMeshColliderEdges
         {
@@ -65,7 +65,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             public bool DrawColliderAabbs;
             public bool DrawCollisionEvents;
             public bool DrawTriggerEvents;
-#if BL_DRAW
+#if BL_QUILL
             public bool DrawMeshColliderEdges;
             public bool DrawTerrainColliderEdges;
 #endif
