@@ -49,7 +49,7 @@
       "define": "BL_CORE_1_3_3_OR_NEWER"
     },
     {
-      "name": "com.bovinelabs.draw",
+      "name": "com.bovinelabs.quill",
       "expression": "",
       "define": "BL_QUILL"
     },
