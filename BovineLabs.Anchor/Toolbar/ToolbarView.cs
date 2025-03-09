@@ -107,7 +107,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.uiHeight = Screen.height; // TODO
 
-            this.RegisterCallback<GeometryChangedEvent>(evt => this.ResizeViewRect(evt.newRect));
+            this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
             var serviceTabName = AnchorApp.current?.ServiceTabName;
@@ -146,7 +146,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.style.paddingRight = new StyleLength(Length.Percent(xMax));
             this.style.paddingTop = new StyleLength(Length.Percent(yMin));
 
-            this.RegisterCallback<GeometryChangedEvent>(this.OnRootContentChanged);
+            this.RegisterCallback<GeometryChangedEvent, ToolbarView>((_, tv) => tv.OnRootContentChanged(), this);
 
             App.shuttingDown += this.AppOnShuttingDown;
         }
@@ -307,7 +307,7 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private void OnRootContentChanged(GeometryChangedEvent evt)
+        private void OnRootContentChanged()
         {
             var height = App.current.rootVisualElement.contentRect.height;
 
