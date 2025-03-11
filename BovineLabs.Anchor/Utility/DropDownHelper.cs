@@ -129,23 +129,20 @@ namespace BovineLabs.Anchor
             }
         }
 
-        public static Action<DropdownItem, int> BindItem(List<string> items)
+        public static void BindItem(List<string> items, DropdownItem item, int index)
         {
-            return (item, i) => item.label = items[i];
+            item.label = items[index];
         }
 
-        public static Action<DropdownItem, IEnumerable<int>> BindTitle(List<string> items, string unselected)
+        public static void BindTitle(List<string> items, string unselected, DropdownItem item, IEnumerable<int> selected)
         {
-            return (item, ints) =>
+            var text = string.Join(',', selected.Select(s => items[s]));
+            if (string.IsNullOrWhiteSpace(text))
             {
-                var text = string.Join(',', ints.Select(s => items[s]));
-                if (string.IsNullOrWhiteSpace(text))
-                {
-                    text = unselected;
-                }
+                text = unselected;
+            }
 
-                item.labelElement.text = text;
-            };
+            item.labelElement.text = text;
         }
     }
 }

@@ -41,6 +41,8 @@ namespace BovineLabs.Anchor.Debug.Systems
         {
             this.toolbar.Load();
             this.toolbar.Binding.World = state.World.Name.GetHashCode();
+
+            this.UpdateData(ref this.toolbar.Binding);
         }
 
         /// <inheritdoc />
@@ -58,8 +60,11 @@ namespace BovineLabs.Anchor.Debug.Systems
                 return;
             }
 
-            ref var data = ref this.toolbar.Binding;
+            this.UpdateData(ref this.toolbar.Binding);
+        }
 
+        private void UpdateData(ref PhysicsToolbarViewModel.Data data)
+        {
 #if BL_QUILL
             var c = SystemAPI.GetSingleton<PhysicsDebugDraw>();
             if (c.DrawColliderEdges != data.DrawColliderEdges || c.DrawColliderAabbs != data.DrawColliderAabbs ||

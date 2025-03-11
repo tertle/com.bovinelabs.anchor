@@ -31,7 +31,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.tabName = tabName;
             this.groupName = groupName;
             this.handle = default;
-            this.data = default;
+            this.data = null;
             this.key = 0;
         }
 
@@ -59,7 +59,7 @@ namespace BovineLabs.Anchor.Toolbar
             view.ViewModel.Unload();
             this.handle.Free();
             this.handle = default;
-            this.data = default;
+            this.data = null;
         }
 
         public bool IsVisible()

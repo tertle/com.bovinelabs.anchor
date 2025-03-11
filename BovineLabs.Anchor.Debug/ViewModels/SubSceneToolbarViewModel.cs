@@ -48,8 +48,10 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
         }
 
-        [CreateProperty]
-        public Action<DropdownItem, int> BindItem => DropDownHelper.BindItem(this.subScenes);
+        public void BindItem(DropdownItem item, int index)
+        {
+            DropDownHelper.BindItem(this.subScenes, item, index);
+        }
 
         private static string Formatter(string name)
         {
