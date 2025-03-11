@@ -155,14 +155,14 @@ namespace BovineLabs.Anchor.Debug.Systems
             {
                 data.SubSceneValues.Clear();
                 data.SubSceneValues.AddRange(this.values.AsArray());
-                data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.SubSceneValues)}");
+                data.Notify($"{nameof(SubSceneToolbarViewModel.Data.SubSceneValues)}");
             }
 
             if (!this.subScenesBuffer.AsArray().ArraysEqual(data.SubScenes.AsArray()))
             {
                 data.SubScenes.Clear();
                 data.SubScenes.AddRange(this.subScenesBuffer.AsArray());
-                data.NotifyExplicit($"{nameof(SubSceneToolbarViewModel.Data.SubScenes)}");
+                data.Notify($"{nameof(SubSceneToolbarViewModel.Data.SubScenes)}");
             }
         }
     }

@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Services;
     using JetBrains.Annotations;
-    using Unity.Burst;
     using Unity.Properties;
 
     [Transient]
@@ -129,7 +128,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             this.storageService.SetValue($"{BaseKey}.{this.world}.{propertyName}", value);
         }
 
-        public struct Data : IBindingObjectNotifyData
+        public struct Data
         {
             private int world;
             private bool drawColliderEdges;
@@ -182,8 +181,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 readonly get => this.drawTerrainColliderEdges;
                 set => this.SetProperty(ref this.drawTerrainColliderEdges, value);
             }
-
-            public FunctionPointer<OnPropertyChangedDelegate> Notify { get; set; }
         }
     }
 }

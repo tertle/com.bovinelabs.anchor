@@ -26,10 +26,10 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
         }
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public long UnscaledSeconds => (long)Time.unscaledTimeAsDouble;
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public long Seconds => (long)Time.timeAsDouble;
 
         public void Update()

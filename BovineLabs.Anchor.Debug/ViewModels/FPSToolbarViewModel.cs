@@ -10,15 +10,23 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Properties;
     using UnityEngine;
 
-    public class FPSToolbarViewModel : ObservableObject
+    [ObservableObject]
+    public partial class FPSToolbarViewModel
     {
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;
 
+        [ObservableProperty]
+        [AlsoNotifyChangeFor(nameof(FrameTime))]
         private int currentFPS;
-        private float frameTime;
+
+        [ObservableProperty]
         private int averageFPS;
+
+        [ObservableProperty]
         private int minFPS;
+
+        [ObservableProperty]
         private int maxFPS;
 
         private FPSStatistics fps;
@@ -31,46 +39,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             this.fps = new FPSStatistics { AverageFPSSamples = averageFPSSamples };
         }
 
-        [CreateProperty]
-        public int CurrentFPS
-        {
-            get => this.currentFPS;
-            set
-            {
-                if (this.SetProperty(ref this.currentFPS, value))
-                {
-                    this.FrameTime = this.currentFPS == 0 ? 0 : 1000f / this.currentFPS;
-                }
-            }
-        }
-
-        [CreateProperty]
-        public int AverageFPS
-        {
-            get => this.averageFPS;
-            set => this.SetProperty(ref this.averageFPS, value);
-        }
-
-        [CreateProperty]
-        public int MinFPS
-        {
-            get => this.minFPS;
-            set => this.SetProperty(ref this.minFPS, value);
-        }
-
-        [CreateProperty]
-        public int MaxFPS
-        {
-            get => this.maxFPS;
-            set => this.SetProperty(ref this.maxFPS, value);
-        }
-
-        [CreateProperty]
-        public float FrameTime
-        {
-            get => this.frameTime;
-            private set => this.SetProperty(ref this.frameTime, value);
-        }
+        [CreateProperty(ReadOnly = true)]
+        public float FrameTime => this.currentFPS == 0 ? 0 : 1000f / this.currentFPS;
 
         public void Update()
         {

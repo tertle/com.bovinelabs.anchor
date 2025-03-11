@@ -41,10 +41,7 @@ namespace BovineLabs.Anchor.Debug.Views
             });
 
             dropdownField.SetBinding(nameof(Dropdown.selectedIndex),
-                new DataBinding
-                {
-                    dataSourcePath = new PropertyPath(nameof(LocalizationToolbarViewModel.SelectedLocale)),
-                });
+                new DataBinding { dataSourcePath = new PropertyPath(nameof(LocalizationToolbarViewModel.SelectedLocale)) });
 
             this.Add(dropdownField);
         }

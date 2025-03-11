@@ -6,15 +6,19 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using Unity.AppUI.MVVM;
-    using Unity.Properties;
     using UnityEngine.Localization;
     using UnityEngine.Localization.Settings;
 
-    public class LocalizationToolbarViewModel : ObservableObject
+    [ObservableObject]
+    public partial class LocalizationToolbarViewModel
     {
+        [ObservableProperty]
         private int selectedLocale = -1;
+
+        [ObservableProperty]
         private List<string> locales = new();
 
         public LocalizationToolbarViewModel()
@@ -23,6 +27,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             {
                 return;
             }
+
+            this.PropertyChanged += this.OnPropertyChanged;
 
             LocalizationSettings.InitializationOperation.Completed += _ =>
             {
@@ -35,23 +41,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             };
         }
 
-        [CreateProperty]
-        public List<string> Locales
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            get => this.locales;
-            set => this.SetProperty(ref this.locales, value);
-        }
-
-        [CreateProperty]
-        public int SelectedLocale
-        {
-            get => this.selectedLocale;
-            set
+            if (e.PropertyName == nameof(this.SelectedLocale))
             {
-                if (this.SetProperty(ref this.selectedLocale, value))
-                {
-                    LocalizationSettings.SelectedLocale = value != -1 ? LocalizationSettings.AvailableLocales.Locales[value] : default;
-                }
+                LocalizationSettings.SelectedLocale = this.SelectedLocale != -1 ? LocalizationSettings.AvailableLocales.Locales[this.SelectedLocale] : null;
             }
         }
 

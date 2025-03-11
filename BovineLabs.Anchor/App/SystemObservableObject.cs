@@ -11,9 +11,14 @@ namespace BovineLabs.Anchor
     using Unity.Collections;
 
     public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>, IViewModel
-        where T : unmanaged, IBindingObjectNotifyData
+        where T : unmanaged
     {
         public abstract ref T Value { get; }
+
+        public void OnPropertyChanging(in FixedString64Bytes property)
+        {
+            this.OnPropertyChanging(new PropertyChangingEventArgs(property.ToString()));
+        }
 
         public void OnPropertyChanged(in FixedString64Bytes property)
         {

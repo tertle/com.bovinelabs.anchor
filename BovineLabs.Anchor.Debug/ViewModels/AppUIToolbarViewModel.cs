@@ -11,8 +11,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.AppUI.MVVM;
     using Unity.Properties;
 
-    [UsedImplicitly]
-    public class AppUIToolbarViewModel : ObservableObject, IViewModel
+    [ObservableObject]
+    public partial class AppUIToolbarViewModel : IViewModel
     {
         private const string ThemeKey = "bl.ui.theme";
         private const string ScaleKey = "bl.ui.scale";

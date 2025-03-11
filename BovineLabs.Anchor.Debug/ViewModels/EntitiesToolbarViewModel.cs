@@ -6,7 +6,6 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Binding;
-    using Unity.Burst;
     using Unity.Properties;
 
     public class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>
@@ -15,16 +14,16 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public override ref Data Value => ref this.data;
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public int Entities => this.data.Entities;
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public int Archetypes => this.data.Archetypes;
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public int Chunks => this.data.Chunks;
 
-        public struct Data : IBindingObjectNotifyData
+        public struct Data
         {
             private int entities;
             private int archetypes;
@@ -47,8 +46,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 readonly get => this.chunks;
                 set => this.SetProperty(ref this.chunks, value);
             }
-
-            public FunctionPointer<OnPropertyChangedDelegate> Notify { get; set; }
         }
     }
 }

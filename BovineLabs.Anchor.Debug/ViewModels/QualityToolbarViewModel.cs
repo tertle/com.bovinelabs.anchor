@@ -5,41 +5,39 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using Unity.AppUI.MVVM;
     using Unity.Properties;
     using UnityEngine;
 
-    public class QualityToolbarViewModel : ObservableObject
+    [ObservableObject]
+    public partial class QualityToolbarViewModel
     {
-        private int quality;
-
-        private List<string> choices;
+        [ObservableProperty]
+        private int qualityValue;
 
         public QualityToolbarViewModel()
         {
+            this.PropertyChanged += this.OnPropertyChanged;
+            this.QualityChoices = QualitySettings.names.ToList();
             this.QualityValue = QualitySettings.GetQualityLevel();
         }
 
-        [CreateProperty]
-        public int QualityValue
-        {
-            get => this.quality;
-            set
-            {
-                if (this.SetProperty(ref this.quality, value))
-                {
-                    QualitySettings.SetQualityLevel(this.QualityValue);
-                }
-            }
-        }
-
-        [CreateProperty]
-        public List<string> QualityChoices => this.choices ??= QualitySettings.names.ToList();
+        [CreateProperty(ReadOnly = true)]
+        public List<string> QualityChoices { get; }
 
         public void Update()
         {
             this.QualityValue = QualitySettings.GetQualityLevel();
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(this.QualityValue))
+            {
+                QualitySettings.SetQualityLevel(this.QualityValue);
+            }
         }
     }
 }

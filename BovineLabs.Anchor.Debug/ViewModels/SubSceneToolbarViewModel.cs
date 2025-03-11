@@ -9,7 +9,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System.Collections.Generic;
     using BovineLabs.Anchor.Binding;
     using Unity.AppUI.UI;
-    using Unity.Burst;
     using Unity.Collections;
     using Unity.Entities;
     using Unity.Properties;
@@ -73,7 +72,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             return name;
         }
 
-        public struct Data : IBindingObjectNotifyData
+        public struct Data
         {
             private NativeList<int> subSceneValues;
             private NativeList<SubSceneName> subScenes;
@@ -81,26 +80,16 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             public NativeList<int> SubSceneValues
             {
                 readonly get => this.subSceneValues;
-                set
-                {
-                    this.subSceneValues = value;
-                    this.Notify();
-                }
+                set => this.SetValue(ref subSceneValues, value);
             }
 
             public NativeList<SubSceneName> SubScenes
             {
                 readonly get => this.subScenes;
-                set
-                {
-                    this.subScenes = value;
-                    this.Notify();
-                }
+                set => this.SetValue(ref this.subScenes, value);
             }
 
             public bool SubSceneSelectedChanged { get; set; }
-
-            public FunctionPointer<OnPropertyChangedDelegate> Notify { get; set; }
 
             public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>, IDropDownItem
             {
