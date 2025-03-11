@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
     using JetBrains.Annotations;
+    using Unity.Properties;
     using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
 
@@ -16,9 +17,11 @@ namespace BovineLabs.Anchor.Debug.Views
     {
         public const string UssClassName = "bl-physics-tab";
 
-        public PhysicsToolbarView()
+        public PhysicsToolbarView(PhysicsToolbarViewModel viewModel)
         {
             this.AddToClassList(UssClassName);
+
+            this.ViewModel = viewModel;
 
             this.style.flexDirection = FlexDirection.Row;
 
@@ -33,7 +36,12 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            colliders.RegisterValueChangedCallback(evt => this.ViewModel.DrawColliderEdges = evt.newValue);
+            colliders.SetBinding(nameof(Toggle.value), new DataBinding
+            {
+                bindingMode = BindingMode.TwoWay,
+                dataSourcePath = new PropertyPath(nameof(PhysicsToolbarViewModel.DrawColliderEdges)),
+            });
+
             left.Add(colliders);
 
             var aabbs = new Toggle
@@ -42,7 +50,12 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            aabbs.RegisterValueChangedCallback(evt => this.ViewModel.DrawColliderAabbs = evt.newValue);
+            aabbs.SetBinding(nameof(Toggle.value), new DataBinding
+            {
+                bindingMode = BindingMode.TwoWay,
+                dataSourcePath = new PropertyPath(nameof(PhysicsToolbarViewModel.DrawColliderAabbs)),
+            });
+
             left.Add(aabbs);
 
 #if BL_QUILL
@@ -52,7 +65,12 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            terrain.RegisterValueChangedCallback(evt => this.ViewModel.DrawTerrainColliderEdges = evt.newValue);
+            terrain.SetBinding(nameof(Toggle.value), new DataBinding
+            {
+                bindingMode = BindingMode.TwoWay,
+                dataSourcePath = new PropertyPath(nameof(PhysicsToolbarViewModel.DrawTerrainColliderEdges)),
+            });
+
             left.Add(terrain);
 
             var mesh = new Toggle
@@ -61,7 +79,12 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            mesh.RegisterValueChangedCallback(evt => this.ViewModel.DrawMeshColliderEdges = evt.newValue);
+            mesh.SetBinding(nameof(Toggle.value), new DataBinding
+            {
+                bindingMode = BindingMode.TwoWay,
+                dataSourcePath = new PropertyPath(nameof(PhysicsToolbarViewModel.DrawMeshColliderEdges)),
+            });
+
             right.Add(mesh);
 #endif
 
@@ -71,7 +94,12 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            collisions.RegisterValueChangedCallback(evt => this.ViewModel.DrawCollisionEvents = evt.newValue);
+            collisions.SetBinding(nameof(Toggle.value), new DataBinding
+            {
+                bindingMode = BindingMode.TwoWay,
+                dataSourcePath = new PropertyPath(nameof(PhysicsToolbarViewModel.DrawCollisionEvents)),
+            });
+
             right.Add(collisions);
 
             var triggers = new Toggle
@@ -80,11 +108,16 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSource = this.ViewModel,
             };
 
-            triggers.RegisterValueChangedCallback(evt => this.ViewModel.DrawTriggerEvents = evt.newValue);
+            triggers.SetBinding(nameof(Toggle.value), new DataBinding
+            {
+                bindingMode = BindingMode.TwoWay,
+                dataSourcePath = new PropertyPath(nameof(PhysicsToolbarViewModel.DrawTriggerEvents)),
+            });
+
             right.Add(triggers);
         }
 
-        public PhysicsToolbarViewModel ViewModel { get; } = new();
+        public PhysicsToolbarViewModel ViewModel { get; }
     }
 }
 #endif
