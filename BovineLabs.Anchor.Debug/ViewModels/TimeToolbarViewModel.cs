@@ -8,7 +8,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Properties;
     using UnityEngine;
 
-    public class TimeToolbarViewModel : ObservableObject
+    [ObservableObject]
+    public partial class TimeToolbarViewModel
     {
         private float timescale;
 

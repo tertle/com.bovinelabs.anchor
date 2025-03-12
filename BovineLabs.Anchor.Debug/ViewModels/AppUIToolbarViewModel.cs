@@ -34,7 +34,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             this.LoadStoredValue();
         }
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public List<string> Themes { get; } = new();
 
         [CreateProperty]

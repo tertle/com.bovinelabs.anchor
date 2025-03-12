@@ -6,23 +6,18 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Attributes;
-    using BovineLabs.Anchor.Binding;
     using Unity.Properties;
 
     public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>
     {
-        private Data data;
-
-        public override ref Data Value => ref this.data;
+        [CreateProperty(ReadOnly = true)]
+        public int Entities => this.Value.Entities;
 
         [CreateProperty(ReadOnly = true)]
-        public int Entities => this.data.Entities;
+        public int Archetypes => this.Value.Archetypes;
 
         [CreateProperty(ReadOnly = true)]
-        public int Archetypes => this.data.Archetypes;
-
-        [CreateProperty(ReadOnly = true)]
-        public int Chunks => this.data.Chunks;
+        public int Chunks => this.Value.Chunks;
 
         public partial struct Data
         {

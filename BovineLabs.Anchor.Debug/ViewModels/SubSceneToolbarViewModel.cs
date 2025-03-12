@@ -18,31 +18,27 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private readonly List<string> subScenes = new();
         private readonly List<int> values = new();
 
-        private Data data;
-
-        public override ref Data Value => ref this.data;
-
         [CreateProperty]
-        public List<string> SubScenes => this.data.SubScenes.IsCreated
-            ? DropDownHelper.GetItems(this.subScenes, this.data.SubScenes.AsArray(), Formatter)
+        public List<string> SubScenes => this.Value.SubScenes.IsCreated
+            ? DropDownHelper.GetItems(this.subScenes, this.Value.SubScenes.AsArray(), Formatter)
             : this.subScenes;
 
         [CreateProperty]
         public IEnumerable<int> SubSceneValues
         {
-            get => DropDownHelper.GetMultiValues(this.values, this.data.SubSceneValues);
+            get => DropDownHelper.GetMultiValues(this.values, this.Value.SubSceneValues);
 
             set
             {
-                if (!this.data.SubSceneValues.IsCreated)
+                if (!this.Value.SubSceneValues.IsCreated)
                 {
                     return;
                 }
 
-                this.SetProperty(this.data.SubSceneValues.AsArray(), value, SequenceComparer.Int, value =>
+                this.SetProperty(this.Value.SubSceneValues.AsArray(), value, SequenceComparer.Int, value =>
                 {
-                    this.data.SubSceneSelectedChanged = true;
-                    DropDownHelper.SetMultiValues(value, this.data.SubSceneValues);
+                    this.Value.SubSceneSelectedChanged = true;
+                    DropDownHelper.SetMultiValues(value, this.Value.SubSceneValues);
                 });
             }
         }

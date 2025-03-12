@@ -14,23 +14,17 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
     [Transient]
     [UsedImplicitly]
-    public partial class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
+    public class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
     {
         private const string BaseKey = "bl.ui.physics.";
 
         private readonly ILocalStorageService storageService;
-
-        private int world;
-
-        private Data data;
 
         public PhysicsToolbarViewModel(ILocalStorageService storageService)
         {
             this.storageService = storageService;
             this.PropertyChanged += this.OnPropertyChanged;
         }
-
-        public override ref Data Value => ref this.data;
 
         [CreateProperty]
         public bool DrawColliderEdges
@@ -39,40 +33,40 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(this.DrawColliderEdges, value, this, (m, v) =>
             {
                 m.SetValue(v);
-                this.data.DrawColliderEdges = value;
+                this.Value.DrawColliderEdges = value;
             });
         }
 
         [CreateProperty]
         public bool DrawColliderAabbs
         {
-            get => this.data.DrawColliderAabbs;
-            set => this.SetProperty(this.data.DrawColliderAabbs, value, this, (m, v) =>
+            get => this.Value.DrawColliderAabbs;
+            set => this.SetProperty(this.Value.DrawColliderAabbs, value, this, (m, v) =>
             {
                 m.SetValue(v);
-                this.data.DrawColliderAabbs = value;
+                this.Value.DrawColliderAabbs = value;
             });
         }
 
         [CreateProperty]
         public bool DrawCollisionEvents
         {
-            get => this.data.DrawCollisionEvents;
-            set => this.SetProperty(this.data.DrawCollisionEvents, value, this, (m, v) =>
+            get => this.Value.DrawCollisionEvents;
+            set => this.SetProperty(this.Value.DrawCollisionEvents, value, this, (m, v) =>
             {
                 m.SetValue(v);
-                this.data.DrawCollisionEvents = value;
+                this.Value.DrawCollisionEvents = value;
             });
         }
 
         [CreateProperty]
         public bool DrawTriggerEvents
         {
-            get => this.data.DrawTriggerEvents;
-            set => this.SetProperty(this.data.DrawTriggerEvents, value, this, (m, v) =>
+            get => this.Value.DrawTriggerEvents;
+            set => this.SetProperty(this.Value.DrawTriggerEvents, value, this, (m, v) =>
             {
                 m.SetValue(v);
-                this.data.DrawTriggerEvents = value;
+                this.Value.DrawTriggerEvents = value;
             });
         }
 
@@ -80,22 +74,22 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool DrawMeshColliderEdges
         {
-            get => this.data.DrawMeshColliderEdges;
-            set => this.SetProperty(this.data.DrawMeshColliderEdges, value, this, (m, v) =>
+            get => this.Value.DrawMeshColliderEdges;
+            set => this.SetProperty(this.Value.DrawMeshColliderEdges, value, this, (m, v) =>
             {
                 m.SetValue(v);
-                this.data.DrawMeshColliderEdges = value;
+                this.Value.DrawMeshColliderEdges = value;
             });
         }
 
         [CreateProperty]
         public bool DrawTerrainColliderEdges
         {
-            get => this.data.DrawTerrainColliderEdges;
-            set => this.SetProperty(this.data.DrawTerrainColliderEdges, value, this, (m, v) =>
+            get => this.Value.DrawTerrainColliderEdges;
+            set => this.SetProperty(this.Value.DrawTerrainColliderEdges, value, this, (m, v) =>
             {
                 m.SetValue(v);
-                this.data.DrawTerrainColliderEdges = value;
+                this.Value.DrawTerrainColliderEdges = value;
             });
         }
 #endif
@@ -104,28 +98,26 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         {
             if (e.PropertyName == "World")
             {
-                this.world = this.data.World;
-
                 // Load our saved value
-                this.data.DrawColliderEdges = this.GetValue(nameof(this.DrawColliderEdges));
-                this.data.DrawColliderAabbs = this.GetValue(nameof(this.DrawColliderAabbs));
-                this.data.DrawCollisionEvents = this.GetValue(nameof(this.DrawCollisionEvents));
-                this.data.DrawTriggerEvents = this.GetValue(nameof(this.DrawTriggerEvents));
+                this.Value.DrawColliderEdges = this.GetValue(nameof(this.DrawColliderEdges));
+                this.Value.DrawColliderAabbs = this.GetValue(nameof(this.DrawColliderAabbs));
+                this.Value.DrawCollisionEvents = this.GetValue(nameof(this.DrawCollisionEvents));
+                this.Value.DrawTriggerEvents = this.GetValue(nameof(this.DrawTriggerEvents));
 #if BL_QUILL
-                this.data.DrawMeshColliderEdges = this.GetValue(nameof(this.DrawMeshColliderEdges));
-                this.data.DrawTerrainColliderEdges = this.GetValue(nameof(this.DrawTerrainColliderEdges));
+                this.Value.DrawMeshColliderEdges = this.GetValue(nameof(this.DrawMeshColliderEdges));
+                this.Value.DrawTerrainColliderEdges = this.GetValue(nameof(this.DrawTerrainColliderEdges));
 #endif
             }
         }
 
         private bool GetValue(string key)
         {
-            return this.storageService.GetValue($"{BaseKey}.{this.world}.{key}", false);
+            return this.storageService.GetValue($"{BaseKey}.{this.Value.World}.{key}", false);
         }
 
         private void SetValue(bool value, [CallerMemberName] string propertyName = null)
         {
-            this.storageService.SetValue($"{BaseKey}.{this.world}.{propertyName}", value);
+            this.storageService.SetValue($"{BaseKey}.{this.Value.World}.{propertyName}", value);
         }
 
         public struct Data
