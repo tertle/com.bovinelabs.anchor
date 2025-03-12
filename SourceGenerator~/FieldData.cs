@@ -5,6 +5,7 @@
 namespace BovineLabs.SourceGenerator
 {
     using System.Collections.Generic;
+    using System.Linq;
     using BovineLabs.SourceGenerator.Extensions;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,7 +18,7 @@ namespace BovineLabs.SourceGenerator
             this.Ancestors = ancestors;
             this.Namespaces = namespaces;
             this.FieldName = field.GetFieldName();
-            this.PropertyName = $"{char.ToUpper(this.FieldName[0])}{this.FieldName.Substring(1)}";
+            this.PropertyName = FormatPropertyName(this.FieldName);
             this.FieldType = field.GetFieldType();
         }
 
@@ -32,5 +33,16 @@ namespace BovineLabs.SourceGenerator
         public string PropertyName { get; }
 
         public string FieldType { get; }
+
+        private static string FormatPropertyName(string fieldName)
+        {
+            // support both common formats, _fieldName and fieldName
+            if (fieldName[0] == '_')
+            {
+                fieldName = fieldName.Substring(1, fieldName.Length-1);
+            }
+
+            return $"{char.ToUpper(fieldName[0])}{fieldName.Substring(1)}";
+        }
     }
 }

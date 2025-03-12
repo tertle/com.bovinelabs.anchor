@@ -5,15 +5,21 @@
 #if UNITY_ENTITIES
 namespace BovineLabs.Anchor
 {
+    using System;
     using System.ComponentModel;
     using BovineLabs.Anchor.Binding;
     using Unity.AppUI.MVVM;
     using Unity.Collections;
+    using UnityEngine;
 
+    [Serializable]
     public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>, IViewModel
         where T : unmanaged
     {
-        public abstract ref T Value { get; }
+        [SerializeField]
+        private T data;
+
+        public ref T Value => ref this.data;
 
         public void OnPropertyChanging(in FixedString64Bytes property)
         {

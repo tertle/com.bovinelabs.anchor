@@ -17,11 +17,9 @@ namespace BovineLabs.Anchor.Debug.Views
     {
         public const string UssClassName = "bl-physics-tab";
 
-        public PhysicsToolbarView(PhysicsToolbarViewModel viewModel)
+        public PhysicsToolbarView()
         {
             this.AddToClassList(UssClassName);
-
-            this.ViewModel = viewModel;
 
             this.style.flexDirection = FlexDirection.Row;
 
@@ -117,7 +115,7 @@ namespace BovineLabs.Anchor.Debug.Views
             right.Add(triggers);
         }
 
-        public PhysicsToolbarViewModel ViewModel { get; }
+        public PhysicsToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

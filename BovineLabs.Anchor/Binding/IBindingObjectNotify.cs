@@ -52,10 +52,14 @@ namespace BovineLabs.Anchor.Binding
                 if (Changed.TryGetValue(target, out var notify))
                 {
                     notify.OnPropertyChanging(property);
-                    UnsafeUtility.MemCpy(field, newValue, length);
+                    if (field != newValue)
+                    {
+                        UnsafeUtility.MemCpy(field, newValue, length);
+                    }
+
                     notify.OnPropertyChanged(property);
                 }
-                else
+                else if (field != newValue)
                 {
                     UnsafeUtility.MemCpy(field, newValue, length);
                 }
@@ -75,16 +79,14 @@ namespace BovineLabs.Anchor.Binding
     public interface IBindingObjectNotify<T> : IBindingObject<T>, IBindingObjectNotify
         where T : unmanaged
     {
-        public static unsafe void Load(IBindingObjectNotify<T> bindingObjectNotify)
+        private static unsafe void Load(IBindingObjectNotify<T> bindingObjectNotify)
         {
-            var addr = (IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value);
-            Active.Changed[addr] = bindingObjectNotify;
+            Active.Changed[(IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value)] = bindingObjectNotify;
         }
 
-        public static unsafe void Unload(IBindingObjectNotify<T> bindingObjectNotify)
+        private static unsafe void Unload(IBindingObjectNotify<T> bindingObjectNotify)
         {
-            var addr = (IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value);
-            Active.Changed.Remove(addr);
+            Active.Changed.Remove((IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value));
         }
 
         /// <inheritdoc />
@@ -115,6 +117,32 @@ namespace BovineLabs.Anchor.Binding
             return true;
         }
 
+        public static unsafe bool SetProperty<T, TV>(
+            this ref T binding, ref NativeList<TV> field, NativeList<TV> newValue, [CallerMemberName] string propertyName = "")
+            where T : unmanaged
+            where TV : unmanaged, IEquatable<TV>
+        {
+            if (field.IsCreated == newValue.IsCreated)
+            {
+                // Both lists aren't created
+                if (!field.IsCreated)
+                {
+                    return false;
+                }
+
+                if (field.GetUnsafeReadOnlyPtr() == newValue.GetUnsafeReadOnlyPtr())
+                {
+                    // Same list, only need to notify
+                    binding.Notify(propertyName);
+                    return true;
+                }
+            }
+
+            // Different lists, need to write
+            SetValue(ref binding, ref field, newValue, propertyName);
+            return true;
+        }
+
         // TODO naming confusing
         public static unsafe void SetValue<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
             where T : unmanaged
@@ -126,7 +154,7 @@ namespace BovineLabs.Anchor.Binding
                 var fieldPtr = UnsafeUtility.AddressOf(ref field);
                 var valuePtr = &newValue;
 
-                BurstObjectNotify.SetValue.Data.Invoke(target, propertyName, fieldPtr, valuePtr, sizeof(T));
+                BurstObjectNotify.SetValue.Data.Invoke(target, propertyName, fieldPtr, valuePtr, sizeof(TV));
             }
         }
 

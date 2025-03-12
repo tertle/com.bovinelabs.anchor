@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
+    using UnityEngine;
     using UnityEngine.UIElements;
 
     public unsafe struct ToolbarHelper<TV, TM, TD>
@@ -20,6 +21,7 @@ namespace BovineLabs.Anchor.Toolbar
     {
         private readonly FixedString32Bytes tabName;
         private readonly FixedString32Bytes groupName;
+        private readonly bool isSerializable;
 
         private int key;
 
@@ -33,6 +35,8 @@ namespace BovineLabs.Anchor.Toolbar
             this.handle = default;
             this.data = null;
             this.key = 0;
+
+            this.isSerializable = typeof(TM).IsDefined(typeof(SerializableAttribute), false);
         }
 
         public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
@@ -50,11 +54,26 @@ namespace BovineLabs.Anchor.Toolbar
             view.ViewModel.Load();
             this.handle = GCHandle.Alloc(view.ViewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
+
+            if (this.isSerializable)
+            {
+                var json = PlayerPrefs.GetString($"bl.toolbar.{this.tabName}.{this.groupName}", string.Empty);
+                if (!string.IsNullOrEmpty(json))
+                {
+                    JsonUtility.FromJsonOverwrite(json, view.ViewModel);
+                }
+            }
         }
 
         public void Unload()
         {
             var view = ToolbarView.Instance.RemoveTab<TV>(this.key);
+
+            if (this.isSerializable)
+            {
+                var saveData = JsonUtility.ToJson(view.ViewModel);
+                PlayerPrefs.SetString($"bl.toolbar.{this.tabName}.{this.groupName}", saveData);
+            }
 
             view.ViewModel.Unload();
             this.handle.Free();

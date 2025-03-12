@@ -40,7 +40,6 @@ namespace BovineLabs.Anchor.Debug.Systems
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
-            this.toolbar.Binding.World = state.World.Name.GetHashCode();
 
             this.UpdateData(ref this.toolbar.Binding);
         }

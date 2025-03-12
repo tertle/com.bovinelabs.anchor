@@ -120,24 +120,7 @@
         {
             try
             {
-                ClassBuilder builder;
-
-                if (fieldData.Ancestors.Length == 0)
-                {
-                    builder = CodeBuilder
-                        .Create(fieldData.TypeSymbol);
-                }
-                else
-                {
-                    builder = CodeBuilder.Create(fieldData.Ancestors[0]);
-
-                    for (var i = 1; i < fieldData.Ancestors.Length; i++)
-                    {
-                        builder = builder.AddNestedClass(fieldData.Ancestors[i]);
-                    }
-
-                    builder = builder.AddNestedClass(fieldData.TypeSymbol);
-                }
+                var builder = CreateClassBuilder(fieldData);
 
                 // Add all namespaces from the context
                 foreach (var namespaces in fieldData.Namespaces)
@@ -157,6 +140,30 @@
                 SourceGenHelpers.Log(ex.ToString());
                 return null;
             }
+        }
+
+        private static ClassBuilder CreateClassBuilder(FieldData fieldData)
+        {
+            var classSymbol = fieldData.Ancestors.Length == 0 ? fieldData.TypeSymbol : fieldData.Ancestors[0];
+
+            var builder = CodeBuilder
+                .Create(classSymbol)
+                .AddNamespaceImport("BovineLabs.Anchor.Binding");
+
+            // Not nested, just return
+            if (fieldData.Ancestors.Length <= 0)
+            {
+                return builder;
+            }
+
+            // Support nested classes
+            for (var i = 1; i < fieldData.Ancestors.Length; i++)
+            {
+                builder = builder.AddNestedClass(fieldData.Ancestors[i]);
+            }
+
+            builder = builder.AddNestedClass(fieldData.TypeSymbol);
+            return builder;
         }
     }
 }

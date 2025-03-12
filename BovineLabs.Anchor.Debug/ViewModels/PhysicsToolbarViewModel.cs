@@ -5,174 +5,82 @@
 #if BL_QUILL || UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using System.ComponentModel;
-    using System.Runtime.CompilerServices;
-    using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.Services;
-    using JetBrains.Annotations;
+    using System;
+    using BovineLabs.Anchor.Attributes;
     using Unity.Properties;
+    using UnityEngine;
 
-    [Transient]
-    [UsedImplicitly]
-    public class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
+    [Serializable]
+    public partial class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
     {
-        private const string BaseKey = "bl.ui.physics.";
-
-        private readonly ILocalStorageService storageService;
-
-        public PhysicsToolbarViewModel(ILocalStorageService storageService)
-        {
-            this.storageService = storageService;
-            this.PropertyChanged += this.OnPropertyChanged;
-        }
-
         [CreateProperty]
         public bool DrawColliderEdges
         {
-            get => this.GetValue(nameof(this.DrawColliderEdges));
-            set => this.SetProperty(this.DrawColliderEdges, value, this, (m, v) =>
-            {
-                m.SetValue(v);
-                this.Value.DrawColliderEdges = value;
-            });
+            get => this.Value.DrawColliderEdges;
+            set => this.Value.DrawColliderEdges = value;
         }
 
         [CreateProperty]
         public bool DrawColliderAabbs
         {
             get => this.Value.DrawColliderAabbs;
-            set => this.SetProperty(this.Value.DrawColliderAabbs, value, this, (m, v) =>
-            {
-                m.SetValue(v);
-                this.Value.DrawColliderAabbs = value;
-            });
+            set => this.Value.DrawColliderAabbs = value;
         }
 
         [CreateProperty]
         public bool DrawCollisionEvents
         {
             get => this.Value.DrawCollisionEvents;
-            set => this.SetProperty(this.Value.DrawCollisionEvents, value, this, (m, v) =>
-            {
-                m.SetValue(v);
-                this.Value.DrawCollisionEvents = value;
-            });
+            set => this.Value.DrawCollisionEvents = value;
         }
 
         [CreateProperty]
         public bool DrawTriggerEvents
         {
             get => this.Value.DrawTriggerEvents;
-            set => this.SetProperty(this.Value.DrawTriggerEvents, value, this, (m, v) =>
-            {
-                m.SetValue(v);
-                this.Value.DrawTriggerEvents = value;
-            });
+            set => this.Value.DrawTriggerEvents = value;
         }
 
-#if BL_QUILL
         [CreateProperty]
         public bool DrawMeshColliderEdges
         {
             get => this.Value.DrawMeshColliderEdges;
-            set => this.SetProperty(this.Value.DrawMeshColliderEdges, value, this, (m, v) =>
-            {
-                m.SetValue(v);
-                this.Value.DrawMeshColliderEdges = value;
-            });
+            set => this.Value.DrawMeshColliderEdges = value;
         }
 
         [CreateProperty]
         public bool DrawTerrainColliderEdges
         {
             get => this.Value.DrawTerrainColliderEdges;
-            set => this.SetProperty(this.Value.DrawTerrainColliderEdges, value, this, (m, v) =>
-            {
-                m.SetValue(v);
-                this.Value.DrawTerrainColliderEdges = value;
-            });
-        }
-#endif
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "World")
-            {
-                // Load our saved value
-                this.Value.DrawColliderEdges = this.GetValue(nameof(this.DrawColliderEdges));
-                this.Value.DrawColliderAabbs = this.GetValue(nameof(this.DrawColliderAabbs));
-                this.Value.DrawCollisionEvents = this.GetValue(nameof(this.DrawCollisionEvents));
-                this.Value.DrawTriggerEvents = this.GetValue(nameof(this.DrawTriggerEvents));
-#if BL_QUILL
-                this.Value.DrawMeshColliderEdges = this.GetValue(nameof(this.DrawMeshColliderEdges));
-                this.Value.DrawTerrainColliderEdges = this.GetValue(nameof(this.DrawTerrainColliderEdges));
-#endif
-            }
+            set => this.Value.DrawTerrainColliderEdges = value;
         }
 
-        private bool GetValue(string key)
+        [Serializable]
+        public partial struct Data
         {
-            return this.storageService.GetValue($"{BaseKey}.{this.Value.World}.{key}", false);
-        }
-
-        private void SetValue(bool value, [CallerMemberName] string propertyName = null)
-        {
-            this.storageService.SetValue($"{BaseKey}.{this.Value.World}.{propertyName}", value);
-        }
-
-        public struct Data
-        {
-            private int world;
+            [SerializeField]
+            [SystemProperty]
             private bool drawColliderEdges;
+
+            [SerializeField]
+            [SystemProperty]
             private bool drawColliderAabbs;
+
+            [SerializeField]
+            [SystemProperty]
             private bool drawCollisionEvents;
+
+            [SerializeField]
+            [SystemProperty]
             private bool drawTriggerEvents;
-#if BL_QUILL
+
+            [SerializeField]
+            [SystemProperty]
             private bool drawMeshColliderEdges;
+
+            [SerializeField]
+            [SystemProperty]
             private bool drawTerrainColliderEdges;
-#endif
-
-            public int World
-            {
-                readonly get => this.world;
-                set => this.SetProperty(ref this.world, value);
-            }
-
-            public bool DrawColliderEdges
-            {
-                readonly get => this.drawColliderEdges;
-                set => this.SetProperty(ref this.drawColliderEdges, value);
-            }
-
-            public bool DrawColliderAabbs
-            {
-                readonly get => this.drawColliderAabbs;
-                set => this.SetProperty(ref this.drawColliderAabbs, value);
-            }
-
-            public bool DrawCollisionEvents
-            {
-                readonly get => this.drawCollisionEvents;
-                set => this.SetProperty(ref this.drawCollisionEvents, value);
-            }
-
-            public bool DrawTriggerEvents
-            {
-                readonly get => this.drawTriggerEvents;
-                set => this.SetProperty(ref this.drawTriggerEvents, value);
-            }
-
-            public bool DrawMeshColliderEdges
-            {
-                readonly get => this.drawMeshColliderEdges;
-                set => this.SetProperty(ref this.drawMeshColliderEdges, value);
-            }
-
-            public bool DrawTerrainColliderEdges
-            {
-                readonly get => this.drawTerrainColliderEdges;
-                set => this.SetProperty(ref this.drawTerrainColliderEdges, value);
-            }
         }
     }
 }

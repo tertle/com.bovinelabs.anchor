@@ -5,6 +5,7 @@
 #if UNITY_ENTITIES
 namespace BovineLabs.Anchor
 {
+    using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Services;
@@ -23,8 +24,8 @@ namespace BovineLabs.Anchor
         public void Bind()
         {
             var viewModel = App.current.services.GetRequiredService<IViewModelService>().Load<TM>();
-
             viewModel.Load();
+
             this.handle = GCHandle.Alloc(viewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
         }
