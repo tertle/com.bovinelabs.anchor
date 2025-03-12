@@ -5,21 +5,15 @@
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_PAUSE
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using BovineLabs.Anchor.Binding;
-    using Unity.AppUI.MVVM;
     using Unity.Properties;
 
-    public class PauseToolbarViewModel : ObservableObject, IBindingObject<PauseToolbarViewModel.Data>
+    public class PauseToolbarViewModel : SystemObservableObject<PauseToolbarViewModel.Data>
     {
-        private Data data;
-
-        public ref Data Value => ref this.data;
-
         [CreateProperty]
         public bool Pause
         {
-            get => this.data.Pause;
-            set => this.SetProperty(ref this.data.Pause, value);
+            get => this.Value.Pause;
+            set => this.SetProperty(ref this.Value.Pause, value);
         }
 
         public struct Data

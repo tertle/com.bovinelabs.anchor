@@ -7,51 +7,43 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;
     using System.Collections.Generic;
-    using BovineLabs.Anchor.Binding;
+    using BovineLabs.Anchor.Contracts;
+    using BovineLabs.Core.Extensions;
     using Unity.AppUI.UI;
     using Unity.Collections;
     using Unity.Entities;
     using Unity.Properties;
 
-    public class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>
+    public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, IInitializable, IDisposable
     {
-        private readonly List<string> subScenes = new();
-        private readonly List<int> values = new();
-
         [CreateProperty]
-        public List<string> SubScenes => this.Value.SubScenes.IsCreated
-            ? DropDownHelper.GetItems(this.subScenes, this.Value.SubScenes.AsArray(), Formatter)
-            : this.subScenes;
+        public UIList<Data.SubSceneName> SubScenes => this.Value.SubScenes;
 
         [CreateProperty]
         public IEnumerable<int> SubSceneValues
         {
-            get => DropDownHelper.GetMultiValues(this.values, this.Value.SubSceneValues);
+            get => this.Value.SubSceneValues.Value.AsArray();
+            set => this.SetProperty(this.Value.SubSceneValues, value);
+        }
 
-            set
-            {
-                if (!this.Value.SubSceneValues.IsCreated)
-                {
-                    return;
-                }
+        public void Initialize()
+        {
+            this.Value.SubSceneValues = new NativeList<int>(Allocator.Persistent);
+            this.Value.SubScenes = new NativeList<Data.SubSceneName>(Allocator.Persistent);
+        }
 
-                this.SetProperty(this.Value.SubSceneValues.AsArray(), value, SequenceComparer.Int, value =>
-                {
-                    this.Value.SubSceneSelectedChanged = true;
-                    DropDownHelper.SetMultiValues(value, this.Value.SubSceneValues);
-                });
-            }
+        public void Dispose()
+        {
+            this.Value.SubScenes.Dispose();
+            this.Value.SubSceneValues.Value.Dispose();
         }
 
         public void BindItem(DropdownItem item, int index)
         {
-            DropDownHelper.BindItem(this.subScenes, item, index);
-        }
-
-        private static string Formatter(string name)
-        {
             const string scenePrefix = "Scene: ";
             const string sceneSectionPrefix = "SceneSection: ";
+
+            var name = this.Value.SubScenes[index].GetString();
 
             var sceneIndex = name.IndexOf(scenePrefix, StringComparison.Ordinal);
             if (sceneIndex != -1)
@@ -65,27 +57,16 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 name = name.Remove(indexSection, sceneSectionPrefix.Length);
             }
 
-            return name;
+            item.label = name;
         }
 
-        public struct Data
+        public partial struct Data
         {
-            private NativeList<int> subSceneValues;
+            [SystemProperty]
+            private ChangedList<int> subSceneValues;
+
+            [SystemProperty]
             private NativeList<SubSceneName> subScenes;
-
-            public NativeList<int> SubSceneValues
-            {
-                readonly get => this.subSceneValues;
-                set => this.SetValue(ref subSceneValues, value);
-            }
-
-            public NativeList<SubSceneName> SubScenes
-            {
-                readonly get => this.subScenes;
-                set => this.SetValue(ref this.subScenes, value);
-            }
-
-            public bool SubSceneSelectedChanged { get; set; }
 
             public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>, IDropDownItem
             {

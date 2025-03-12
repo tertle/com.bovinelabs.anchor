@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using BovineLabs.Anchor.Services;
-    using JetBrains.Annotations;
     using Unity.AppUI.Core;
     using Unity.AppUI.MVVM;
     using Unity.Properties;

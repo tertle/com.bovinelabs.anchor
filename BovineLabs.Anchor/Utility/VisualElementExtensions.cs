@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor
 {
     using Unity.AppUI.Navigation;
+    using Unity.Properties;
     using UnityEngine.UIElements;
 
     public static class VisualElementExtensions
@@ -17,6 +18,29 @@ namespace BovineLabs.Anchor
         public static void PopBackStack(this VisualElement element)
         {
             element?.FindNavController()?.PopBackStack();
+        }
+
+        public static void SetBindingTwoWay(this VisualElement element, string field, string property)
+        {
+            element.SetBinding(field, new DataBinding { dataSourcePath = new PropertyPath(property) });
+        }
+
+        public static void SetBindingToUI(this VisualElement element, string field, string property)
+        {
+            element.SetBinding(field, new DataBinding
+            {
+                bindingMode = BindingMode.ToTarget,
+                dataSourcePath = new PropertyPath(property),
+            });
+        }
+
+        public static void SetBindingFromUI(this VisualElement element, string field, string property)
+        {
+            element.SetBinding(field, new DataBinding
+            {
+                bindingMode = BindingMode.ToSource,
+                dataSourcePath = new PropertyPath(property),
+            });
         }
     }
 }

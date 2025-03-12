@@ -32,7 +32,6 @@ namespace BovineLabs.Anchor.Debug.Views
                 closeOnSelection = false,
                 defaultMessage = "SubScenes",
                 bindTitle = (item, _) => item.labelElement.text = "SubScenes",
-                sourceItems = this.ViewModel.SubScenes,
                 bindItem = this.ViewModel.BindItem,
             };
 

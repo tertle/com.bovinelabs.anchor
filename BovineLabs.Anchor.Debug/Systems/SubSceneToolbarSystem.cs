@@ -5,7 +5,6 @@
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
 namespace BovineLabs.Anchor.Debug.Systems
 {
-    using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;
@@ -44,18 +43,11 @@ namespace BovineLabs.Anchor.Debug.Systems
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
-            ref var data = ref this.toolbar.Binding;
-
-            data.SubScenes = new NativeList<SubSceneToolbarViewModel.Data.SubSceneName>(Allocator.Persistent);
-            data.SubSceneValues = new NativeList<int>(Allocator.Persistent);
         }
 
         /// <inheritdoc />
         public void OnStopRunning(ref SystemState state)
         {
-            ref var data = ref this.toolbar.Binding;
-            data.SubScenes.Dispose();
-            data.SubSceneValues.Dispose();
             this.toolbar.Unload();
         }
 
@@ -70,14 +62,12 @@ namespace BovineLabs.Anchor.Debug.Systems
 
             ref var data = ref this.toolbar.Binding;
 
-            if (data.SubSceneSelectedChanged)
+            if (data.SubSceneValues.GetIfChanged(out var subSceneValues))
             {
-                data.SubSceneSelectedChanged = false;
-
                 for (var index = 0; index < data.SubScenes.Length; index++)
                 {
                     var subScene = data.SubScenes[index];
-                    var isOpen = data.SubSceneValues.Contains(index);
+                    var isOpen = subSceneValues.Contains(index);
                     var isCurrentlyOpen = SubSceneUtil.IsSectionLoadingOrLoaded(ref state, subScene.Entity);
 
                     if (isOpen == isCurrentlyOpen)
@@ -151,18 +141,18 @@ namespace BovineLabs.Anchor.Debug.Systems
                 }
             }
 
-            if (!this.values.AsArray().ArraysEqual(data.SubSceneValues.AsArray()))
+            if (!this.values.AsArray().ArraysEqual(data.SubSceneValues.Value.AsArray()))
             {
-                data.SubSceneValues.Clear();
-                data.SubSceneValues.AddRange(this.values.AsArray());
-                data.Notify($"{nameof(SubSceneToolbarViewModel.Data.SubSceneValues)}");
+                data.SubSceneValues.Value.Clear();
+                data.SubSceneValues.Value.AddRange(this.values.AsArray());
+                data.SubSceneValues = data.SubSceneValues; // Notify
             }
 
             if (!this.subScenesBuffer.AsArray().ArraysEqual(data.SubScenes.AsArray()))
             {
                 data.SubScenes.Clear();
                 data.SubScenes.AddRange(this.subScenesBuffer.AsArray());
-                data.Notify($"{nameof(SubSceneToolbarViewModel.Data.SubScenes)}");
+                data.SubScenes = data.SubScenes; // Notify
             }
         }
     }

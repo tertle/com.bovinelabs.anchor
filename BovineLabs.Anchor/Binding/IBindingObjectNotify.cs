@@ -102,7 +102,7 @@ namespace BovineLabs.Anchor.Binding
         }
     }
 
-    public static class BindingObjectNotifyDataExtensions
+    public static unsafe class BindingObjectNotifyDataExtensions
     {
         public static bool SetProperty<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
             where T : unmanaged
@@ -117,7 +117,7 @@ namespace BovineLabs.Anchor.Binding
             return true;
         }
 
-        public static unsafe bool SetProperty<T, TV>(
+        public static bool SetProperty<T, TV>(
             this ref T binding, ref NativeList<TV> field, NativeList<TV> newValue, [CallerMemberName] string propertyName = "")
             where T : unmanaged
             where TV : unmanaged, IEquatable<TV>
@@ -143,8 +143,47 @@ namespace BovineLabs.Anchor.Binding
             return true;
         }
 
+        public static bool SetProperty<T, TV>(this ref T binding, ref Changed<TV> field, Changed<TV> newValue, [CallerMemberName] string propertyName = "")
+            where T : unmanaged
+            where TV : unmanaged, IEquatable<TV>
+        {
+            if (field.Value.Equals(newValue.Value))
+            {
+                return false;
+            }
+
+            SetValue(ref binding, ref field, newValue, propertyName);
+            return true;
+        }
+
+        public static bool SetProperty<T, TV>(
+            this ref T binding, ref ChangedList<TV> field, ChangedList<TV> newValue, [CallerMemberName] string propertyName = "")
+            where T : unmanaged
+            where TV : unmanaged, IEquatable<TV>
+        {
+            if (field.Value.IsCreated == newValue.Value.IsCreated)
+            {
+                // Both lists aren't created
+                if (!field.Value.IsCreated)
+                {
+                    return false;
+                }
+
+                if (field.Value.GetUnsafeReadOnlyPtr() == newValue.Value.GetUnsafeReadOnlyPtr())
+                {
+                    // Same list, only need to notify
+                    binding.Notify(propertyName);
+                    return true;
+                }
+            }
+
+            // Different lists, need to write
+            SetValue(ref binding, ref field, newValue, propertyName);
+            return true;
+        }
+
         // TODO naming confusing
-        public static unsafe void SetValue<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
+        public static void SetValue<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
             where T : unmanaged
             where TV : unmanaged
         {
@@ -158,7 +197,7 @@ namespace BovineLabs.Anchor.Binding
             }
         }
 
-        public static unsafe void Notify<T>(this ref T binding, FixedString64Bytes propertyName)
+        public static void Notify<T>(this ref T binding, FixedString64Bytes propertyName)
             where T : unmanaged
         {
             if (BurstObjectNotify.SetValue.Data.IsCreated)
