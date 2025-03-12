@@ -14,7 +14,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
     [Transient]
     [UsedImplicitly]
-    public class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
+    public partial class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
     {
         private const string BaseKey = "bl.ui.physics.";
 
