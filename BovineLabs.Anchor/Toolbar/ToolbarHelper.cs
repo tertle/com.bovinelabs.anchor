@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Toolbar
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
+    using BovineLabs.Anchor.Contracts;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
@@ -46,22 +47,27 @@ namespace BovineLabs.Anchor.Toolbar
 
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
+        private string SaveKey => $"bl.toolbar.{this.tabName}.{this.groupName}";
+
         // Load the tab onto the group. Usually called from OnStartRunning.
         public void Load()
         {
             ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
 
             view.ViewModel.Load();
+
+            if (view.ViewModel is IInitializable initializable)
+            {
+                initializable.Initialize();
+            }
+
             this.handle = GCHandle.Alloc(view.ViewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
 
             if (this.isSerializable)
             {
-                var json = PlayerPrefs.GetString($"bl.toolbar.{this.tabName}.{this.groupName}", string.Empty);
-                if (!string.IsNullOrEmpty(json))
-                {
-                    JsonUtility.FromJsonOverwrite(json, view.ViewModel);
-                }
+                var json = PlayerPrefs.GetString(this.SaveKey, string.Empty);
+                JsonUtility.FromJsonOverwrite(json, view.ViewModel);
             }
         }
 
@@ -72,7 +78,12 @@ namespace BovineLabs.Anchor.Toolbar
             if (this.isSerializable)
             {
                 var saveData = JsonUtility.ToJson(view.ViewModel);
-                PlayerPrefs.SetString($"bl.toolbar.{this.tabName}.{this.groupName}", saveData);
+                PlayerPrefs.SetString(this.SaveKey, saveData);
+            }
+
+            if (view.ViewModel is IDisposable disposable)
+            {
+                disposable.Dispose();
             }
 
             view.ViewModel.Unload();

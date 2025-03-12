@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Attributes
+namespace BovineLabs.Anchor.Contracts
 {
     using System;
 

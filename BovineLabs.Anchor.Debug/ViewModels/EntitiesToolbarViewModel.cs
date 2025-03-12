@@ -5,7 +5,7 @@
 #if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using BovineLabs.Anchor.Attributes;
+    using BovineLabs.Anchor.Contracts;
     using Unity.Properties;
 
     public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>
