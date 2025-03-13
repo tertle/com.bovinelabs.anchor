@@ -29,6 +29,12 @@ namespace BovineLabs.Anchor
             this.changed = true;
         }
 
+        public void Add(T value)
+        {
+            this.Value.Add(value);
+            this.changed = true;
+        }
+
         public bool GetIfChanged(out NativeList<T> value)
         {
             value = this.Value;

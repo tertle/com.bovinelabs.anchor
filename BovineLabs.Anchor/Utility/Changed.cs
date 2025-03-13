@@ -19,7 +19,10 @@ namespace BovineLabs.Anchor
             };
         }
 
-        public bool GetIfChanged(out T value)
+        /// <summary> Gets the value, returns whether it was changed since the last time it was got and resets the change state. </summary>
+        /// <param name="value"> The value. </param>
+        /// <returns> True if changed, otherwise false. </returns>
+        public bool Get(out T value)
         {
             value = this.Value;
 
