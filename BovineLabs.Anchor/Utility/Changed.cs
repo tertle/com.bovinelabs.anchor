@@ -4,6 +4,9 @@
 
 namespace BovineLabs.Anchor
 {
+    using System;
+
+    [Serializable]
     public struct Changed<T>
         where T : unmanaged
     {
