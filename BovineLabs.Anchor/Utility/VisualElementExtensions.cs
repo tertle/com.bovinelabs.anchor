@@ -25,6 +25,16 @@ namespace BovineLabs.Anchor
             element.SetBinding(field, new DataBinding { dataSourcePath = new PropertyPath(property) });
         }
 
+        public static void SetBindingTwoWay<TSource, TDestination>(
+            this VisualElement element, string field, string property, TypeConverter<TSource, TDestination> sourceToUIConverter,
+            TypeConverter<TDestination, TSource> uiToSourceConverter)
+        {
+            var db = new DataBinding { dataSourcePath = new PropertyPath(property) };
+            db.sourceToUiConverters.AddConverter(sourceToUIConverter);
+            db.uiToSourceConverters.AddConverter(uiToSourceConverter);
+            element.SetBinding(field, db);
+        }
+
         public static void SetBindingToUI(this VisualElement element, string field, string property)
         {
             element.SetBinding(field, new DataBinding
@@ -34,13 +44,25 @@ namespace BovineLabs.Anchor
             });
         }
 
+        public static void SetBindingToUI<TSource, TDestination>(
+            this VisualElement element, string field, string property, TypeConverter<TSource, TDestination> converter)
+        {
+            var db = new DataBinding { bindingMode = BindingMode.ToTarget, dataSourcePath = new PropertyPath(property) };
+            db.sourceToUiConverters.AddConverter(converter);
+            element.SetBinding(field, db);
+        }
+
         public static void SetBindingFromUI(this VisualElement element, string field, string property)
         {
-            element.SetBinding(field, new DataBinding
-            {
-                bindingMode = BindingMode.ToSource,
-                dataSourcePath = new PropertyPath(property),
-            });
+            element.SetBinding(field, new DataBinding { bindingMode = BindingMode.ToSource, dataSourcePath = new PropertyPath(property) });
+        }
+
+        public static void SetBindingFromUI<TSource, TDestination>(
+            this VisualElement element, string field, string property, TypeConverter<TSource, TDestination> converter)
+        {
+            var db = new DataBinding { bindingMode = BindingMode.ToSource, dataSourcePath = new PropertyPath(property) };
+            db.uiToSourceConverters.AddConverter(converter);
+            element.SetBinding(field, db);
         }
     }
 }
