@@ -5,14 +5,13 @@
 namespace BovineLabs.SourceGenerator
 {
     using System.Collections.Generic;
-    using System.Linq;
     using BovineLabs.SourceGenerator.Extensions;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     public class FieldData
     {
-        public FieldData(INamedTypeSymbol typeSymbol, INamedTypeSymbol[] ancestors, IReadOnlyCollection<string> namespaces, FieldDeclarationSyntax field)
+        public FieldData(INamedTypeSymbol typeSymbol, INamedTypeSymbol[] ancestors, IReadOnlyCollection<string> namespaces, FieldDeclarationSyntax field, bool isChange)
         {
             this.TypeSymbol = typeSymbol;
             this.Ancestors = ancestors;
@@ -20,6 +19,7 @@ namespace BovineLabs.SourceGenerator
             this.FieldName = field.GetFieldName();
             this.PropertyName = FormatPropertyName(this.FieldName);
             this.FieldType = field.GetFieldType();
+            this.IsChange = isChange;
         }
 
         public INamedTypeSymbol TypeSymbol { get; }
@@ -33,6 +33,8 @@ namespace BovineLabs.SourceGenerator
         public string PropertyName { get; }
 
         public string FieldType { get; }
+
+        public bool IsChange { get; }
 
         private static string FormatPropertyName(string fieldName)
         {

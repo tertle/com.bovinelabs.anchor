@@ -106,7 +106,10 @@
                 .Select(classSyntax => ctx.SemanticModel.GetDeclaredSymbol(classSyntax))
                 .Reverse().ToArray();
 
-            return new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax);
+
+            var typeSyntax = fieldDeclarationSyntax.Declaration.Type;
+            var isChanged = typeSyntax is GenericNameSyntax { Identifier: { Text: "Changed" } };
+            return new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax, isChanged);
         }
 
         public static StructDeclarationSyntax GetEnclosingStruct(FieldDeclarationSyntax fieldDeclaration)
@@ -128,10 +131,25 @@
                      builder.AddNamespaceImport(namespaces);
                 }
 
-                builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
-                    .SetType(fieldData.FieldType)
-                    .WithGetterExpression($"this.{fieldData.FieldName}")
-                    .WithSetterExpression($"this.SetProperty(ref {fieldData.FieldName}, value)");
+                if (fieldData.IsChange)
+                {
+                    builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
+                        .SetType(fieldData.FieldType)
+                        .Ref()
+                        .Unsafe()
+                        .WithGetter(writer =>
+                        {
+                            writer.ExpressionBlock($"fixed ({fieldData.TypeSymbol.Name}* ptr = &this)")
+                                .WithBody(cw => cw.AppendLine($"return ref ptr->{fieldData.FieldName};"));
+                        });
+                }
+                else
+                {
+                    builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
+                        .SetType(fieldData.FieldType)
+                        .WithGetterExpression($"this.{fieldData.FieldName}")
+                        .WithSetterExpression($"this.SetProperty(ref {fieldData.FieldName}, value)");
+                }
 
                 return builder;
             }

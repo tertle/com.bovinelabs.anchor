@@ -16,7 +16,9 @@ namespace CodeGenHelpers
             Const,
             ReadOnly,
             Default,
-            Property
+            Property,
+            Ref,
+            RefReadOnly,
         }
 
         private bool _autoprops;
@@ -31,6 +33,8 @@ namespace CodeGenHelpers
         private bool _getOnly;
         private bool _virtual;
         private bool _override;
+        private bool _ref;
+        private bool _unsafe;
         private Accessibility? _setterAccessibility;
         private readonly List<string> _attributes = new List<string>();
         private DocumentationComment? _xmlDoc;
@@ -51,6 +55,8 @@ namespace CodeGenHelpers
         public Accessibility? AccessModifier { get; private set; }
 
         public bool IsStatic { get; private set; }
+
+        public bool IsRef { get; private set; }
 
         public PropertyBuilder WithSummary(string summary)
         {
@@ -129,6 +135,18 @@ namespace CodeGenHelpers
         public PropertyBuilder Override(bool @override = true)
         {
             _override = @override;
+            return this;
+        }
+
+        public PropertyBuilder Ref(bool @ref = true)
+        {
+            _ref = @ref;
+            return this;
+        }
+
+        public PropertyBuilder Unsafe(bool @unsafe = true)
+        {
+            _unsafe = @unsafe;
             return this;
         }
 
@@ -273,6 +291,30 @@ namespace CodeGenHelpers
             else if (_override)
                 additionalModifier = "override";
 
+            if (_ref)
+            {
+                if (additionalModifier == null)
+                {
+                    additionalModifier = "ref";
+                }
+                else
+                {
+                    additionalModifier += " ref";
+                }
+            }
+
+            if (_unsafe)
+            {
+                if (additionalModifier == null)
+                {
+                    additionalModifier = "unsafe";
+                }
+                else
+                {
+                    additionalModifier = "unsafe " + additionalModifier;
+                }
+            }
+
             var output = (FieldTypeValue switch
             {
                 FieldType.Const => $"{AccessibilityHelpers.Code(AccessModifier)}{isNew} const {type} {name}",
@@ -284,6 +326,10 @@ namespace CodeGenHelpers
 
             var maxCharacters = (value?.StartsWith("\"") ?? false) ? 9 : 5;
 
+            if (FieldTypeValue == FieldType.Ref || FieldTypeValue == FieldType.RefReadOnly)
+            {
+
+            }
             if(FieldTypeValue != FieldType.Property)
             {
                 if(string.IsNullOrEmpty(value) && FieldTypeValue != FieldType.Const)
