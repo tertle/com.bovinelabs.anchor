@@ -32,7 +32,15 @@ namespace BovineLabs.Anchor
         public object this[int index]
         {
             get => this.list[index];
-            set => this.Insert(index, value);
+            set
+            {
+                if (value is not T t)
+                {
+                    return;
+                }
+
+                this.list[index] = t;
+            }
         }
 
         public static implicit operator UIList<T>(NativeList<T> list)
