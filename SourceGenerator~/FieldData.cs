@@ -13,6 +13,7 @@ namespace BovineLabs.SourceGenerator
     {
         Default,
         Changed,
+        NativeList,
         ChangedList,
     }
 
@@ -31,18 +32,23 @@ namespace BovineLabs.SourceGenerator
             if (typeSyntax is GenericNameSyntax { Identifier: { Text: "Changed" } } changed)
             {
                 this.FieldMode = FieldMode.Changed;
-                this.ChangedType = changed.TypeArgumentList.Arguments.First().ToString();
+                this.GenericType = changed.TypeArgumentList.Arguments.First().ToString();
 
             }
             else if (typeSyntax is GenericNameSyntax { Identifier: { Text: "ChangedList" } } changedList)
             {
                 this.FieldMode = FieldMode.ChangedList;
-                this.ChangedType = changedList.TypeArgumentList.Arguments.First().ToString();
+                this.GenericType = changedList.TypeArgumentList.Arguments.First().ToString();
+            }
+            else if (typeSyntax is GenericNameSyntax { Identifier: { Text: "NativeList" } } nativeList)
+            {
+                this.FieldMode = FieldMode.NativeList;
+                this.GenericType = nativeList.TypeArgumentList.Arguments.First().ToString();
             }
             else
             {
                 this.FieldMode = FieldMode.Default;
-                this.ChangedType = string.Empty;
+                this.GenericType = string.Empty;
             }
         }
 
@@ -60,7 +66,7 @@ namespace BovineLabs.SourceGenerator
 
         public FieldMode FieldMode { get; }
 
-        public string ChangedType { get; }
+        public string GenericType { get; }
 
         private static string FormatPropertyName(string fieldName)
         {

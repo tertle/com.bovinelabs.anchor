@@ -125,21 +125,31 @@
                 // Add all namespaces from the context
                 foreach (var namespaces in fieldData.Namespaces)
                 {
-                     builder.AddNamespaceImport(namespaces);
+                    builder.AddNamespaceImport(namespaces);
                 }
 
-                builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
-                    .SetType($"{fieldData.FieldType}")
-                    .WithGetterExpression($"this.{fieldData.FieldName}")
-                    .WithSetterExpression($"this.SetProperty(ref {fieldData.FieldName}, value)");
+                if (fieldData.FieldMode != FieldMode.NativeList)
+                {
+                    builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
+                        .SetType($"{fieldData.FieldType}")
+                        .WithGetterExpression($"this.{fieldData.FieldName}")
+                        .WithSetterExpression($"this.SetProperty(ref {fieldData.FieldName}, value)");
+                }
 
                 switch (fieldData.FieldMode)
                 {
+                    case FieldMode.NativeList:
+                        builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
+                            .SetType($"NativeArray<{fieldData.GenericType}>.ReadOnly")
+                            .WithGetterExpression($"this.{fieldData.FieldName}.AsArray().AsReadOnly()")
+                            .WithSetterExpression($"this.SetProperty({fieldData.FieldName}, value)");
+                        break;
+
                     case FieldMode.Changed:
                     {
                         builder.AddMethod($"{fieldData.PropertyName}Changed", Accessibility.Public)
                             .WithReturnType("bool")
-                            .AddParameter($"out {fieldData.ChangedType}", "value")
+                            .AddParameter($"out {fieldData.GenericType}", "value")
                             .AddParameter("bool", "resetToDefault = false")
                             .WithBody(writer =>
                             {
@@ -164,10 +174,10 @@
 
                                 writer.AppendLine("return false;");
                             });
+                        break;
                     }
-                        break;
+
                     case FieldMode.ChangedList:
-                        break;
                     case FieldMode.Default:
                     default:
                         break;

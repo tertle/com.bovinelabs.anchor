@@ -9,12 +9,18 @@ namespace BovineLabs.Anchor.Binding
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using AOT;
+    using BovineLabs.Core.Internal;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Mathematics;
+    using UnityEngine.Assertions;
     using UnityEngine.UIElements;
 
     internal unsafe delegate void SetValueDelegate(IntPtr target, in FixedString64Bytes property, void* field, void* newValue, int length);
+
+    internal unsafe delegate void SetListValueDelegate(
+        IntPtr target, in FixedString64Bytes property, UntypedUnsafeList* field, void* newValues, int length, int elementSize);
 
     internal delegate void NotifyDelegate(IntPtr target, in FixedString64Bytes property);
 
@@ -33,6 +39,9 @@ namespace BovineLabs.Anchor.Binding
                 BurstObjectNotify.SetValue.Data =
                     new FunctionPointer<SetValueDelegate>(Marshal.GetFunctionPointerForDelegate<SetValueDelegate>(SetValueForwarding));
 
+                BurstObjectNotify.SetListValue.Data =
+                    new FunctionPointer<SetListValueDelegate>(Marshal.GetFunctionPointerForDelegate<SetListValueDelegate>(SetValueForwarding));
+
                 BurstObjectNotify.Notify.Data = new FunctionPointer<NotifyDelegate>(Marshal.GetFunctionPointerForDelegate<NotifyDelegate>(NotifyForwarding));
             }
 
@@ -42,16 +51,46 @@ namespace BovineLabs.Anchor.Binding
                 if (Changed.TryGetValue(target, out var notify))
                 {
                     notify.OnPropertyChanging(property);
-                    if (field != newValue)
-                    {
-                        UnsafeUtility.MemCpy(field, newValue, length);
-                    }
-
+                    WriteValue();
                     notify.OnPropertyChanged(property);
                 }
-                else if (field != newValue)
+                else
                 {
                     UnsafeUtility.MemCpy(field, newValue, length);
+                }
+
+                return;
+
+                void WriteValue()
+                {
+                    Assert.IsTrue(field != newValue, "Trying to write self to destination");
+                    UnsafeUtility.MemCpy(field, newValue, length);
+                }
+            }
+
+            [MonoPInvokeCallback(typeof(SetListValueDelegate))]
+            private static void SetValueForwarding(
+                IntPtr target, in FixedString64Bytes property, UntypedUnsafeList* field, void* newValues, int length, int elementSize)
+            {
+                if (Changed.TryGetValue(target, out var notify))
+                {
+                    notify.OnPropertyChanging(property);
+                    WriteValue();
+                    notify.OnPropertyChanged(property);
+                }
+                else
+                {
+                    WriteValue();
+                }
+
+                return;
+
+                void WriteValue()
+                {
+                    Assert.IsTrue(field != newValues, "Trying to write self to destination");
+
+                    field->Resize(length, elementSize);
+                    UnsafeUtility.MemCpy(field->Ptr, newValues, length * elementSize);
                 }
             }
 
@@ -97,8 +136,68 @@ namespace BovineLabs.Anchor.Binding
         public static readonly SharedStatic<FunctionPointer<SetValueDelegate>> SetValue =
             SharedStatic<FunctionPointer<SetValueDelegate>>.GetOrCreate<FunctionPointer<SetValueDelegate>>();
 
+        public static readonly SharedStatic<FunctionPointer<SetListValueDelegate>> SetListValue =
+            SharedStatic<FunctionPointer<SetListValueDelegate>>.GetOrCreate<FunctionPointer<SetListValueDelegate>>();
+
         public static readonly SharedStatic<FunctionPointer<NotifyDelegate>> Notify =
             SharedStatic<FunctionPointer<NotifyDelegate>>.GetOrCreate<FunctionPointer<NotifyDelegate>>();
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct UntypedUnsafeList
+    {
+        // <WARNING>
+        // 'Header' of this struct must binary match `UntypedUnsafeList`, `UnsafeList`.
+        [NativeDisableUnsafePtrRestriction]
+        internal void* Ptr;
+        internal int Length;
+        internal int Capacity;
+        internal AllocatorManager.AllocatorHandle Allocator;
+        internal int Padding;
+
+        internal void Resize(int length, int elementSize)
+        {
+            if (length > this.Capacity)
+            {
+                this.SetCapacity(length, elementSize);
+            }
+
+            this.Length = length;
+        }
+
+        internal void SetCapacity(int capacity, int elementSize)
+        {
+            var newCapacity = math.max(capacity, CollectionHelper.CacheLineSize / elementSize);
+            newCapacity = math.ceilpow2(newCapacity);
+
+            if (newCapacity == this.Capacity)
+            {
+                return;
+            }
+
+            newCapacity = math.max(0, newCapacity);
+
+            void* newPointer = null;
+
+            var alignOf = UnsafeUtility.AlignOf<byte>();
+
+            if (newCapacity > 0)
+            {
+                newPointer = this.Allocator.Allocate(elementSize, alignOf, newCapacity);
+
+                if (this.Ptr != null && this.Capacity > 0)
+                {
+                    var itemsToCopy = math.min(newCapacity, this.Capacity);
+                    var bytesToCopy = itemsToCopy * elementSize;
+                    UnsafeUtility.MemCpy(newPointer, this.Ptr, bytesToCopy);
+                }
+            }
+
+            AllocatorManager.Free(this.Allocator, this.Ptr, elementSize, alignOf, this.Capacity);
+
+            this.Ptr = newPointer;
+            this.Capacity = newCapacity;
+        }
     }
 }
 #endif

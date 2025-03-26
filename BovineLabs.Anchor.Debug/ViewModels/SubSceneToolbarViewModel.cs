@@ -8,7 +8,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.Contracts;
-    using BovineLabs.Core.Extensions;
     using Unity.AppUI.UI;
     using Unity.Collections;
     using Unity.Entities;
@@ -17,7 +16,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, IInitializable, IDisposable
     {
         [CreateProperty]
-        public UIList<Data.SubSceneName> SubScenes => this.Value.SubScenes;
+        public UIArray<Data.SubSceneName> SubScenes => this.Value.SubScenes;
 
         [CreateProperty]
         public IEnumerable<int> SubSceneValues
@@ -28,14 +27,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public void Initialize()
         {
-            this.Value.SubSceneValues = new NativeList<int>(Allocator.Persistent);
-            this.Value.SubScenes = new NativeList<Data.SubSceneName>(Allocator.Persistent);
+            this.Value.Initialize();
         }
 
         public void Dispose()
         {
-            this.Value.SubScenes.Dispose();
-            this.Value.SubSceneValues.Value.Dispose();
+            this.Value.Dispose();
         }
 
         public void BindItem(DropdownItem item, int index)
@@ -67,6 +64,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             [SystemProperty]
             private NativeList<SubSceneName> subScenes;
+
+            internal void Initialize()
+            {
+                this.subSceneValues = new NativeList<int>(Allocator.Persistent);
+                this.subScenes = new NativeList<SubSceneName>(Allocator.Persistent);
+            }
+
+            internal void Dispose()
+            {
+                this.subSceneValues.Value.Dispose();
+                this.subScenes.Dispose();
+            }
 
             public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>, IDropDownItem
             {
