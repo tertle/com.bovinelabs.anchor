@@ -40,7 +40,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             const string scenePrefix = "Scene: ";
             const string sceneSectionPrefix = "SceneSection: ";
 
-            var name = this.Value.SubScenes[index].GetString();
+            var name = this.Value.SubScenes[index].Name.ToString();
 
             var sceneIndex = name.IndexOf(scenePrefix, StringComparison.Ordinal);
             if (sceneIndex != -1)
@@ -77,7 +77,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 this.subScenes.Dispose();
             }
 
-            public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>, IDropDownItem
+            public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>
             {
                 public Entity Entity;
                 public FixedString128Bytes Name;
@@ -98,11 +98,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                     {
                         return (this.Entity.GetHashCode() * 397) ^ this.Name.GetHashCode();
                     }
-                }
-
-                public string GetString()
-                {
-                    return this.Name.ToString();
                 }
             }
         }

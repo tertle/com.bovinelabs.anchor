@@ -140,8 +140,8 @@
                 {
                     case FieldMode.NativeList:
                         builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
-                            .SetType($"NativeArray<{fieldData.GenericType}>.ReadOnly")
-                            .WithGetterExpression($"this.{fieldData.FieldName}.AsArray().AsReadOnly()")
+                            .SetType($"MultiContainer<{fieldData.GenericType}>")
+                            .WithGetterExpression($"this.{fieldData.FieldName}")
                             .WithSetterExpression($"this.SetProperty({fieldData.FieldName}, value)");
                         break;
 

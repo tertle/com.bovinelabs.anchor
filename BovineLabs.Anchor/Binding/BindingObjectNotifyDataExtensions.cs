@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Binding
 {
     using System;
     using System.Runtime.CompilerServices;
-    using BovineLabs.Core.Assertions;
     using Unity.Assertions;
     using Unity.Burst.CompilerServices;
     using Unity.Collections;
@@ -49,7 +48,7 @@ namespace BovineLabs.Anchor.Binding
         }
 
         public static bool SetProperty<T, TV>(
-            this ref T binding, NativeList<TV> field, NativeArray<TV>.ReadOnly newValue, [CallerMemberName] string propertyName = "")
+            this ref T binding, NativeList<TV> field, MultiContainer<TV> newValue, [CallerMemberName] string propertyName = "")
             where T : unmanaged
             where TV : unmanaged, IEquatable<TV>
         {
@@ -58,15 +57,15 @@ namespace BovineLabs.Anchor.Binding
                 return false;
             }
 
-            Check.Assume(field.GetUnsafeReadOnlyPtr() != newValue.GetUnsafeReadOnlyPtr(), "Can't write same list");
+            newValue.ThrowContainersMatch(field);
 
-            if (ArraysEqual(field.AsArray(), newValue))
+            if (newValue.ArraysEqual(field.AsArray()))
             {
                 return false;
             }
 
-            // Buffer is first field of NativeArray.ReadOnly so we can just grab the address
-            SetValueNotify(ref binding, field, (TV*)newValue.GetUnsafeReadOnlyPtr(), newValue.Length, propertyName);
+            var data = newValue.GetAsTempArray();
+            SetValueNotify(ref binding, field, (TV*)data.Ptr, data.Length, propertyName);
             return true;
         }
 
@@ -146,25 +145,6 @@ namespace BovineLabs.Anchor.Binding
                 var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
                 BurstObjectNotify.Notify.Data.Invoke(target, propertyName);
             }
-        }
-
-        private static bool ArraysEqual<T>(NativeArray<T> container, NativeArray<T>.ReadOnly other)
-            where T : unmanaged, IEquatable<T>
-        {
-            if (container.Length != other.Length)
-            {
-                return false;
-            }
-
-            for (var i = 0; i != container.Length; i++)
-            {
-                if (!container[i].Equals(other[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }

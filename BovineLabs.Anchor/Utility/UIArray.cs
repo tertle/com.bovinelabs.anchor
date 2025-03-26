@@ -13,9 +13,9 @@ namespace BovineLabs.Anchor
     {
         private NativeArray<T>.ReadOnly array;
 
-        public UIArray(NativeArray<T>.ReadOnly array)
+        public UIArray(MultiContainer<T> array)
         {
-            this.array = array;
+            this.array = array.AsArray();
         }
 
         public int Count => this.array.IsCreated ? this.array.Length : 0;
@@ -34,7 +34,7 @@ namespace BovineLabs.Anchor
             set => throw new InvalidOperationException("Write not support");
         }
 
-        public static implicit operator UIArray<T>(NativeArray<T>.ReadOnly list)
+        public static implicit operator UIArray<T>(MultiContainer<T> list)
         {
             return new UIArray<T>(list);
         }
@@ -44,7 +44,7 @@ namespace BovineLabs.Anchor
             return this.array.GetEnumerator();
         }
 
-        public void CopyTo(Array array, int index)
+        public void CopyTo(Array a, int index)
         {
             throw new NotImplementedException();
         }
