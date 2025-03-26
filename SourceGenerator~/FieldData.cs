@@ -9,9 +9,16 @@ namespace BovineLabs.SourceGenerator
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+    public enum FieldMode : byte
+    {
+        Default,
+        Changed,
+        ChangedList,
+    }
+
     public class FieldData
     {
-        public FieldData(INamedTypeSymbol typeSymbol, INamedTypeSymbol[] ancestors, IReadOnlyCollection<string> namespaces, FieldDeclarationSyntax field, bool isChange)
+        public FieldData(INamedTypeSymbol typeSymbol, INamedTypeSymbol[] ancestors, IReadOnlyCollection<string> namespaces, FieldDeclarationSyntax field)
         {
             this.TypeSymbol = typeSymbol;
             this.Ancestors = ancestors;
@@ -19,7 +26,24 @@ namespace BovineLabs.SourceGenerator
             this.FieldName = field.GetFieldName();
             this.PropertyName = FormatPropertyName(this.FieldName);
             this.FieldType = field.GetFieldType();
-            this.IsChange = isChange;
+            var typeSyntax = field.Declaration.Type;
+
+            if (typeSyntax is GenericNameSyntax { Identifier: { Text: "Changed" } } changed)
+            {
+                this.FieldMode = FieldMode.Changed;
+                this.ChangedType = changed.TypeArgumentList.Arguments.First().ToString();
+
+            }
+            else if (typeSyntax is GenericNameSyntax { Identifier: { Text: "ChangedList" } } changedList)
+            {
+                this.FieldMode = FieldMode.ChangedList;
+                this.ChangedType = changedList.TypeArgumentList.Arguments.First().ToString();
+            }
+            else
+            {
+                this.FieldMode = FieldMode.Default;
+                this.ChangedType = string.Empty;
+            }
         }
 
         public INamedTypeSymbol TypeSymbol { get; }
@@ -34,7 +58,9 @@ namespace BovineLabs.SourceGenerator
 
         public string FieldType { get; }
 
-        public bool IsChange { get; }
+        public FieldMode FieldMode { get; }
+
+        public string ChangedType { get; }
 
         private static string FormatPropertyName(string fieldName)
         {

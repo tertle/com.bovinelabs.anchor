@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Binding
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using AOT;
     using Unity.Burst;
@@ -18,15 +17,6 @@ namespace BovineLabs.Anchor.Binding
     internal unsafe delegate void SetValueDelegate(IntPtr target, in FixedString64Bytes property, void* field, void* newValue, int length);
 
     internal delegate void NotifyDelegate(IntPtr target, in FixedString64Bytes property);
-
-    internal static class BurstObjectNotify
-    {
-        public static readonly SharedStatic<FunctionPointer<SetValueDelegate>> SetValue =
-            SharedStatic<FunctionPointer<SetValueDelegate>>.GetOrCreate<FunctionPointer<SetValueDelegate>>();
-
-        public static readonly SharedStatic<FunctionPointer<NotifyDelegate>> Notify =
-            SharedStatic<FunctionPointer<NotifyDelegate>>.GetOrCreate<FunctionPointer<NotifyDelegate>>();
-    }
 
     public interface IBindingObjectNotify : IBindingObject, INotifyBindablePropertyChanged
     {
@@ -102,110 +92,13 @@ namespace BovineLabs.Anchor.Binding
         }
     }
 
-    public static unsafe class BindingObjectNotifyDataExtensions
+    internal static class BurstObjectNotify
     {
-        public static bool SetProperty<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
-            where T : unmanaged
-            where TV : unmanaged, IEquatable<TV>
-        {
-            if (field.Equals(newValue))
-            {
-                return false;
-            }
+        public static readonly SharedStatic<FunctionPointer<SetValueDelegate>> SetValue =
+            SharedStatic<FunctionPointer<SetValueDelegate>>.GetOrCreate<FunctionPointer<SetValueDelegate>>();
 
-            SetValue(ref binding, ref field, newValue, propertyName);
-            return true;
-        }
-
-        public static bool SetProperty<T, TV>(
-            this ref T binding, ref NativeList<TV> field, NativeList<TV> newValue, [CallerMemberName] string propertyName = "")
-            where T : unmanaged
-            where TV : unmanaged, IEquatable<TV>
-        {
-            if (field.IsCreated == newValue.IsCreated)
-            {
-                // Both lists aren't created
-                if (!field.IsCreated)
-                {
-                    return false;
-                }
-
-                if (field.GetUnsafeReadOnlyPtr() == newValue.GetUnsafeReadOnlyPtr())
-                {
-                    // Same list, only need to notify
-                    binding.Notify(propertyName);
-                    return true;
-                }
-            }
-
-            // Different lists, need to write
-            SetValue(ref binding, ref field, newValue, propertyName);
-            return true;
-        }
-
-        public static bool SetProperty<T, TV>(this ref T binding, ref Changed<TV> field, Changed<TV> newValue, [CallerMemberName] string propertyName = "")
-            where T : unmanaged
-            where TV : unmanaged, IEquatable<TV>
-        {
-            if (field.Value.Equals(newValue.Value))
-            {
-                return false;
-            }
-
-            SetValue(ref binding, ref field, newValue, propertyName);
-            return true;
-        }
-
-        public static bool SetProperty<T, TV>(
-            this ref T binding, ref ChangedList<TV> field, ChangedList<TV> newValue, [CallerMemberName] string propertyName = "")
-            where T : unmanaged
-            where TV : unmanaged, IEquatable<TV>
-        {
-            if (field.Value.IsCreated == newValue.Value.IsCreated)
-            {
-                // Both lists aren't created
-                if (!field.Value.IsCreated)
-                {
-                    return false;
-                }
-
-                if (field.Value.GetUnsafeReadOnlyPtr() == newValue.Value.GetUnsafeReadOnlyPtr())
-                {
-                    // Same list, only need to notify
-                    binding.Notify(propertyName);
-                    return true;
-                }
-            }
-
-            // Different lists, need to write
-            SetValue(ref binding, ref field, newValue, propertyName);
-            return true;
-        }
-
-        // TODO naming confusing
-        public static void SetValue<T, TV>(this ref T binding, ref TV field, TV newValue, [CallerMemberName] string propertyName = "")
-            where T : unmanaged
-            where TV : unmanaged
-        {
-            if (BurstObjectNotify.SetValue.Data.IsCreated)
-            {
-                var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
-                var fieldPtr = UnsafeUtility.AddressOf(ref field);
-                var valuePtr = &newValue;
-
-                BurstObjectNotify.SetValue.Data.Invoke(target, propertyName, fieldPtr, valuePtr, sizeof(TV));
-            }
-        }
-
-        public static void Notify<T>(this ref T binding, FixedString64Bytes propertyName)
-            where T : unmanaged
-        {
-            if (BurstObjectNotify.SetValue.Data.IsCreated)
-            {
-                var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
-                BurstObjectNotify.Notify.Data.Invoke(target, propertyName);
-            }
-        }
+        public static readonly SharedStatic<FunctionPointer<NotifyDelegate>> Notify =
+            SharedStatic<FunctionPointer<NotifyDelegate>>.GetOrCreate<FunctionPointer<NotifyDelegate>>();
     }
 }
 #endif

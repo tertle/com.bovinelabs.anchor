@@ -1,7 +1,6 @@
 ﻿namespace BovineLabs.SourceGenerator
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -107,9 +106,7 @@
                 .Reverse().ToArray();
 
 
-            var typeSyntax = fieldDeclarationSyntax.Declaration.Type;
-            var isChanged = typeSyntax is GenericNameSyntax { Identifier: { Text: "Changed" } };
-            return new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax, isChanged);
+            return new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax);
         }
 
         public static StructDeclarationSyntax GetEnclosingStruct(FieldDeclarationSyntax fieldDeclaration)
@@ -131,24 +128,49 @@
                      builder.AddNamespaceImport(namespaces);
                 }
 
-                if (fieldData.IsChange)
+                builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
+                    .SetType($"{fieldData.FieldType}")
+                    .WithGetterExpression($"this.{fieldData.FieldName}")
+                    .WithSetterExpression($"this.SetProperty(ref {fieldData.FieldName}, value)");
+
+                switch (fieldData.FieldMode)
                 {
-                    builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
-                        .SetType(fieldData.FieldType)
-                        .Ref()
-                        .Unsafe()
-                        .WithGetter(writer =>
-                        {
-                            writer.ExpressionBlock($"fixed ({fieldData.TypeSymbol.Name}* ptr = &this)")
-                                .WithBody(cw => cw.AppendLine($"return ref ptr->{fieldData.FieldName};"));
-                        });
-                }
-                else
-                {
-                    builder.AddProperty(fieldData.PropertyName, Accessibility.Public)
-                        .SetType(fieldData.FieldType)
-                        .WithGetterExpression($"this.{fieldData.FieldName}")
-                        .WithSetterExpression($"this.SetProperty(ref {fieldData.FieldName}, value)");
+                    case FieldMode.Changed:
+                    {
+                        builder.AddMethod($"{fieldData.PropertyName}Changed", Accessibility.Public)
+                            .WithReturnType("bool")
+                            .AddParameter($"out {fieldData.ChangedType}", "value")
+                            .AddParameter("bool", "resetToDefault = false")
+                            .WithBody(writer =>
+                            {
+                                writer.AppendLine($"value = this.{fieldData.FieldName}.Value;");
+                                writer.If($"this.{fieldData.FieldName}.HasChanged").WithBody(ifWriter =>
+                                    {
+                                        ifWriter
+                                            .If("resetToDefault").WithBody(rw =>
+                                            {
+                                                rw.AppendLine($"this.{fieldData.PropertyName} = new {fieldData.FieldType}(default, false);");
+                                            })
+                                            .Else().WithBody(rw =>
+                                            {
+                                                rw.AppendLine(
+                                                    $"this.{fieldData.FieldName} = new {fieldData.FieldType}(this.{fieldData.FieldName}.Value, false);");
+                                            })
+                                            .EndIf();
+
+                                        ifWriter.AppendLine("return true;");
+                                    })
+                                    .EndIf();
+
+                                writer.AppendLine("return false;");
+                            });
+                    }
+                        break;
+                    case FieldMode.ChangedList:
+                        break;
+                    case FieldMode.Default:
+                    default:
+                        break;
                 }
 
                 return builder;

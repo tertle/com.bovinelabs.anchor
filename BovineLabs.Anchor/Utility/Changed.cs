@@ -5,37 +5,27 @@
 namespace BovineLabs.Anchor
 {
     using System;
+    using JetBrains.Annotations;
 
     [Serializable]
-    public struct Changed<T>
+    public readonly struct Changed<T>
         where T : unmanaged
     {
-        public T Value;
-        private bool changed;
+        public readonly T Value;
+
+        // Used by source generators
+        [UsedImplicitly(ImplicitUseKindFlags.Access)]
+        public readonly bool HasChanged;
+
+        public Changed(T value, bool hasChanged = true)
+        {
+            this.Value = value;
+            this.HasChanged = hasChanged;
+        }
 
         public static implicit operator Changed<T>(T value)
         {
-            return new Changed<T>
-            {
-                Value = value,
-                changed = true,
-            };
-        }
-
-        /// <summary> Gets the value, returns whether it was changed since the last time it was got and resets the change state. </summary>
-        /// <param name="value"> The value. </param>
-        /// <returns> True if changed, otherwise false. </returns>
-        public bool Get(out T value)
-        {
-            value = this.Value;
-
-            if (this.changed)
-            {
-                this.changed = false;
-                return true;
-            }
-
-            return false;
+            return new Changed<T>(value);
         }
     }
 }
