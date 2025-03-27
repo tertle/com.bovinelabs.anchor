@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_QUILL || UNITY_PHYSICS
+#if UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;
