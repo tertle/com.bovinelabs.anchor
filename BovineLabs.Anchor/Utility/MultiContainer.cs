@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor
     using Unity.Assertions;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Entities;
 
     // [StructLayout(LayoutKind.Explicit)] // this broke the assembly
     public struct MultiContainer<T>
@@ -74,6 +75,15 @@ namespace BovineLabs.Anchor
             {
                 type = ContainerType.Array,
                 array = list.AsReadOnly(),
+            };
+        }
+
+        public static implicit operator MultiContainer<T>(DynamicBuffer<T> list)
+        {
+            return new MultiContainer<T>
+            {
+                type = ContainerType.Array,
+                array = list.AsNativeArray().AsReadOnly(),
             };
         }
 
