@@ -41,7 +41,7 @@ namespace BovineLabs.Anchor.Debug.Systems
         {
             this.toolbar.Load();
 
-            this.UpdateData(ref this.toolbar.Binding);
+            this.UpdateData(ref state, ref this.toolbar.Binding);
         }
 
         /// <inheritdoc />
@@ -59,10 +59,10 @@ namespace BovineLabs.Anchor.Debug.Systems
                 return;
             }
 
-            this.UpdateData(ref this.toolbar.Binding);
+            this.UpdateData(ref state, ref this.toolbar.Binding);
         }
 
-        private void UpdateData(ref PhysicsToolbarViewModel.Data data)
+        private void UpdateData(ref SystemState state, ref PhysicsToolbarViewModel.Data data)
         {
 #if BL_QUILL
             var c = SystemAPI.GetSingleton<PhysicsDebugDraw>();
