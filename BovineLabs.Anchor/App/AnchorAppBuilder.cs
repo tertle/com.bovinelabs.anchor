@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Reflection;
@@ -19,26 +20,56 @@ namespace BovineLabs.Anchor
 
     public class AnchorAppBuilder : AnchorAppBuilder<AnchorApp>
     {
-        [SerializeField]
-        private NavGraphViewAsset navigationGraph;
-
-        protected override NavGraphViewAsset NavigationGraph => this.navigationGraph;
     }
 
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
     public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
         where T : AnchorApp
     {
+#if BL_CORE
+        [SerializeField]
+        private AnchorSettings settings;
+
+        protected AnchorSettings Settings
+        {
+            get
+            {
+                if (this.settings == null)
+                {
+                    this.settings = ScriptableObject.CreateInstance<AnchorSettings>();
+                }
+
+                return this.settings;
+            }
+        }
+
+#if !UNITY_EDITOR && !BL_DEBUG
+        protected bool ToolbarOnly => this.Settings.ToolbarOnly;
+#endif
+
+#if UNITY_EDITOR || BL_DEBUG
+        protected IReadOnlyList<StyleSheet> DebugStyleSheets => this.Settings.DebugStyleSheets;
+#endif
+
+        protected NavGraphViewAsset NavigationGraph => this.Settings.NavigationGraph;
+
+#else
+        [SerializeField]
+        private NavGraphViewAsset navigationGraph;
+
+        [field: SerializeField]
+        [field: Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
+        private bool ToolbarOnly { get; set; }
+
 #if UNITY_EDITOR || BL_DEBUG
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
+
+        protected IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
 #endif
 
-        [SerializeField]
-        [Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
-        private bool toolbarOnly;
-
-        protected abstract NavGraphViewAsset NavigationGraph { get; }
+        protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
+#endif
 
         /// <summary> Gets the optional <see cref="IStoreService"/> type. If not set, IStoreService will not be registered. </summary>
         protected virtual Type StoreService => null;
@@ -98,10 +129,11 @@ namespace BovineLabs.Anchor
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnAppInitialized(T app)
         {
 #if !UNITY_EDITOR && !BL_DEBUG
-            if (this.toolbarOnly)
+            if (this.ToolbarOnly)
             {
                 return;
             }
@@ -109,7 +141,7 @@ namespace BovineLabs.Anchor
             base.OnAppInitialized(app);
 
 #if UNITY_EDITOR || BL_DEBUG
-            foreach (var style in this.debugStyleSheets)
+            foreach (var style in this.DebugStyleSheets)
             {
                 app.rootVisualElement.styleSheets.Add(style);
             }
