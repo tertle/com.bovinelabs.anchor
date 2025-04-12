@@ -13,11 +13,12 @@ namespace BovineLabs.Anchor.Debug.Views
     using Toggle = Unity.AppUI.UI.Toggle;
 
     [AutoToolbar("Bootstrap")]
-    public class BootstrapToolbarView : VisualElement, IView<BootstrapToolbarViewModel>
+    public class BootstrapToolbarView : View<BootstrapToolbarViewModel>
     {
         public const string UssClassName = "bl-net-bootstrap-tab";
 
         public BootstrapToolbarView()
+            : base(new BootstrapToolbarViewModel())
         {
             if (BovineLabsBootstrap.Instance == null)
             {
@@ -121,8 +122,6 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(game);
 #endif
         }
-
-        public BootstrapToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

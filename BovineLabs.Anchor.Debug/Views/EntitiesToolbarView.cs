@@ -7,14 +7,14 @@ namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
-    using UnityEngine.UIElements;
 
     [Transient]
-    public class EntitiesToolbarView : VisualElement, IView<EntitiesToolbarViewModel>
+    public class EntitiesToolbarView : View<EntitiesToolbarViewModel>
     {
         public const string UssClassName = "bl-entities-tab";
 
         public EntitiesToolbarView()
+            : base(new EntitiesToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -26,9 +26,6 @@ namespace BovineLabs.Anchor.Debug.Views
                     ("Chunks", nameof(EntitiesToolbarViewModel.Chunks)),
                 }));
         }
-
-        /// <inheritdoc />
-        public EntitiesToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

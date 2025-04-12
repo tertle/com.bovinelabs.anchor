@@ -24,7 +24,12 @@ namespace BovineLabs.Anchor
         private static readonly FunctionPointer<NavigateDelegate> NavigateFunction =
             new(Marshal.GetFunctionPointerForDelegate<NavigateDelegate>(NavigateForwarding));
 
+        private static readonly FunctionPointer<CurrentDelegate> CurrentFunction =
+            new(Marshal.GetFunctionPointerForDelegate<CurrentDelegate>(CurrentForwarding));
+
         private delegate void NavigateDelegate(in FixedString64Bytes screen);
+
+        private delegate void CurrentDelegate(out FixedString64Bytes name);
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
@@ -48,7 +53,8 @@ namespace BovineLabs.Anchor
 
         public virtual void Initialize()
         {
-            Burst.Static.Data = NavigateFunction;
+            Burst.NavigateFunc.Data = NavigateFunction;
+            Burst.CurrentFunc.Data = CurrentFunction;
 
             this.Panel.pickingMode = PickingMode.Ignore;
 
@@ -70,10 +76,23 @@ namespace BovineLabs.Anchor
         /// <param name="screen"> The screen to navigate to. </param>
         public static void Navigate(in FixedString64Bytes screen)
         {
-            if (Burst.Static.Data.IsCreated)
+            if (Burst.NavigateFunc.Data.IsCreated)
             {
-                Burst.Static.Data.Invoke(screen);
+                Burst.NavigateFunc.Data.Invoke(screen);
             }
+        }
+
+        /// <summary> A burst compatible way to get the <see cref="NavController.currentDestination"/> from the <see cref="NavController"/>. </summary>
+        /// <returns>The name of the current destination, or default if null.</returns>
+        public static FixedString64Bytes CurrentDestination()
+        {
+            if (Burst.CurrentFunc.Data.IsCreated)
+            {
+                Burst.CurrentFunc.Data.Invoke(out var name);
+                return name;
+            }
+
+            return default;
         }
 
         /// <summary> Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
@@ -95,10 +114,19 @@ namespace BovineLabs.Anchor
             current.Navigate(screen.ToString());
         }
 
+        [MonoPInvokeCallback(typeof(CurrentDelegate))]
+        private static void CurrentForwarding(out FixedString64Bytes name)
+        {
+            name = current.Controller.currentDestination?.name ?? default(FixedString64Bytes);
+        }
+
         private static class Burst
         {
-            public static readonly SharedStatic<FunctionPointer<NavigateDelegate>> Static =
+            public static readonly SharedStatic<FunctionPointer<NavigateDelegate>> NavigateFunc =
                 SharedStatic<FunctionPointer<NavigateDelegate>>.GetOrCreate<AnchorApp, FunctionPointer<NavigateDelegate>>();
+
+            public static readonly SharedStatic<FunctionPointer<CurrentDelegate>> CurrentFunc =
+                SharedStatic<FunctionPointer<CurrentDelegate>>.GetOrCreate<AnchorApp, FunctionPointer<CurrentDelegate>>();
         }
     }
 }

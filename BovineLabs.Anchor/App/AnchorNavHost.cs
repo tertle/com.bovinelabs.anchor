@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor
     using System;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
+    using UnityEngine;
     using UnityEngine.UIElements;
 
     public class AnchorNavHost : NavHost
@@ -25,8 +26,9 @@ namespace BovineLabs.Anchor
             {
                 return (NavigationScreen)AnchorApp.current.services.GetService(screenType);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Debug.LogException(ex);
                 return (NavigationScreen)Activator.CreateInstance(screenType);
             }
         }

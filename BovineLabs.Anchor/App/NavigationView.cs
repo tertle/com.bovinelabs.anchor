@@ -5,17 +5,15 @@
 namespace BovineLabs.Anchor
 {
     using Unity.AppUI.Navigation;
-    using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
-    [Preserve]
-    public class NavigationView : VisualElement, IView
+    [IsService]
+    public class NavigationView : VisualElement
     {
-        public NavigationView()
+        public NavigationView(AnchorNavHost navHost)
         {
             this.pickingMode = PickingMode.Ignore;
 
-            var navHost = new AnchorNavHost();
             this.Add(navHost);
 
             navHost.navController.SetGraph(AnchorApp.current.GraphViewAsset);

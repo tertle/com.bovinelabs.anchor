@@ -13,9 +13,10 @@ namespace BovineLabs.Anchor.Debug.Views
 
     [Transient]
     [UsedImplicitly]
-    public class PauseToolbarView : VisualElement, IView<PauseToolbarViewModel>
+    public class PauseToolbarView : View<PauseToolbarViewModel>
     {
         public PauseToolbarView()
+            : base(new PauseToolbarViewModel())
         {
             var pauseToggle = new Toggle
             {
@@ -30,8 +31,6 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.Add(pauseToggle);
         }
-
-        public PauseToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

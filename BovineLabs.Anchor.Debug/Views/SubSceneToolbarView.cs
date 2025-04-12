@@ -15,13 +15,14 @@ namespace BovineLabs.Anchor.Debug.Views
 
     [Transient]
     [Preserve]
-    public class SubSceneToolbarView : VisualElement, IView<SubSceneToolbarViewModel>, IDisposable
+    public class SubSceneToolbarView : View<SubSceneToolbarViewModel>, IDisposable
     {
         public const string UssClassName = "bl-subscene-tab";
 
         private readonly Dropdown dropdown;
 
         public SubSceneToolbarView()
+            : base(new SubSceneToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -41,8 +42,6 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.ViewModel.PropertyChanged += this.OnPropertyChanged;
         }
-
-        public SubSceneToolbarViewModel ViewModel { get; } = new();
 
         public void Dispose()
         {

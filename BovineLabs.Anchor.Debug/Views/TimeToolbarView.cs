@@ -16,12 +16,13 @@ namespace BovineLabs.Anchor.Debug.Views
     using FloatField = Unity.AppUI.UI.FloatField;
 
     [AutoToolbar("Time")]
-    public class TimeToolbarView : VisualElement, IView<TimeToolbarViewModel>
+    public class TimeToolbarView : View<TimeToolbarViewModel>
     {
         public const string UssClassName = "bl-time-tab";
 
         /// <summary> Initializes a new instance of the <see cref="TimeToolbarView" /> class. </summary>
         public TimeToolbarView()
+            : base(new TimeToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -52,9 +53,6 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
-
-        /// <inheritdoc />
-        public TimeToolbarViewModel ViewModel { get; } = new();
 
         private static string ToFormattedString(TimeSpan ts)
         {

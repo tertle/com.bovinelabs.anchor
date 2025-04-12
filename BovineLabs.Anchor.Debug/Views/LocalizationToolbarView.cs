@@ -13,11 +13,12 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("Localization")]
-    public class LocalizationToolbarView : VisualElement, IView<LocalizationToolbarViewModel>
+    public class LocalizationToolbarView : View<LocalizationToolbarViewModel>
     {
         public const string UssClassName = "bl-localization-tab";
 
         public LocalizationToolbarView()
+            : base(new LocalizationToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -45,8 +46,6 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.Add(dropdownField);
         }
-
-        public LocalizationToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

@@ -13,11 +13,12 @@ namespace BovineLabs.Anchor.Debug.Views
 
     [Transient]
     [UsedImplicitly]
-    public class PhysicsToolbarView : VisualElement, IView<PhysicsToolbarViewModel>
+    public class PhysicsToolbarView : View<PhysicsToolbarViewModel>
     {
         public const string UssClassName = "bl-physics-tab";
 
         public PhysicsToolbarView()
+            : base(new PhysicsToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -114,8 +115,6 @@ namespace BovineLabs.Anchor.Debug.Views
 
             right.Add(triggers);
         }
-
-        public PhysicsToolbarViewModel ViewModel { get; } = new();
     }
 }
 #endif

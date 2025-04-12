@@ -21,15 +21,14 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
-    using UnityEngine.Scripting;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
 #if BL_CORE
     [Configurable]
 #endif
-    [Preserve]
-    public class ToolbarView : VisualElement, IView
+    [IsService]
+    public class ToolbarView : VisualElement
     {
         public const float DefaultUpdateRate = 1 / 4f;
 
@@ -160,7 +159,7 @@ namespace BovineLabs.Anchor.Toolbar
         public static ToolbarView Instance { get; private set; }
 
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
-            where T : VisualElement, IView
+            where T : VisualElement
         {
             this.AddTab(typeof(T), tabName, elementName, out id, out var visualElement);
             view = (T)visualElement;
@@ -173,9 +172,9 @@ namespace BovineLabs.Anchor.Toolbar
                 throw new ArgumentException($"{viewType} is not a {nameof(VisualElement)}", nameof(viewType));
             }
 
-            if (!typeof(IView).IsAssignableFrom(viewType))
+            if (!viewType.IsDefined(typeof(IsServiceAttribute)))
             {
-                throw new ArgumentException($"{viewType} is not a {nameof(IView)}", nameof(viewType));
+                throw new ArgumentException($"{viewType} is not defined as a service", nameof(viewType));
             }
 
             id = ++this.key;
@@ -205,7 +204,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         public T RemoveTab<T>(int id)
-            where T : VisualElement, IView
+            where T : VisualElement
         {
             if (!this.toolbarGroups.Remove(id, out var group))
             {

@@ -15,8 +15,9 @@ namespace BovineLabs.Anchor
     using Unity.Collections;
     using UnityEngine;
 
+    [IsService]
     [Serializable]
-    public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>, IViewModel
+    public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>
         where T : unmanaged
     {
         [SerializeField]

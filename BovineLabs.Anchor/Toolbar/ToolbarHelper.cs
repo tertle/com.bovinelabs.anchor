@@ -13,10 +13,9 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
     using UnityEngine;
-    using UnityEngine.UIElements;
 
     public unsafe struct ToolbarHelper<TV, TM, TD>
-        where TV : VisualElement, IView<TM>
+        where TV : View<TM>
         where TM : class, IBindingObject<TD>
         where TD : unmanaged
     {

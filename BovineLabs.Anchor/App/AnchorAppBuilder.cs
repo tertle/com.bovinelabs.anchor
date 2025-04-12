@@ -6,6 +6,7 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
 #if BL_CORE
@@ -18,25 +19,26 @@ namespace BovineLabs.Anchor
 
     public class AnchorAppBuilder : AnchorAppBuilder<AnchorApp>
     {
-    }
-
-    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
-    public class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
-        where T : AnchorApp
-    {
         [SerializeField]
         private NavGraphViewAsset navigationGraph;
 
+        protected override NavGraphViewAsset NavigationGraph => this.navigationGraph;
+    }
+
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
+    public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
+        where T : AnchorApp
+    {
 #if UNITY_EDITOR || BL_DEBUG
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
 #endif
 
         [SerializeField]
-        [Tooltip("If true, will disable instantiation to in builds without toolbar to speed up initialization.")]
+        [Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
         private bool toolbarOnly;
 
-        protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
+        protected abstract NavGraphViewAsset NavigationGraph { get; }
 
         /// <summary> Gets the optional <see cref="IStoreService"/> type. If not set, IStoreService will not be registered. </summary>
         protected virtual Type StoreService => null;
@@ -46,6 +48,8 @@ namespace BovineLabs.Anchor
         protected virtual Type ViewModelService { get; } = typeof(ViewModelService);
 
         protected virtual Type GameView { get; } = typeof(NavigationView);
+
+        protected virtual Type NavHost { get; } = typeof(AnchorNavHost);
 
         protected virtual Type NavVisualController => null;
 
@@ -67,49 +71,29 @@ namespace BovineLabs.Anchor
 
             builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
             builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
+            builder.services.AddSingleton(typeof(AnchorNavHost), this.NavHost);
 
             if (this.NavVisualController != null)
             {
                 builder.services.AddSingleton(typeof(INavVisualController), this.NavVisualController);
             }
 
-            // Register all views
+            var s = ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>().ToArray();
+
+            // Register all services
 #if BL_CORE
-            foreach (var view in ReflectionUtility.GetAllImplementations<IView>())
+            foreach (var services in s)
 #else
-            foreach (var view in Core.GetAllImplementations<IView>())
+            foreach (var view in Core.GetAllWithAttribute<IView>())
 #endif
             {
-                if (!typeof(VisualElement).IsAssignableFrom(view))
+                if (services.GetCustomAttribute<TransientAttribute>() != null)
                 {
-                    Debug.LogError($"IView can only be assigned to VisualElements {view}");
-                    continue;
-                }
-
-                if (view.GetCustomAttribute<TransientAttribute>() != null)
-                {
-                    builder.services.AddTransient(view);
+                    builder.services.AddTransient(services);
                 }
                 else
                 {
-                    builder.services.AddSingleton(view);
-                }
-            }
-
-            // Register all view models
-#if BL_CORE
-            foreach (var viewModel in ReflectionUtility.GetAllImplementations<IViewModel>())
-#else
-            foreach (var view in Core.GetAllImplementations<IView>())
-#endif
-            {
-                if (viewModel.GetCustomAttribute<TransientAttribute>() != null)
-                {
-                    builder.services.AddTransient(viewModel);
-                }
-                else
-                {
-                    builder.services.AddSingleton(viewModel);
+                    builder.services.AddSingleton(services);
                 }
             }
         }
@@ -131,7 +115,7 @@ namespace BovineLabs.Anchor
             }
 #endif
 
-            app.GraphViewAsset = this.navigationGraph;
+            app.GraphViewAsset = this.NavigationGraph;
 
             if (this.NavVisualController != null)
             {

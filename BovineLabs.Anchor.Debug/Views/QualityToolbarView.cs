@@ -11,13 +11,13 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("Quality")]
-    public class QualityToolbarView : VisualElement, IView<QualityToolbarViewModel>
+    public class QualityToolbarView : View<QualityToolbarViewModel>
     {
         public const string UssClassName = "bl-quality-tab";
 
         /// <summary> Initializes a new instance of the <see cref="QualityToolbarView" /> class. </summary>
-        /// <param name="viewModel"> The view model. </param>
         public QualityToolbarView()
+            : base(new QualityToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -44,8 +44,5 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.schedule.Execute(this.ViewModel.Update).Every(1); // Every frame
         }
-
-        /// <inheritdoc />
-        public QualityToolbarViewModel ViewModel { get; } = new();
     }
 }

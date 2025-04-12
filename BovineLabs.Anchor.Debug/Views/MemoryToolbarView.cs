@@ -12,11 +12,12 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("Memory")]
-    public class MemoryToolbarView : VisualElement, IView<MemoryToolbarViewModel>
+    public class MemoryToolbarView : View<MemoryToolbarViewModel>
     {
         public const string UssClassName = "bl-memory-tab";
 
         public MemoryToolbarView()
+            : base(new MemoryToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -33,8 +34,5 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
-
-        /// <inheritdoc />
-        public MemoryToolbarViewModel ViewModel { get; } = new();
     }
 }

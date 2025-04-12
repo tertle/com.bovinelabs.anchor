@@ -12,11 +12,12 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.UIElements;
 
     [AutoToolbar("FPS")]
-    public class FPSToolbarView : VisualElement, IView<FPSToolbarViewModel>
+    public class FPSToolbarView : View<FPSToolbarViewModel>
     {
         public const string UssClassName = "bl-fps-tab";
 
         public FPSToolbarView()
+            : base(new FPSToolbarViewModel())
         {
             this.AddToClassList(UssClassName);
 
@@ -35,8 +36,5 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
-
-        /// <inheritdoc />
-        public FPSToolbarViewModel ViewModel { get; } = new();
     }
 }
