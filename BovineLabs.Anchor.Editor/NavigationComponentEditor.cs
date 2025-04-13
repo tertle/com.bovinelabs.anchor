@@ -2,6 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if BL_CORE
 namespace BovineLabs.Anchor.Editor
 {
     using BovineLabs.Core.Editor.Inspectors;
@@ -19,3 +20,4 @@ namespace BovineLabs.Anchor.Editor
         }
     }
 }
+#endif

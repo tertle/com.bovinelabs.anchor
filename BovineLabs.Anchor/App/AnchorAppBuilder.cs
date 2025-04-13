@@ -114,7 +114,7 @@ namespace BovineLabs.Anchor
 #if BL_CORE
             foreach (var services in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
 #else
-            foreach (var view in Core.GetAllWithAttribute<IView>())
+            foreach (var services in Core.GetAllWithAttribute<IsServiceAttribute>())
 #endif
             {
                 if (services.GetCustomAttribute<TransientAttribute>() != null)
@@ -133,7 +133,9 @@ namespace BovineLabs.Anchor
         {
             base.OnAppShuttingDown(app);
 
+#if BL_CORE
             this.localSettings = null;
+#endif
         }
 
         /// <inheritdoc/>

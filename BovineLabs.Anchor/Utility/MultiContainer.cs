@@ -6,10 +6,11 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.Diagnostics;
-    using Unity.Assertions;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+#if UNITY_ENTITIES
     using Unity.Entities;
+#endif
 
     // [StructLayout(LayoutKind.Explicit)] // this broke the assembly
     public struct MultiContainer<T>
@@ -37,7 +38,7 @@ namespace BovineLabs.Anchor
         {
             get
             {
-                Assert.IsTrue(this.type == ContainerType.Array);
+                Debug.Assert(this.type == ContainerType.Array);
                 return this.array.Length;
             }
         }
@@ -46,7 +47,7 @@ namespace BovineLabs.Anchor
         {
             get
             {
-                Assert.IsTrue(this.type == ContainerType.Array);
+                Debug.Assert(this.type == ContainerType.Array);
                 return this.array[index];
             }
         }
@@ -78,6 +79,7 @@ namespace BovineLabs.Anchor
             };
         }
 
+#if UNITY_ENTITIES
         public static implicit operator MultiContainer<T>(DynamicBuffer<T> list)
         {
             return new MultiContainer<T>
@@ -86,6 +88,7 @@ namespace BovineLabs.Anchor
                 array = list.AsNativeArray().AsReadOnly(),
             };
         }
+#endif
 
         public static implicit operator MultiContainer<T>(NativeHashSet<T> hashSet)
         {
@@ -107,7 +110,7 @@ namespace BovineLabs.Anchor
 
         public NativeArray<T>.ReadOnly AsArray()
         {
-            Assert.IsTrue(this.type == ContainerType.Array);
+            Debug.Assert(this.type == ContainerType.Array);
             return this.array;
         }
 
