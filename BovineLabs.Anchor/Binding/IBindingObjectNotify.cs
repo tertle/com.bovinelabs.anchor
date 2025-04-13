@@ -9,7 +9,6 @@ namespace BovineLabs.Anchor.Binding
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using AOT;
-    using BovineLabs.Core.Internal;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;

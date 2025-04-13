@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Contracts;
     using BovineLabs.Anchor.Services;
-    using BovineLabs.Core.Extensions;
     using Unity.AppUI.MVVM;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -27,7 +26,16 @@ namespace BovineLabs.Anchor
         {
             this = default;
 
-            var query = new EntityQueryBuilder(Allocator.Temp).WithAll(requiredComponent).WithOptions(EntityQueryOptions.IncludeSystems).Build(ref state);
+            var list = new FixedList32Bytes<ComponentType>
+            {
+                new()
+                {
+                    TypeIndex = requiredComponent.TypeIndex,
+                    AccessModeType = ComponentType.AccessMode.ReadOnly,
+                },
+            };
+
+            var query = new EntityQueryBuilder(Allocator.Temp).WithAll(ref list).WithOptions(EntityQueryOptions.IncludeSystems).Build(ref state);
             state.RequireForUpdate(query);
         }
 
