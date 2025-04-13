@@ -27,9 +27,9 @@ namespace BovineLabs.Anchor
         private static readonly FunctionPointer<CurrentDelegate> CurrentFunction =
             new(Marshal.GetFunctionPointerForDelegate<CurrentDelegate>(CurrentForwarding));
 
-        private delegate void NavigateDelegate(in FixedString64Bytes screen);
+        private delegate void NavigateDelegate(in FixedString32Bytes screen);
 
-        private delegate void CurrentDelegate(out FixedString64Bytes name);
+        private delegate void CurrentDelegate(out FixedString32Bytes name);
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
@@ -74,7 +74,7 @@ namespace BovineLabs.Anchor
 
         /// <summary> A burst compatible way to Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
         /// <param name="screen"> The screen to navigate to. </param>
-        public static void Navigate(in FixedString64Bytes screen)
+        public static void Navigate(in FixedString32Bytes screen)
         {
             if (Burst.NavigateFunc.Data.IsCreated)
             {
@@ -84,7 +84,7 @@ namespace BovineLabs.Anchor
 
         /// <summary> A burst compatible way to get the <see cref="NavController.currentDestination"/> from the <see cref="NavController"/>. </summary>
         /// <returns>The name of the current destination, or default if null.</returns>
-        public static FixedString64Bytes CurrentDestination()
+        public static FixedString32Bytes CurrentDestination()
         {
             if (Burst.CurrentFunc.Data.IsCreated)
             {
@@ -109,15 +109,15 @@ namespace BovineLabs.Anchor
         }
 
         [MonoPInvokeCallback(typeof(NavigateDelegate))]
-        private static void NavigateForwarding(in FixedString64Bytes screen)
+        private static void NavigateForwarding(in FixedString32Bytes screen)
         {
             current.Navigate(screen.ToString());
         }
 
         [MonoPInvokeCallback(typeof(CurrentDelegate))]
-        private static void CurrentForwarding(out FixedString64Bytes name)
+        private static void CurrentForwarding(out FixedString32Bytes name)
         {
-            name = current.Controller.currentDestination?.name ?? default(FixedString64Bytes);
+            name = current.Controller.currentDestination?.name ?? default(FixedString32Bytes);
         }
 
         private static class Burst

@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
 #if BL_CORE
@@ -30,16 +29,18 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private AnchorSettings settings;
 
+        private AnchorSettings localSettings;
+
         protected AnchorSettings Settings
         {
             get
             {
-                if (this.settings == null)
+                if (this.localSettings == null)
                 {
-                    this.settings = ScriptableObject.CreateInstance<AnchorSettings>();
+                    this.localSettings = this.settings == null ? ScriptableObject.CreateInstance<AnchorSettings>() : this.settings;
                 }
 
-                return this.settings;
+                return this.localSettings;
             }
         }
 
@@ -109,11 +110,9 @@ namespace BovineLabs.Anchor
                 builder.services.AddSingleton(typeof(INavVisualController), this.NavVisualController);
             }
 
-            var s = ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>().ToArray();
-
             // Register all services
 #if BL_CORE
-            foreach (var services in s)
+            foreach (var services in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
 #else
             foreach (var view in Core.GetAllWithAttribute<IView>())
 #endif
@@ -127,6 +126,14 @@ namespace BovineLabs.Anchor
                     builder.services.AddSingleton(services);
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        protected override void OnAppShuttingDown(T app)
+        {
+            base.OnAppShuttingDown(app);
+
+            this.localSettings = null;
         }
 
         /// <inheritdoc/>

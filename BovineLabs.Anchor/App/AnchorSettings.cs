@@ -25,13 +25,15 @@ namespace BovineLabs.Anchor
 #if UNITY_EDITOR || BL_DEBUG
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
-
-        public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
 #endif
 
         public NavGraphViewAsset NavigationGraph => this.navigationGraph;
 
         public bool ToolbarOnly => this.toolbarOnly;
+
+#if UNITY_EDITOR || BL_DEBUG
+        public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
+#endif
     }
 }
 #endif

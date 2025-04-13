@@ -23,19 +23,20 @@ namespace BovineLabs.Anchor
         private GCHandle handle;
         private TD* data;
 
-        public UIHelper(ref SystemState state, FixedString64Bytes name, ComponentType requiredComponent)
+        public UIHelper(ref SystemState state, ComponentType requiredComponent)
         {
             this = default;
 
-            state.EntityManager.AddComponentData(state.SystemHandle, new UIStateInstance
-            {
-                Name = name,
-                ComponentType = requiredComponent.TypeIndex,
-            });
-
-            var query = new EntityQueryBuilder(Allocator.Temp).WithAll(requiredComponent).Build(ref state);
+            var query = new EntityQueryBuilder(Allocator.Temp).WithAll(requiredComponent).WithOptions(EntityQueryOptions.IncludeSystems).Build(ref state);
             state.RequireForUpdate(query);
         }
+
+#if BL_CORE
+        public UIHelper(ref SystemState state, FixedString32Bytes name)
+            : this(ref state, ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(UISystemTypes.NameToKey(name))))
+        {
+        }
+#endif
 
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 

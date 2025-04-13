@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
+#if BL_CORE
 namespace BovineLabs.Anchor
 {
     using Unity.Burst;
@@ -11,44 +11,35 @@ namespace BovineLabs.Anchor
     using UnityEngine;
 
     [UpdateInGroup(typeof(UISystemGroup))]
-    public partial struct NavigationStateSystem : ISystem, ISystemStartStop
+    public partial struct NavigationStateSystem : ISystem
     {
-        private FixedString64Bytes previous;
+        private FixedString32Bytes previous;
 
-        private NativeHashMap<FixedString64Bytes, ComponentType> statesMap;
+        private NativeHashMap<FixedString32Bytes, ComponentType> statesMap;
 
         /// <inheritdoc/>
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            this.statesMap = new NativeHashMap<FixedString64Bytes, ComponentType>(16, Allocator.Persistent);
-        }
+            this.statesMap = new NativeHashMap<FixedString32Bytes, ComponentType>(16, Allocator.Persistent);
 
-        /// <inheritdoc/>
-        public void OnStartRunning(ref SystemState state)
-        {
-            foreach (var instance in SystemAPI.Query<UIStateInstance>().WithOptions(EntityQueryOptions.IncludeSystems))
+            var comps = new NativeHashSet<ComponentType>(0, Allocator.Temp);
+
+            var e = UISystemTypes.Enumerator();
+            while (e.MoveNext())
             {
-                var stateInstanceComponent = ComponentType.FromTypeIndex(instance.ComponentType);
+                var component = ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(e.Current.Value));
 
-                if (this.statesMap.TryAdd(instance.Name, stateInstanceComponent))
+                if (!comps.Add(component))
                 {
                     continue;
                 }
 
-                var existing = this.statesMap[instance.Name];
-
-                if (existing != stateInstanceComponent)
+                if (!this.statesMap.TryAdd(e.Current.Name, component))
                 {
-                    Debug.LogError(
-                        $"Key {instance.Name} has already been registered with a different instance component {existing} vs {stateInstanceComponent}");
+                    Debug.LogError($"Key {e.Current.Name} has already been registered");
                 }
             }
-        }
-
-        /// <inheritdoc/>
-        public void OnStopRunning(ref SystemState state)
-        {
-            this.statesMap.Clear();
         }
 
         /// <inheritdoc/>
@@ -57,6 +48,7 @@ namespace BovineLabs.Anchor
             this.statesMap.Dispose();
         }
 
+        /// <inheritdoc/>
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -66,8 +58,6 @@ namespace BovineLabs.Anchor
             {
                 return;
             }
-
-            Debug.Log($"Changed from {this.previous} to {current}");
 
             if (this.statesMap.TryGetValue(this.previous, out var previousComponent))
             {
