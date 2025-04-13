@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor
     using System.Diagnostics;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Debug = UnityEngine.Debug;
 #if UNITY_ENTITIES
     using Unity.Entities;
 #endif
@@ -38,7 +39,7 @@ namespace BovineLabs.Anchor
         {
             get
             {
-                Debug.Assert(this.type == ContainerType.Array);
+                Debug.Assert(this.type == ContainerType.Array, "Length used on non array");
                 return this.array.Length;
             }
         }
@@ -47,7 +48,7 @@ namespace BovineLabs.Anchor
         {
             get
             {
-                Debug.Assert(this.type == ContainerType.Array);
+                Debug.Assert(this.type == ContainerType.Array, "Indexer used on non array");
                 return this.array[index];
             }
         }
@@ -110,7 +111,7 @@ namespace BovineLabs.Anchor
 
         public NativeArray<T>.ReadOnly AsArray()
         {
-            Debug.Assert(this.type == ContainerType.Array);
+            Debug.Assert(this.type == ContainerType.Array, "AsArray used on non array");
             return this.array;
         }
 
