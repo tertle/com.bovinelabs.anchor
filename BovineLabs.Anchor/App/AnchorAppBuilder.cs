@@ -89,7 +89,7 @@ namespace BovineLabs.Anchor
         protected override void OnConfiguringApp(AppBuilder builder)
         {
 #if !UNITY_EDITOR && !BL_DEBUG
-            if (this.toolbarOnly)
+            if (this.ToolbarOnly)
             {
                 return;
             }
