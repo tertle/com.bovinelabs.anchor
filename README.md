@@ -1,9 +1,16 @@
 # BovineLabs Anchor
-BovineLabs Anchor provides a utility layer on top of Unity's [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest), along with an easy-to-use debug ribbon toolbar.
+BovineLabs Anchor provides a utility layer on top of Unity's [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest), along with an easy-to-use debug ribbon toolbar and runtime workflow enhancements.
 
 For support and discussions, join the [Discord](https://discord.gg/RTsw6Cxvw3) community.
 
 If you want to support my work or get access to a few private libraries, [Buy Me a Coffee](https://buymeacoffee.com/bovinelabs).
+
+## Table of Contents
+- [Installation](#installation)
+- [Setup](#setup)
+- [MVVM Architecture](#mvvm-architecture)
+- [Runtime UI with Entities](#runtime-ui-with-entities)
+- [Debug Ribbon Toolbar](#debug-ribbon-toolbar)
 
 ## Installation
 
@@ -69,7 +76,7 @@ public class MyApp : AnchorApp
 
 This allows you to customize service registration, navigation, and various other aspects of the application.
 
-## MVVM
+## MVVM Architecture
 
 BovineLabs Anchor extends the MVVM (Model-View-ViewModel) implementation that AppUI provides to allow for Burst-compatible data flow when used with Entities.
 
@@ -77,25 +84,23 @@ BovineLabs Anchor extends the MVVM (Model-View-ViewModel) implementation that Ap
 
 The View is responsible for presenting the UI to the user and handling user interactions. In Anchor, Views:
 
-- Are implemented as `VisualElement` classes that implement `IView<T>` interface
+- Are implemented as `VisualElement` classes that implement `View<T>` base class
 - Have a reference to a ViewModel that they can bind to
 - Usually use UI Toolkit data binding to stay in sync with the ViewModel
 - Are created and destroyed by the system, but are not directly interacted with by the system
 
 ```csharp
-public class MyToolbarView : VisualElement, IView<MyToolbarViewModel>
+public class MyView : View<MyViewModel>
 {
-    public MyToolbarView()
+    public MyView()
+        : base(new MyViewModel())
     {
         // Create UI elements and bind to ViewModel
         var counter = new Text();
         counter.dataSource = this.ViewModel;
-        counter.SetBindingToUI(nameof(Text.text), nameof(MyToolbarViewModel.Counter));
+        counter.SetBindingToUI(nameof(Text.text), nameof(MyViewModel.Counter));
         this.Add(counter);
     }
-    
-    // ViewModel can be injected if uses services but generally you just create it directly
-    public MyToolbarViewModel ViewModel { get; } = new();
 }
 ```
 
@@ -108,7 +113,7 @@ Typically, this would be implemented with the following:
 counter.SetBinding(nameof(Text.text), new DataBinding
 { 
     bindingMode = BindingMode.ToTarget,
-    dataSourcePath = new PropertyPath(nameof(MyToolbarViewModel.Counter))
+    dataSourcePath = new PropertyPath(nameof(MyViewModel.Counter))
 });
  ```
 
@@ -126,7 +131,7 @@ The ViewModel serves as the intermediary between the View and the Model (entity 
 - Handles data conversion between Model and View-friendly formats
 
 ```csharp
-public partial class MyToolbarViewModel : SystemObservableObject<MyToolbarViewModel.Data>
+public partial class MyViewModel : SystemObservableObject<MyViewModel.Data>
 {
     [CreateProperty(ReadOnly = true)]
     public int Counter => this.Value.Counter;
@@ -141,7 +146,7 @@ public partial class MyToolbarViewModel : SystemObservableObject<MyToolbarViewMo
 
 #### SystemProperty Attribute
 
-The `SystemProperty` attribute uses source generation to create Burst-compatible property accessors in your ViewModel. 
+The `SystemProperty` attribute uses source generation to create Burst-compatible property accessors in your ViewModel.
 This allows systems to interact with your ViewModel's data while maintaining Burst compatibility.
 
 For a field marked with `[SystemProperty]`, the generator creates:
@@ -210,100 +215,239 @@ public bool CounterChanged(out int value, bool resetToDefault = false)
 }
 ```
 
-### Model and Entities
+## Runtime UI with Entities
 
-In the context of Anchor with Entities:
+Anchor provides a powerful system for integrating UI components with ECS, allowing you to create responsive interfaces that work seamlessly with Burst-compiled systems.
 
-- **ECS Components** represent the actual data model of your application
-- **Systems** contain the business logic that operates on that data
-- The `ViewModel.Data` struct serves as a bridge between burst-compiled systems and the ViewModel
-- Systems create, manage, and update UI elements through the ViewModel, never interacting directly with Views
+### UIHelper Structure
 
-An example of it for a Toolbar is shown, but it's the same concept for normal game ui except you use the UIHelper struct instead.
+The `UIHelper` struct is a key component for managing UI-to-ECS binding. It handles:
+- Automatic viewmodel lifecycle management
+- Safe access to unmanaged data from Burst-compiled systems
+- Proper garbage collection and resource management
 
 ```csharp
-[UpdateInGroup(typeof(ToolbarSystemGroup))]
-public partial struct MyToolbarSystem : ISystem, ISystemStartStop
+public partial struct MySystem : ISystem, ISystemStartStop
 {
-    private ToolbarHelper<MyToolbarView, MyToolbarViewModel, MyToolbarViewModel.Data> toolbar;
-    
+    private UIHelper<MyViewModel, MyViewModel.Data> ui;
+
     public void OnCreate(ref SystemState state)
     {
-        this.toolbar = new ToolbarHelper<MyToolbarView, MyToolbarViewModel, MyToolbarViewModel.Data>(ref state, "MyTab");
+        // For screens using navigation component
+        this.ui = new UIHelper<MyViewModel, MyViewModel.Data>(ref state, "screen-name");
+        
+        // Alternative approach with ComponentType directly
+        this.ui = new UIHelper<MyViewModel, MyViewModel.Data>(ref state, ComponentType.ReadOnly<MyScreenTag>());
     }
-    
+
     public void OnStartRunning(ref SystemState state)
     {
-        this.toolbar.Load();
+        this.ui.Bind();
     }
-    
+
     public void OnStopRunning(ref SystemState state)
     {
-        this.toolbar.Unload();
+        this.ui.Unbind();
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        if (!this.toolbar.IsVisible())
-        {
-            return;
-        }
+        // Access viewmodel data safely from Burst
+        ref var binding = ref this.ui.Binding;
         
-        ref var data = ref this.toolbar.Binding;
-        data.counter++; // Access ViewModel data directly
+        // Update viewmodel data directly
+        binding.Counter++;
+        
+        // Check and consume events from UI
+        if (binding.SubmitButton.TryConsume())
+        {
+            // Handle button click event
+        }
     }
 }
 ```
 
-### Data Flow
+### Binding Workflow
 
-1. **User Input → View → ViewModel**: When users interact with UI elements, changes are propagated through data binding to the ViewModel
-2. **ViewModel → System**: The ViewModel's state can influence system behavior and component data
-3. **System → ViewModel → View**: Systems update ViewModel.Data, which automatically refreshes the bound UI elements
+1. Define a view and viewmodel as described in the MVVM section
+2. In your system, create a `UIHelper<TViewModel, TData>` instance
+3. Call `Bind()` when the system starts running
+4. Access and update the viewmodel data through `Binding` property
+5. Call `Unbind()` when the system stops running
 
-This pattern ensures a clean separation of concerns while supporting Burst compatibility when used with Entities.
+This pattern ensures resources are properly managed and provides a clean separation between UI representation and system logic.
 
-### TODO THE FOLLOWING IS FROM ORIGINAL MANUAL AND HAS NOT BEEN UPDATED AND WILL BE REVIEWED SOON, it most mostly correct though
+### State Management
 
-## Ribbon Toolbar
+Anchor supports integration with navigation and state systems:
+
+```csharp
+[UpdateInGroup(typeof(UISystemGroup))]
+public partial struct MyScreenSystem : ISystem, ISystemStartStop
+{
+    private UIHelper<MyViewModel, MyViewModel.Data> ui;
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        // Register the system with a specific screen state
+        StateAPI.Register<GameState, StateMyScreen, UIStates>(ref state, "my-screen");
+    }
+
+    public void OnStartRunning(ref SystemState state)
+    {
+        this.ui.Bind();
+        
+        // Initialize UI on screen load
+        ref var binding = ref this.ui.Binding;
+        binding.Title = "Welcome to My Screen";
+    }
+
+    public void OnStopRunning(ref SystemState state)
+    {
+        this.ui.Unbind();
+    }
+}
+```
+
+This allows you to create screen-specific systems that activate only when that screen is visible, providing efficient resource usage.
+
+### UI Events and Commands
+
+The `Changed<T>` type enables a command pattern for UI interactions:
+
+```csharp
+public partial struct Data
+{
+    [SystemProperty]
+    private Changed<bool> submitButton;
+}
+
+// In the system:
+ref var binding = ref this.ui.Binding;
+if (binding.SubmitButton.TryConsume())
+{
+    // Button was clicked, handle the action
+    // The TryConsume() method returns true once per click and resets the state
+}
+```
+
+This pattern enables one-shot events from UI to system without the need for callbacks, making it compatible with Burst.
+
+## Debug Ribbon Toolbar
 
 ![RibbonToolbar](Documentation~/Images/ribbon.png)
 
-The Ribbon Toolbar provides easily accessible debugging tools and information within the game. It can be included in builds by defining `BL_DEBUG` in your Scripting Define Symbols.
+The Ribbon Toolbar provides easily accessible debugging tools and information within the game. It appears as a collapsible panel at the top of the screen, with tabs for different debugging functions.
 
-To hide elements you don't want to see, use the menu button in the top left. These preferences are saved locally.
+### Using the Toolbar
 
-## Creating a Tab
-There are plenty of built-in tabs you can use as references for creating your own tabs.
+- The toolbar is optionally included in **development builds** with `BL_DEBUG` defined or in the **Unity Editor**
+- Click the dropdown button in the top-left to show/hide debugging categories
+- Click the arrow button to collapse or expand the toolbar
+- Click category tabs to switch between different debugging panels, optionally tied to Worlds
+- Can be completely hidden in the configvar window
 
-To automatically create a tab, use the `[AutoToolbar("NAME")]` attribute, which will cause your new tab to appear under the Service group named as NAME. For example:
+### Built-in Debug Tabs
+
+Several debugging panels are included by default:
+
+- **Memory**: Displays memory usage statistics
+- **FPS**: Shows framerate information
+- **Entities**: Displays entity, archetype, and chunk counts (if Entities package is installed)
+- **Physics**: Toggle physics debug visualization (if Physics package is installed)
+- **Localization**: Change locale settings (if Localization package is installed)
+- **Quality**: Adjust quality settings
+- **Time**: Control time scale and view elapsed time
+- **UI**: Change UI theme and scale
+
+### Creating Custom Toolbar Tabs
+
+There are two mutually exclusive approaches to creating toolbar tabs:
+
+#### Approach 1: Using AutoToolbar (UI-only)
+
+Use this approach for simple debugging panels that don't need access to ECS data:
 
 ```csharp
-[AutoToolbar("Test")]
-public class TestToolbarView : VisualElement, IView<TestToolbarViewModel>
+[AutoToolbar("MyTab")]
+public class MyToolbarView : View<MyToolbarViewModel>
 {
-    public AppUIToolbarView(TestToolbarViewModel viewModel)
+    public MyToolbarView()
+        : base(new MyToolbarViewModel())
     {
-        this.ViewModel = viewModel;
+        // Create UI elements and bind to ViewModel
+        var statusText = new Text();
+        statusText.dataSource = this.ViewModel;
+        statusText.SetBindingToUI(nameof(Text.text), nameof(MyToolbarViewModel.StatusText));
+        this.Add(statusText);
+        
+        // For UI-driven functionality, use regular AppUI binding
+        var button = new Button { text = "Refresh" };
+        button.clicked += () => this.ViewModel.RefreshData();
+        this.Add(button);
     }
+}
+
+// Regular ViewModel without Entities integration
+[ObservableObject]
+public partial class MyToolbarViewModel
+{
+    [ObservableProperty]
+    private string statusText = "Ready";
     
-    public TestToolbarViewModel ViewModel { get; }
+    public void RefreshData()
+    {
+        this.StatusText = "Refreshed at " + DateTime.Now.ToString("HH:mm:ss");
+    }
 }
 ```
-If you want to inject the ViewModel as shown above, it needs to inherit from `IViewModel`. This step is optional and is typically done if you need to inject a service into the ViewModel. Otherwise, you can instantiate it directly within the View.
 
-To integrate with Entity Worlds, use `ToolbarHelper<View, ViewModel, ViewModel.UnmanagedBinding>`. For example:
+The `[AutoToolbar]` attribute automatically registers your view with the toolbar system. The first parameter is the element name displayed on the tab, and the optional second parameter is the tab group (defaults to "Service").
+
+#### Approach 2: Using ToolbarHelper (With ECS Integration)
+
+Use this approach when you need to update the toolbar with data from ECS systems:
 
 ```csharp
-[UpdateInGroup(typeof(ToolbarSystemGroup))]
-internal partial struct TestToolbarSystem : ISystem, ISystemStartStop
+// Create a regular View without AutoToolbar attribute
+[Transient] // Optional: Creates a new instance each time
+public class MyEcsToolbarView : View<MyEcsToolbarViewModel>
 {
-    private ToolbarHelper<TestToolbarView, TestToolbarViewModel, TestToolbarViewModel.Data> toolbar;
+    public MyEcsToolbarView()
+        : base(new MyEcsToolbarViewModel())
+    {
+        // Create UI elements
+        var entityCount = new Text();
+        entityCount.dataSource = this.ViewModel;
+        entityCount.SetBindingToUI(nameof(Text.text), nameof(MyEcsToolbarViewModel.EntityCount));
+        this.Add(entityCount);
+    }
+}
+
+// ViewModel with SystemObservableObject for ECS integration
+public partial class MyEcsToolbarViewModel : SystemObservableObject<MyEcsToolbarViewModel.Data>
+{
+    [CreateProperty(ReadOnly = true)]
+    public int EntityCount => this.Value.EntityCount;
+    
+    public partial struct Data
+    {
+        [SystemProperty]
+        private int entityCount;
+    }
+}
+
+// System to create and update the toolbar
+[UpdateInGroup(typeof(ToolbarSystemGroup))]
+public partial struct MyEcsToolbarSystem : ISystem, ISystemStartStop
+{
+    private ToolbarHelper<MyEcsToolbarView, MyEcsToolbarViewModel, MyEcsToolbarViewModel.Data> toolbar;
 
     public void OnCreate(ref SystemState state)
     {
-        this.toolbar = new ToolbarHelper<TestToolbarView, TestToolbarViewModel, TestToolbarViewModel.Data>(ref state, "Test");
+        this.toolbar = new ToolbarHelper<MyEcsToolbarView, MyEcsToolbarViewModel, MyEcsToolbarViewModel.Data>(ref state, "MyEcsTab");
     }
 
     public void OnStartRunning(ref SystemState state)
@@ -319,37 +463,15 @@ internal partial struct TestToolbarSystem : ISystem, ISystemStartStop
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // Only update when tab is visible
         if (!this.toolbar.IsVisible())
         {
             return;
         }
 
+        // Update toolbar data from ECS
         ref var data = ref this.toolbar.Binding;
-        /// ...
+        data.EntityCount = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
     }
 }
 ```
-
-### Game UI
-To use AppUI by adding another root element for your game, simply inherit from `IViewRoot`. If you need multiple roots, you can order them with `Priority`. Note that the toolbar view uses a priority of -1000 to appear at the top of the screen.
-
-```csharp
-[Preserve]
-public class GameView : VisualElement, IViewRoot
-{
-    public GameView()
-    {
-        this.style.flexGrow = 1;
-
-        var content = new Preloader();
-        content.StretchToParentSize();
-
-        this.Add(content);
-    }
-
-    public int Priority => 0;
-
-    object IView.ViewModel => null;
-}
-```
-From here, you can build your UI using the regular AppUI flow, including navigation, injection, or whatever approach suits your needs.
