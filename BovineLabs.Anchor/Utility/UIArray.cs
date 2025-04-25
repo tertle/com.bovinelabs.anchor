@@ -31,7 +31,7 @@ namespace BovineLabs.Anchor
         public object this[int index]
         {
             get => this.array[index];
-            set => throw new InvalidOperationException("Write not support");
+            set => throw new InvalidOperationException("Write not supported");
         }
 
         public static implicit operator UIArray<T>(MultiContainer<T> list)

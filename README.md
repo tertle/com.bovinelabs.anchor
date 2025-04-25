@@ -9,6 +9,7 @@ If you want to support my work or get access to a few private libraries, [Buy Me
 - [Installation](#installation)
 - [Setup](#setup)
 - [MVVM Architecture](#mvvm-architecture)
+- [Model Data Binding](#model-data-binding)
 - [Runtime UI with Entities](#runtime-ui-with-entities)
 - [Debug Ribbon Toolbar](#debug-ribbon-toolbar)
 
@@ -126,7 +127,7 @@ The ViewModel serves as the intermediary between the View and the Model (entity 
 - When not using Entities, use the AppUI source generation properties. From here out though Entities will be assumed to be used.
 - When using Entities, implement `SystemObservableObject<T>` for Burst compatibility
 - Properties decorated with `[SystemProperty]` attribute in the data struct get auto-generated binding code
-    - Remember to mark your data struct and view model as `partial`
+  - Remember to mark your data struct and view model as `partial`
 - Provides observable properties that the View can bind to
 - Handles data conversion between Model and View-friendly formats
 
@@ -144,7 +145,11 @@ public partial class MyViewModel : SystemObservableObject<MyViewModel.Data>
 }
 ```
 
-#### SystemProperty Attribute
+## Model Data Binding
+
+BovineLabs Anchor provides a powerful data binding system that connects your data models to the UI in a Burst-compatible way. This enables seamless integration with Unity's ECS framework.
+
+### SystemProperty Attribute
 
 The `SystemProperty` attribute uses source generation to create Burst-compatible property accessors in your ViewModel.
 This allows systems to interact with your ViewModel's data while maintaining Burst compatibility.
@@ -172,7 +177,8 @@ The source generator supports common field naming conventions:
 
 What makes this special is that fields in the `Data` struct can be accessed from Burst-compiled systems via the Binding reference.
 
-#### Special Field Types
+### Special Field Types
+
 The source generator also supports several special field types that provide additional functionality:
 
 ```csharp
@@ -214,6 +220,17 @@ public bool CounterChanged(out int value, bool resetToDefault = false)
     return false;
 }
 ```
+
+### Model Patterns
+
+There are a few common patterns for working with models in Anchor:
+
+1. **Value Types**: Use standard value types for simple properties
+2. **Changed Values**: Use `Changed<T>` to track when a value has been modified
+3. **Collections**: Use `NativeList<T>` or `ChangedList<T>` for collections
+4. **Events/Commands**: Use `Changed<bool>` for one-shot events from UI to system
+
+This model binding system enables clean separation of UI representation and ECS-based logic, while maintaining high performance through Burst compatibility.
 
 ## Runtime UI with Entities
 
@@ -475,3 +492,5 @@ public partial struct MyEcsToolbarSystem : ISystem, ISystemStartStop
     }
 }
 ```
+
+The `ToolbarHelper` approach uses the same model binding system as regular screens but integrates specially with the toolbar UI. The data binding works the same way with `[SystemProperty]` attributes and source generated binding code, allowing you to create rich debugging tools that can display real-time ECS data.
