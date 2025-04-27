@@ -79,8 +79,6 @@ namespace BovineLabs.Anchor
 
         protected virtual Type ViewModelService { get; } = typeof(ViewModelService);
 
-        protected virtual Type GameView { get; } = typeof(NavigationView);
-
         protected virtual Type NavHost { get; } = typeof(AnchorNavHost);
 
         protected virtual Type NavVisualController => null;
