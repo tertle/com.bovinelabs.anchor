@@ -16,7 +16,7 @@ namespace BovineLabs.Anchor
     using Unity.Entities;
 
     public unsafe struct UIHelper<TM, TD>
-        where TM : class, IBindingObject<TD>
+        where TM : class, IBindingObjectNotify<TD>
         where TD : unmanaged
     {
         private GCHandle handle;

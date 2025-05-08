@@ -16,7 +16,7 @@ namespace BovineLabs.Anchor.Toolbar
 
     public unsafe struct ToolbarHelper<TV, TM, TD>
         where TV : View<TM>
-        where TM : class, IBindingObject<TD>
+        where TM : class, IBindingObjectNotify<TD>
         where TD : unmanaged
     {
         private readonly FixedString32Bytes tabName;

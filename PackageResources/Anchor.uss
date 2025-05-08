@@ -10,3 +10,7 @@
 .appui-navhost__container > .appui-navhost__item {
     background-color: rgba(0, 0, 0, 0);
 }
+
+.bl-horizontal {
+    flex-direction: row;
+}
