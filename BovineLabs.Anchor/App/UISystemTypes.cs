@@ -8,8 +8,8 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Core;
     using BovineLabs.Core.Keys;
-    using BovineLabs.Core.PropertyDrawers;
     using BovineLabs.Core.Settings;
     using UnityEngine;
 
@@ -19,7 +19,10 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private NavigationComponent[] types = Array.Empty<NavigationComponent>();
 
-        public override IEnumerable<NameValue<ulong>> Keys => this.Types.SelectMany(s => s.States.Select(n => new NameValue<ulong>(n, s.Component))).ToArray();
+        public override IEnumerable<NameValue<ulong>> Keys => this.Types
+            .Where(s => s.Component != null)
+            .SelectMany(s => s.States.Select(n => new NameValue<ulong>(n, s.Component.GetStableTypeHash())))
+            .ToArray();
 
         public IReadOnlyList<NavigationComponent> Types => this.types;
 
@@ -31,8 +34,8 @@ namespace BovineLabs.Anchor
             [SerializeField]
             public string[] States = Array.Empty<string>();
 
-            [StableTypeHash(StableTypeHashAttribute.TypeCategory.ComponentData, OnlyZeroSize = true, AllowUnityNamespace = false)]
-            public ulong Component;
+            [SerializeField]
+            public ComponentAsset Component;
         }
     }
 }
