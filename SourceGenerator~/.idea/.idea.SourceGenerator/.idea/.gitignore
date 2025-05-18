@@ -6,5 +6,6 @@
 /modules.xml
 /projectSettingsUpdater.xml
 /.idea.SourceGenerator.iml
+/AndroidProjectSystem.xml
 # Editor-based HTTP Client requests
 /httpRequests/

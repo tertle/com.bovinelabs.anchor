@@ -19,4 +19,11 @@
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="CodeGenHelpers">
+        <HintPath>..\..\com.bovinelabs.core\Libraries\CodeGenHelpers\CodeGenHelpers.dll</HintPath>
+        <Private>false</Private>
+      </Reference>
+    </ItemGroup>
+
 </Project>
