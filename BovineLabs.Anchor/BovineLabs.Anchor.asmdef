@@ -20,6 +20,7 @@
     "Unity.NetCode",
     "Unity.Networking.Transport",
     "Unity.Physics",
+    "Unity.RenderPipelines.Universal.Runtime",
     "Unity.Transforms"
   ],
   "includePlatforms": [],
