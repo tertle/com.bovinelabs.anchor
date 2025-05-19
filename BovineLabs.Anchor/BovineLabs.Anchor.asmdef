@@ -17,8 +17,6 @@
     "Unity.Logging",
     "Unity.Mathematics",
     "Unity.Mathematics.Extensions",
-    "Unity.NetCode",
-    "Unity.Networking.Transport",
     "Unity.Physics",
     "Unity.RenderPipelines.Universal.Runtime",
     "Unity.Transforms"

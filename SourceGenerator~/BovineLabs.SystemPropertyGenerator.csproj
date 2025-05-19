@@ -2,17 +2,18 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <RootNamespace>BovineLabs.SourceGenerator</RootNamespace>
+        <RootNamespace>BovineLabs.SystemPropertyGenerator</RootNamespace>
         <LangVersion>9</LangVersion>
-        <PackageId>SystemPropertyGenerator</PackageId>
+        <PackageId>BovineLabs.SystemPropertyGenerator</PackageId>
+        <AssemblyName>BovineLabs.SystemPropertyGenerator</AssemblyName>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <OutDir>..\Libraries\</OutDir>
+        <OutDir>..\BovineLabs.Anchor\SourceGenerators\</OutDir>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <OutDir>..\Libraries\</OutDir>
+        <OutDir>..\BovineLabs.Anchor\SourceGenerators\</OutDir>
     </PropertyGroup>
 
     <ItemGroup>

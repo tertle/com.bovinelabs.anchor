@@ -1,10 +1,14 @@
-﻿namespace BovineLabs.SourceGenerator
+﻿// <copyright file="SystemPropertyGenerator.cs" company="BovineLabs">
+//     Copyright (c) BovineLabs. All rights reserved.
+// </copyright>
+
+namespace BovineLabs.SystemPropertyGenerator
 {
     using System;
     using System.Linq;
     using System.Text;
     using System.Threading;
-    using BovineLabs.SourceGenerator.Extensions;
+    using BovineLabs.SystemPropertyGenerator.Extensions;
     using CodeGenHelpers;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;

@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.SourceGenerator.Extensions
+namespace BovineLabs.SystemPropertyGenerator.Extensions
 {
     using System.Collections.Generic;
     using System.Linq;

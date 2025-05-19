@@ -2,10 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.SourceGenerator
+namespace BovineLabs.SystemPropertyGenerator
 {
     using System.Collections.Generic;
-    using BovineLabs.SourceGenerator.Extensions;
+    using BovineLabs.SystemPropertyGenerator.Extensions;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 

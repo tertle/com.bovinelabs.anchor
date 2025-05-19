@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemPropertyGenerator", "SystemPropertyGenerator.csproj", "{0EA3D6E5-D8F3-4E66-B355-839BA42CDEC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BovineLabs.SystemPropertyGenerator", "BovineLabs.SystemPropertyGenerator.csproj", "{0EA3D6E5-D8F3-4E66-B355-839BA42CDEC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
