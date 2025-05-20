@@ -3,8 +3,6 @@
     "rootNamespace": "",
     "references": [
         "BovineLabs.Anchor",
-        "BovineLabs.Anchor.Authoring",
-        "BovineLabs.Anchor.Data",
         "BovineLabs.Core",
         "BovineLabs.Core.Editor",
         "BovineLabs.Core.Extensions",
@@ -15,11 +13,8 @@
         "Unity.Entities.Graphics",
         "Unity.Entities.Hybrid",
         "Unity.InputSystem",
-        "Unity.Logging",
         "Unity.Mathematics",
         "Unity.Mathematics.Extensions",
-        "Unity.NetCode",
-        "Unity.Networking.Transport",
         "Unity.Physics",
         "Unity.Transforms"
     ],

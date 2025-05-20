@@ -17,16 +17,14 @@
     "Unity.Entities.Hybrid",
     "Unity.InputSystem",
     "Unity.Localization",
-    "Unity.Logging",
     "Unity.Mathematics",
     "Unity.Mathematics.Extensions",
-    "Unity.NetCode",
-    "Unity.Networking.Transport",
     "Unity.Physics",
     "Unity.Physics.Hybrid",
     "Unity.ResourceManager",
     "Unity.Scenes",
-    "Unity.Transforms"
+    "Unity.Transforms",
+    "Unity.NetCode"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
