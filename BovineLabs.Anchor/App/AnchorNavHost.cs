@@ -29,7 +29,7 @@ namespace BovineLabs.Anchor
             catch (Exception ex)
             {
                 Debug.LogException(ex);
-                return (NavigationScreen)Activator.CreateInstance(screenType);
+                throw;
             }
         }
     }
