@@ -20,7 +20,7 @@ namespace BovineLabs.Anchor
             navHost.visualController = AnchorApp.current.NavVisualController;
             this.Controller = navHost.navController;
 
-            if (AnchorApp.current.GraphViewAsset == null)
+            if (!AnchorApp.current.GraphViewAsset)
             {
                 this.style.display = DisplayStyle.None;
                 return;
