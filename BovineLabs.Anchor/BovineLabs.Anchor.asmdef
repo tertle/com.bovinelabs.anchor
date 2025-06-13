@@ -1,48 +1,48 @@
 {
-  "name": "BovineLabs.Anchor",
-  "rootNamespace": "",
-  "references": [
-    "BovineLabs.Core",
-    "BovineLabs.Core.Extensions",
-    "Unity.AppUI",
-    "Unity.AppUI.MVVM",
-    "Unity.AppUI.Navigation",
-    "Unity.AppUI.Redux",
-    "Unity.Burst",
-    "Unity.Collections",
-    "Unity.Entities",
-    "Unity.Entities.Graphics",
-    "Unity.Entities.Hybrid",
-    "Unity.InputSystem",
-    "Unity.Mathematics",
-    "Unity.Mathematics.Extensions",
-    "Unity.Physics",
-    "Unity.RenderPipelines.Universal.Runtime",
-    "Unity.Transforms"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": true,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": false,
-  "defineConstraints": [],
-  "versionDefines": [
-    {
-      "name": "com.bovinelabs.core",
-      "expression": "",
-      "define": "BL_CORE"
-    },
-    {
-      "name": "com.unity.entities",
-      "expression": "",
-      "define": "UNITY_ENTITIES"
-    },
-    {
-      "name": "com.unity.render-pipelines.universal",
-      "expression": "",
-      "define": "UNITY_URP"
-    }
-  ],
-  "noEngineReferences": false
+    "name": "BovineLabs.Anchor",
+    "rootNamespace": "",
+    "references": [
+        "BovineLabs.Core",
+        "BovineLabs.Core.Extensions",
+        "Unity.AppUI",
+        "Unity.AppUI.MVVM",
+        "Unity.AppUI.Navigation",
+        "Unity.AppUI.Redux",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.Entities.Graphics",
+        "Unity.Entities.Hybrid",
+        "Unity.InputSystem",
+        "Unity.Mathematics",
+        "Unity.Mathematics.Extensions",
+        "Unity.Physics",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.Transforms"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.bovinelabs.core",
+            "expression": "",
+            "define": "BL_CORE"
+        },
+        {
+            "name": "com.unity.entities",
+            "expression": "",
+            "define": "UNITY_ENTITIES"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": "UNITY_URP"
+        }
+    ],
+    "noEngineReferences": false
 }

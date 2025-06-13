@@ -18,6 +18,7 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
+    using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
@@ -310,7 +311,7 @@ namespace BovineLabs.Anchor.Toolbar
         {
             var height = App.current.rootVisualElement.contentRect.height;
 
-            if (Mathf.Abs(this.uiHeight - height) > float.Epsilon)
+            if (Mathf.Abs(this.uiHeight - height) > math.EPSILON)
             {
                 this.uiHeight = height;
                 this.ResizeViewRect(this.contentRect);
