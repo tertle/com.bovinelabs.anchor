@@ -1,76 +1,77 @@
 {
-  "name": "BovineLabs.Anchor.Debug",
-  "rootNamespace": "",
-  "references": [
-    "BovineLabs.Anchor",
-    "BovineLabs.Core",
-    "BovineLabs.Core.Extensions",
-    "BovineLabs.Quill.Debug",
-    "Unity.AppUI",
-    "Unity.AppUI.MVVM",
-    "Unity.AppUI.Navigation",
-    "Unity.AppUI.Redux",
-    "Unity.Burst",
-    "Unity.Collections",
-    "Unity.Entities",
-    "Unity.Entities.Graphics",
-    "Unity.Entities.Hybrid",
-    "Unity.InputSystem",
-    "Unity.Localization",
-    "Unity.Mathematics",
-    "Unity.Mathematics.Extensions",
-    "Unity.Physics",
-    "Unity.Physics.Hybrid",
-    "Unity.ResourceManager",
-    "Unity.Scenes",
-    "Unity.Transforms",
-    "Unity.NetCode"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": true,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": false,
-  "defineConstraints": [
-    "UNITY_EDITOR || BL_DEBUG"
-  ],
-  "versionDefines": [
-    {
-      "name": "com.bovinelabs.core",
-      "expression": "",
-      "define": "BL_CORE"
-    },
-    {
-      "name": "com.bovinelabs.core",
-      "expression": "1.3.3",
-      "define": "BL_CORE_1_3_3_OR_NEWER"
-    },
-    {
-      "name": "com.bovinelabs.quill",
-      "expression": "",
-      "define": "BL_QUILL"
-    },
-    {
-      "name": "com.unity.entities",
-      "expression": "",
-      "define": "UNITY_ENTITIES"
-    },
-    {
-      "name": "com.unity.localization",
-      "expression": "",
-      "define": "UNITY_LOCALIZATION"
-    },
-    {
-      "name": "com.unity.netcode",
-      "expression": "",
-      "define": "UNITY_NETCODE"
-    },
-    {
-      "name": "com.unity.physics",
-      "expression": "",
-      "define": "UNITY_PHYSICS"
-    }
-  ],
-  "noEngineReferences": false
+    "name": "BovineLabs.Anchor.Debug",
+    "rootNamespace": "",
+    "references": [
+        "BovineLabs.Anchor",
+        "BovineLabs.Core",
+        "BovineLabs.Core.Extensions",
+        "BovineLabs.Quill.Debug",
+        "Unity.AppUI",
+        "Unity.AppUI.MVVM",
+        "Unity.AppUI.Navigation",
+        "Unity.AppUI.Redux",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.Entities.Graphics",
+        "Unity.Entities.Hybrid",
+        "Unity.InputSystem",
+        "Unity.Localization",
+        "Unity.Mathematics",
+        "Unity.Mathematics.Extensions",
+        "Unity.Physics",
+        "Unity.Physics.Hybrid",
+        "Unity.ResourceManager",
+        "Unity.Scenes",
+        "Unity.Transforms",
+        "Unity.NetCode"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR || BL_DEBUG",
+        "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.bovinelabs.core",
+            "expression": "",
+            "define": "BL_CORE"
+        },
+        {
+            "name": "com.bovinelabs.core",
+            "expression": "1.3.3",
+            "define": "BL_CORE_1_3_3_OR_NEWER"
+        },
+        {
+            "name": "com.bovinelabs.quill",
+            "expression": "",
+            "define": "BL_QUILL"
+        },
+        {
+            "name": "com.unity.entities",
+            "expression": "",
+            "define": "UNITY_ENTITIES"
+        },
+        {
+            "name": "com.unity.localization",
+            "expression": "",
+            "define": "UNITY_LOCALIZATION"
+        },
+        {
+            "name": "com.unity.netcode",
+            "expression": "",
+            "define": "UNITY_NETCODE"
+        },
+        {
+            "name": "com.unity.physics",
+            "expression": "",
+            "define": "UNITY_PHYSICS"
+        }
+    ],
+    "noEngineReferences": false
 }
