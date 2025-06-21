@@ -1,5 +1,13 @@
 # ChangeLog
 
+## [1.2.2] - 2025-06-21
+
+### Added
+* Support for APP_UI_EDITOR_ONLY
+
+### Changed
+* Updated to AppUI 2.0.0-pre.22
+
 ## [1.2.1] - 2025-06-07
 
 ### Fixed
