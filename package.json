@@ -7,7 +7,7 @@
   "dependencies": {
     "com.unity.burst": "1.8.19",
     "com.unity.collections": "2.5.3",
-    "com.unity.dt.app-ui": "2.0.0-pre.22"
+    "com.unity.dt.app-ui": "2.0.0"
   },
   "keywords": [
     "UI"
