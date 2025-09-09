@@ -35,7 +35,7 @@ namespace BovineLabs.Anchor
             public string[] States = Array.Empty<string>();
 
             [SerializeField]
-            public ComponentAsset Component;
+            public ComponentAssetBase Component;
         }
     }
 }
