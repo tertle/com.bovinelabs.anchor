@@ -12,6 +12,17 @@ namespace BovineLabs.Anchor
     [Serializable]
     public class AnchorDestinationTemplate : DefaultDestinationTemplate
     {
+        /// <summary> Initializes a new instance of the <see cref="AnchorDestinationTemplate"/> class. </summary>
+        public AnchorDestinationTemplate()
+        {
+            // Turn off all the defaults
+            this.showBottomNavBar = false;
+            this.showAppBar = false;
+            this.showBackButton = false;
+            this.showDrawer = false;
+            this.showNavigationRail = false;
+        }
+
         public override INavigationScreen CreateScreen(NavHost host)
         {
             NavigationScreen screen;

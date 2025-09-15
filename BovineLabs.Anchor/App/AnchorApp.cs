@@ -21,13 +21,19 @@ namespace BovineLabs.Anchor
     {
         public const string DefaultServiceTabName = "Service";
 
+        private static readonly FunctionPointer<NavigateDelegate> NavigateFunction;
+        private static readonly FunctionPointer<CurrentDelegate> CurrentFunction;
+
         [UsedImplicitly]
         private static object navigateFunctionGCPrevention;
         [UsedImplicitly]
         private static object currentFunctionGCPrevention;
 
-        private static readonly FunctionPointer<NavigateDelegate> NavigateFunction;
-        private static readonly FunctionPointer<CurrentDelegate> CurrentFunction;
+        static AnchorApp()
+        {
+            (navigateFunctionGCPrevention, NavigateFunction) = CreateDelegate<NavigateDelegate>(NavigateForwarding);
+            (currentFunctionGCPrevention, CurrentFunction) = CreateDelegate<CurrentDelegate>(CurrentForwarding);
+        }
 
         private delegate void NavigateDelegate(in FixedString32Bytes screen);
 
@@ -53,13 +59,7 @@ namespace BovineLabs.Anchor
 
         public INavVisualController NavVisualController { get; internal set; }
 
-        static AnchorApp()
-        {
-            (navigateFunctionGCPrevention, NavigateFunction) = CreateDelegate<NavigateDelegate>(NavigateForwarding);
-            (currentFunctionGCPrevention, CurrentFunction) = CreateDelegate<CurrentDelegate>(CurrentForwarding);
-        }
-
-        private static (T, FunctionPointer<T>) CreateDelegate<T>(T method)
+        private static (T Method, FunctionPointer<T> Function) CreateDelegate<T>(T method)
         {
             return (method, new FunctionPointer<T>(Marshal.GetFunctionPointerForDelegate(method)));
         }

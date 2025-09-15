@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
+    using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
 #if BL_CORE
     using BovineLabs.Core.Utility;
