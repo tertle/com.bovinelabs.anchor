@@ -8,10 +8,10 @@ namespace BovineLabs.Anchor.Nav
     using System.Collections.Generic;
     using Unity.AppUI.Navigation;
 
-    public record AnchorNavAction(Type Destination, AnchorNavOptions Options, List<Argument> DefaultArguments = null)
+    public record AnchorNavAction(string Destination, AnchorNavOptions Options, List<Argument> DefaultArguments = null)
     {
         /// <summary> Gets the ID of the destination that should be navigated to when this action is used. </summary>
-        public Type Destination { get; } = Destination;
+        public string Destination { get; } = Destination;
 
         /// <summary> Gets the NavOptions to be used by default when navigating to this action. </summary>
         public AnchorNavOptions Options { get; } = Options;

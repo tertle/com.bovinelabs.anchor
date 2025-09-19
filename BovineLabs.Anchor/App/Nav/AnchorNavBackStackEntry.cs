@@ -11,10 +11,10 @@ namespace BovineLabs.Anchor.Nav
     /// <param name="Destination"> The destination associated with this entry. </param>
     /// <param name="Options"> The options associated with this entry. </param>
     /// <param name="Arguments"> The arguments associated with this entry. </param>
-    public record AnchorNavBackStackEntry(Type Destination, AnchorNavOptions Options, Argument[] Arguments)
+    public record AnchorNavBackStackEntry(string Destination, AnchorNavOptions Options, Argument[] Arguments)
     {
         /// <summary> The destination associated with this entry. </summary>
-        public Type Destination { get; } = Destination;
+        public string Destination { get; } = Destination;
 
         /// <summary> The options associated with this entry. </summary>
         public AnchorNavOptions Options { get; } = Options;

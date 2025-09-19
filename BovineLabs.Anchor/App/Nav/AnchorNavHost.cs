@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Anchor.Services;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using UnityEngine;
@@ -94,10 +95,10 @@ namespace BovineLabs.Anchor.Nav
         private readonly VisualElement container;
 
         private readonly Stack<AnchorNavBackStackEntry> backStack = new();
-        private readonly Dictionary<Type, Stack<AnchorNavBackStackEntry>> savedStates = new();
+        private readonly Dictionary<string, Stack<AnchorNavBackStackEntry>> savedStates = new();
         private readonly Dictionary<string, AnchorNavAction> actions = new();
 
-        private Type currentDestination;
+        private string currentDestination;
         private Argument[] currentArgs;
 
         private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
@@ -135,7 +136,14 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>
         /// Event that is invoked when the current destination changes.
         /// </summary>
-        public event Action<AnchorNavHost2, Type> DestinationChanged;
+        public event Action<AnchorNavHost2, string> DestinationChanged;
+
+        /// <inheritdoc/>
+        public override sealed bool focusable
+        {
+            get => base.focusable;
+            set => base.focusable = value;
+        }
 
         /// <summary>
         /// Gets a value indicating whether returns true if there is a destination on the back stack that can be popped.
@@ -145,7 +153,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>
         /// Gets or sets the current destination.
         /// </summary>
-        public Type CurrentDestination
+        public string CurrentDestination
         {
             get => this.currentDestination;
             set
@@ -207,15 +215,15 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="actionOrDestination"> The name of the  action. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string route, params Argument[] arguments)
+        public bool Navigate(string actionOrDestination, params Argument[] arguments)
         {
-            if (this.actions.TryGetValue(route, out var action))
+            if (this.actions.TryGetValue(actionOrDestination, out var action))
             {
                 this.ActionTriggered?.Invoke(this, action);
                 return this.Navigate(action.Destination, action.Options, action.MergeArguments(arguments));
             }
 
-            return false;
+            return this.Navigate(actionOrDestination, null, arguments);
         }
 
         /// <summary>
@@ -225,7 +233,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="options"> The options to use for the navigation. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(Type destination, AnchorNavOptions options, params Argument[] arguments)
+        public bool Navigate(string destination, AnchorNavOptions options, params Argument[] arguments)
         {
             options ??= new AnchorNavOptions();
 
@@ -288,7 +296,7 @@ namespace BovineLabs.Anchor.Nav
             return false;
         }
 
-        private void NavigateInternal(Type destination, AnchorNavOptions options, Argument[] arguments)
+        private void NavigateInternal(string destination, AnchorNavOptions options, Argument[] arguments)
         {
             if (destination == null)
             {
@@ -301,7 +309,7 @@ namespace BovineLabs.Anchor.Nav
             this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments));
         }
 
-        private void RestoreState(Type destination)
+        private void RestoreState(string destination)
         {
             if (this.savedStates.TryGetValue(destination, out var stack))
             {
@@ -314,7 +322,7 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private AnchorNavBackStackEntry PopUpTo(Type destination, bool inclusive, bool saveState)
+        private AnchorNavBackStackEntry PopUpTo(string destination, bool inclusive, bool saveState)
         {
             var result = this.CurrentBackStackEntry;
             if (saveState)
@@ -359,14 +367,10 @@ namespace BovineLabs.Anchor.Nav
         {
             this.currentPopEnterAnimation = entry.Options.PopEnterAnim;
             this.currentPopExitAnimation = entry.Options.PopExitAnim;
-            this.SwitchTo(entry.Destination, entry.Options.ExitAnim, entry.Options.EnterAnim, entry.Arguments, false, success =>
-            {
-                if (success)
-                {
-                    this.currentArgs = entry.Arguments;
-                    this.CurrentDestination = entry.Destination;
-                }
-            });
+            this.SwitchTo(entry.Destination, entry.Options.ExitAnim, entry.Options.EnterAnim, entry.Arguments, false);
+
+            this.currentArgs = entry.Arguments;
+            this.CurrentDestination = entry.Destination;
         }
 
         private void HandlePopBack(AnchorNavBackStackEntry entry)
@@ -374,14 +378,10 @@ namespace BovineLabs.Anchor.Nav
             var dest = entry.Destination;
             var exitAnim = this.currentPopExitAnimation;
             var enterAnim = this.currentPopEnterAnimation;
-            this.SwitchTo(dest, exitAnim, enterAnim, entry.Arguments, true, success =>
-            {
-                if (success)
-                {
-                    this.currentArgs = entry.Arguments;
-                    this.CurrentDestination = dest;
-                }
-            });
+            this.SwitchTo(dest, exitAnim, enterAnim, entry.Arguments, true);
+
+            this.currentArgs = entry.Arguments;
+            this.CurrentDestination = dest;
         }
 
         /// <summary>
@@ -394,27 +394,12 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="isPop"> Whether the navigation is a pop operation. </param>
         /// <param name="callback"> A callback that will be called when the navigation is complete. </param>
         private void SwitchTo(
-            Type destination, NavigationAnimation exitAnim, NavigationAnimation enterAnim, Argument[] args, bool isPop, Action<bool> callback = null)
+            string destination, NavigationAnimation exitAnim, NavigationAnimation enterAnim, Argument[] args, bool isPop)
         {
             this.removeAnim?.Recycle();
             this.addAnim?.Recycle();
 
-            VisualElement item;
-            try
-            {
-                item = this.CreateItem(destination);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"The template for navigation " + $"destination {destination.Name} could not be created: {e.Message}");
-                if (e.InnerException != null)
-                {
-                    Debug.LogException(e.InnerException);
-                }
-
-                callback?.Invoke(false);
-                return;
-            }
+            VisualElement item = this.CreateItem(destination);
 
             if (this.container.childCount == 0)
             {
@@ -459,7 +444,6 @@ namespace BovineLabs.Anchor.Nav
 
             (item as IAnchorNavigationScreen)?.OnEnter(this, args);
             this.EnteredDestination?.Invoke(this, item, args);
-            callback?.Invoke(true);
         }
 
         /// <summary>
@@ -468,16 +452,11 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="destination"> The destination to create the item for. </param>
         /// <returns> The created <see cref="VisualElement"/> item. </returns>
         /// <exception cref="InvalidOperationException"> Thrown when the screen type could not be created. </exception>
-        private VisualElement CreateItem(Type destination)
+        private VisualElement CreateItem(string destination)
         {
-            if (AnchorApp.current.services.GetService(destination) is not VisualElement screen)
-            {
-                throw new InvalidOperationException($"The template '{destination}' could not be instantiated. " +
-                    "Ensure that the type is a valid NavigationScreen and is accessible " + "and has a parameterless constructor.");
-            }
-
-            screen.AddToClassList("appui-navhost__item");
-            return screen;
+            var service = (IUXMLService)AnchorApp.current.services.GetService(typeof(IUXMLService));
+            return service.Instantiate(destination);
+            // screen.AddToClassList("appui-navhost__item");
         }
 
         private void OnCancelNavigation(NavigationCancelEvent evt)

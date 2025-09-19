@@ -38,7 +38,7 @@ namespace BovineLabs.Anchor.Nav
         /// Route for the destination to pop up to before navigating.
         /// When set, all non-matching destinations should be popped from the back stack.
         /// </summary>
-        public Type PopUpToDestination { get; set; }
+        public string PopUpToDestination { get; set; }
 
         /// <summary>
         /// Whether the target destination in PopUpTo should be popped from the back stack.

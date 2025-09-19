@@ -8,8 +8,8 @@ namespace BovineLabs.Anchor.Services
     using System.Collections.Generic;
     using System.Linq;
     using BovineLabs.Anchor;
+    using BovineLabs.Core;
     using JetBrains.Annotations;
-    using UnityEngine;
     using UnityEngine.UIElements;
 
     [UsedImplicitly]
@@ -30,7 +30,7 @@ namespace BovineLabs.Anchor.Services
             }
             catch (KeyNotFoundException)
             {
-                Debug.LogError($"Can't find key {assetName}");
+                BLGlobalLogger.LogError($"Can't find key {assetName}");
                 throw;
             }
         }
