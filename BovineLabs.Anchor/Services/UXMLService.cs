@@ -39,6 +39,7 @@ namespace BovineLabs.Anchor.Services
         {
             var asset = this.GetAsset(assetName);
             var container = asset.Instantiate();
+            container.pickingMode = PickingMode.Ignore;
 
             foreach (var ve in container.Children())
             {
@@ -49,6 +50,20 @@ namespace BovineLabs.Anchor.Services
             }
 
             return container;
+        }
+
+        public void CloneTree(string assetName, VisualElement target)
+        {
+            var asset = this.GetAsset(assetName);
+            asset.CloneTree(target);
+
+            foreach (var ve in target.Children())
+            {
+                if (ve.dataSource == null && ve.dataSourceType != null)
+                {
+                    ve.dataSource = AnchorApp.current.services.GetService(ve.dataSourceType);
+                }
+            }
         }
     }
 }
