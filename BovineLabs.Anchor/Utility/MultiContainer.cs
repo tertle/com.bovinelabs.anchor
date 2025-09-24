@@ -9,9 +9,7 @@ namespace BovineLabs.Anchor
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Debug = UnityEngine.Debug;
-#if UNITY_ENTITIES
     using Unity.Entities;
-#endif
 
     // [StructLayout(LayoutKind.Explicit)] // this broke the assembly
     public struct MultiContainer<T>
@@ -80,7 +78,6 @@ namespace BovineLabs.Anchor
             };
         }
 
-#if UNITY_ENTITIES
         public static implicit operator MultiContainer<T>(DynamicBuffer<T> list)
         {
             return new MultiContainer<T>
@@ -89,7 +86,6 @@ namespace BovineLabs.Anchor
                 array = list.AsNativeArray().AsReadOnly(),
             };
         }
-#endif
 
         public static implicit operator MultiContainer<T>(NativeHashSet<T> hashSet)
         {

@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
 namespace BovineLabs.Anchor
 {
     using System;
@@ -39,12 +38,10 @@ namespace BovineLabs.Anchor
             state.RequireForUpdate(query);
         }
 
-#if BL_CORE
         public UIHelper(ref SystemState state, FixedString32Bytes name)
             : this(ref state, ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(UISystemTypes.NameToKey(name))))
         {
         }
-#endif
 
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
@@ -80,4 +77,3 @@ namespace BovineLabs.Anchor
         }
     }
 }
-#endif

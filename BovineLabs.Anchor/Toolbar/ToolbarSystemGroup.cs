@@ -2,16 +2,16 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if (BL_DEBUG || UNITY_EDITOR) && UNITY_ENTITIES
+#if BL_DEBUG || UNITY_EDITOR
 namespace BovineLabs.Anchor.Toolbar
 {
-#if BL_CORE && BL_CORE_EXTENSIONS
+#if BL_CORE_EXTENSIONS
     using BovineLabs.Core;
 #endif
     using Unity.Entities;
 
     /// <summary> Group that all Toolbar linked systems should be placed. </summary>
-#if BL_CORE && BL_CORE_EXTENSIONS
+#if BL_CORE_EXTENSIONS
     [WorldSystemFilter(WorldSystemFilterFlags.Default | Worlds.Service)]
     [UpdateInGroup(typeof(DebugSystemGroup))]
 #else

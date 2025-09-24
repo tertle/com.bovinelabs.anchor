@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Binding
 {
     using System;
@@ -32,4 +31,3 @@ namespace BovineLabs.Anchor.Binding
             SharedStatic<FunctionPointer<NotifyDelegate>>.GetOrCreate<FunctionPointer<NotifyDelegate>>();
     }
 }
-#endif

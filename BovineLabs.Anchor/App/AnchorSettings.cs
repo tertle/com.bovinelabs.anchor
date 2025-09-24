@@ -2,14 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE
 namespace BovineLabs.Anchor
 {
     using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Core.Settings;
-    using Unity.AppUI.Navigation;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -33,4 +31,3 @@ namespace BovineLabs.Anchor
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
     }
 }
-#endif

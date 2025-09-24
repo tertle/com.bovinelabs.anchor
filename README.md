@@ -25,11 +25,9 @@ Alternatively, you can add it directly to your manifest.json file:
 
 ### Dependencies
 
-This package depends on [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest).
+This package depends on [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest) and my [Core](https://gitlab.com/tertle/com.bovinelabs.core) library and is intended to be used with [Entities](https://docs.unity3d.com/Packages/com.unity.entities@latest/). It includes a binding process compatible with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest).
 
-Beyond this, BovineLabs Anchor has no other dependencies. However, it does offer custom support for [Entities](https://docs.unity3d.com/Packages/com.unity.entities@latest/), including the generation of per-World tabs. It also includes a binding process compatible with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest).
-
-Additionally, if you have my [Core](https://gitlab.com/tertle/com.bovinelabs.core) library, Unity [Physics](https://docs.unity3d.com/Packages/com.unity.physics@latest) or [Localization](https://docs.unity3d.com/Packages/com.unity.localization@latest) installed, BovineLabs Anchor will provide extra built-in tabs.
+Additionally, if you have Unity [Physics](https://docs.unity3d.com/Packages/com.unity.physics@latest) or [Localization](https://docs.unity3d.com/Packages/com.unity.localization@latest) installed, BovineLabs Anchor will provide extra built-in tabs.
 
 ## Setup
 

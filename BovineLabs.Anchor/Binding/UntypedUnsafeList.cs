@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Binding
 {
     using System.Runtime.InteropServices;
@@ -67,4 +66,3 @@ namespace BovineLabs.Anchor.Binding
         }
     }
 }
-#endif

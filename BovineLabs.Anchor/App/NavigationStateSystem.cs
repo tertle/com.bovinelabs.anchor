@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE
 namespace BovineLabs.Anchor
 {
     using Unity.Burst;
@@ -73,4 +72,3 @@ namespace BovineLabs.Anchor
         }
     }
 }
-#endif

@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
@@ -28,4 +27,3 @@ namespace BovineLabs.Anchor.Debug.Views
         }
     }
 }
-#endif

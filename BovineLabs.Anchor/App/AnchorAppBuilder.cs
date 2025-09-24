@@ -10,9 +10,7 @@ namespace BovineLabs.Anchor
     using System.Reflection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
-#if BL_CORE
     using BovineLabs.Core.Utility;
-#endif
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
@@ -25,33 +23,15 @@ namespace BovineLabs.Anchor
     public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
         where T : AnchorApp
     {
-#if BL_CORE
-#if !UNITY_EDITOR && !BL_DEBUG
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
-#endif
+
         protected IReadOnlyList<StyleSheet> DebugStyleSheets => AnchorSettings.I.DebugStyleSheets;
-#else
-        [field: SerializeField]
-        [field: Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
-        private bool ToolbarOnly { get; set; }
-
-        [SerializeField]
-        private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
-
-        protected IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
-
-        protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
-#endif
 
         protected virtual Type LocalStorageService { get; } = typeof(LocalStoragePlayerPrefsService);
 
         protected virtual Type ViewModelService { get; } = typeof(ViewModelService);
 
-#if BL_CORE
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
-#else
-        protected virtual Type UXMLService { get; }
-#endif
 
         protected virtual Type NavHost { get; } = typeof(AnchorNavHost);
 
@@ -83,11 +63,7 @@ namespace BovineLabs.Anchor
             }
 
             // Register all services
-#if BL_CORE
             foreach (var services in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
-#else
-            foreach (var services in Core.GetAllWithAttribute<IsServiceAttribute>())
-#endif
             {
                 if (services.GetCustomAttribute<TransientAttribute>() != null)
                 {

@@ -11,10 +11,8 @@ namespace BovineLabs.Anchor.Toolbar
     using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
-#if BL_CORE
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Utility;
-#endif
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
@@ -25,9 +23,7 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
-#if BL_CORE
     [Configurable]
-#endif
     [IsService]
     public class ToolbarView : VisualElement
     {
@@ -62,10 +58,8 @@ namespace BovineLabs.Anchor.Toolbar
         private const string ActiveTabKey = "bl.active-tab";
         private const string ShowRibbonKey = "bl.show-ribbon";
 
-#if BL_CORE
         [ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
-#endif
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
@@ -116,11 +110,7 @@ namespace BovineLabs.Anchor.Toolbar
                 serviceTabName = AnchorApp.DefaultServiceTabName;
             }
 
-#if BL_CORE
             foreach (var t in ReflectionUtility.GetAllWithAttribute<AutoToolbarAttribute>())
-#else
-            foreach (var t in Core.GetAllWithAttribute<AutoToolbarAttribute>())
-#endif
             {
                 var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
                 var tabName = attr.TabName ?? serviceTabName;
@@ -130,12 +120,10 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.SetDefaultGroup();
 
-#if BL_CORE
             if (!Show.Data)
             {
                 this.style.display = DisplayStyle.None;
             }
-#endif
 
             var safeSpace = Screen.safeArea;
             var xMin = (safeSpace.x / Screen.width) * 100;

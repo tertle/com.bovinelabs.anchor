@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Binding
 {
     using Unity.Collections;
@@ -19,4 +18,3 @@ namespace BovineLabs.Anchor.Binding
         void OnPropertyChanged(in FixedString64Bytes property);
     }
 }
-#endif

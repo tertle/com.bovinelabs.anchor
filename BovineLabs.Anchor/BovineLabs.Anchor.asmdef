@@ -31,16 +31,6 @@
     ],
     "versionDefines": [
         {
-            "name": "com.bovinelabs.core",
-            "expression": "",
-            "define": "BL_CORE"
-        },
-        {
-            "name": "com.unity.entities",
-            "expression": "",
-            "define": "UNITY_ENTITIES"
-        },
-        {
             "name": "com.unity.render-pipelines.universal",
             "expression": "",
             "define": "UNITY_URP"

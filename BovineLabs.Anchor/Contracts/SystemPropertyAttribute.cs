@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_ENTITIES
 namespace BovineLabs.Anchor.Contracts
 {
     using System;
@@ -12,4 +11,3 @@ namespace BovineLabs.Anchor.Contracts
     {
     }
 }
-#endif

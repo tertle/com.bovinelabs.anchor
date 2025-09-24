@@ -77,11 +77,8 @@ namespace BovineLabs.Anchor
             this.rootVisualElement.Add(toolbarView);
 #endif
 
-#if BL_CORE
             this.NavHost = new AnchorNavHost2(AnchorSettings.I.Actions);
-#else
-            this.NavHost = new AnchorNavHost2();
-#endif
+
             this.rootVisualElement.Add(this.NavHost);
 
             this.PopupContainer = this.rootVisualElement.Q<VisualElement>("popup-container");
