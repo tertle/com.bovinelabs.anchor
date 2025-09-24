@@ -228,7 +228,7 @@ namespace BovineLabs.Anchor.Nav
         {
             options ??= new AnchorNavOptions();
 
-            if (destination == null)
+            if (string.IsNullOrWhiteSpace(destination))
             {
                 return false;
             }
@@ -395,7 +395,7 @@ namespace BovineLabs.Anchor.Nav
 
         private void NavigateInternal(string destination, AnchorNavOptions options, Argument[] arguments)
         {
-            if (destination == null)
+            if (string.IsNullOrWhiteSpace(destination))
             {
                 return;
             }

@@ -19,12 +19,17 @@ namespace BovineLabs.Anchor
         private bool toolbarOnly;
 
         [SerializeField]
+        private string startDestination = string.Empty;
+
+        [SerializeField]
         private List<AnchorNamedAction> actions = new();
 
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
 
         public bool ToolbarOnly => this.toolbarOnly;
+
+        public string StartDestination => this.startDestination;
 
         public IReadOnlyList<AnchorNamedAction> Actions => this.actions;
 

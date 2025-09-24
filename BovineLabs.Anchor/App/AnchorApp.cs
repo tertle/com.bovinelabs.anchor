@@ -78,6 +78,10 @@ namespace BovineLabs.Anchor
 #endif
 
             this.NavHost = new AnchorNavHost2(AnchorSettings.I.Actions);
+            if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
+            {
+                this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());
+            }
 
             this.rootVisualElement.Add(this.NavHost);
 
