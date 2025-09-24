@@ -94,7 +94,7 @@ namespace BovineLabs.Anchor.Nav
         private readonly Dictionary<string, Stack<AnchorNavBackStackEntry>> savedStates = new();
         private readonly Dictionary<string, AnchorNavAction> actions = new();
         private readonly List<AnchorNavActiveEntry> activeStack = new();
-        private readonly List<ValueAnimation<float>> runningAnimations = new();
+        private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
 
         private string currentDestination;
         private Argument[] currentArgs = Array.Empty<Argument>();
@@ -138,6 +138,9 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary> Gets a value indicating whether returns true if there is a destination on the back stack that can be popped. </summary>
         public bool CanGoBack => this.backStack.Count > 0;
+
+        /// <summary> Gets a value indicating whether there are popup overlays active on top of the base panel. </summary>
+        public bool HasActivePopups => this.activeStack.Any(e => e.IsPopup);
 
         /// <summary> Gets or sets the current destination. </summary>
         public string CurrentDestination
@@ -285,14 +288,69 @@ namespace BovineLabs.Anchor.Nav
         /// <returns> True if the back stack was popped, false otherwise. </returns>
         public bool PopBackStack()
         {
-            if (this.backStack.Count > 0)
+            return this.PopBackStack(clearPopups: false);
+        }
+
+        /// <summary> Pop the current destination and clear any popup overlays that were captured with it. </summary>
+        /// <returns> True if the back stack or popup stack was updated, false otherwise. </returns>
+        public bool PopBackStackToPanel()
+        {
+            return this.PopBackStack(clearPopups: true);
+        }
+
+        /// <summary> Close all currently-displayed popup overlays. </summary>
+        /// <param name="exitAnimation"> The animation to play when dismissing each popup. </param>
+        /// <returns> True if at least one popup was closed. </returns>
+        public bool CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)
+        {
+            var removed = false;
+
+            for (var i = this.activeStack.Count - 1; i >= 0; i--)
             {
-                var entry = this.backStack.Pop();
-                this.HandlePopBack(entry);
-                return true;
+                if (!this.activeStack[i].IsPopup)
+                {
+                    break;
+                }
+
+                this.RemoveActiveEntryAt(i, exitAnimation);
+                removed = true;
             }
 
-            return false;
+            if (!removed)
+            {
+                return false;
+            }
+
+            var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
+            this.currentArgs = top?.Arguments ?? Array.Empty<Argument>();
+            this.CurrentDestination = top?.Destination;
+            this.currentPopEnterAnimation = top?.Options?.PopEnterAnim ?? NavigationAnimation.None;
+            this.currentPopExitAnimation = top?.Options?.PopExitAnim ?? NavigationAnimation.None;
+            return true;
+        }
+
+        private bool PopBackStack(bool clearPopups)
+        {
+            if (this.backStack.Count == 0)
+            {
+                if (clearPopups)
+                {
+                    return this.CloseAllPopups();
+                }
+
+                return false;
+            }
+
+            var entry = this.backStack.Pop();
+            var snapshot = clearPopups ? entry.Snapshot.WithoutPopups() : entry.Snapshot;
+
+            if (!ReferenceEquals(snapshot, entry.Snapshot))
+            {
+                entry = new AnchorNavBackStackEntry(entry.Destination, entry.Options, entry.Arguments, snapshot);
+            }
+
+            this.HandlePopBack(entry);
+            return true;
         }
 
         private void NavigateInternal(string destination, AnchorNavOptions options, Argument[] arguments)
@@ -492,6 +550,8 @@ namespace BovineLabs.Anchor.Nav
             (entry.Element as IAnchorNavigationScreen)?.OnExit(this, entry.Arguments);
             this.ExitedDestination?.Invoke(this, entry.Element, entry.Arguments);
 
+            this.CompleteAnimationsFor(entry.Element);
+
             void OnCompleted()
             {
                 if (entry.Element.parent != null)
@@ -515,21 +575,25 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            var handleInfo = new AnchorNavAnimationHandle(element, description, onCompleted);
             ValueAnimation<float> handle = null;
             handle = element.experimental.animation
                 .Start(0, 1, description.durationMs, description.callback)
                 .Ease(description.easing)
                 .OnCompleted(() =>
                 {
-                    onCompleted?.Invoke();
-                    if (handle != null)
+                    if (!handleInfo.TryFinalizeFromAnimation())
                     {
-                        this.runningAnimations.Remove(handle);
+                        return;
                     }
+
+                    onCompleted?.Invoke();
+                    this.runningAnimations.Remove(handleInfo);
                 })
                 .KeepAlive();
 
-            this.runningAnimations.Add(handle);
+            handleInfo.Handle = handle;
+            this.runningAnimations.Add(handleInfo);
             return true;
         }
 
@@ -542,10 +606,25 @@ namespace BovineLabs.Anchor.Nav
 
             foreach (var animation in this.runningAnimations)
             {
-                animation?.Recycle();
+                animation.CompleteImmediately();
             }
 
             this.runningAnimations.Clear();
+        }
+
+        private void CompleteAnimationsFor(VisualElement element)
+        {
+            for (var i = this.runningAnimations.Count - 1; i >= 0; i--)
+            {
+                var handle = this.runningAnimations[i];
+                if (handle.Element != element)
+                {
+                    continue;
+                }
+
+                handle.CompleteImmediately();
+                this.runningAnimations.RemoveAt(i);
+            }
         }
 
         private int GetSharedPrefix(IReadOnlyList<AnchorNavStackItem> targetItems)
@@ -634,6 +713,56 @@ namespace BovineLabs.Anchor.Nav
             {
                 this.Options = item.Options;
                 this.Arguments = item.Arguments;
+            }
+        }
+
+        private sealed class AnchorNavAnimationHandle
+        {
+            private bool completed;
+
+            public AnchorNavAnimationHandle(
+                VisualElement element,
+                AnimationDescription description,
+                Action onCompleted)
+            {
+                this.Element = element;
+                this.Description = description;
+                this.OnCompleted = onCompleted;
+            }
+
+            public VisualElement Element { get; }
+
+            public AnimationDescription Description { get; }
+
+            public Action OnCompleted { get; }
+
+            public ValueAnimation<float> Handle { get; set; }
+
+            public bool TryFinalizeFromAnimation()
+            {
+                if (this.completed)
+                {
+                    return false;
+                }
+
+                this.completed = true;
+                this.Handle = null;
+                return true;
+            }
+
+            public void CompleteImmediately()
+            {
+                if (this.completed)
+                {
+                    return;
+                }
+
+                this.completed = true;
+
+                this.Handle?.Recycle();
+                this.Handle = null;
+                this.Description.callback?.Invoke(this.Element, 1f);
+                this.OnCompleted?.Invoke();
             }
         }
     }

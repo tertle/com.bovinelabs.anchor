@@ -6,12 +6,13 @@ namespace BovineLabs.Anchor.Nav
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     internal sealed class AnchorNavStackSnapshot
     {
         private static readonly AnchorNavStackSnapshot EmptyInstance = new(Array.Empty<AnchorNavStackItem>());
 
-        private readonly IReadOnlyList<AnchorNavStackItem> items;
+        private readonly List<AnchorNavStackItem> items;
 
         public AnchorNavStackSnapshot(IEnumerable<AnchorNavStackItem> items)
         {
@@ -23,5 +24,26 @@ namespace BovineLabs.Anchor.Nav
         public IReadOnlyList<AnchorNavStackItem> Items => this.items;
 
         public AnchorNavStackItem Top => this.items.Count > 0 ? this.items[^1] : null;
+
+        public bool HasPopups => this.items.Any(i => i.IsPopup);
+
+        public AnchorNavStackSnapshot WithoutPopups()
+        {
+            if (!this.HasPopups)
+            {
+                return this;
+            }
+
+            var filtered = new List<AnchorNavStackItem>(this.items.Count);
+            foreach (var item in this.items)
+            {
+                if (!item.IsPopup)
+                {
+                    filtered.Add(item);
+                }
+            }
+
+            return new AnchorNavStackSnapshot(filtered);
+        }
     }
 }
