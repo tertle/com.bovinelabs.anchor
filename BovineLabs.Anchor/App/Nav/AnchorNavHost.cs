@@ -97,7 +97,6 @@ namespace BovineLabs.Anchor.Nav
         private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
 
         private string currentDestination;
-        private Argument[] currentArgs = Array.Empty<Argument>();
 
         private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
         private NavigationAnimation currentPopEnterAnimation = NavigationAnimation.None;
@@ -322,7 +321,6 @@ namespace BovineLabs.Anchor.Nav
             }
 
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
-            this.currentArgs = top?.Arguments ?? Array.Empty<Argument>();
             this.CurrentDestination = top?.Destination;
             this.currentPopEnterAnimation = top?.Options?.PopEnterAnim ?? NavigationAnimation.None;
             this.currentPopExitAnimation = top?.Options?.PopExitAnim ?? NavigationAnimation.None;
@@ -436,7 +434,6 @@ namespace BovineLabs.Anchor.Nav
                 entry.Options?.EnterAnim ?? NavigationAnimation.None,
                 entry.Options);
 
-            this.currentArgs = entry.Arguments ?? Array.Empty<Argument>();
             this.CurrentDestination = entry.Destination;
         }
 
@@ -451,7 +448,6 @@ namespace BovineLabs.Anchor.Nav
                 enterAnim,
                 entry.Options);
 
-            this.currentArgs = entry.Arguments ?? Array.Empty<Argument>();
             this.CurrentDestination = entry.Destination;
         }
 
@@ -485,7 +481,6 @@ namespace BovineLabs.Anchor.Nav
             }
 
             var top = targetItems.Count > 0 ? targetItems[^1] : null;
-            this.currentArgs = top?.Arguments ?? Array.Empty<Argument>();
             this.CurrentDestination = top?.Destination;
 
             this.currentPopEnterAnimation = optionsForTop?.PopEnterAnim ?? NavigationAnimation.None;

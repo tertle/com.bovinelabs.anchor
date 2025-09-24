@@ -4,7 +4,6 @@
 
 namespace BovineLabs.Anchor.Nav
 {
-    using System;
     using System.Collections.Generic;
     using Unity.AppUI.Navigation;
 
