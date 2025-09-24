@@ -40,27 +40,37 @@ namespace BovineLabs.Anchor.Nav
         public AnchorNavAction(string destination, AnchorNavOptions options, IEnumerable<Argument> defaultArguments = null)
         {
             this.destination = destination;
-            this.options = options ?? new AnchorNavOptions();
+            this.options = options != null ? options.Clone() : new AnchorNavOptions();
             this.defaultArguments = defaultArguments != null ? new List<Argument>(defaultArguments) : new List<Argument>();
         }
 
-        /// <summary> Gets the destination that should be navigated to when this action is used. </summary>
-        public string Destination => this.destination;
+        /// <summary> Gets or sets the destination that should be navigated to when this action is used. </summary>
+        public string Destination
+        {
+            get => this.destination;
+            set => this.destination = value;
+        }
 
         /// <summary> Gets the navigation options associated with this action. </summary>
-        public AnchorNavOptions Options => this.options;
+        public AnchorNavOptions Options
+        {
+            get => this.options ??= new AnchorNavOptions();
+            set => this.options = value ?? new AnchorNavOptions();
+        }
 
         /// <summary> Gets the default arguments associated with this action. </summary>
-        public IList<Argument> DefaultArguments => this.defaultArguments;
+        public IList<Argument> DefaultArguments
+        {
+            get => this.defaultArguments ??= new List<Argument>();
+            set => this.defaultArguments = value != null ? new List<Argument>(value) : new List<Argument>();
+        }
 
         /// <summary> Merge the default arguments with the provided arguments. </summary>
         /// <param name="arguments"> Arguments to merge with defaults.</param>
         /// <returns> The merged arguments.</returns>
         public Argument[] MergeArguments(params Argument[] arguments)
         {
-            var mergedArguments = this.defaultArguments != null
-                ? new List<Argument>(this.defaultArguments)
-                : new List<Argument>();
+            var mergedArguments = new List<Argument>(this.DefaultArguments);
 
             foreach (var arg in arguments)
             {

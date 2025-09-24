@@ -23,6 +23,6 @@ namespace BovineLabs.Anchor.Nav
         public string Name => this.name;
 
         /// <summary>Gets the action definition.</summary>
-        public AnchorNavAction Action => this.action;
+        public AnchorNavAction Action => this.action ??= new AnchorNavAction();
     }
 }

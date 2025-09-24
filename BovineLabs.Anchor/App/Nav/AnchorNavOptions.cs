@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
+    using System.Collections.Generic;
     using Unity.AppUI.Navigation;
     using UnityEngine;
 
@@ -23,6 +24,19 @@ namespace BovineLabs.Anchor.Nav
         /// The back stack will be popped up to the current graph's start destination.
         /// </summary>
         PopToRoot,
+    }
+
+    [Serializable]
+    public enum AnchorPopupStrategy
+    {
+        /// <summary>No popup behaviour; navigation replaces the current destination.</summary>
+        None,
+
+        /// <summary>Overlay the destination on top of the current visual stack.</summary>
+        PopupOnCurrent,
+
+        /// <summary>Navigate to a base destination first (if required) before overlaying the popup.</summary>
+        EnsureBaseAndPopup,
     }
 
     /// <summary>
@@ -61,6 +75,15 @@ namespace BovineLabs.Anchor.Nav
         [SerializeField]
         private bool launchSingleTop;
 
+        [SerializeField]
+        private AnchorPopupStrategy popupStrategy;
+
+        [SerializeField]
+        private string popupBaseDestination;
+
+        [SerializeField]
+        private List<Argument> popupBaseArguments = new();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AnchorNavOptions"/> class.
         /// </summary>
@@ -73,7 +96,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets strategy for popping up to a destination.
+        /// Gets or sets the strategy used to manipulate the back stack before navigating.
         /// </summary>
         public AnchorStackStrategy StackStrategy
         {
@@ -82,8 +105,8 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets route for the destination to pop up to before navigating.
-        /// When set, all non-matching destinations should be popped from the back stack.
+        /// Gets or sets the destination route to pop up to before navigating. When provided, all other destinations above
+        /// the target will be removed from the back stack.
         /// </summary>
         public string PopUpToDestination
         {
@@ -92,7 +115,8 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether whether the target destination in PopUpTo should be popped from the back stack.
+        /// Gets or sets a value indicating whether the destination specified by <see cref="PopUpToDestination"/> should
+        /// also be removed from the back stack.
         /// </summary>
         public bool PopUpToInclusive
         {
@@ -101,7 +125,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets the animation to use when navigating to the destination.
+        /// Gets or sets the animation used when navigating to the destination.
         /// </summary>
         public NavigationAnimation EnterAnim
         {
@@ -110,7 +134,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets the animation to use when navigating away from the destination.
+        /// Gets or sets the animation used when navigating away from the current destination.
         /// </summary>
         public NavigationAnimation ExitAnim
         {
@@ -119,7 +143,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets the custom enter Animation/Animator that should be run when this destination is popped from the back stack.
+        /// Gets or sets the animation that plays when this destination re-enters the stack after a pop operation.
         /// </summary>
         public NavigationAnimation PopEnterAnim
         {
@@ -128,7 +152,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets the custom exit Animation/Animator that should be run when this destination is popped from the back stack.
+        /// Gets or sets the animation that plays when this destination is popped from the stack.
         /// </summary>
         public NavigationAnimation PopExitAnim
         {
@@ -137,8 +161,8 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether whether the back stack and the state of all destinations between the current destination
-        /// and popUpToId should be saved for later restoration
+        /// Gets or sets a value indicating whether destinations removed by <see cref="PopUpToDestination"/> should have
+        /// their state preserved for later restoration.
         /// </summary>
         public bool PopUpToSaveState
         {
@@ -147,8 +171,8 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether whether this navigation action should restore any state previously saved by
-        /// Builder.setPopUpTo or the popUpToSaveState attribute.
+        /// Gets or sets a value indicating whether previously saved state should be restored when navigating to this
+        /// destination.
         /// </summary>
         public bool RestoreState
         {
@@ -157,13 +181,66 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether whether this navigation action should launch as single-top
-        /// (i.e., there will be at most one copy of a given destination on the top of the back stack).
+        /// Gets or sets a value indicating whether navigating to this destination should avoid pushing another instance
+        /// if it is already at the top of the back stack.
         /// </summary>
         public bool LaunchSingleTop
         {
             get => this.launchSingleTop;
             set => this.launchSingleTop = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the popup presentation strategy to use for this navigation request.
+        /// </summary>
+        public AnchorPopupStrategy PopupStrategy
+        {
+            get => this.popupStrategy;
+            set => this.popupStrategy = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the destination that should be ensured as the base layer before displaying a popup when
+        /// <see cref="PopupStrategy"/> is <see cref="AnchorPopupStrategy.EnsureBaseAndPopup"/>.
+        /// </summary>
+        public string PopupBaseDestination
+        {
+            get => this.popupBaseDestination;
+            set => this.popupBaseDestination = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the arguments used when navigating to <see cref="PopupBaseDestination"/>.
+        /// </summary>
+        public IList<Argument> PopupBaseArguments
+        {
+            get => this.popupBaseArguments;
+            set => this.popupBaseArguments = new List<Argument>(value);
+        }
+
+        /// <summary>
+        /// Creates a deep copy of this options instance.
+        /// </summary>
+        public AnchorNavOptions Clone()
+        {
+            return new AnchorNavOptions
+            {
+                stackStrategy = this.stackStrategy,
+                popUpToDestination = this.popUpToDestination,
+                popUpToInclusive = this.popUpToInclusive,
+                enterAnim = this.enterAnim,
+                exitAnim = this.exitAnim,
+                popEnterAnim = this.popEnterAnim,
+                popExitAnim = this.popExitAnim,
+                popUpToSaveState = this.popUpToSaveState,
+                restoreState = this.restoreState,
+                launchSingleTop = this.launchSingleTop,
+                popupStrategy = this.popupStrategy,
+                popupBaseDestination = this.popupBaseDestination,
+                popupBaseArguments = this.popupBaseArguments != null
+                    ? new List<Argument>(this.popupBaseArguments)
+                    : new List<Argument>(),
+            };
         }
     }
 }

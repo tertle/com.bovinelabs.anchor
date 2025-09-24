@@ -121,6 +121,17 @@ namespace BovineLabs.Anchor.Nav
             {
                 foreach (var action in actions)
                 {
+                    if (action == null)
+                    {
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(action.Name))
+                    {
+                        Debug.LogError("Encountered AnchorNamedAction with an empty name.");
+                        continue;
+                    }
+
                     if (this.actions.ContainsKey(action.Name))
                     {
                         Debug.LogError($"AnchorNavAction '{action.Name}' is already registered.");
@@ -203,7 +214,9 @@ namespace BovineLabs.Anchor.Nav
             if (this.actions.TryGetValue(actionOrDestination, out var action))
             {
                 this.ActionTriggered?.Invoke(this, action);
-                return this.Navigate(action.Destination, action.Options, action.MergeArguments(arguments));
+                var options = action.Options?.Clone() ?? new AnchorNavOptions();
+                var mergedArguments = action.MergeArguments(arguments);
+                return this.Navigate(action.Destination, options, mergedArguments);
             }
 
             return this.Navigate(actionOrDestination, null, arguments);
@@ -224,6 +237,11 @@ namespace BovineLabs.Anchor.Nav
             }
 
             arguments ??= Array.Empty<Argument>();
+
+            if (options.PopupStrategy != AnchorPopupStrategy.None)
+            {
+                return this.NavigatePopupInternal(destination, options, arguments);
+            }
 
             if (this.activeStack.Count > 0)
             {
@@ -258,49 +276,6 @@ namespace BovineLabs.Anchor.Nav
             }
 
             this.NavigateInternal(destination, options, arguments);
-            return true;
-        }
-
-        /// <summary> Display a popup destination on top of the existing stack. </summary>
-        /// <param name="destination"> The popup destination. </param>
-        /// <param name="options"> The options to use for the popup. </param>
-        /// <param name="arguments"> The arguments to pass to the popup. </param>
-        /// <returns> True if the popup navigation was successful. </returns>
-        public bool Popup(string destination, AnchorNavOptions options = null, params Argument[] arguments)
-        {
-            options ??= new AnchorNavOptions();
-
-            if (string.IsNullOrEmpty(destination))
-            {
-                return false;
-            }
-
-            arguments ??= Array.Empty<Argument>();
-
-            if (this.activeStack.Count == 0)
-            {
-                return this.Navigate(destination, options, arguments);
-            }
-
-            var currentSnapshot = this.CaptureCurrentSnapshot();
-            var topEntry = this.activeStack[^1];
-
-            if (options.LaunchSingleTop && topEntry.Destination == destination && topEntry.IsPopup)
-            {
-                var updatedItems = currentSnapshot.Items.ToList();
-                updatedItems[^1] = new AnchorNavStackItem(destination, options, arguments, true);
-                var updatedSnapshot = new AnchorNavStackSnapshot(updatedItems);
-                this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, updatedSnapshot));
-                return true;
-            }
-
-            this.PushSnapshot(currentSnapshot);
-
-            var items = currentSnapshot.Items.ToList();
-            items.Add(new AnchorNavStackItem(destination, options, arguments, true));
-            var targetSnapshot = new AnchorNavStackSnapshot(items);
-
-            this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, targetSnapshot));
             return true;
         }
 
@@ -431,12 +406,108 @@ namespace BovineLabs.Anchor.Nav
             options ??= new AnchorNavOptions();
             arguments ??= Array.Empty<Argument>();
 
+            if (options.PopupStrategy != AnchorPopupStrategy.None)
+            {
+                this.NavigatePopupInternal(destination, options, arguments);
+                return;
+            }
+
             var snapshot = new AnchorNavStackSnapshot(new[]
             {
                 new AnchorNavStackItem(destination, options, arguments, false),
             });
 
             this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, snapshot));
+        }
+
+        private bool NavigatePopupInternal(string destination, AnchorNavOptions options, Argument[] arguments)
+        {
+            if (string.IsNullOrEmpty(destination))
+            {
+                return false;
+            }
+
+            arguments ??= Array.Empty<Argument>();
+
+            switch (options.PopupStrategy)
+            {
+                case AnchorPopupStrategy.PopupOnCurrent:
+                    return this.NavigatePopupOnCurrent(destination, options, arguments, allowFallbackToNormal: true);
+                case AnchorPopupStrategy.EnsureBaseAndPopup:
+                    return this.NavigatePopupEnsureBase(destination, options, arguments);
+                case AnchorPopupStrategy.None:
+                default:
+                    this.NavigateInternal(destination, options, arguments);
+                    return true;
+            }
+        }
+
+        private bool NavigatePopupEnsureBase(string destination, AnchorNavOptions options, Argument[] arguments)
+        {
+            var baseDestination = options.PopupBaseDestination;
+            if (string.IsNullOrWhiteSpace(baseDestination))
+            {
+                Debug.LogError($"Popup strategy {AnchorPopupStrategy.EnsureBaseAndPopup} requires a base destination.");
+                return false;
+            }
+
+            if (!this.TryGetCurrentBase(out var currentBase) || currentBase.Destination != baseDestination)
+            {
+                var baseOptions = options.Clone();
+                baseOptions.PopupStrategy = AnchorPopupStrategy.None;
+                baseOptions.PopupBaseDestination = null;
+                baseOptions.PopupBaseArguments.Clear();
+
+                var baseArgsList = options.PopupBaseArguments;
+                var baseArgs = baseArgsList != null && baseArgsList.Count > 0 ? baseArgsList.ToArray() : Array.Empty<Argument>();
+
+                if (!this.Navigate(baseDestination, baseOptions, baseArgs))
+                {
+                    return false;
+                }
+            }
+
+            this.CloseAllPopups();
+            return this.NavigatePopupOnCurrent(destination, options, arguments, allowFallbackToNormal: false);
+        }
+
+        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, Argument[] arguments, bool allowFallbackToNormal)
+        {
+            if (this.activeStack.Count == 0)
+            {
+                if (!allowFallbackToNormal)
+                {
+                    Debug.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
+                }
+
+                var fallbackOptions = options.Clone();
+                fallbackOptions.PopupStrategy = AnchorPopupStrategy.None;
+                fallbackOptions.PopupBaseDestination = null;
+                fallbackOptions.PopupBaseArguments.Clear();
+                this.NavigateInternal(destination, fallbackOptions, arguments);
+                return true;
+            }
+
+            var currentSnapshot = this.CaptureCurrentSnapshot();
+            var topEntry = this.activeStack[^1];
+
+            if (options.LaunchSingleTop && topEntry.Destination == destination && topEntry.IsPopup)
+            {
+                var updatedItems = currentSnapshot.Items.ToList();
+                updatedItems[^1] = new AnchorNavStackItem(destination, options, arguments, true);
+                var updatedSnapshot = new AnchorNavStackSnapshot(updatedItems);
+                this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, updatedSnapshot));
+                return true;
+            }
+
+            this.PushSnapshot(currentSnapshot);
+
+            var items = currentSnapshot.Items.ToList();
+            items.Add(new AnchorNavStackItem(destination, options, arguments, true));
+            var targetSnapshot = new AnchorNavStackSnapshot(items);
+
+            this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, targetSnapshot));
+            return true;
         }
 
         private void RestoreState(string destination)
@@ -689,6 +760,22 @@ namespace BovineLabs.Anchor.Nav
                 handle.CompleteImmediately();
                 this.runningAnimations.RemoveAt(i);
             }
+        }
+
+        private bool TryGetCurrentBase(out AnchorNavActiveEntry entry)
+        {
+            for (var i = this.activeStack.Count - 1; i >= 0; i--)
+            {
+                var candidate = this.activeStack[i];
+                if (!candidate.IsPopup)
+                {
+                    entry = candidate;
+                    return true;
+                }
+            }
+
+            entry = null;
+            return false;
         }
 
         private int GetSharedPrefix(IReadOnlyList<AnchorNavStackItem> targetItems)
