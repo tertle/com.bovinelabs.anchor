@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
     using AOT;
+    using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using JetBrains.Annotations;
     using Unity.AppUI.MVVM;
@@ -47,7 +48,7 @@ namespace BovineLabs.Anchor
 
         public virtual string ServiceTabName => DefaultServiceTabName;
 
-        public NavController Controller { get; private set; }
+        public AnchorNavHost2 NavHost { get; set; }
 
         public NavGraphViewAsset GraphViewAsset { get; set; }
 
@@ -76,9 +77,8 @@ namespace BovineLabs.Anchor
             this.rootVisualElement.Add(toolbarView);
 #endif
 
-            var navigationView = this.services.GetRequiredService<NavigationView>();
-            this.rootVisualElement.Add(navigationView);
-            this.Controller = navigationView.Controller;
+            this.NavHost = new AnchorNavHost2();
+            this.rootVisualElement.Add(this.NavHost);
 
             this.PopupContainer = this.rootVisualElement.Q<VisualElement>("popup-container");
             this.NotificationContainer = this.rootVisualElement.Q<VisualElement>("notification-container");
@@ -108,11 +108,12 @@ namespace BovineLabs.Anchor
             return default;
         }
 
+        // TODO this seems pointless with navhsot
         /// <summary> Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
         /// <param name="screen"> The screen to navigate to. </param>
         public void Navigate(string screen)
         {
-            this.Controller.Navigate(screen);
+            this.NavHost.Navigate(screen);
         }
 
         /// <summary> This has been disabled in favour of overriding <see cref="Initialize" />. </summary>
@@ -130,7 +131,7 @@ namespace BovineLabs.Anchor
         [MonoPInvokeCallback(typeof(CurrentDelegate))]
         private static void CurrentForwarding(out FixedString32Bytes name)
         {
-            name = current.Controller.currentDestination?.name ?? default(FixedString32Bytes);
+            name = current.NavHost.CurrentDestination ?? default(FixedString32Bytes);
         }
 
         private static class Burst

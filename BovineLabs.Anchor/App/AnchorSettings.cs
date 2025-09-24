@@ -13,7 +13,7 @@ namespace BovineLabs.Anchor
     using UnityEngine.UIElements;
 
     [SettingsGroup("Anchor")]
-    public class AnchorSettings : ScriptableObject, ISettings
+    public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
         [SerializeField]
         private NavGraphViewAsset navigationGraph;
