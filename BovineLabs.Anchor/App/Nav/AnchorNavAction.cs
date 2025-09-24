@@ -4,26 +4,64 @@
 
 namespace BovineLabs.Anchor.Nav
 {
+    using System;
     using System.Collections.Generic;
     using Unity.AppUI.Navigation;
+    using UnityEngine;
 
-    public record AnchorNavAction(string Destination, AnchorNavOptions Options, List<Argument> DefaultArguments = null)
+    /// <summary>
+    /// Description of a navigation action.
+    /// </summary>
+    [Serializable]
+    public class AnchorNavAction
     {
-        /// <summary> Gets the ID of the destination that should be navigated to when this action is used. </summary>
-        public string Destination { get; } = Destination;
+        [SerializeField]
+        private string destination = string.Empty;
 
-        /// <summary> Gets the NavOptions to be used by default when navigating to this action. </summary>
-        public AnchorNavOptions Options { get; } = Options;
+        [SerializeField]
+        private AnchorNavOptions options = new();
 
-        /// <summary> Gets the default arguments to be used when navigating to this action. </summary>
-        public List<Argument> DefaultArguments { get; } = DefaultArguments;
+        [SerializeField]
+        private List<Argument> defaultArguments = new();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnchorNavAction"/> class.
+        /// </summary>
+        public AnchorNavAction()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnchorNavAction"/> class.
+        /// </summary>
+        /// <param name="destination">Destination identifier.</param>
+        /// <param name="options">Navigation options.</param>
+        /// <param name="defaultArguments">Default arguments to merge when navigating.</param>
+        public AnchorNavAction(string destination, AnchorNavOptions options, IEnumerable<Argument> defaultArguments = null)
+        {
+            this.destination = destination;
+            this.options = options ?? new AnchorNavOptions();
+            this.defaultArguments = defaultArguments != null ? new List<Argument>(defaultArguments) : new List<Argument>();
+        }
+
+        /// <summary> Gets the destination that should be navigated to when this action is used. </summary>
+        public string Destination => this.destination;
+
+        /// <summary> Gets the navigation options associated with this action. </summary>
+        public AnchorNavOptions Options => this.options;
+
+        /// <summary> Gets the default arguments associated with this action. </summary>
+        public IList<Argument> DefaultArguments => this.defaultArguments;
 
         /// <summary> Merge the default arguments with the provided arguments. </summary>
-        /// <param name="arguments"> The arguments to merge with the default arguments.</param>
+        /// <param name="arguments"> Arguments to merge with defaults.</param>
         /// <returns> The merged arguments.</returns>
         public Argument[] MergeArguments(params Argument[] arguments)
         {
-            var mergedArguments = this.DefaultArguments != null ? new List<Argument>(this.DefaultArguments) : new List<Argument>();
+            var mergedArguments = this.defaultArguments != null
+                ? new List<Argument>(this.defaultArguments)
+                : new List<Argument>();
+
             foreach (var arg in arguments)
             {
                 if (arg == null)

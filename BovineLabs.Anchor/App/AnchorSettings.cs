@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Nav;
     using BovineLabs.Core.Settings;
     using Unity.AppUI.Navigation;
     using UnityEngine;
@@ -16,24 +17,20 @@ namespace BovineLabs.Anchor
     public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
         [SerializeField]
-        private NavGraphViewAsset navigationGraph;
-
-        [SerializeField]
         [Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
         private bool toolbarOnly;
 
-#if UNITY_EDITOR || BL_DEBUG
+        [SerializeField]
+        private List<AnchorNamedAction> actions = new();
+
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
-#endif
-
-        public NavGraphViewAsset NavigationGraph => this.navigationGraph;
 
         public bool ToolbarOnly => this.toolbarOnly;
 
-#if UNITY_EDITOR || BL_DEBUG
+        public IReadOnlyList<AnchorNamedAction> Actions => this.actions;
+
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
-#endif
     }
 }
 #endif

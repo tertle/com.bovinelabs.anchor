@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor.Nav
     using System.Linq;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core.Utility;
+    using JetBrains.Annotations;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using UnityEngine;
@@ -102,7 +103,7 @@ namespace BovineLabs.Anchor.Nav
         private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
         private NavigationAnimation currentPopEnterAnimation = NavigationAnimation.None;
 
-        public AnchorNavHost2()
+        public AnchorNavHost2(IEnumerable<AnchorNamedAction> actions)
         {
             this.AddToClassList(USSClassName);
 
@@ -116,7 +117,27 @@ namespace BovineLabs.Anchor.Nav
 
             this.RegisterCallback<NavigationCancelEvent>(this.OnCancelNavigation);
 
+            if (actions != null)
+            {
+                foreach (var action in actions)
+                {
+                    if (this.actions.ContainsKey(action.Name))
+                    {
+                        Debug.LogError($"AnchorNavAction '{action.Name}' is already registered.");
+                        continue;
+                    }
+
+                    this.actions.Add(action.Name, action.Action);
+                }
+            }
+
             this.RegisterAllActions();
+        }
+
+        [UsedImplicitly]
+        public AnchorNavHost2()
+            : this(null)
+        {
         }
 
         /// <summary> Event that is triggered when a new destination is entered. </summary>

@@ -15,7 +15,6 @@ namespace BovineLabs.Anchor
 #endif
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
-    using UnityEngine;
     using UnityEngine.UIElements;
 
     public class AnchorAppBuilder : AnchorAppBuilder<AnchorApp>
@@ -27,48 +26,19 @@ namespace BovineLabs.Anchor
         where T : AnchorApp
     {
 #if BL_CORE
-        [SerializeField]
-        private AnchorSettings settings;
-
-        private AnchorSettings localSettings;
-
-        protected AnchorSettings Settings
-        {
-            get
-            {
-                if (this.localSettings == null)
-                {
-                    this.localSettings = this.settings == null ? ScriptableObject.CreateInstance<AnchorSettings>() : this.settings;
-                }
-
-                return this.localSettings;
-            }
-        }
-
 #if !UNITY_EDITOR && !BL_DEBUG
-        protected bool ToolbarOnly => this.Settings.ToolbarOnly;
+        protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 #endif
-
-#if UNITY_EDITOR || BL_DEBUG
-        protected IReadOnlyList<StyleSheet> DebugStyleSheets => this.Settings.DebugStyleSheets;
-#endif
-
-        protected NavGraphViewAsset NavigationGraph => this.Settings.NavigationGraph;
-
+        protected IReadOnlyList<StyleSheet> DebugStyleSheets => AnchorSettings.I.DebugStyleSheets;
 #else
-        [SerializeField]
-        private NavGraphViewAsset navigationGraph;
-
         [field: SerializeField]
         [field: Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
         private bool ToolbarOnly { get; set; }
 
-#if UNITY_EDITOR || BL_DEBUG
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
 
         protected IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
-#endif
 
         protected NavGraphViewAsset NavigationGraph => this.navigationGraph;
 #endif
@@ -131,16 +101,6 @@ namespace BovineLabs.Anchor
         }
 
         /// <inheritdoc/>
-        protected override void OnAppShuttingDown(T app)
-        {
-            base.OnAppShuttingDown(app);
-
-#if BL_CORE
-            this.localSettings = null;
-#endif
-        }
-
-        /// <inheritdoc/>
         protected override void OnAppInitialized(T app)
         {
 #if !UNITY_EDITOR && !BL_DEBUG
@@ -157,8 +117,6 @@ namespace BovineLabs.Anchor
                 app.rootVisualElement.styleSheets.Add(style);
             }
 #endif
-
-            app.GraphViewAsset = this.NavigationGraph;
 
             if (this.NavVisualController != null)
             {
