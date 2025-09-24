@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Nav
     using System.Collections.Generic;
     using System.Linq;
     using BovineLabs.Anchor.Services;
+    using BovineLabs.Core.Utility;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using UnityEngine;
@@ -114,6 +115,8 @@ namespace BovineLabs.Anchor.Nav
             this.hierarchy.Add(this.container);
 
             this.RegisterCallback<NavigationCancelEvent>(this.OnCancelNavigation);
+
+            this.RegisterAllActions();
         }
 
         /// <summary> Event that is triggered when a new destination is entered. </summary>
@@ -157,14 +160,11 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        /// <summary> Gets the last entry on the back stack. </summary>
-        private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
-
-        /// <summary> Gets or sets the visual controller that will be used to handle modification of Navigation visual elements, such as BottomNavBar. </summary>
-        public INavVisualController VisualController { get; set; }
-
         /// <summary> Gets the container that will hold the current <see cref="NavigationScreen"/>. </summary>
         public override VisualElement contentContainer => this.container.contentContainer;
+
+        /// <summary> Gets the last entry on the back stack. </summary>
+        private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
 
         /// <summary> Clear the back stack entirely. </summary>
         /// <remarks> This will not clear the saved states, and the current destination will not be changed. </remarks>
@@ -325,6 +325,55 @@ namespace BovineLabs.Anchor.Nav
             this.currentPopEnterAnimation = top?.Options?.PopEnterAnim ?? NavigationAnimation.None;
             this.currentPopExitAnimation = top?.Options?.PopExitAnim ?? NavigationAnimation.None;
             return true;
+        }
+
+        private void RegisterAllActions()
+        {
+            foreach (var (method, attribute) in ReflectionUtility.GetMethodsAndAttribute<AnchorNavActionAttribute>())
+            {
+                if (!method.IsStatic)
+                {
+                    Debug.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} must be static.");
+                    continue;
+                }
+
+                if (!typeof(AnchorNavAction).IsAssignableFrom(method.ReturnType))
+                {
+                    Debug.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} must return {nameof(AnchorNavAction)}.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(attribute.Name))
+                {
+                    Debug.LogError($"AnchorNavActionAttribute on {method.DeclaringType?.FullName}.{method.Name} must define a non-empty Name.");
+                    continue;
+                }
+
+                if (this.actions.ContainsKey(attribute.Name))
+                {
+                    Debug.LogError($"AnchorNavAction '{attribute.Name}' is already registered; duplicate found on {method.DeclaringType?.FullName}.{method.Name}.");
+                    continue;
+                }
+
+                AnchorNavAction action;
+                try
+                {
+                    action = (AnchorNavAction)method.Invoke(null, null);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to invoke AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name}: {ex.Message}\n{ex.StackTrace}");
+                    continue;
+                }
+
+                if (action == null)
+                {
+                    Debug.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} returned null.");
+                    continue;
+                }
+
+                this.actions.Add(attribute.Name, action);
+            }
         }
 
         private bool PopBackStack(bool clearPopups)
@@ -564,15 +613,14 @@ namespace BovineLabs.Anchor.Nav
         private bool TryPlayAnimation(VisualElement element, NavigationAnimation animation, Action onCompleted)
         {
             var description = GetAnimationFunc(animation);
-            if (description.durationMs <= 0 && description.callback == null)
+            if (description is { durationMs: <= 0, callback: null })
             {
                 onCompleted?.Invoke();
                 return false;
             }
 
             var handleInfo = new AnchorNavAnimationHandle(element, description, onCompleted);
-            ValueAnimation<float> handle = null;
-            handle = element.experimental.animation
+            var handle = element.experimental.animation
                 .Start(0, 1, description.durationMs, description.callback)
                 .Ease(description.easing)
                 .OnCompleted(() =>
