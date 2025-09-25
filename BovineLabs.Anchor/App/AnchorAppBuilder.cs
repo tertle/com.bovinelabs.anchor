@@ -33,8 +33,6 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
-        protected virtual Type NavHost { get; } = typeof(AnchorNavHost);
-
         protected virtual Type NavVisualController => null;
 
         /// <inheritdoc />
@@ -50,7 +48,6 @@ namespace BovineLabs.Anchor
 
             builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
             builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
-            builder.services.AddSingleton(typeof(AnchorNavHost), this.NavHost);
 
             if (this.UXMLService != null)
             {

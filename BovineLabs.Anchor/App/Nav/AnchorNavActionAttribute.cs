@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Nav
 
     /// <summary>
     /// Attribute used to mark members that describe navigation actions which should
-    /// automatically be registered with <see cref="AnchorNavHost2"/>.
+    /// automatically be registered with <see cref="AnchorNavHost"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false)]
     public sealed class AnchorNavActionAttribute : Attribute

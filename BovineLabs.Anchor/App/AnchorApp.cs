@@ -48,7 +48,7 @@ namespace BovineLabs.Anchor
 
         public virtual string ServiceTabName => DefaultServiceTabName;
 
-        public AnchorNavHost2 NavHost { get; set; }
+        public AnchorNavHost NavHost { get; set; }
 
         public NavGraphViewAsset GraphViewAsset { get; set; }
 
@@ -77,7 +77,7 @@ namespace BovineLabs.Anchor
             this.rootVisualElement.Add(toolbarView);
 #endif
 
-            this.NavHost = new AnchorNavHost2(AnchorSettings.I.Actions);
+            this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions);
             if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
             {
                 this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());

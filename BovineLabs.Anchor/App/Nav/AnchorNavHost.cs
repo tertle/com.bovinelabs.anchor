@@ -15,17 +15,8 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
-    public class AnchorNavHost : NavHost
-    {
-        public AnchorNavHost()
-        {
-            this.pickingMode = PickingMode.Ignore;
-            this.Q<StackView>().pickingMode = PickingMode.Ignore;
-        }
-    }
-
     [UxmlElement]
-    public partial class AnchorNavHost2 : VisualElement
+    public partial class AnchorNavHost : VisualElement
     {
         /// <summary> The NavHost main styling class. </summary>
         public const string USSClassName = "appui-navhost";
@@ -102,7 +93,7 @@ namespace BovineLabs.Anchor.Nav
         private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
         private NavigationAnimation currentPopEnterAnimation = NavigationAnimation.None;
 
-        public AnchorNavHost2(IEnumerable<AnchorNamedAction> actions)
+        public AnchorNavHost(IEnumerable<AnchorNamedAction> actions)
             : this()
         {
             if (actions != null)
@@ -131,11 +122,12 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        public AnchorNavHost2()
+        public AnchorNavHost()
         {
             this.AddToClassList(USSClassName);
 
             this.focusable = true;
+            this.style.flexGrow = 1;
             this.pickingMode = PickingMode.Ignore;
             this.container = new StackView();
             this.container.AddToClassList(ContainerUssClassName);
@@ -149,16 +141,16 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary> Event that is triggered when a new destination is entered. </summary>
-        public event Action<AnchorNavHost2, VisualElement, Argument[]> EnteredDestination;
+        public event Action<AnchorNavHost, VisualElement, Argument[]> EnteredDestination;
 
         /// <summary> Event that is triggered when a destination is exited. </summary>
-        public event Action<AnchorNavHost2, VisualElement, Argument[]> ExitedDestination;
+        public event Action<AnchorNavHost, VisualElement, Argument[]> ExitedDestination;
 
         /// <summary> Event that is invoked when an action is triggered. </summary>
-        public event Action<AnchorNavHost2, AnchorNavAction> ActionTriggered;
+        public event Action<AnchorNavHost, AnchorNavAction> ActionTriggered;
 
         /// <summary> Event that is invoked when the current destination changes. </summary>
-        public event Action<AnchorNavHost2, string> DestinationChanged;
+        public event Action<AnchorNavHost, string> DestinationChanged;
 
         /// <inheritdoc/>
         public override sealed bool focusable

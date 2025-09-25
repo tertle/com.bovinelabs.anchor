@@ -17,13 +17,13 @@ namespace BovineLabs.Anchor.Nav
         /// </summary>
         /// <param name="host"> The navigation controller that is entering the destination.</param>
         /// <param name="args"> The arguments passed to the destination.</param>
-        void OnEnter(AnchorNavHost2 host, Argument[] args);
+        void OnEnter(AnchorNavHost host, Argument[] args);
 
         /// <summary>
         /// Called when the navigation controller exits a destination.
         /// </summary>
         /// <param name="host"> The navigation controller that is exiting the destination.</param>
         /// <param name="args"> The arguments passed to the destination.</param>
-        void OnExit(AnchorNavHost2 host, Argument[] args);
+        void OnExit(AnchorNavHost host, Argument[] args);
     }
 }
