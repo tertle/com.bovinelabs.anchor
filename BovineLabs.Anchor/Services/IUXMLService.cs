@@ -11,7 +11,5 @@ namespace BovineLabs.Anchor.Services
         VisualTreeAsset GetAsset(string assetName);
 
         VisualElement Instantiate(string assetName);
-
-        void CloneTree(string assetName, VisualElement target);
     }
 }

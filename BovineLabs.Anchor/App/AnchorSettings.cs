@@ -14,18 +14,25 @@ namespace BovineLabs.Anchor
     [SettingsGroup("Anchor")]
     public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
+        [Header("Options")]
         [SerializeField]
         [Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
         private bool toolbarOnly;
 
         [SerializeField]
+        private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
+
+        [Header("Views")]
+        [SerializeField]
         private string startDestination = string.Empty;
+
+        [SerializeField]
+        private KeyUXML[] views = Array.Empty<KeyUXML>();
 
         [SerializeField]
         private List<AnchorNamedAction> actions = new();
 
-        [SerializeField]
-        private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
+        public KeyUXML[] Views => this.views;
 
         public bool ToolbarOnly => this.toolbarOnly;
 
@@ -34,5 +41,12 @@ namespace BovineLabs.Anchor
         public IReadOnlyList<AnchorNamedAction> Actions => this.actions;
 
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
+
+        [Serializable]
+        public class KeyUXML
+        {
+            public string Key;
+            public VisualTreeAsset Asset;
+        }
     }
 }

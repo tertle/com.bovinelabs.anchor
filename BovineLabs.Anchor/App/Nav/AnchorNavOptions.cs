@@ -46,43 +46,56 @@ namespace BovineLabs.Anchor.Nav
     public class AnchorNavOptions
     {
         [SerializeField]
+        [Tooltip("Back stack manipulation strategy executed before navigating.")]
         private AnchorStackStrategy stackStrategy;
 
         [SerializeField]
+        [Tooltip("Route identifier to pop up to before navigating.")]
         private string popUpToDestination;
 
         [SerializeField]
+        [Tooltip("Whether the destination specified above is also removed when popping.")]
         private bool popUpToInclusive;
 
         [SerializeField]
-        private NavigationAnimation enterAnim;
-
-        [SerializeField]
-        private NavigationAnimation exitAnim;
-
-        [SerializeField]
-        private NavigationAnimation popEnterAnim;
-
-        [SerializeField]
-        private NavigationAnimation popExitAnim;
-
-        [SerializeField]
+        [Tooltip("Preserve state for destinations removed by the pop operation.")]
         private bool popUpToSaveState;
 
         [SerializeField]
+        [Tooltip("Restore previously saved state when navigating to this destination.")]
         private bool restoreState;
 
         [SerializeField]
-        private bool launchSingleTop;
+        [Tooltip("Reuse the existing top destination instead of pushing a duplicate.")]
+        private bool launchSingleTop = true;
 
         [SerializeField]
+        [Tooltip("Presentation strategy applied when treating the navigation as a popup.")]
         private AnchorPopupStrategy popupStrategy;
 
         [SerializeField]
+        [Tooltip("Destination ensured as the base before displaying the popup.")]
         private string popupBaseDestination;
 
         [SerializeField]
+        [Tooltip("Arguments supplied when navigating to the popup base destination.")]
         private List<Argument> popupBaseArguments = new();
+
+        [SerializeField]
+        [Tooltip("Animation used when presenting this destination.")]
+        private NavigationAnimation enterAnim;
+
+        [SerializeField]
+        [Tooltip("Animation used when leaving this destination.")]
+        private NavigationAnimation exitAnim;
+
+        [SerializeField]
+        [Tooltip("Animation played when this destination returns via a pop.")]
+        private NavigationAnimation popEnterAnim;
+
+        [SerializeField]
+        [Tooltip("Animation played when this destination is popped off the stack.")]
+        private NavigationAnimation popExitAnim;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AnchorNavOptions"/> class.

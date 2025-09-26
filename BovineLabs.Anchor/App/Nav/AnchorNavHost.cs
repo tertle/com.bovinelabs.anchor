@@ -63,10 +63,7 @@ namespace BovineLabs.Anchor.Nav
         {
             easing = Easing.OutCubic,
             durationMs = 500,
-            callback = (v, f) =>
-            {
-                v.style.opacity = f;
-            },
+            callback = (v, f) => v.style.opacity = f,
         };
 
         /// <summary> Fade out animation. </summary>
@@ -74,10 +71,7 @@ namespace BovineLabs.Anchor.Nav
         {
             easing = Easing.OutCubic,
             durationMs = 500,
-            callback = (v, f) =>
-            {
-                v.style.opacity = 1.0f - f;
-            },
+            callback = (v, f) => v.style.opacity = 1.0f - f,
         };
 
         private readonly VisualElement container;
@@ -652,6 +646,7 @@ namespace BovineLabs.Anchor.Nav
             if (index >= this.container.childCount)
             {
                 this.container.Add(element);
+
             }
             else
             {
@@ -663,7 +658,7 @@ namespace BovineLabs.Anchor.Nav
 
             this.TryPlayAnimation(element, enterAnim, null);
 
-            (element as IAnchorNavigationScreen)?.OnEnter(this, entry.Arguments);
+            (element as IAnchorNavigationScreen)?.OnEnter(entry.Arguments);
             this.EnteredDestination?.Invoke(this, element, entry.Arguments);
         }
 
@@ -672,7 +667,7 @@ namespace BovineLabs.Anchor.Nav
             var entry = this.activeStack[index];
             this.activeStack.RemoveAt(index);
 
-            (entry.Element as IAnchorNavigationScreen)?.OnExit(this, entry.Arguments);
+            (entry.Element as IAnchorNavigationScreen)?.OnExit(entry.Arguments);
             this.ExitedDestination?.Invoke(this, entry.Element, entry.Arguments);
 
             this.CompleteAnimationsFor(entry.Element);
