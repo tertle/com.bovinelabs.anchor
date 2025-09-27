@@ -68,7 +68,7 @@ namespace BovineLabs.Anchor
                 disposable.Dispose();
             }
 
-            viewModel.Unload();
+            viewModel?.Unload();
             this.handle.Free();
             this.handle = default;
             this.data = null;
