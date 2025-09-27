@@ -4,7 +4,7 @@
 
 namespace BovineLabs.Anchor.Services
 {
-    using System.Collections.Generic;
+    using System;
     using System.Linq;
     using BovineLabs.Anchor;
     using BovineLabs.Core;
@@ -14,20 +14,13 @@ namespace BovineLabs.Anchor.Services
     [UsedImplicitly]
     public class UXMLService : IUXMLService
     {
-        private readonly Dictionary<string, VisualTreeAsset> assets;
-
-        public UXMLService()
-        {
-            this.assets = AnchorSettings.I.Views.ToDictionary(t => t.Key, t => t.Asset);
-        }
-
         public VisualTreeAsset GetAsset(string assetName)
         {
             try
             {
-                return this.assets[assetName];
+                return AnchorSettings.I.Views.First(t => t.Key == assetName).Asset;
             }
-            catch (KeyNotFoundException)
+            catch (InvalidOperationException)
             {
                 BLGlobalLogger.LogError($"VisualTreeAsset for the key {assetName} was not found. Check AnchorSettings.");
                 throw;
