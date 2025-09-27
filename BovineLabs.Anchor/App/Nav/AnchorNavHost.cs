@@ -306,6 +306,202 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
+        /// <summary> Saves the current navigation state for later restoration. </summary>
+        /// <returns> A snapshot containing the navigation state. </returns>
+        public SavedState SaveState()
+        {
+            var activeItems = new List<SavedState.StackItem>(this.activeStack.Count);
+
+            foreach (var entry in this.activeStack)
+            {
+                var savedItem = CreateSavedStackItem(entry);
+                if (savedItem != null)
+                {
+                    activeItems.Add(savedItem);
+                }
+            }
+
+            var backStackEntries = new List<SavedState.BackStackEntry>(this.backStack.Count);
+            foreach (var entry in this.backStack.Reverse())
+            {
+                var savedEntry = CreateSavedBackStackEntry(entry);
+                if (savedEntry != null)
+                {
+                    backStackEntries.Add(savedEntry);
+                }
+            }
+
+            var savedStates = new Dictionary<string, IReadOnlyList<SavedState.BackStackEntry>>(this.savedStates.Count);
+            foreach (var kvp in this.savedStates)
+            {
+                var entries = new List<SavedState.BackStackEntry>(kvp.Value.Count);
+                foreach (var entry in kvp.Value.Reverse())
+                {
+                    var savedEntry = CreateSavedBackStackEntry(entry);
+                    if (savedEntry != null)
+                    {
+                        entries.Add(savedEntry);
+                    }
+                }
+
+                savedStates[kvp.Key] = entries;
+            }
+
+            return new SavedState(
+                this.currentDestination,
+                this.currentPopEnterAnimation,
+                this.currentPopExitAnimation,
+                activeItems,
+                backStackEntries,
+                savedStates);
+        }
+
+        /// <summary> Restores a previously saved navigation state. </summary>
+        /// <param name="state"> The snapshot to restore. </param>
+        public void RestoreState(SavedState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            this.CancelRunningAnimations();
+
+            while (this.activeStack.Count > 0)
+            {
+                this.RemoveActiveEntryAt(this.activeStack.Count - 1, NavigationAnimation.None);
+            }
+
+            this.backStack.Clear();
+            this.savedStates.Clear();
+
+            if (state.BackStack != null)
+            {
+                foreach (var savedEntry in state.BackStack)
+                {
+                    var snapshot = CreateSnapshotFromSaved(savedEntry.Snapshot);
+                    var entry = new AnchorNavBackStackEntry(
+                        savedEntry.Destination,
+                        savedEntry.Options?.Clone(),
+                        savedEntry.Arguments?.ToArray() ?? Array.Empty<Argument>(),
+                        snapshot);
+                    this.backStack.Push(entry);
+                }
+            }
+
+            if (state.SavedStates != null)
+            {
+                foreach (var kvp in state.SavedStates)
+                {
+                    if (kvp.Value == null)
+                    {
+                        continue;
+                    }
+
+                    var stack = new Stack<AnchorNavBackStackEntry>(kvp.Value.Count);
+                    foreach (var savedEntry in kvp.Value)
+                    {
+                        var snapshot = CreateSnapshotFromSaved(savedEntry.Snapshot);
+                        var entry = new AnchorNavBackStackEntry(
+                            savedEntry.Destination,
+                            savedEntry.Options?.Clone(),
+                            savedEntry.Arguments?.ToArray() ?? Array.Empty<Argument>(),
+                            snapshot);
+                        stack.Push(entry);
+                    }
+
+                    this.savedStates[kvp.Key] = stack;
+                }
+            }
+
+            var activeSnapshot = CreateSnapshotFromSaved(state.ActiveStack);
+            var topOptions = activeSnapshot.Top?.Options;
+            this.ApplySnapshot(activeSnapshot, NavigationAnimation.None, NavigationAnimation.None, topOptions);
+
+            this.currentPopEnterAnimation = state.CurrentPopEnterAnimation;
+            this.currentPopExitAnimation = state.CurrentPopExitAnimation;
+            this.CurrentDestination = state.CurrentDestination;
+        }
+
+        private static SavedState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
+        {
+            if (entry == null)
+            {
+                return null;
+            }
+
+            return new SavedState.StackItem(entry.Destination, entry.Options, entry.Arguments, entry.IsPopup);
+        }
+
+        private static SavedState.StackItem CreateSavedStackItem(AnchorNavStackItem item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            return new SavedState.StackItem(item.Destination, item.Options, item.Arguments, item.IsPopup);
+        }
+
+        private static SavedState.BackStackEntry CreateSavedBackStackEntry(AnchorNavBackStackEntry entry)
+        {
+            if (entry == null)
+            {
+                return null;
+            }
+
+            var snapshotItems = entry.Snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
+            var savedSnapshot = new List<SavedState.StackItem>(snapshotItems.Count);
+
+            foreach (var item in snapshotItems)
+            {
+                var savedItem = CreateSavedStackItem(item);
+                if (savedItem != null)
+                {
+                    savedSnapshot.Add(savedItem);
+                }
+            }
+
+            return new SavedState.BackStackEntry(entry.Destination, entry.Options, entry.Arguments, savedSnapshot);
+        }
+
+        private static AnchorNavStackSnapshot CreateSnapshotFromSaved(IReadOnlyList<SavedState.StackItem> items)
+        {
+            if (items == null || items.Count == 0)
+            {
+                return AnchorNavStackSnapshot.Empty;
+            }
+
+            var stackItems = new List<AnchorNavStackItem>(items.Count);
+            foreach (var item in items)
+            {
+                var stackItem = CreateStackItem(item);
+                if (stackItem != null)
+                {
+                    stackItems.Add(stackItem);
+                }
+            }
+
+            if (stackItems.Count == 0)
+            {
+                return AnchorNavStackSnapshot.Empty;
+            }
+
+            return new AnchorNavStackSnapshot(stackItems);
+        }
+
+        private static AnchorNavStackItem CreateStackItem(SavedState.StackItem item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            var options = item.Options != null ? item.Options.Clone() : null;
+            var arguments = item.Arguments?.ToArray() ?? Array.Empty<Argument>();
+            return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
+        }
+
         private void RegisterAllActions()
         {
             foreach (var (method, attribute) in ReflectionUtility.GetMethodsAndAttribute<AnchorNavActionAttribute>())
@@ -815,6 +1011,79 @@ namespace BovineLabs.Anchor.Nav
             {
                 evt.StopPropagation();
                 this.PopBackStack();
+            }
+        }
+
+        public sealed class SavedState
+        {
+            public SavedState(
+                string currentDestination,
+                NavigationAnimation currentPopEnterAnimation,
+                NavigationAnimation currentPopExitAnimation,
+                IReadOnlyList<StackItem> activeStack,
+                IReadOnlyList<BackStackEntry> backStack,
+                IReadOnlyDictionary<string, IReadOnlyList<BackStackEntry>> savedStates)
+            {
+                this.CurrentDestination = currentDestination;
+                this.CurrentPopEnterAnimation = currentPopEnterAnimation;
+                this.CurrentPopExitAnimation = currentPopExitAnimation;
+                this.ActiveStack = activeStack ?? Array.Empty<StackItem>();
+                this.BackStack = backStack ?? Array.Empty<BackStackEntry>();
+                this.SavedStates = savedStates ?? new Dictionary<string, IReadOnlyList<BackStackEntry>>();
+            }
+
+            public string CurrentDestination { get; }
+
+            public NavigationAnimation CurrentPopEnterAnimation { get; }
+
+            public NavigationAnimation CurrentPopExitAnimation { get; }
+
+            public IReadOnlyList<StackItem> ActiveStack { get; }
+
+            public IReadOnlyList<BackStackEntry> BackStack { get; }
+
+            public IReadOnlyDictionary<string, IReadOnlyList<BackStackEntry>> SavedStates { get; }
+
+            public sealed class StackItem
+            {
+                public StackItem(string destination, AnchorNavOptions options, Argument[] arguments, bool isPopup)
+                {
+                    this.Destination = destination;
+                    this.Options = options != null ? options.Clone() : null;
+                    this.Arguments = arguments?.ToArray() ?? Array.Empty<Argument>();
+                    this.IsPopup = isPopup;
+                }
+
+                public string Destination { get; }
+
+                public AnchorNavOptions Options { get; }
+
+                public Argument[] Arguments { get; }
+
+                public bool IsPopup { get; }
+            }
+
+            public sealed class BackStackEntry
+            {
+                public BackStackEntry(
+                    string destination,
+                    AnchorNavOptions options,
+                    Argument[] arguments,
+                    IReadOnlyList<StackItem> snapshot)
+                {
+                    this.Destination = destination;
+                    this.Options = options != null ? options.Clone() : null;
+                    this.Arguments = arguments?.ToArray() ?? Array.Empty<Argument>();
+                    this.Snapshot = snapshot ?? Array.Empty<StackItem>();
+                }
+
+                public string Destination { get; }
+
+                public AnchorNavOptions Options { get; }
+
+                public Argument[] Arguments { get; }
+
+                public IReadOnlyList<StackItem> Snapshot { get; }
             }
         }
 

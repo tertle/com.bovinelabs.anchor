@@ -80,12 +80,12 @@ namespace BovineLabs.Anchor.Toolbar
                 PlayerPrefs.SetString(this.SaveKey, saveData);
             }
 
-            if (view.ViewModel is IDisposable disposable)
+            if (view?.ViewModel is IDisposable disposable)
             {
                 disposable.Dispose();
             }
 
-            view.ViewModel.Unload();
+            view?.ViewModel.Unload();
             this.handle.Free();
             this.handle = default;
             this.data = null;

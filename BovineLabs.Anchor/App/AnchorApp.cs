@@ -58,8 +58,6 @@ namespace BovineLabs.Anchor
 
         public VisualElement TooltipContainer { get; private set; }
 
-        public INavVisualController NavVisualController { get; internal set; }
-
         private static (T Method, FunctionPointer<T> Function) CreateDelegate<T>(T method)
         {
             return (method, new FunctionPointer<T>(Marshal.GetFunctionPointerForDelegate(method)));

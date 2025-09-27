@@ -19,10 +19,17 @@ namespace BovineLabs.Anchor
     {
     }
 
+    /// <summary>
+    /// <para>A MonoBehaviour that can be used to build and host an app in a UIDocument.</para>
+    /// <para>This class is intended to be used as a base class for a MonoBehaviour that is attached to a GameObject in a scene.</para>
+    /// </summary>
+    /// <typeparam name="T"> The type of the app to build. It is expected that this type is a subclass of <see cref="App"/>. </typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
     public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
         where T : AnchorApp
     {
+        private AnchorNavHost.SavedState state;
+
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
         protected IReadOnlyList<StyleSheet> DebugStyleSheets => AnchorSettings.I.DebugStyleSheets;
@@ -35,7 +42,7 @@ namespace BovineLabs.Anchor
 
         protected virtual Type NavVisualController => null;
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         protected override void OnConfiguringApp(AppBuilder builder)
         {
 #if !UNITY_EDITOR && !BL_DEBUG
@@ -44,8 +51,6 @@ namespace BovineLabs.Anchor
                 return;
             }
 #endif
-            base.OnConfiguringApp(builder);
-
             builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
             builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
@@ -76,13 +81,14 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         protected override void OnAppInitialized(T app)
         {
+            base.OnAppInitialized(app);
+
 #if !UNITY_EDITOR && !BL_DEBUG
             if (this.ToolbarOnly)
             {
                 return;
             }
 #endif
-            base.OnAppInitialized(app);
 
 #if UNITY_EDITOR || BL_DEBUG
             foreach (var style in this.DebugStyleSheets)
@@ -91,12 +97,20 @@ namespace BovineLabs.Anchor
             }
 #endif
 
-            if (this.NavVisualController != null)
-            {
-                app.NavVisualController = app.services.GetRequiredService<INavVisualController>();
-            }
-
             app.Initialize();
+
+            if (this.state != null)
+            {
+                app.NavHost.RestoreState(this.state);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override void OnAppShuttingDown(T app)
+        {
+            base.OnAppShuttingDown(app);
+
+            this.state = app.NavHost.SaveState();
         }
 
         private void Reset()
