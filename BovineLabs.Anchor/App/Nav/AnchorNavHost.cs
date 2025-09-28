@@ -1005,7 +1005,10 @@ namespace BovineLabs.Anchor.Nav
 
         private VisualElement CreateItem(string destination)
         {
-            return AnchorApp.current.services.GetService<IUXMLService>().Instantiate(destination);
+            var element = AnchorApp.current.services.GetService<IUXMLService>().Instantiate(destination);
+            element.StretchToParentSize(); // TODO need to confirm this
+            element.pickingMode = PickingMode.Ignore;
+            return element;
         }
 
         private static AnimationDescription GetAnimationFunc(NavigationAnimation anim)
