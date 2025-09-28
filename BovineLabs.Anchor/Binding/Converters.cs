@@ -33,6 +33,12 @@ namespace BovineLabs.Anchor.Binding
                 group.AddConverter((ref StyleEnum<DisplayStyle> displayStyle) => displayStyle != DisplayStyle.Flex);
                 ConverterGroups.RegisterConverterGroup(group);
             }
+
+            {
+                var group = new ConverterGroup("Invert");
+                group.AddConverter((ref bool val) => !val);
+                ConverterGroups.RegisterConverterGroup(group);
+            }
         }
     }
 }
