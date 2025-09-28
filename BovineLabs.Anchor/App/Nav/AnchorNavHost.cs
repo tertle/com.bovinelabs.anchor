@@ -502,6 +502,28 @@ namespace BovineLabs.Anchor.Nav
             return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
         }
 
+        private static void OnEntered(VisualElement root, Argument[] arguments)
+        {
+            foreach (var ve in root.Query<VisualElement>().Build())
+            {
+                if (ve.dataSource is IAnchorNavigationScreen screen)
+                {
+                    screen.OnEnter(arguments);
+                }
+            }
+        }
+
+        private static void OnExit(VisualElement root, Argument[] arguments)
+        {
+            foreach (var ve in root.Query<VisualElement>().Build())
+            {
+                if (ve.dataSource is IAnchorNavigationScreen screen)
+                {
+                    screen.OnExit(arguments);
+                }
+            }
+        }
+
         private void RegisterAllActions()
         {
             foreach (var (method, attribute) in ReflectionUtility.GetMethodsAndAttribute<AnchorNavActionAttribute>())
@@ -854,7 +876,7 @@ namespace BovineLabs.Anchor.Nav
 
             this.TryPlayAnimation(element, enterAnim, null);
 
-            (element as IAnchorNavigationScreen)?.OnEnter(entry.Arguments);
+            OnEntered(element, entry.Arguments);
             this.EnteredDestination?.Invoke(this, element, entry.Arguments);
         }
 
@@ -863,7 +885,7 @@ namespace BovineLabs.Anchor.Nav
             var entry = this.activeStack[index];
             this.activeStack.RemoveAt(index);
 
-            (entry.Element as IAnchorNavigationScreen)?.OnExit(entry.Arguments);
+            OnExit(entry.Element, entry.Arguments);
             this.ExitedDestination?.Invoke(this, entry.Element, entry.Arguments);
 
             this.CompleteAnimationsFor(entry.Element);
@@ -983,8 +1005,7 @@ namespace BovineLabs.Anchor.Nav
 
         private VisualElement CreateItem(string destination)
         {
-            var service = (IUXMLService)AnchorApp.current.services.GetService(typeof(IUXMLService));
-            return service.Instantiate(destination);
+            return AnchorApp.current.services.GetService<IUXMLService>().Instantiate(destination);
         }
 
         private static AnimationDescription GetAnimationFunc(NavigationAnimation anim)
