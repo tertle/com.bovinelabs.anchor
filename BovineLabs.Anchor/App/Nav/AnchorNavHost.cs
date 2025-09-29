@@ -15,6 +15,9 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
+    /// <summary>
+    /// VisualElement that manages Anchor navigation by keeping track of the active stack, back stack, and popup overlays.
+    /// </summary>
     [UxmlElement]
     public partial class AnchorNavHost : VisualElement
     {
@@ -86,6 +89,10 @@ namespace BovineLabs.Anchor.Nav
         private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
         private NavigationAnimation currentPopEnterAnimation = NavigationAnimation.None;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class with a predefined set of actions.
+        /// </summary>
+        /// <param name="actions">Named actions that can be invoked for navigation.</param>
         public AnchorNavHost(IEnumerable<AnchorNamedAction> actions)
             : this()
         {
@@ -115,6 +122,9 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class.
+        /// </summary>
         public AnchorNavHost()
         {
             this.AddToClassList(USSClassName);
@@ -145,7 +155,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary> Event that is invoked when the current destination changes. </summary>
         public event Action<AnchorNavHost, string> DestinationChanged;
 
-        /// <inheritdoc/>
+        /// <summary> Gets or sets a value indicating whether the navigation host can receive focus. </summary>
         public override sealed bool focusable
         {
             get => base.focusable;
@@ -181,7 +191,7 @@ namespace BovineLabs.Anchor.Nav
         private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
 
         /// <summary> Clear the back stack entirely. </summary>
-        /// <remarks> This will not clear the saved states, and the current destination will not be changed. </remarks>
+        /// <remarks> The current destination remains unchanged. </remarks>
         public void ClearBackStack()
         {
             this.backStack.Clear();
@@ -228,7 +238,7 @@ namespace BovineLabs.Anchor.Nav
             if (this.activeStack.Count > 0)
             {
                 var currentSnapshot = this.CaptureCurrentSnapshot();
-                var canPush = !options.LaunchSingleTop || this.CurrentBackStackEntry == null ||
+                var canPush = this.CurrentBackStackEntry == null ||
                     this.CurrentBackStackEntry.Destination != this.CurrentDestination;
 
                 if (canPush)
@@ -259,7 +269,7 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            if (destination == this.CurrentBackStackEntry?.Destination && options.LaunchSingleTop)
+            if (destination == this.CurrentBackStackEntry?.Destination)
             {
                 this.backStack.Pop();
             }
@@ -312,8 +322,10 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        /// <summary> Saves the current navigation state for later restoration. </summary>
-        /// <returns> A snapshot containing the navigation state. </returns>
+        /// <summary>
+        /// Captures the current visual stack, back stack, and popup configuration so it can be restored later.
+        /// </summary>
+        /// <returns>A snapshot containing the navigation state that can be supplied to <see cref="RestoreState"/>.</returns>
         public SavedState SaveState()
         {
             var activeItems = new List<SavedState.StackItem>(this.activeStack.Count);
@@ -345,8 +357,10 @@ namespace BovineLabs.Anchor.Nav
                 backStackEntries);
         }
 
-        /// <summary> Restores a previously saved navigation state. </summary>
-        /// <param name="state"> The snapshot to restore. </param>
+        /// <summary>
+        /// Restores a previously captured navigation snapshot.
+        /// </summary>
+        /// <param name="state">Snapshot created via <see cref="SaveState"/>.</param>
         public void RestoreState(SavedState state)
         {
             if (state == null)
@@ -652,7 +666,7 @@ namespace BovineLabs.Anchor.Nav
             var currentSnapshot = this.CaptureCurrentSnapshot();
             var topEntry = this.activeStack[^1];
 
-            if (options.LaunchSingleTop && topEntry.Destination == destination && topEntry.IsPopup)
+            if (topEntry.Destination == destination && topEntry.IsPopup)
             {
                 var updatedItems = currentSnapshot.Items.ToList();
                 updatedItems[^1] = new AnchorNavStackItem(destination, options, arguments, true);
@@ -961,8 +975,19 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
+        /// <summary>
+        /// Serializable snapshot of an <see cref="AnchorNavHost"/> state.
+        /// </summary>
         public sealed class SavedState
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SavedState"/> class.
+            /// </summary>
+            /// <param name="currentDestination">The current top-most destination.</param>
+            /// <param name="currentPopEnterAnimation">Animation that should play when re-entering after a pop.</param>
+            /// <param name="currentPopExitAnimation">Animation that should play when exiting during a pop.</param>
+            /// <param name="activeStack">Snapshot of the active visual stack.</param>
+            /// <param name="backStack">Snapshot of the back stack entries.</param>
             public SavedState(
                 string currentDestination,
                 NavigationAnimation currentPopEnterAnimation,
@@ -977,18 +1002,33 @@ namespace BovineLabs.Anchor.Nav
                 this.BackStack = backStack ?? Array.Empty<BackStackEntry>();
             }
 
+            /// <summary> Gets the current top-most destination that was active when the snapshot was taken. </summary>
             public string CurrentDestination { get; }
 
+            /// <summary> Gets the animation that should play when an entry re-enters the stack after a pop. </summary>
             public NavigationAnimation CurrentPopEnterAnimation { get; }
 
+            /// <summary> Gets the animation that should play when popping the current destination. </summary>
             public NavigationAnimation CurrentPopExitAnimation { get; }
 
+            /// <summary> Gets the ordered list representing the currently active visual stack. </summary>
             public IReadOnlyList<StackItem> ActiveStack { get; }
 
+            /// <summary> Gets the ordered list representing the stored back stack entries. </summary>
             public IReadOnlyList<BackStackEntry> BackStack { get; }
 
+            /// <summary>
+            /// Serializable representation of a single active stack item.
+            /// </summary>
             public sealed class StackItem
             {
+                /// <summary>
+                /// Initializes a new instance of the <see cref="StackItem"/> class.
+                /// </summary>
+                /// <param name="destination">Destination identifier.</param>
+                /// <param name="options">Navigation options associated with the destination.</param>
+                /// <param name="arguments">Arguments supplied when the destination was navigated to.</param>
+                /// <param name="isPopup">Whether the destination was displayed as a popup.</param>
                 public StackItem(string destination, AnchorNavOptions options, Argument[] arguments, bool isPopup)
                 {
                     this.Destination = destination;
@@ -997,17 +1037,31 @@ namespace BovineLabs.Anchor.Nav
                     this.IsPopup = isPopup;
                 }
 
+                /// <summary> Gets the destination identifier. </summary>
                 public string Destination { get; }
 
+                /// <summary> Gets the options associated with the destination. </summary>
                 public AnchorNavOptions Options { get; }
 
+                /// <summary> Gets the arguments supplied when the destination was navigated to. </summary>
                 public Argument[] Arguments { get; }
 
+                /// <summary> Gets a value indicating whether the destination was displayed as a popup. </summary>
                 public bool IsPopup { get; }
             }
 
+            /// <summary>
+            /// Serializable representation of a back stack entry.
+            /// </summary>
             public sealed class BackStackEntry
             {
+                /// <summary>
+                /// Initializes a new instance of the <see cref="BackStackEntry"/> class.
+                /// </summary>
+                /// <param name="destination">Destination identifier.</param>
+                /// <param name="options">Navigation options associated with the entry.</param>
+                /// <param name="arguments">Arguments supplied when the entry was created.</param>
+                /// <param name="snapshot">Saved snapshot of the visual stack for the entry.</param>
                 public BackStackEntry(
                     string destination,
                     AnchorNavOptions options,
@@ -1020,12 +1074,16 @@ namespace BovineLabs.Anchor.Nav
                     this.Snapshot = snapshot ?? Array.Empty<StackItem>();
                 }
 
+                /// <summary> Gets the destination identifier. </summary>
                 public string Destination { get; }
 
+                /// <summary> Gets the navigation options associated with the entry. </summary>
                 public AnchorNavOptions Options { get; }
 
+                /// <summary> Gets the arguments supplied when the entry was added to the back stack. </summary>
                 public Argument[] Arguments { get; }
 
+                /// <summary> Gets the snapshot that should be applied when the entry becomes active. </summary>
                 public IReadOnlyList<StackItem> Snapshot { get; }
             }
         }

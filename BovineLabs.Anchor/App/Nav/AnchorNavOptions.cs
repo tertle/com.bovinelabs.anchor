@@ -57,10 +57,6 @@ namespace BovineLabs.Anchor.Nav
         private string popUpToDestination;
 
         [SerializeField]
-        [Tooltip("Reuse the existing top destination instead of pushing a duplicate.")]
-        private bool launchSingleTop = true;
-
-        [SerializeField]
         [Tooltip("Presentation strategy applied when treating the navigation as a popup.")]
         private AnchorPopupStrategy popupStrategy;
 
@@ -155,16 +151,6 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether navigating to this destination should avoid pushing another instance
-        /// if it is already at the top of the back stack.
-        /// </summary>
-        public bool LaunchSingleTop
-        {
-            get => this.launchSingleTop;
-            set => this.launchSingleTop = value;
-        }
-
-        /// <summary>
         /// Gets or sets the popup presentation strategy to use for this navigation request.
         /// </summary>
         public AnchorPopupStrategy PopupStrategy
@@ -206,7 +192,6 @@ namespace BovineLabs.Anchor.Nav
                 exitAnim = this.exitAnim,
                 popEnterAnim = this.popEnterAnim,
                 popExitAnim = this.popExitAnim,
-                launchSingleTop = this.launchSingleTop,
                 popupStrategy = this.popupStrategy,
                 popupBaseDestination = this.popupBaseDestination,
                 popupBaseArguments = this.popupBaseArguments != null
