@@ -40,8 +40,6 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
-        protected virtual Type NavVisualController => null;
-
         /// <inheritdoc/>
         protected override void OnConfiguringApp(AppBuilder builder)
         {
@@ -57,11 +55,6 @@ namespace BovineLabs.Anchor
             if (this.UXMLService != null)
             {
                 builder.services.AddSingleton(typeof(IUXMLService), this.UXMLService);
-            }
-
-            if (this.NavVisualController != null)
-            {
-                builder.services.AddSingleton(typeof(INavVisualController), this.NavVisualController);
             }
 
             // Register all services

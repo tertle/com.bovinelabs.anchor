@@ -633,7 +633,7 @@ namespace BovineLabs.Anchor.Nav
             switch (options.PopupStrategy)
             {
                 case AnchorPopupStrategy.PopupOnCurrent:
-                    return this.NavigatePopupOnCurrent(destination, options, arguments, allowFallbackToNormal: true);
+                    return this.NavigatePopupOnCurrent(destination, options, arguments);
                 case AnchorPopupStrategy.EnsureBaseAndPopup:
                     return this.NavigatePopupEnsureBase(destination, options, arguments);
                 case AnchorPopupStrategy.None:
@@ -669,17 +669,14 @@ namespace BovineLabs.Anchor.Nav
             }
 
             this.CloseAllPopups();
-            return this.NavigatePopupOnCurrent(destination, options, arguments, allowFallbackToNormal: false);
+            return this.NavigatePopupOnCurrent(destination, options, arguments);
         }
 
-        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, Argument[] arguments, bool allowFallbackToNormal)
+        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, Argument[] arguments)
         {
             if (this.activeStack.Count == 0)
             {
-                if (!allowFallbackToNormal)
-                {
-                    Debug.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
-                }
+                Debug.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
 
                 var fallbackOptions = options.Clone();
                 fallbackOptions.PopupStrategy = AnchorPopupStrategy.None;
