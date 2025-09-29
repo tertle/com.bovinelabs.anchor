@@ -24,6 +24,9 @@ namespace BovineLabs.Anchor.Nav
         /// The back stack will be popped up to the current graph's start destination.
         /// </summary>
         PopToRoot,
+
+        /// <summary> The back stack will be cleared before navigating. </summary>
+        PopAll,
     }
 
     [Serializable]
@@ -52,18 +55,6 @@ namespace BovineLabs.Anchor.Nav
         [SerializeField]
         [Tooltip("Route identifier to pop up to before navigating.")]
         private string popUpToDestination;
-
-        [SerializeField]
-        [Tooltip("Whether the destination specified above is also removed when popping.")]
-        private bool popUpToInclusive;
-
-        [SerializeField]
-        [Tooltip("Preserve state for destinations removed by the pop operation.")]
-        private bool popUpToSaveState;
-
-        [SerializeField]
-        [Tooltip("Restore previously saved state when navigating to this destination.")]
-        private bool restoreState;
 
         [SerializeField]
         [Tooltip("Reuse the existing top destination instead of pushing a duplicate.")]
@@ -128,16 +119,6 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the destination specified by <see cref="PopUpToDestination"/> should
-        /// also be removed from the back stack.
-        /// </summary>
-        public bool PopUpToInclusive
-        {
-            get => this.popUpToInclusive;
-            set => this.popUpToInclusive = value;
-        }
-
-        /// <summary>
         /// Gets or sets the animation used when navigating to the destination.
         /// </summary>
         public NavigationAnimation EnterAnim
@@ -171,26 +152,6 @@ namespace BovineLabs.Anchor.Nav
         {
             get => this.popExitAnim;
             set => this.popExitAnim = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether destinations removed by <see cref="PopUpToDestination"/> should have
-        /// their state preserved for later restoration.
-        /// </summary>
-        public bool PopUpToSaveState
-        {
-            get => this.popUpToSaveState;
-            set => this.popUpToSaveState = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether previously saved state should be restored when navigating to this
-        /// destination.
-        /// </summary>
-        public bool RestoreState
-        {
-            get => this.restoreState;
-            set => this.restoreState = value;
         }
 
         /// <summary>
@@ -234,19 +195,17 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>
         /// Creates a deep copy of this options instance.
         /// </summary>
+        /// <returns> A cloned copy. </returns>
         public AnchorNavOptions Clone()
         {
             return new AnchorNavOptions
             {
                 stackStrategy = this.stackStrategy,
                 popUpToDestination = this.popUpToDestination,
-                popUpToInclusive = this.popUpToInclusive,
                 enterAnim = this.enterAnim,
                 exitAnim = this.exitAnim,
                 popEnterAnim = this.popEnterAnim,
                 popExitAnim = this.popExitAnim,
-                popUpToSaveState = this.popUpToSaveState,
-                restoreState = this.restoreState,
                 launchSingleTop = this.launchSingleTop,
                 popupStrategy = this.popupStrategy,
                 popupBaseDestination = this.popupBaseDestination,

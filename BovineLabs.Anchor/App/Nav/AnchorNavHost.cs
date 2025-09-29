@@ -19,10 +19,10 @@ namespace BovineLabs.Anchor.Nav
     public partial class AnchorNavHost : VisualElement
     {
         /// <summary> The NavHost main styling class. </summary>
-        public const string USSClassName = "appui-navhost";
+        private const string USSClassName = "appui-navhost";
 
         /// <summary> The NavHost container styling class. </summary>
-        public const string ContainerUssClassName = USSClassName + "__container";
+        private const string ContainerUssClassName = USSClassName + "__container";
 
         /// <summary> No animation. </summary>
         private static readonly AnimationDescription NoneAnimation = new()
@@ -77,7 +77,6 @@ namespace BovineLabs.Anchor.Nav
         private readonly VisualElement container;
 
         private readonly Stack<AnchorNavBackStackEntry> backStack = new();
-        private readonly Dictionary<string, Stack<AnchorNavBackStackEntry>> savedStates = new();
         private readonly Dictionary<string, AnchorNavAction> actions = new();
         private readonly List<AnchorNavActiveEntry> activeStack = new();
         private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
@@ -238,19 +237,26 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            if (options.StackStrategy == AnchorStackStrategy.PopToRoot && this.backStack.Count > 0)
+            switch (options.StackStrategy)
             {
-                options.PopUpToDestination = this.backStack.ElementAt(this.backStack.Count - 1).Destination;
-            }
+                case AnchorStackStrategy.PopAll:
+                {
+                    this.backStack.Clear();
+                    break;
+                }
 
-            if (options.StackStrategy != AnchorStackStrategy.None && options.PopUpToDestination != null)
-            {
-                this.PopUpTo(options.PopUpToDestination, options.PopUpToInclusive, options.PopUpToSaveState);
-            }
+                case AnchorStackStrategy.PopToRoot when this.backStack.Count > 0:
+                {
+                    var rootDestination = this.backStack.ElementAt(this.backStack.Count - 1).Destination;
+                    this.PopUpTo(rootDestination);
+                    break;
+                }
 
-            if (options.RestoreState)
-            {
-                this.RestoreState(destination);
+                case AnchorStackStrategy.PopToSpecificDestination when !string.IsNullOrWhiteSpace(options.PopUpToDestination):
+                {
+                    this.PopUpTo(options.PopUpToDestination);
+                    break;
+                }
             }
 
             if (destination == this.CurrentBackStackEntry?.Destination && options.LaunchSingleTop)
@@ -331,29 +337,12 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            var savedStates = new Dictionary<string, IReadOnlyList<SavedState.BackStackEntry>>(this.savedStates.Count);
-            foreach (var kvp in this.savedStates)
-            {
-                var entries = new List<SavedState.BackStackEntry>(kvp.Value.Count);
-                foreach (var entry in kvp.Value.Reverse())
-                {
-                    var savedEntry = CreateSavedBackStackEntry(entry);
-                    if (savedEntry != null)
-                    {
-                        entries.Add(savedEntry);
-                    }
-                }
-
-                savedStates[kvp.Key] = entries;
-            }
-
             return new SavedState(
                 this.currentDestination,
                 this.currentPopEnterAnimation,
                 this.currentPopExitAnimation,
                 activeItems,
-                backStackEntries,
-                savedStates);
+                backStackEntries);
         }
 
         /// <summary> Restores a previously saved navigation state. </summary>
@@ -373,7 +362,6 @@ namespace BovineLabs.Anchor.Nav
             }
 
             this.backStack.Clear();
-            this.savedStates.Clear();
 
             if (state.BackStack != null)
             {
@@ -386,31 +374,6 @@ namespace BovineLabs.Anchor.Nav
                         savedEntry.Arguments?.ToArray() ?? Array.Empty<Argument>(),
                         snapshot);
                     this.backStack.Push(entry);
-                }
-            }
-
-            if (state.SavedStates != null)
-            {
-                foreach (var kvp in state.SavedStates)
-                {
-                    if (kvp.Value == null)
-                    {
-                        continue;
-                    }
-
-                    var stack = new Stack<AnchorNavBackStackEntry>(kvp.Value.Count);
-                    foreach (var savedEntry in kvp.Value)
-                    {
-                        var snapshot = CreateSnapshotFromSaved(savedEntry.Snapshot);
-                        var entry = new AnchorNavBackStackEntry(
-                            savedEntry.Destination,
-                            savedEntry.Options?.Clone(),
-                            savedEntry.Arguments?.ToArray() ?? Array.Empty<Argument>(),
-                            snapshot);
-                        stack.Push(entry);
-                    }
-
-                    this.savedStates[kvp.Key] = stack;
                 }
             }
 
@@ -708,55 +671,18 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        private void RestoreState(string destination)
-        {
-            if (this.savedStates.TryGetValue(destination, out var stack))
-            {
-                while (stack.TryPop(out var entry))
-                {
-                    this.backStack.Push(entry);
-                }
-
-                this.savedStates.Remove(destination);
-            }
-        }
-
-        private AnchorNavBackStackEntry PopUpTo(string destination, bool inclusive, bool saveState)
+        private AnchorNavBackStackEntry PopUpTo(string destination)
         {
             AnchorNavBackStackEntry result = this.CurrentBackStackEntry;
-            if (saveState)
-            {
-                if (this.savedStates.TryGetValue(destination, out var state))
-                {
-                    state.Clear();
-                }
-                else
-                {
-                    this.savedStates[destination] = new Stack<AnchorNavBackStackEntry>();
-                }
-            }
 
             while (this.backStack.TryPeek(out var entry))
             {
                 if (entry.Destination == destination)
                 {
-                    if (inclusive)
-                    {
-                        result = this.backStack.Pop();
-                        if (saveState)
-                        {
-                            this.savedStates[destination].Push(result);
-                        }
-                    }
-
                     break;
                 }
 
                 result = this.backStack.Pop();
-                if (saveState)
-                {
-                    this.savedStates[destination].Push(result);
-                }
             }
 
             return result;
@@ -1042,15 +968,13 @@ namespace BovineLabs.Anchor.Nav
                 NavigationAnimation currentPopEnterAnimation,
                 NavigationAnimation currentPopExitAnimation,
                 IReadOnlyList<StackItem> activeStack,
-                IReadOnlyList<BackStackEntry> backStack,
-                IReadOnlyDictionary<string, IReadOnlyList<BackStackEntry>> savedStates)
+                IReadOnlyList<BackStackEntry> backStack)
             {
                 this.CurrentDestination = currentDestination;
                 this.CurrentPopEnterAnimation = currentPopEnterAnimation;
                 this.CurrentPopExitAnimation = currentPopExitAnimation;
                 this.ActiveStack = activeStack ?? Array.Empty<StackItem>();
                 this.BackStack = backStack ?? Array.Empty<BackStackEntry>();
-                this.SavedStates = savedStates ?? new Dictionary<string, IReadOnlyList<BackStackEntry>>();
             }
 
             public string CurrentDestination { get; }
@@ -1062,8 +986,6 @@ namespace BovineLabs.Anchor.Nav
             public IReadOnlyList<StackItem> ActiveStack { get; }
 
             public IReadOnlyList<BackStackEntry> BackStack { get; }
-
-            public IReadOnlyDictionary<string, IReadOnlyList<BackStackEntry>> SavedStates { get; }
 
             public sealed class StackItem
             {
