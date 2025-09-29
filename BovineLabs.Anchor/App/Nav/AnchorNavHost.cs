@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Nav
     using System.Collections.Generic;
     using System.Linq;
     using BovineLabs.Anchor.Services;
+    using BovineLabs.Core;
     using BovineLabs.Core.Utility;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
@@ -107,13 +108,13 @@ namespace BovineLabs.Anchor.Nav
 
                     if (string.IsNullOrWhiteSpace(action.ActionName))
                     {
-                        Debug.LogError("Encountered AnchorNamedAction with an empty name.");
+                        BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
                         continue;
                     }
 
                     if (this.actions.ContainsKey(action.ActionName))
                     {
-                        Debug.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
+                        BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
                         continue;
                     }
 
@@ -189,6 +190,141 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary> Gets the last entry on the back stack. </summary>
         private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
+
+        private static SavedState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
+        {
+            if (entry == null)
+            {
+                return null;
+            }
+
+            return new SavedState.StackItem(entry.Destination, entry.Options, entry.Arguments, entry.IsPopup);
+        }
+
+        private static SavedState.StackItem CreateSavedStackItem(AnchorNavStackItem item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            return new SavedState.StackItem(item.Destination, item.Options, item.Arguments, item.IsPopup);
+        }
+
+        private static SavedState.BackStackEntry CreateSavedBackStackEntry(AnchorNavBackStackEntry entry)
+        {
+            if (entry == null)
+            {
+                return null;
+            }
+
+            var snapshotItems = entry.Snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
+            var savedSnapshot = new List<SavedState.StackItem>(snapshotItems.Count);
+
+            foreach (var item in snapshotItems)
+            {
+                var savedItem = CreateSavedStackItem(item);
+                if (savedItem != null)
+                {
+                    savedSnapshot.Add(savedItem);
+                }
+            }
+
+            return new SavedState.BackStackEntry(entry.Destination, entry.Options, entry.Arguments, savedSnapshot);
+        }
+
+        private static AnchorNavStackSnapshot CreateSnapshotFromSaved(IReadOnlyList<SavedState.StackItem> items)
+        {
+            if (items == null || items.Count == 0)
+            {
+                return AnchorNavStackSnapshot.Empty;
+            }
+
+            var stackItems = new List<AnchorNavStackItem>(items.Count);
+            foreach (var item in items)
+            {
+                var stackItem = CreateStackItem(item);
+                if (stackItem != null)
+                {
+                    stackItems.Add(stackItem);
+                }
+            }
+
+            if (stackItems.Count == 0)
+            {
+                return AnchorNavStackSnapshot.Empty;
+            }
+
+            return new AnchorNavStackSnapshot(stackItems);
+        }
+
+        private static AnchorNavStackItem CreateStackItem(SavedState.StackItem item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            var options = item.Options?.Clone();
+            var arguments = item.Arguments?.ToArray() ?? Array.Empty<Argument>();
+            return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
+        }
+
+        private static AnimationDescription GetAnimationFunc(NavigationAnimation anim)
+        {
+            switch (anim)
+            {
+                case NavigationAnimation.ScaleDownFadeIn:
+                    return ScaleDownFadeInAnimation;
+                case NavigationAnimation.ScaleUpFadeOut:
+                    return ScaleUpFadeOutAnimation;
+                case NavigationAnimation.FadeIn:
+                    return FadeInAnimation;
+                case NavigationAnimation.FadeOut:
+                    return FadeOutAnimation;
+                case NavigationAnimation.None:
+                default:
+                    return NoneAnimation;
+            }
+        }
+
+        private static void OnEntered(AnchorNavActiveEntry entry)
+        {
+            var handled = false;
+
+            foreach (var ve in entry.Element.Query<VisualElement>().Build())
+            {
+                if (ve.dataSource is IAnchorNavigationScreen screen)
+                {
+                    screen.OnEnter(entry.Arguments);
+                    handled = true;
+                }
+            }
+
+            if (!handled && entry.Arguments is { Length: > 0 })
+            {
+                BLGlobalLogger.LogWarning($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnEnter.");
+            }
+        }
+
+        private static void OnExit(AnchorNavActiveEntry entry)
+        {
+            var handled = false;
+
+            foreach (var ve in entry.Element.Query<VisualElement>().Build())
+            {
+                if (ve.dataSource is IAnchorNavigationScreen screen)
+                {
+                    screen.OnExit(entry.Arguments);
+                    handled = true;
+                }
+            }
+
+            if (!handled && entry.Arguments is { Length: > 0 })
+            {
+                BLGlobalLogger.LogWarning($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnExit.");
+            }
+        }
 
         /// <summary> Clear the back stack entirely. </summary>
         /// <remarks> The current destination remains unchanged. </remarks>
@@ -400,132 +536,31 @@ namespace BovineLabs.Anchor.Nav
             this.CurrentDestination = state.CurrentDestination;
         }
 
-        private static SavedState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
-        {
-            if (entry == null)
-            {
-                return null;
-            }
-
-            return new SavedState.StackItem(entry.Destination, entry.Options, entry.Arguments, entry.IsPopup);
-        }
-
-        private static SavedState.StackItem CreateSavedStackItem(AnchorNavStackItem item)
-        {
-            if (item == null)
-            {
-                return null;
-            }
-
-            return new SavedState.StackItem(item.Destination, item.Options, item.Arguments, item.IsPopup);
-        }
-
-        private static SavedState.BackStackEntry CreateSavedBackStackEntry(AnchorNavBackStackEntry entry)
-        {
-            if (entry == null)
-            {
-                return null;
-            }
-
-            var snapshotItems = entry.Snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
-            var savedSnapshot = new List<SavedState.StackItem>(snapshotItems.Count);
-
-            foreach (var item in snapshotItems)
-            {
-                var savedItem = CreateSavedStackItem(item);
-                if (savedItem != null)
-                {
-                    savedSnapshot.Add(savedItem);
-                }
-            }
-
-            return new SavedState.BackStackEntry(entry.Destination, entry.Options, entry.Arguments, savedSnapshot);
-        }
-
-        private static AnchorNavStackSnapshot CreateSnapshotFromSaved(IReadOnlyList<SavedState.StackItem> items)
-        {
-            if (items == null || items.Count == 0)
-            {
-                return AnchorNavStackSnapshot.Empty;
-            }
-
-            var stackItems = new List<AnchorNavStackItem>(items.Count);
-            foreach (var item in items)
-            {
-                var stackItem = CreateStackItem(item);
-                if (stackItem != null)
-                {
-                    stackItems.Add(stackItem);
-                }
-            }
-
-            if (stackItems.Count == 0)
-            {
-                return AnchorNavStackSnapshot.Empty;
-            }
-
-            return new AnchorNavStackSnapshot(stackItems);
-        }
-
-        private static AnchorNavStackItem CreateStackItem(SavedState.StackItem item)
-        {
-            if (item == null)
-            {
-                return null;
-            }
-
-            var options = item.Options != null ? item.Options.Clone() : null;
-            var arguments = item.Arguments?.ToArray() ?? Array.Empty<Argument>();
-            return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
-        }
-
-        private static void OnEntered(VisualElement root, Argument[] arguments)
-        {
-            foreach (var ve in root.Query<VisualElement>().Build())
-            {
-                if (ve.dataSource is IAnchorNavigationScreen screen)
-                {
-                    screen.OnEnter(arguments);
-                }
-            }
-        }
-
-        private static void OnExit(VisualElement root, Argument[] arguments)
-        {
-            foreach (var ve in root.Query<VisualElement>().Build())
-            {
-                if (ve.dataSource is IAnchorNavigationScreen screen)
-                {
-                    screen.OnExit(arguments);
-                }
-            }
-        }
-
         private void RegisterAllActions()
         {
             foreach (var (method, attribute) in ReflectionUtility.GetMethodsAndAttribute<AnchorNavActionAttribute>())
             {
                 if (!method.IsStatic)
                 {
-                    Debug.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} must be static.");
+                    BLGlobalLogger.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} must be static.");
                     continue;
                 }
 
                 if (!typeof(AnchorNavAction).IsAssignableFrom(method.ReturnType))
                 {
-                    Debug.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} must return {nameof(AnchorNavAction)}.");
+                    BLGlobalLogger.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} must return {nameof(AnchorNavAction)}.");
                     continue;
                 }
 
                 if (string.IsNullOrWhiteSpace(attribute.Name))
                 {
-                    Debug.LogError($"AnchorNavActionAttribute on {method.DeclaringType?.FullName}.{method.Name} must define a non-empty Name.");
+                    BLGlobalLogger.LogError($"AnchorNavActionAttribute on {method.DeclaringType?.FullName}.{method.Name} must define a non-empty Name.");
                     continue;
                 }
 
                 if (this.actions.ContainsKey(attribute.Name))
                 {
-                    Debug.LogError($"AnchorNavAction '{attribute.Name}' is already registered; duplicate found on {method.DeclaringType?.FullName}.{method.Name}.");
+                    BLGlobalLogger.LogError($"AnchorNavAction '{attribute.Name}' is already registered; duplicate found on {method.DeclaringType?.FullName}.{method.Name}.");
                     continue;
                 }
 
@@ -536,13 +571,13 @@ namespace BovineLabs.Anchor.Nav
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Failed to invoke AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name}: {ex.Message}\n{ex.StackTrace}");
+                    BLGlobalLogger.LogError($"Failed to invoke AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name}: {ex.Message}\n{ex.StackTrace}");
                     continue;
                 }
 
                 if (action == null)
                 {
-                    Debug.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} returned null.");
+                    BLGlobalLogger.LogError($"AnchorNavAction method {method.DeclaringType?.FullName}.{method.Name} returned null.");
                     continue;
                 }
 
@@ -625,7 +660,7 @@ namespace BovineLabs.Anchor.Nav
             var baseDestination = options.PopupBaseDestination;
             if (string.IsNullOrWhiteSpace(baseDestination))
             {
-                Debug.LogError($"Popup strategy {AnchorPopupStrategy.EnsureBaseAndPopup} requires a base destination.");
+                BLGlobalLogger.LogError($"Popup strategy {AnchorPopupStrategy.EnsureBaseAndPopup} requires a base destination.");
                 return false;
             }
 
@@ -653,7 +688,7 @@ namespace BovineLabs.Anchor.Nav
         {
             if (this.activeStack.Count == 0)
             {
-                Debug.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
+                BLGlobalLogger.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
 
                 var fallbackOptions = options.Clone();
                 fallbackOptions.PopupStrategy = AnchorPopupStrategy.None;
@@ -801,7 +836,6 @@ namespace BovineLabs.Anchor.Nav
             if (index >= this.container.childCount)
             {
                 this.container.Add(element);
-
             }
             else
             {
@@ -813,7 +847,7 @@ namespace BovineLabs.Anchor.Nav
 
             this.TryPlayAnimation(element, enterAnim, null);
 
-            OnEntered(element, entry.Arguments);
+            OnEntered(entry);
             this.EnteredDestination?.Invoke(this, element, entry.Arguments);
         }
 
@@ -822,7 +856,7 @@ namespace BovineLabs.Anchor.Nav
             var entry = this.activeStack[index];
             this.activeStack.RemoveAt(index);
 
-            OnExit(entry.Element, entry.Arguments);
+            OnExit(entry);
             this.ExitedDestination?.Invoke(this, entry.Element, entry.Arguments);
 
             this.CompleteAnimationsFor(entry.Element);
@@ -948,24 +982,6 @@ namespace BovineLabs.Anchor.Nav
             return element;
         }
 
-        private static AnimationDescription GetAnimationFunc(NavigationAnimation anim)
-        {
-            switch (anim)
-            {
-                case NavigationAnimation.ScaleDownFadeIn:
-                    return ScaleDownFadeInAnimation;
-                case NavigationAnimation.ScaleUpFadeOut:
-                    return ScaleUpFadeOutAnimation;
-                case NavigationAnimation.FadeIn:
-                    return FadeInAnimation;
-                case NavigationAnimation.FadeOut:
-                    return FadeOutAnimation;
-                case NavigationAnimation.None:
-                default:
-                    return NoneAnimation;
-            }
-        }
-
         private void OnCancelNavigation(NavigationCancelEvent evt)
         {
             if (this.CanGoBack)
@@ -1032,7 +1048,7 @@ namespace BovineLabs.Anchor.Nav
                 public StackItem(string destination, AnchorNavOptions options, Argument[] arguments, bool isPopup)
                 {
                     this.Destination = destination;
-                    this.Options = options != null ? options.Clone() : null;
+                    this.Options = options?.Clone();
                     this.Arguments = arguments?.ToArray() ?? Array.Empty<Argument>();
                     this.IsPopup = isPopup;
                 }
@@ -1069,7 +1085,7 @@ namespace BovineLabs.Anchor.Nav
                     IReadOnlyList<StackItem> snapshot)
                 {
                     this.Destination = destination;
-                    this.Options = options != null ? options.Clone() : null;
+                    this.Options = options?.Clone();
                     this.Arguments = arguments?.ToArray() ?? Array.Empty<Argument>();
                     this.Snapshot = snapshot ?? Array.Empty<StackItem>();
                 }
@@ -1123,6 +1139,9 @@ namespace BovineLabs.Anchor.Nav
 
         private sealed class AnchorNavAnimationHandle
         {
+            private readonly AnimationDescription description;
+            private readonly Action onCompleted;
+
             private bool completed;
 
             public AnchorNavAnimationHandle(
@@ -1131,15 +1150,11 @@ namespace BovineLabs.Anchor.Nav
                 Action onCompleted)
             {
                 this.Element = element;
-                this.Description = description;
-                this.OnCompleted = onCompleted;
+                this.description = description;
+                this.onCompleted = onCompleted;
             }
 
             public VisualElement Element { get; }
-
-            public AnimationDescription Description { get; }
-
-            public Action OnCompleted { get; }
 
             public ValueAnimation<float> Handle { get; set; }
 
@@ -1166,8 +1181,8 @@ namespace BovineLabs.Anchor.Nav
 
                 this.Handle?.Recycle();
                 this.Handle = null;
-                this.Description.callback?.Invoke(this.Element, 1f);
-                this.OnCompleted?.Invoke();
+                this.description.callback?.Invoke(this.Element, 1f);
+                this.onCompleted?.Invoke();
             }
         }
     }
