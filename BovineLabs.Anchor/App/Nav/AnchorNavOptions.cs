@@ -8,6 +8,7 @@ namespace BovineLabs.Anchor.Nav
     using System.Collections.Generic;
     using Unity.AppUI.Navigation;
     using UnityEngine;
+    using UnityEngine.Serialization;
 
     /// <summary>
     /// Pre-navigation behaviour describing how the back stack is adjusted before activating the destination.
@@ -72,8 +73,9 @@ namespace BovineLabs.Anchor.Nav
         private AnchorStackStrategy stackStrategy;
 
         [SerializeField]
+        [FormerlySerializedAs("popUpToDestination")]
         [Tooltip("Route identifier to pop up to before navigating.")]
-        private string popUpToDestination;
+        private string popupToDestination;
 
         [SerializeField]
         [Tooltip("Presentation strategy applied when treating the navigation as a popup.")]
@@ -131,10 +133,10 @@ namespace BovineLabs.Anchor.Nav
         /// Gets or sets the destination route to pop up to before navigating. When provided, all other destinations above
         /// the target will be removed from the back stack.
         /// </summary>
-        public string PopUpToDestination
+        public string PopupToDestination
         {
-            get => this.popUpToDestination;
-            set => this.popUpToDestination = value;
+            get => this.popupToDestination;
+            set => this.popupToDestination = value;
         }
 
         /// <summary>
@@ -219,7 +221,7 @@ namespace BovineLabs.Anchor.Nav
             return new AnchorNavOptions
             {
                 stackStrategy = this.stackStrategy,
-                popUpToDestination = this.popUpToDestination,
+                popupToDestination = this.popupToDestination,
                 enterAnim = this.enterAnim,
                 exitAnim = this.exitAnim,
                 popEnterAnim = this.popEnterAnim,

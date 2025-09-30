@@ -398,9 +398,9 @@ namespace BovineLabs.Anchor.Nav
                     break;
                 }
 
-                case AnchorStackStrategy.PopToSpecificDestination when !string.IsNullOrWhiteSpace(options.PopUpToDestination):
+                case AnchorStackStrategy.PopToSpecificDestination when !string.IsNullOrWhiteSpace(options.PopupToDestination):
                 {
-                    this.PopUpTo(options.PopUpToDestination);
+                    this.PopUpTo(options.PopupToDestination);
                     break;
                 }
             }
