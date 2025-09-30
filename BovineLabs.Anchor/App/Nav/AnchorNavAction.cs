@@ -19,10 +19,10 @@ namespace BovineLabs.Anchor.Nav
         private string destination = string.Empty;
 
         [SerializeField]
-        private AnchorNavOptions options = new();
+        private List<Argument> defaultArguments = new();
 
         [SerializeField]
-        private List<Argument> defaultArguments = new();
+        private AnchorNavOptions options = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AnchorNavAction"/> class.

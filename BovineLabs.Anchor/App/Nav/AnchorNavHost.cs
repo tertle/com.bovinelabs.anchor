@@ -453,8 +453,8 @@ namespace BovineLabs.Anchor.Nav
 
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
             this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options?.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = top?.Options?.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim ?? NavigationAnimation.None;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim ?? NavigationAnimation.None;
             return true;
         }
 
@@ -782,13 +782,13 @@ namespace BovineLabs.Anchor.Nav
 
         private void HandleNavigate(AnchorNavBackStackEntry entry)
         {
-            this.currentPopEnterAnimation = entry.Options?.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = entry.Options?.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = entry.Options.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = entry.Options.Animations.PopExitAnim;
 
             this.ApplySnapshot(
                 entry.Snapshot,
-                entry.Options?.ExitAnim ?? NavigationAnimation.None,
-                entry.Options?.EnterAnim ?? NavigationAnimation.None,
+                entry.Options.Animations.ExitAnim,
+                entry.Options.Animations.EnterAnim,
                 entry.Options);
 
             this.CurrentDestination = entry.Destination;
@@ -840,8 +840,8 @@ namespace BovineLabs.Anchor.Nav
             var top = targetItems.Count > 0 ? targetItems[^1] : null;
             this.CurrentDestination = top?.Destination;
 
-            this.currentPopEnterAnimation = optionsForTop?.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = optionsForTop?.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = optionsForTop.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = optionsForTop.Animations.PopExitAnim;
         }
 
         private AnchorNavStackSnapshot CaptureCurrentSnapshot()

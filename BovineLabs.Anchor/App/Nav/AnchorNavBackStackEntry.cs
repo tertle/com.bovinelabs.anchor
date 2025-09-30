@@ -22,7 +22,7 @@ namespace BovineLabs.Anchor.Nav
             AnchorNavStackSnapshot snapshot = null)
         {
             this.Destination = destination;
-            this.Options = options;
+            this.Options = options ?? new AnchorNavOptions();
             this.Arguments = arguments ?? Array.Empty<Argument>();
             this.Snapshot = snapshot ?? AnchorNavStackSnapshot.Empty;
         }
