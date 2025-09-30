@@ -10,55 +10,59 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine;
 
     /// <summary>
-    /// Strategy for popping up to a destination.
+    /// Pre-navigation behaviour describing how the back stack is adjusted before activating the destination.
     /// </summary>
     public enum AnchorStackStrategy
     {
-        /// <summary> The back stack will not be popped. </summary>
+        /// <summary>Leave the back stack untouched prior to navigation.</summary>
         None,
 
-        /// <summary> The back stack will be popped up to the destination with the given ID. </summary>
+        /// <summary>Pop entries until the specified destination is on top, when present.</summary>
         PopToSpecificDestination,
 
         /// <summary>
-        /// The back stack will be popped up to the current graph's start destination.
+        /// Pop entries until the first destination in the current graph remains.
         /// </summary>
         PopToRoot,
 
-        /// <summary> The back stack will be cleared before navigating. </summary>
+        /// <summary>Remove every entry from the back stack before navigating.</summary>
         PopAll,
     }
 
+    /// <summary>
+    /// Determines whether a navigation request should be handled as a popup overlay or a standard destination change.
+    /// </summary>
     [Serializable]
     public enum AnchorPopupStrategy
     {
-        /// <summary>No popup behaviour; navigation replaces the current destination.</summary>
+        /// <summary>Treat the navigation as a normal destination change with no popup handling.</summary>
         None,
 
-        /// <summary>Overlay the destination on top of the current visual stack.</summary>
+        /// <summary>Overlay the destination on top of the current visual stack without altering the base.</summary>
         PopupOnCurrent,
 
-        /// <summary>Navigate to a base destination first (if required) before overlaying the popup.</summary>
+        /// <summary>Ensure a specific base destination is active before overlaying the popup.</summary>
         EnsureBaseAndPopup,
     }
 
+    /// <summary>
+    /// Specifies how existing popups should be treated when presenting a new popup destination.
+    /// </summary>
     [Serializable]
     public enum AnchorPopupExistingStrategy
     {
-        /// <summary>Keep any current popups and add the new popup on top.</summary>
+        /// <summary>Keep any existing popups and add the new popup on top of the stack.</summary>
         None,
 
-        /// <summary>Close all existing popups before presenting the new popup.</summary>
+        /// <summary>Remove all current popups before the new popup is shown while leaving the base destination intact.</summary>
         CloseOtherPopups,
 
-        /// <summary>
-        /// Push the existing stack (including popups) to the back stack when popups are active, rebuild a popup-free base, and present the new popup over it.
-        /// </summary>
+        /// <summary>When popups are active, archive the current stack, rebuild the base, and present the new popup (otherwise behaves like <see cref="None"/>).</summary>
         PushNew,
     }
 
     /// <summary>
-    /// NavOptions stores special options for navigate actions
+    /// AnchorNavOptions stores special options for navigate actions.
     /// </summary>
     [Serializable]
     public class AnchorNavOptions
@@ -223,9 +227,7 @@ namespace BovineLabs.Anchor.Nav
                 popupStrategy = this.popupStrategy,
                 popupExistingStrategy = this.popupExistingStrategy,
                 popupBaseDestination = this.popupBaseDestination,
-                popupBaseArguments = this.popupBaseArguments != null
-                    ? new List<Argument>(this.popupBaseArguments)
-                    : new List<Argument>(),
+                popupBaseArguments = this.popupBaseArguments != null ? new List<Argument>(this.popupBaseArguments) : new List<Argument>(),
             };
         }
     }
