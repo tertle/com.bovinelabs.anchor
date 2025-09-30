@@ -42,6 +42,21 @@ namespace BovineLabs.Anchor.Nav
         EnsureBaseAndPopup,
     }
 
+    [Serializable]
+    public enum AnchorPopupExistingStrategy
+    {
+        /// <summary>Keep any current popups and add the new popup on top.</summary>
+        None,
+
+        /// <summary>Close all existing popups before presenting the new popup.</summary>
+        CloseOtherPopups,
+
+        /// <summary>
+        /// Push the existing stack (including popups) to the back stack when popups are active, rebuild a popup-free base, and present the new popup over it.
+        /// </summary>
+        PushNew,
+    }
+
     /// <summary>
     /// NavOptions stores special options for navigate actions
     /// </summary>
@@ -67,6 +82,10 @@ namespace BovineLabs.Anchor.Nav
         [SerializeField]
         [Tooltip("Arguments supplied when navigating to the popup base destination.")]
         private List<Argument> popupBaseArguments = new();
+
+        [SerializeField]
+        [Tooltip("How to treat any existing popups when this navigation is shown as a popup.")]
+        private AnchorPopupExistingStrategy popupExistingStrategy;
 
         [SerializeField]
         [Tooltip("Animation used when presenting this destination.")]
@@ -160,6 +179,15 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
+        /// Gets or sets the behaviour applied to popups that are already present when this popup is requested.
+        /// </summary>
+        public AnchorPopupExistingStrategy PopupExistingStrategy
+        {
+            get => this.popupExistingStrategy;
+            set => this.popupExistingStrategy = value;
+        }
+
+        /// <summary>
         /// Gets or sets the destination that should be ensured as the base layer before displaying a popup when
         /// <see cref="PopupStrategy"/> is <see cref="AnchorPopupStrategy.EnsureBaseAndPopup"/>.
         /// </summary>
@@ -193,6 +221,7 @@ namespace BovineLabs.Anchor.Nav
                 popEnterAnim = this.popEnterAnim,
                 popExitAnim = this.popExitAnim,
                 popupStrategy = this.popupStrategy,
+                popupExistingStrategy = this.popupExistingStrategy,
                 popupBaseDestination = this.popupBaseDestination,
                 popupBaseArguments = this.popupBaseArguments != null
                     ? new List<Argument>(this.popupBaseArguments)

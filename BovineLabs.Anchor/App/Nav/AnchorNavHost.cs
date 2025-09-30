@@ -664,7 +664,9 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            if (!this.TryGetCurrentBase(out var currentBase) || currentBase.Destination != baseDestination)
+            var baseAligned = this.TryGetCurrentBase(out var currentBase) && currentBase.Destination == baseDestination;
+
+            if (!baseAligned)
             {
                 var baseOptions = options.Clone();
                 baseOptions.PopupStrategy = AnchorPopupStrategy.None;
@@ -680,7 +682,6 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            this.CloseAllPopups();
             return this.NavigatePopupOnCurrent(destination, options, arguments);
         }
 
@@ -694,27 +695,69 @@ namespace BovineLabs.Anchor.Nav
                 fallbackOptions.PopupStrategy = AnchorPopupStrategy.None;
                 fallbackOptions.PopupBaseDestination = null;
                 fallbackOptions.PopupBaseArguments.Clear();
+                fallbackOptions.PopupExistingStrategy = AnchorPopupExistingStrategy.None;
                 this.NavigateInternal(destination, fallbackOptions, arguments);
                 return true;
             }
 
             var currentSnapshot = this.CaptureCurrentSnapshot();
             var topEntry = this.activeStack[^1];
+            var handling = options.PopupExistingStrategy;
+            var hasExistingPopups = currentSnapshot.HasPopups;
 
-            if (topEntry.Destination == destination && topEntry.IsPopup)
+            if (handling == AnchorPopupExistingStrategy.None || !hasExistingPopups)
             {
-                var updatedItems = currentSnapshot.Items.ToList();
-                updatedItems[^1] = new AnchorNavStackItem(destination, options, arguments, true);
-                var updatedSnapshot = new AnchorNavStackSnapshot(updatedItems);
-                this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, updatedSnapshot));
+                if (topEntry.Destination == destination && topEntry.IsPopup)
+                {
+                    var updatedItems = currentSnapshot.Items.ToList();
+                    updatedItems[^1] = new AnchorNavStackItem(destination, options, arguments, true);
+                    var updatedSnapshot = new AnchorNavStackSnapshot(updatedItems);
+                    this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, updatedSnapshot));
+                    return true;
+                }
+
+                this.PushSnapshot(currentSnapshot);
+
+                var stackedItems = currentSnapshot.Items.ToList();
+                stackedItems.Add(new AnchorNavStackItem(destination, options, arguments, true));
+                var stackedSnapshot = new AnchorNavStackSnapshot(stackedItems);
+
+                this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, stackedSnapshot));
                 return true;
             }
 
-            this.PushSnapshot(currentSnapshot);
+            var pushedExistingSnapshot = false;
+            if (handling == AnchorPopupExistingStrategy.PushNew)
+            {
+                this.PushSnapshot(currentSnapshot);
+                pushedExistingSnapshot = true;
+            }
 
-            var items = currentSnapshot.Items.ToList();
-            items.Add(new AnchorNavStackItem(destination, options, arguments, true));
-            var targetSnapshot = new AnchorNavStackSnapshot(items);
+            var baseItems = new List<AnchorNavStackItem>(currentSnapshot.Items.Count);
+            foreach (var item in currentSnapshot.Items)
+            {
+                if (!item.IsPopup)
+                {
+                    baseItems.Add(item);
+                }
+            }
+
+            if (baseItems.Count == 0)
+            {
+                if (!pushedExistingSnapshot)
+                {
+                    this.PushSnapshot(currentSnapshot);
+                }
+
+                var fallbackItems = currentSnapshot.Items.ToList();
+                fallbackItems.Add(new AnchorNavStackItem(destination, options, arguments, true));
+                var fallbackSnapshot = new AnchorNavStackSnapshot(fallbackItems);
+                this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, fallbackSnapshot));
+                return true;
+            }
+
+            baseItems.Add(new AnchorNavStackItem(destination, options, arguments, true));
+            var targetSnapshot = new AnchorNavStackSnapshot(baseItems);
 
             this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, targetSnapshot));
             return true;
@@ -819,7 +862,7 @@ namespace BovineLabs.Anchor.Nav
 
         private void PushSnapshot(AnchorNavStackSnapshot snapshot)
         {
-            if (snapshot == null || snapshot.Top == null)
+            if (snapshot?.Top == null)
             {
                 return;
             }
