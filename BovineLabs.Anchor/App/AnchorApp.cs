@@ -27,6 +27,7 @@ namespace BovineLabs.Anchor
 
         [UsedImplicitly]
         private static object navigateFunctionGCPrevention;
+
         [UsedImplicitly]
         private static object currentFunctionGCPrevention;
 

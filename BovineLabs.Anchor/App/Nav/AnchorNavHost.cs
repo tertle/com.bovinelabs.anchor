@@ -705,7 +705,7 @@ namespace BovineLabs.Anchor.Nav
             var handling = options.PopupExistingStrategy;
             var hasExistingPopups = currentSnapshot.HasPopups;
 
-            if (handling == AnchorPopupExistingStrategy.None || !hasExistingPopups)
+            if (handling == AnchorPopupExistingStrategy.None || (!hasExistingPopups && handling != AnchorPopupExistingStrategy.PushNew))
             {
                 if (topEntry.Destination == destination && topEntry.IsPopup)
                 {

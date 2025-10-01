@@ -58,7 +58,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>Remove all current popups before the new popup is shown while leaving the base destination intact.</summary>
         CloseOtherPopups,
 
-        /// <summary>When popups are active, archive the current stack, rebuild the base, and present the new popup (otherwise behaves like <see cref="None"/>).</summary>
+        /// <summary>Archive the current stack, rebuild the base, and present the new popup regardless of existing popups.</summary>
         PushNew,
     }
 
