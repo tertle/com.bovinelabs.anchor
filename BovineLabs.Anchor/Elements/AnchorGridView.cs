@@ -1,4 +1,4 @@
-// <copyright file="BLGridView.cs" company="BovineLabs">
+// <copyright file="AnchorGridView.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -12,14 +12,14 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine.UIElements;
 
     [UxmlElement]
-    public partial class BLGridView : GridView
+    public partial class AnchorGridView : GridView
     {
         private static readonly BindingId SelectedIndexProperty = new(nameof(selectedIndex));
         private static readonly BindingId SelectedIndicesProperty = new(nameof(selectedIndices));
         private static readonly BindingId ItemsSourceProperty = new(nameof(itemsSource));
         private static readonly BindingId ColumnCountProperty = new(nameof(columnCount));
 
-        public BLGridView()
+        public AnchorGridView()
         {
             this.makeItem = this.MakeItem;
             this.bindItem = this.BindItem;
