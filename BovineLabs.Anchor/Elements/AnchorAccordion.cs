@@ -1,16 +1,20 @@
-// <copyright file="AccordionWithItem.cs" company="BovineLabs">
+// <copyright file="AnchorAccordion.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
 namespace BovineLabs.Anchor.Elements
 {
     using System.Collections;
+    using System.Diagnostics.CodeAnalysis;
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
 
     [UxmlElement]
-    public partial class AccordionWithItem : Accordion
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "UITK Standard")]
+    public partial class AnchorAccordion : Accordion
     {
         public static readonly BindingId ItemTemplateProperty = (BindingId)nameof(itemTemplate);
         public static readonly BindingId ItemsSourceProperty = (BindingId)nameof(itemsSource);

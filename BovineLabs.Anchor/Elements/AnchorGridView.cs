@@ -7,11 +7,15 @@ namespace BovineLabs.Anchor.Elements
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
 
     [UxmlElement]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
+    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "UITK Standard")]
     public partial class AnchorGridView : GridView
     {
         private static readonly BindingId SelectedIndexProperty = new(nameof(selectedIndex));
