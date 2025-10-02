@@ -97,29 +97,31 @@ namespace BovineLabs.Anchor.Nav
         public AnchorNavHost(IEnumerable<AnchorNamedAction> actions)
             : this()
         {
-            if (actions != null)
+            if (actions == null)
             {
-                foreach (var action in actions)
+                return;
+            }
+
+            foreach (var action in actions)
+            {
+                if (action == null)
                 {
-                    if (action == null)
-                    {
-                        continue;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(action.ActionName))
-                    {
-                        BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
-                        continue;
-                    }
-
-                    if (this.actions.ContainsKey(action.ActionName))
-                    {
-                        BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
-                        continue;
-                    }
-
-                    this.actions.Add(action.ActionName, action.Action);
+                    continue;
                 }
+
+                if (string.IsNullOrWhiteSpace(action.ActionName))
+                {
+                    BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
+                    continue;
+                }
+
+                if (this.actions.ContainsKey(action.ActionName))
+                {
+                    BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
+                    continue;
+                }
+
+                this.actions.Add(action.ActionName, action.Action);
             }
         }
 
@@ -674,7 +676,7 @@ namespace BovineLabs.Anchor.Nav
                 baseOptions.PopupBaseArguments.Clear();
 
                 var baseArgsList = options.PopupBaseArguments;
-                var baseArgs = baseArgsList != null && baseArgsList.Count > 0 ? baseArgsList.ToArray() : Array.Empty<Argument>();
+                var baseArgs = baseArgsList is { Count: > 0 } ? baseArgsList.ToArray() : Array.Empty<Argument>();
 
                 if (!this.Navigate(baseDestination, baseOptions, baseArgs))
                 {
@@ -763,10 +765,8 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        private AnchorNavBackStackEntry PopUpTo(string destination)
+        private void PopUpTo(string destination)
         {
-            AnchorNavBackStackEntry result = this.CurrentBackStackEntry;
-
             while (this.backStack.TryPeek(out var entry))
             {
                 if (entry.Destination == destination)
@@ -774,10 +774,8 @@ namespace BovineLabs.Anchor.Nav
                     break;
                 }
 
-                result = this.backStack.Pop();
+                this.backStack.Pop();
             }
-
-            return result;
         }
 
         private void HandleNavigate(AnchorNavBackStackEntry entry)
