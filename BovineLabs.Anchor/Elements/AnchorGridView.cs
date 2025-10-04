@@ -30,6 +30,8 @@ namespace BovineLabs.Anchor.Elements
 
             this.selectionChanged += _ => this.NotifyPropertyChanged(SelectedIndexProperty);
             this.selectedIndicesChanged += _ => this.NotifyPropertyChanged(SelectedIndicesProperty);
+
+            this.itemsSource = Array.Empty<object>();
         }
 
         /// <summary>
@@ -37,6 +39,27 @@ namespace BovineLabs.Anchor.Elements
         /// </summary>
         [UxmlAttribute]
         public VisualTreeAsset itemTemplate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of columns for this grid.
+        /// </summary>
+        [CreateProperty]
+        [UxmlAttribute]
+        public new int columnCount
+        {
+            get => base.columnCount;
+
+            set
+            {
+                if (base.columnCount == value)
+                {
+                    return;
+                }
+
+                base.columnCount = value;
+                this.NotifyPropertyChanged(ColumnCountProperty);
+            }
+        }
 
         /// <summary>
         /// Returns or sets the selected item's index in the data source. If multiple items are selected, returns the
@@ -85,26 +108,6 @@ namespace BovineLabs.Anchor.Elements
 
                 base.itemsSource = value;
                 this.NotifyPropertyChanged(ItemsSourceProperty);
-            }
-        }
-
-        /// <summary>
-        /// The number of columns for this grid.
-        /// </summary>
-        [CreateProperty]
-        public new int columnCount
-        {
-            get => base.columnCount;
-
-            set
-            {
-                if (base.columnCount == value)
-                {
-                    return;
-                }
-
-                base.columnCount = value;
-                this.NotifyPropertyChanged(ColumnCountProperty);
             }
         }
 

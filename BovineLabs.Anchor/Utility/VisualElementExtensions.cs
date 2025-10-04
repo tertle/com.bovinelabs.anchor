@@ -62,5 +62,27 @@ namespace BovineLabs.Anchor
                 SetPickingModeRecursive(child, mode);
             }
         }
+
+        public static bool TryResolveDataSource<T>(this VisualElement element, out T slot)
+            where T : class
+        {
+            slot = null;
+
+            if (element == null)
+            {
+                return false;
+            }
+
+            var context = element.GetHierarchicalDataSourceContext();
+            var dataSource = context.dataSource;
+
+            if (PropertyContainer.TryGetValue(ref dataSource, context.dataSourcePath, out object obj))
+            {
+                dataSource = obj;
+            }
+
+            slot = dataSource as T;
+            return slot != null;
+        }
     }
 }
