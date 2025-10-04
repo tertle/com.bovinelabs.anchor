@@ -4,7 +4,6 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using BovineLabs.Anchor.Contracts;
     using Unity.Properties;
 
     public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>

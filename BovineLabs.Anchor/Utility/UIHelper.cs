@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.Contracts;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.MVVM;
     using Unity.Collections;

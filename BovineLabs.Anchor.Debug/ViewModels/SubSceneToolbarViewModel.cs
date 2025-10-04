@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;
     using System.Collections.Generic;
-    using BovineLabs.Anchor.Contracts;
     using Unity.AppUI.UI;
     using Unity.Collections;
     using Unity.Entities;

@@ -14,10 +14,6 @@ namespace BovineLabs.Anchor
     [UxmlObject]
     public partial class ClassBinding : CustomBinding, IDataSourceProvider
     {
-        private string className;
-        private object localDataSource;
-        private PropertyPath dataSourcePathValue;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ClassBinding"/> class.
         /// </summary>
@@ -26,89 +22,48 @@ namespace BovineLabs.Anchor
             this.updateTrigger = BindingUpdateTrigger.OnSourceChanged;
         }
 
+        /// <inheritdoc />
+        [CreateProperty]
+        public object dataSource { get; set; }
+
+        /// <inheritdoc />
+        [CreateProperty]
+        public PropertyPath dataSourcePath { get; set; }
+
         /// <summary>
         /// Gets or sets the USS class that will be toggled on the target element.
         /// </summary>
         [CreateProperty]
         [UxmlAttribute("class")]
-        public string ClassName
-        {
-            get => this.className;
-            set
-            {
-                if (this.className == value)
-                {
-                    return;
-                }
-
-                this.className = value;
-                this.MarkDirty();
-            }
-        }
-
-        /// <inheritdoc />
-        [CreateProperty]
-        public object dataSource
-        {
-            get => this.localDataSource;
-            set
-            {
-                if (Equals(this.localDataSource, value))
-                {
-                    return;
-                }
-
-                this.localDataSource = value;
-                this.MarkDirty();
-            }
-        }
-
-        /// <inheritdoc />
-        [CreateProperty]
-        public PropertyPath dataSourcePath
-        {
-            get => this.dataSourcePathValue;
-            set
-            {
-                if (this.dataSourcePathValue.Equals(value))
-                {
-                    return;
-                }
-
-                this.dataSourcePathValue = value;
-                this.MarkDirty();
-            }
-        }
+        public string Class { get; set; }
 
         /// <summary>
-        /// Convenience accessor for setting the data source path using a string value.
+        /// Gets or sets convenience accessor for setting the data source path using a string value.
         /// </summary>
-        [CreateProperty]
         [UxmlAttribute("data-source-path")]
-        public string DataSourcePath
+        public string DataSourcePathString
         {
-            get => this.dataSourcePathValue.ToString();
-            set => this.dataSourcePath = string.IsNullOrEmpty(value) ? default : new PropertyPath(value);
+            get => this.dataSourcePath.ToString();
+            set => this.dataSourcePath = new PropertyPath(value);
         }
 
         /// <inheritdoc/>
         protected override BindingResult Update(in BindingContext context)
         {
-            if (string.IsNullOrEmpty(this.ClassName))
+            if (string.IsNullOrWhiteSpace(this.Class))
             {
                 return new BindingResult(BindingStatus.Failure, "[UI Toolkit] ClassBinding requires a non-empty class name.");
             }
 
-            var element = context.targetElement;
             var result = this.TryResolveBoolean(in context, out var enabled);
 
             if (result.status != BindingStatus.Success)
             {
-                element.EnableInClassList(this.ClassName, false);
+                context.targetElement.EnableInClassList(this.Class, false);
                 return result;
             }
 
-            element.EnableInClassList(this.ClassName, enabled);
+            context.targetElement.EnableInClassList(this.Class, enabled);
             return result;
         }
 
@@ -117,9 +72,9 @@ namespace BovineLabs.Anchor
         {
             base.OnDeactivated(in context);
 
-            if (!string.IsNullOrEmpty(this.ClassName))
+            if (!string.IsNullOrWhiteSpace(this.Class))
             {
-                context.targetElement.RemoveFromClassList(this.ClassName);
+                context.targetElement.RemoveFromClassList(this.Class);
             }
         }
 

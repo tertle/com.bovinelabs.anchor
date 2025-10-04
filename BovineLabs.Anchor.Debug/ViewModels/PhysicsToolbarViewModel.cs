@@ -6,7 +6,6 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;
-    using BovineLabs.Anchor.Contracts;
     using Unity.Properties;
     using UnityEngine;
 

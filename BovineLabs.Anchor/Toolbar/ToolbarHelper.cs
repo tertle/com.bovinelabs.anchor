@@ -8,7 +8,6 @@ namespace BovineLabs.Anchor.Toolbar
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.Contracts;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
