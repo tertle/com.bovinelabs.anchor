@@ -10,6 +10,7 @@ namespace BovineLabs.Anchor.Nav
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
     using BovineLabs.Core.Utility;
+    using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using UnityEngine;
