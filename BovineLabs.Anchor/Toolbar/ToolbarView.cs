@@ -57,7 +57,7 @@ namespace BovineLabs.Anchor.Toolbar
         private const string ShowIconTargetClass = "appui-button__trailingicon";
         private const string ActiveTabKey = "bl.active-tab";
         private const string ShowRibbonKey = "bl.show-ribbon";
-        private const float RestoreHotspot = 32f;
+        private const float RestoreHotspotPercent = 0.05f;
         private const int RestoreClickThreshold = 5;
         private const float RestoreClickResetSeconds = 1f;
 
@@ -423,8 +423,8 @@ namespace BovineLabs.Anchor.Toolbar
             var width = rect.width > 0 ? rect.width : root.worldBound.width;
             var height = rect.height > 0 ? rect.height : root.worldBound.height;
 
-            var hotspotWidth = RestoreHotspot;
-            var hotspotHeight = RestoreHotspot;
+            var hotspotHeight = Screen.height * RestoreHotspotPercent;
+            var hotspotWidth = hotspotHeight;
 
             if (Screen.width > 0f && Screen.height > 0f)
             {
