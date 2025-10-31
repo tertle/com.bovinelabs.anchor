@@ -32,31 +32,34 @@ namespace BovineLabs.Anchor.Toolbar
         /// <summary>
         /// The NavigationScreen main styling class.
         /// </summary>
-        public const string UssClassName = "bl-toolbar";
+        private const string UssClassName = "bl-toolbar";
 
-        public const string MenuButtonClassName = UssClassName + "__button";
+        private const string MenuButtonClassName = UssClassName + "__button";
 
         /// <summary> The Toolbar background styling class. </summary>
-        public const string MenuUssClassName = UssClassName + "__menu";
+        private const string MenuUssClassName = UssClassName + "__menu";
 
         /// <summary> The Toolbar show button styling class. </summary>
-        public const string ShowUssClassName = UssClassName + "__show";
+        private const string ShowUssClassName = UssClassName + "__show";
 
         /// <summary> The Toolbar filter button styling class. </summary>
-        public const string FilterUssClassName = UssClassName + "__filter";
+        private const string FilterUssClassName = UssClassName + "__filter";
 
         /// <summary> The Toolbar container styling class. </summary>
-        public const string MenuContainerUssClassName = UssClassName + "__menu-container";
+        private const string MenuContainerUssClassName = UssClassName + "__menu-container";
 
-        public const string MenuButtonUssClassName = UssClassName + "__menu-button";
+        private const string MenuButtonUssClassName = UssClassName + "__menu-button";
 
-        public const string ShowIconUssClassName = ShowUssClassName + "__icon";
+        private const string ShowIconUssClassName = ShowUssClassName + "__icon";
 
-        public const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
+        private const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
 
         private const string ShowIconTargetClass = "appui-button__trailingicon";
         private const string ActiveTabKey = "bl.active-tab";
         private const string ShowRibbonKey = "bl.show-ribbon";
+        private const float RestoreHotspot = 32f;
+        private const int RestoreClickThreshold = 5;
+        private const float RestoreClickResetSeconds = 1f;
 
         [ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
@@ -74,6 +77,9 @@ namespace BovineLabs.Anchor.Toolbar
 
         private float uiHeight;
         private int key;
+        private bool toolbarHidden;
+        private int restoreClickCount;
+        private float lastRestoreClickTime;
 
         public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
         {
@@ -124,7 +130,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             if (!Show.Data)
             {
-                this.style.display = DisplayStyle.None;
+                this.HideToolbar();
             }
 
             var safeSpace = Screen.safeArea;
@@ -137,6 +143,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.style.paddingTop = new StyleLength(Length.Percent(yMin));
 
             App.current.rootVisualElement.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.OnRootContentChanged(evt.newRect), this);
+            App.current.rootVisualElement.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
 
             App.shuttingDown += this.AppOnShuttingDown;
         }
@@ -244,6 +251,11 @@ namespace BovineLabs.Anchor.Toolbar
             if (Instance == this)
             {
                 // Instance = null;
+            }
+
+            if (App.current?.rootVisualElement != null)
+            {
+                App.current.rootVisualElement.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
             }
 
             App.shuttingDown -= this.AppOnShuttingDown;
@@ -355,13 +367,89 @@ namespace BovineLabs.Anchor.Toolbar
 
         private Button CreateHideButton()
         {
-            var button = new Button(() => this.style.display = DisplayStyle.None) { trailingIcon = "x" };
+            var button = new Button(this.HideToolbar) { trailingIcon = "x" };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
             button.size = Size.S;
 
             return button;
+        }
+
+        private void HideToolbar()
+        {
+            if (this.toolbarHidden)
+            {
+                return;
+            }
+
+            this.style.display = DisplayStyle.None;
+            this.toolbarHidden = true;
+            this.ResetRestoreClickState();
+        }
+
+        private void RestoreToolbar()
+        {
+            if (!this.toolbarHidden)
+            {
+                return;
+            }
+
+            this.style.display = DisplayStyle.Flex;
+            this.toolbarHidden = false;
+            this.ResetRestoreClickState();
+        }
+
+        private void ResetRestoreClickState()
+        {
+            this.restoreClickCount = 0;
+            this.lastRestoreClickTime = 0f;
+        }
+
+        private void OnRootPointerDown(PointerDownEvent evt)
+        {
+            // Only track restoration clicks when the toolbar is hidden from view.
+            var isHidden = this.toolbarHidden || this.resolvedStyle.display == DisplayStyle.None;
+            this.toolbarHidden = isHidden;
+
+            if (!isHidden)
+            {
+                this.ResetRestoreClickState();
+                return;
+            }
+
+            var rect = App.current.rootVisualElement.contentRect;
+            var width = rect.width > 0 ? rect.width : App.current.rootVisualElement.worldBound.width;
+            var position = evt.localPosition;
+
+            if (width <= 0 || position.x < width - RestoreHotspot || position.y > RestoreHotspot)
+            {
+                this.ResetRestoreClickState();
+                return;
+            }
+
+            if (evt.button != (int)MouseButton.LeftMouse && evt.button != -1)
+            {
+                return;
+            }
+
+            var time = Time.realtimeSinceStartup;
+
+            if (time - this.lastRestoreClickTime > RestoreClickResetSeconds)
+            {
+                this.restoreClickCount = 0;
+            }
+
+            this.lastRestoreClickTime = time;
+            this.restoreClickCount++;
+
+            if (this.restoreClickCount < RestoreClickThreshold)
+            {
+                return;
+            }
+
+            this.RestoreToolbar();
+            evt.StopPropagation();
         }
 
         private ToolbarGroup CreateTab(string tabName)
