@@ -14,3 +14,7 @@
 .bl-horizontal {
     flex-direction: row;
 }
+
+.bl-toolbar__menu-container {
+    flex-grow: 1;
+}

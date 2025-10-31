@@ -89,6 +89,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.showButton = this.CreateShowButton();
             this.filterButton = this.CreateFilterButton();
+            var hideButton = this.CreateHideButton();
 
             this.menuContainer = new VisualElement();
             this.menuContainer.AddToClassList(MenuContainerUssClassName);
@@ -96,6 +97,7 @@ namespace BovineLabs.Anchor.Toolbar
             menu.Add(this.showButton);
             menu.Add(this.filterButton);
             menu.Add(this.menuContainer);
+            menu.Add(hideButton);
 
             this.Add(menu);
 
@@ -349,6 +351,17 @@ namespace BovineLabs.Anchor.Toolbar
             dropdown.size = Size.S;
 
             return dropdown;
+        }
+
+        private Button CreateHideButton()
+        {
+            var button = new Button(() => this.style.display = DisplayStyle.None) { trailingIcon = "x" };
+
+            button.AddToClassList(MenuButtonClassName);
+            button.AddToClassList(ShowUssClassName);
+            button.size = Size.S;
+
+            return button;
         }
 
         private ToolbarGroup CreateTab(string tabName)
