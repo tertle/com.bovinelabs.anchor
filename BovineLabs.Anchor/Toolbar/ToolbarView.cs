@@ -134,7 +134,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.style.paddingRight = new StyleLength(Length.Percent(xMax));
             this.style.paddingTop = new StyleLength(Length.Percent(yMin));
 
-            this.RegisterCallback<GeometryChangedEvent, ToolbarView>((_, tv) => tv.OnRootContentChanged(), this);
+            App.current.rootVisualElement.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.OnRootContentChanged(evt.newRect), this);
 
             App.shuttingDown += this.AppOnShuttingDown;
         }
@@ -295,9 +295,9 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
-        private void OnRootContentChanged()
+        private void OnRootContentChanged(Rect newRect)
         {
-            var height = App.current.rootVisualElement.contentRect.height;
+            var height = newRect.height;
 
             if (Mathf.Abs(this.uiHeight - height) > math.EPSILON)
             {
