@@ -418,11 +418,27 @@ namespace BovineLabs.Anchor.Toolbar
                 return;
             }
 
-            var rect = App.current.rootVisualElement.contentRect;
-            var width = rect.width > 0 ? rect.width : App.current.rootVisualElement.worldBound.width;
+            var root = App.current.rootVisualElement;
+            var rect = root.contentRect;
+            var width = rect.width > 0 ? rect.width : root.worldBound.width;
+            var height = rect.height > 0 ? rect.height : root.worldBound.height;
+
+            var hotspotWidth = RestoreHotspot;
+            var hotspotHeight = RestoreHotspot;
+
+            if (Screen.width > 0f && Screen.height > 0f)
+            {
+                var safeArea = Screen.safeArea;
+                var safeRight = Mathf.Max(0f, Screen.width - (safeArea.x + safeArea.width));
+                var safeTop = Mathf.Max(0f, Screen.height - (safeArea.y + safeArea.height));
+
+                hotspotWidth += (safeRight / Screen.width) * width;
+                hotspotHeight += (safeTop / Screen.height) * height;
+            }
+
             var position = evt.localPosition;
 
-            if (width <= 0 || position.x < width - RestoreHotspot || position.y > RestoreHotspot)
+            if (width <= 0 || position.x < width - hotspotWidth || position.y > hotspotHeight)
             {
                 this.ResetRestoreClickState();
                 return;
