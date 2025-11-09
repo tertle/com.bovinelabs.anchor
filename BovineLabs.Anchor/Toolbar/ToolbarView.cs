@@ -148,13 +148,13 @@ namespace BovineLabs.Anchor.Toolbar
             App.shuttingDown += this.AppOnShuttingDown;
         }
 
+        public static ToolbarView Instance { get; private set; }
+
         private bool IsRibbonVisible
         {
             get => bool.TryParse(this.storageService.GetValue(ShowRibbonKey), out var value) && value;
             set => this.storageService.SetValue(ShowRibbonKey, value.ToString());
         }
-
-        public static ToolbarView Instance { get; private set; }
 
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement
@@ -199,6 +199,8 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 this.ShowTab(group);
             }
+
+            DisableKeyboardNavigation(view);
         }
 
         public T RemoveTab<T>(int id)
@@ -225,6 +227,16 @@ namespace BovineLabs.Anchor.Toolbar
         public VisualElement GetPanel(int id)
         {
             return this.toolbarGroups.TryGetValue(id, out var group) ? group.View : null;
+        }
+
+        private static void DisableKeyboardNavigation(VisualElement root)
+        {
+            root.focusable = false;
+
+            foreach (var child in root.Children())
+            {
+                DisableKeyboardNavigation(child);
+            }
         }
 
         private static int FindInsertIndex(ToolbarGroup.Tab tab)
