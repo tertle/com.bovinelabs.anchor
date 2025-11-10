@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
-    public class ToolbarTabElement : VisualElement
+    public sealed class ToolbarTabElement : VisualElement
     {
         private const string UssClassName = "bl-toolbar-tab";
         private const string NameClass = UssClassName + "__name";
@@ -25,6 +25,8 @@ namespace BovineLabs.Anchor.Toolbar
             var groupLabel = new Heading(label) { size = HeadingSize.XXS };
             groupLabel.AddToClassList(NameClass);
             this.hierarchy.Add(groupLabel);
+
+            focusable = false;
         }
 
         public override VisualElement contentContainer => this.content;

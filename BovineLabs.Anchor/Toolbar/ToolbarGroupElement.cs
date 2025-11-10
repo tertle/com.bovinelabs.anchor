@@ -18,6 +18,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.mode = ScrollViewMode.Horizontal;
             this.verticalScrollerVisibility = ScrollerVisibility.Hidden;
+            this.focusable = false;
 
             this.horizontalScroller.RemoveFromHierarchy();
         }

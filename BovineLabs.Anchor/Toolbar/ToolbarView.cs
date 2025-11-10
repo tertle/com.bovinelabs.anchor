@@ -337,6 +337,7 @@ namespace BovineLabs.Anchor.Toolbar
             var button = new Button(() => this.ShowRibbon(!this.IsRibbonVisible))
             {
                 trailingIcon = "caret-down",
+                focusable = false,
             };
 
             button.AddToClassList(MenuButtonClassName);
@@ -362,6 +363,7 @@ namespace BovineLabs.Anchor.Toolbar
                 bindTitle = (item, _) => item.labelElement.text = string.Empty,
                 bindItem = (item, i) => item.label = this.viewModel.FilterItems[i],
                 value = this.viewModel.FilterValues,
+                focusable = false,
             };
 
             dropdown.SetBinding(nameof(Dropdown.value), new DataBinding
@@ -379,7 +381,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private Button CreateHideButton()
         {
-            var button = new Button(this.HideToolbar) { trailingIcon = "x" };
+            var button = new Button(this.HideToolbar) { trailingIcon = "x", focusable = false };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
@@ -482,7 +484,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private ToolbarGroup CreateTab(string tabName)
         {
-            var button = new Button { title = tabName };
+            var button = new Button { title = tabName, focusable = false};
             button.AddToClassList(MenuButtonUssClassName);
 
             var contents = new ToolbarGroupElement();
