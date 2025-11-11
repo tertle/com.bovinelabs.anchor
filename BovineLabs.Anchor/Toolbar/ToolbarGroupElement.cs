@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.UIElements;
 
     [UxmlElement]
-    public partial class ToolbarGroupElement : ScrollView
+    public sealed partial class ToolbarGroupElement : ScrollView
     {
         public const string UssClassName = "bl-toolbar-group";
 

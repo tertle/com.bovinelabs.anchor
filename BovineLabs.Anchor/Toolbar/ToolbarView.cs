@@ -107,6 +107,8 @@ namespace BovineLabs.Anchor.Toolbar
 
             this.Add(menu);
 
+            DisableKeyboardNavigation(menu);
+
             this.uiHeight = Screen.height; // TODO
 
             this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
@@ -334,11 +336,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private Button CreateShowButton()
         {
-            var button = new Button(() => this.ShowRibbon(!this.IsRibbonVisible))
-            {
-                trailingIcon = "caret-down",
-                focusable = false,
-            };
+            var button = new Button(() => this.ShowRibbon(!this.IsRibbonVisible)) { trailingIcon = "caret-down" };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
@@ -363,7 +361,6 @@ namespace BovineLabs.Anchor.Toolbar
                 bindTitle = (item, _) => item.labelElement.text = string.Empty,
                 bindItem = (item, i) => item.label = this.viewModel.FilterItems[i],
                 value = this.viewModel.FilterValues,
-                focusable = false,
             };
 
             dropdown.SetBinding(nameof(Dropdown.value), new DataBinding
@@ -381,7 +378,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private Button CreateHideButton()
         {
-            var button = new Button(this.HideToolbar) { trailingIcon = "x", focusable = false };
+            var button = new Button(this.HideToolbar) { trailingIcon = "x" };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
