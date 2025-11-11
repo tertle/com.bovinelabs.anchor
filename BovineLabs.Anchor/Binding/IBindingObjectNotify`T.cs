@@ -12,6 +12,7 @@ namespace BovineLabs.Anchor.Binding
     public interface IBindingObjectNotify<T> : IBindingObjectNotify
         where T : unmanaged
     {
+        /// <summary>Gets a reference to the unmanaged data backing the binding.</summary>
         ref T Value { get; }
 
         internal static unsafe void Load(IBindingObjectNotify<T> bindingObjectNotify)

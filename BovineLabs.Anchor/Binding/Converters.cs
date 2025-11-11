@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor.Binding
     using UnityEngine;
 #endif
 
+    /// <summary>Utility class that registers converter groups needed by Anchor bindings.</summary>
     public static class Converters
     {
 #if UNITY_EDITOR
@@ -18,6 +19,7 @@ namespace BovineLabs.Anchor.Binding
 #else
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 #endif
+        /// <summary>Registers the converter groups used to bridge booleans and display styles.</summary>
         public static void RegisterConverters()
         {
             {

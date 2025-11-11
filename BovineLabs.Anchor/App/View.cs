@@ -6,6 +6,9 @@ namespace BovineLabs.Anchor
 {
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Base class for Anchor visual elements that exposes a strongly typed view model.
+    /// </summary>
     [IsService]
     public abstract class View<T> : VisualElement
     {
@@ -14,6 +17,7 @@ namespace BovineLabs.Anchor
             this.ViewModel = viewModel;
         }
 
+        /// <summary>Gets the view model instance the view is bound to.</summary>
         public T ViewModel { get; }
     }
 }

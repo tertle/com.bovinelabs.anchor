@@ -13,6 +13,9 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.Entities;
     using UnityEngine;
 
+    /// <summary>
+    /// Utility that manages the lifecycle of a toolbar tab bound to a burst-compatible view model.
+    /// </summary>
     public unsafe struct ToolbarHelper<TV, TM, TD>
         where TV : View<TM>
         where TM : class, IBindingObjectNotify<TD>
@@ -27,6 +30,11 @@ namespace BovineLabs.Anchor.Toolbar
         private GCHandle handle;
         private TD* data;
 
+        /// <summary>
+        /// Initializes a helper for a specific tab and group combination.
+        /// </summary>
+        /// <param name="tabName">Name of the toolbar tab.</param>
+        /// <param name="groupName">Name of the group inside the tab.</param>
         public ToolbarHelper(FixedString32Bytes tabName, FixedString32Bytes groupName)
         {
             this.tabName = tabName;
@@ -38,16 +46,23 @@ namespace BovineLabs.Anchor.Toolbar
             this.isSerializable = typeof(TM).IsDefined(typeof(SerializableAttribute), false);
         }
 
+        /// <summary>
+        /// Initializes the helper while resolving the tab name from the DOTS world.
+        /// </summary>
         public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
             : this(FormatWorld(state.World), groupName)
         {
         }
 
+        /// <summary>Gets access to the unmanaged binding data pinned for burst.</summary>
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
         private string SaveKey => $"bl.toolbar.{this.tabName}.{this.groupName}";
 
         // Load the tab onto the group. Usually called from OnStartRunning.
+        /// <summary>
+        /// Adds the toolbar tab, loads its view model, and restores serialized state if necessary.
+        /// </summary>
         public void Load()
         {
             ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
@@ -69,6 +84,9 @@ namespace BovineLabs.Anchor.Toolbar
             }
         }
 
+        /// <summary>
+        /// Removes the toolbar tab, persists state if required, and disposes the view model.
+        /// </summary>
         public void Unload()
         {
             var view = ToolbarView.Instance.RemoveTab<TV>(this.key);
@@ -90,6 +108,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.data = null;
         }
 
+        /// <summary>Determines whether the helper’s tab is currently selected.</summary>
         public bool IsVisible()
         {
             return ToolbarViewData.ActiveTab.Data == this.tabName;

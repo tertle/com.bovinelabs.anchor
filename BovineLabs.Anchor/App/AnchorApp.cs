@@ -17,9 +17,13 @@ namespace BovineLabs.Anchor
     using Unity.Collections;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Root Anchor application that wires the AppUI navigation stack, toolbar integration, and burst-safe helpers.
+    /// </summary>
     [UsedImplicitly]
     public class AnchorApp : App
     {
+        /// <summary>The default name for the service tab exposed in the toolbar.</summary>
         public const string DefaultServiceTabName = "Service";
 
         private static readonly FunctionPointer<NavigateDelegate> NavigateFunction;
@@ -41,22 +45,30 @@ namespace BovineLabs.Anchor
 
         private delegate void CurrentDelegate(out FixedString32Bytes name);
 
+        /// <summary>Gets the strongly typed instance of the currently running <see cref="AnchorApp"/>.</summary>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
         public static new AnchorApp current => App.current as AnchorApp;
 
+        /// <summary>Gets the AppUI panel that hosts the Anchor visual tree.</summary>
         public virtual Panel Panel => (Panel)this.rootVisualElement;
 
+        /// <summary>Gets the name used for the default service tab added to the toolbar.</summary>
         public virtual string ServiceTabName => DefaultServiceTabName;
 
+        /// <summary>Gets or sets the navigation host that manages screen transitions.</summary>
         public AnchorNavHost NavHost { get; set; }
 
+        /// <summary>Gets or sets the navigation graph asset that describes available destinations.</summary>
         public NavGraphViewAsset GraphViewAsset { get; set; }
 
+        /// <summary>Gets the container that holds popup visual elements instantiated by the app.</summary>
         public VisualElement PopupContainer { get; private set; }
 
+        /// <summary>Gets the container that displays notification visuals.</summary>
         public VisualElement NotificationContainer { get; private set; }
 
+        /// <summary>Gets the container that manages tooltip content.</summary>
         public VisualElement TooltipContainer { get; private set; }
 
         private static (T Method, FunctionPointer<T> Function) CreateDelegate<T>(T method)
@@ -64,6 +76,9 @@ namespace BovineLabs.Anchor
             return (method, new FunctionPointer<T>(Marshal.GetFunctionPointerForDelegate(method)));
         }
 
+        /// <summary>
+        /// Configures the root visual tree, initializes the navigation host, and registers toolbars and containers.
+        /// </summary>
         public virtual void Initialize()
         {
             Burst.NavigateFunc.Data = NavigateFunction;

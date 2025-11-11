@@ -10,6 +10,9 @@ namespace BovineLabs.Anchor.Elements
     using Unity.Properties;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// ActionButton variant that exposes the click event data to bound commands.
+    /// </summary>
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
@@ -36,6 +39,7 @@ namespace BovineLabs.Anchor.Elements
             set => base.clickable = value;
         }
 
+        /// <summary>Gets or sets the command invoked when the button is clicked with the event payload.</summary>
         [CreateProperty]
         public ICommand commandWithEventInfo
         {

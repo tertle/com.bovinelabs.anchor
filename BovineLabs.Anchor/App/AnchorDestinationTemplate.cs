@@ -23,6 +23,7 @@ namespace BovineLabs.Anchor
             this.showNavigationRail = false;
         }
 
+        /// <inheritdoc/>
         public override INavigationScreen CreateScreen(NavHost host)
         {
             NavigationScreen screen;

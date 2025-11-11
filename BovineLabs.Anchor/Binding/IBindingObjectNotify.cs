@@ -13,8 +13,16 @@ namespace BovineLabs.Anchor.Binding
     /// </summary>
     public interface IBindingObjectNotify : INotifyBindablePropertyChanged
     {
+        /// <summary>
+        /// Signals listeners that a property is about to change.
+        /// </summary>
+        /// <param name="property">The property identifier that is changing.</param>
         void OnPropertyChanging(in FixedString64Bytes property);
 
+        /// <summary>
+        /// Signals listeners that a property value changed.
+        /// </summary>
+        /// <param name="property">The property identifier that changed.</param>
         void OnPropertyChanged(in FixedString64Bytes property);
     }
 }

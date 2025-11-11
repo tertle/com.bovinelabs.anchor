@@ -8,6 +8,9 @@ namespace BovineLabs.Anchor.Nav
     using Unity.AppUI.Navigation;
     using UnityEngine;
 
+    /// <summary>
+    /// Configurable navigation animation set applied when entering and exiting destinations.
+    /// </summary>
     [Serializable]
     public class AnchorAnimations
     {

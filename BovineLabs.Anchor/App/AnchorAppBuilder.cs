@@ -15,6 +15,9 @@ namespace BovineLabs.Anchor
     using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Default app builder that scaffolds an <see cref="AnchorApp"/> with the standard Anchor services.
+    /// </summary>
     public class AnchorAppBuilder : AnchorAppBuilder<AnchorApp>
     {
     }

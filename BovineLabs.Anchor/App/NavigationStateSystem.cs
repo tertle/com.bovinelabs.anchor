@@ -9,6 +9,9 @@ namespace BovineLabs.Anchor
     using Unity.Entities;
     using UnityEngine;
 
+    /// <summary>
+    /// Synchronizes DOTS component states with the currently active Anchor navigation destination.
+    /// </summary>
     [UpdateInGroup(typeof(UISystemGroup))]
     public partial struct NavigationStateSystem : ISystem
     {

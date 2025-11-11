@@ -36,21 +36,25 @@ namespace BovineLabs.Anchor.Services
             PlayerPrefs.SetString(key, value);
         }
 
+        /// <inheritdoc/>
         public int GetValue(string key, int defaultValue)
         {
             return PlayerPrefs.GetInt(key, defaultValue);
         }
 
+        /// <inheritdoc/>
         public void SetValue(string key, int value)
         {
             PlayerPrefs.SetInt(key, value);
         }
 
+        /// <inheritdoc/>
         public bool GetValue(string key, bool defaultValue)
         {
             return this.GetValue(key, defaultValue ? 1 : 0) != 0;
         }
 
+        /// <inheritdoc/>
         public void SetValue(string key, bool value)
         {
             this.SetValue(key, value ? 1 : 0);
@@ -104,6 +108,7 @@ namespace BovineLabs.Anchor.Services
             PlayerPrefs.SetString(key, json);
         }
 
+        /// <inheritdoc/>
         public bool HasBytes(string key)
         {
             try
@@ -117,6 +122,7 @@ namespace BovineLabs.Anchor.Services
             }
         }
 
+        /// <inheritdoc/>
         public void DeleteBytes(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -134,6 +140,7 @@ namespace BovineLabs.Anchor.Services
             }
         }
 
+        /// <inheritdoc/>
         public byte[] GetBytes(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -157,6 +164,7 @@ namespace BovineLabs.Anchor.Services
             }
         }
 
+        /// <inheritdoc/>
         public void SetBytes(string key, byte[] value)
         {
             if (string.IsNullOrWhiteSpace(key))

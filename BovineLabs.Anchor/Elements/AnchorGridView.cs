@@ -12,6 +12,9 @@ namespace BovineLabs.Anchor.Elements
     using Unity.Properties;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// GridView variant that surfaces UXML attributes and bindings commonly needed by Anchor screens.
+    /// </summary>
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]

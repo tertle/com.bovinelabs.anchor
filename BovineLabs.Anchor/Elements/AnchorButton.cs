@@ -10,6 +10,9 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
+    /// <summary>
+    /// Button that forwards the full click event info to an ICommand.
+    /// </summary>
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
@@ -26,6 +29,7 @@ namespace BovineLabs.Anchor.Elements
             this.clickable.clickedWithEventInfo += evt => this.commandWithEventInfo?.Execute(evt);
         }
 
+        /// <summary>Gets or sets the command invoked whenever the button is clicked with event data.</summary>
         [CreateProperty]
         public ICommand commandWithEventInfo
         {

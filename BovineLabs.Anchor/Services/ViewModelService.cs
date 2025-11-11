@@ -12,6 +12,7 @@ namespace BovineLabs.Anchor.Services
     {
         private readonly Dictionary<Type, object> loadedElements = new();
 
+        /// <inheritdoc/>
         public T Load<T>()
             where T : class
         {
@@ -23,12 +24,14 @@ namespace BovineLabs.Anchor.Services
             return (T)element;
         }
 
+        /// <inheritdoc/>
         public void Unload<T>()
             where T : class
         {
             this.loadedElements.Remove(typeof(T));
         }
 
+        /// <inheritdoc/>
         public T Get<T>()
             where T : class
         {

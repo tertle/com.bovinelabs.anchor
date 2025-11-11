@@ -10,6 +10,9 @@ namespace BovineLabs.Anchor.Elements
     using Unity.Properties;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Accordion that repeats a UXML template for each bound data item.
+    /// </summary>
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
@@ -22,6 +25,7 @@ namespace BovineLabs.Anchor.Elements
         private VisualTreeAsset m_ItemTemplate;
         private IList m_ItemsSource;
 
+        /// <summary>Gets or sets the template cloned for each accordion item.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public VisualTreeAsset itemTemplate
@@ -40,6 +44,7 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
+        /// <summary>Gets or sets the collection of data objects that populate the accordion.</summary>
         [CreateProperty]
         public IList itemsSource
         {

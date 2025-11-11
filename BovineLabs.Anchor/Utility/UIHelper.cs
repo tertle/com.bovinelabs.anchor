@@ -13,6 +13,9 @@ namespace BovineLabs.Anchor
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
 
+    /// <summary>
+    /// Helper that pins a view model's unmanaged data so burst systems can mutate UI state directly.
+    /// </summary>
     public unsafe struct UIHelper<TM, TD>
         where TM : class, IBindingObjectNotify<TD>
         where TD : unmanaged
@@ -20,6 +23,9 @@ namespace BovineLabs.Anchor
         private GCHandle handle;
         private TD* data;
 
+        /// <summary>
+        /// Initializes the helper and ensures the owning system requires the specified component.
+        /// </summary>
         public UIHelper(ref SystemState state, ComponentType requiredComponent)
         {
             this = default;
@@ -37,13 +43,18 @@ namespace BovineLabs.Anchor
             state.RequireForUpdate(query);
         }
 
+        /// <summary>
+        /// Initializes the helper using a navigation state name instead of a component type.
+        /// </summary>
         public UIHelper(ref SystemState state, FixedString32Bytes name)
             : this(ref state, ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(UISystemTypes.NameToKey(name))))
         {
         }
 
+        /// <summary>Gets direct access to the pinned view model data.</summary>
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
+        /// <summary>Loads and pins the view model so the helper can forward changes.</summary>
         public void Bind()
         {
             var viewModel = App.current.services.GetRequiredService<IViewModelService>().Load<TM>();
@@ -58,6 +69,7 @@ namespace BovineLabs.Anchor
             this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
         }
 
+        /// <summary>Unpins and unloads the view model that was previously bound.</summary>
         public void Unbind()
         {
             var viewModel = App.current.services.GetRequiredService<IViewModelService>().Get<TM>();

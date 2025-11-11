@@ -23,10 +23,14 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
+    /// <summary>
+    /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
+    /// </summary>
     [Configurable]
     [IsService]
     public class ToolbarView : VisualElement
     {
+        /// <summary>Default polling interval in seconds for toolbar updates.</summary>
         public const float DefaultUpdateRate = 1 / 4f;
 
         /// <summary>
@@ -81,6 +85,11 @@ namespace BovineLabs.Anchor.Toolbar
         private int restoreClickCount;
         private float lastRestoreClickTime;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ToolbarView"/> class.
+        /// </summary>
+        /// <param name="viewModel">Backing view model used to manage selections.</param>
+        /// <param name="storageService">Persistence layer for storing toolbar preferences.</param>
         public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
         {
             Instance = this;
@@ -150,6 +159,7 @@ namespace BovineLabs.Anchor.Toolbar
             App.shuttingDown += this.AppOnShuttingDown;
         }
 
+        /// <summary>Gets the active toolbar view instance, if any.</summary>
         public static ToolbarView Instance { get; private set; }
 
         private bool IsRibbonVisible
@@ -158,6 +168,9 @@ namespace BovineLabs.Anchor.Toolbar
             set => this.storageService.SetValue(ShowRibbonKey, value.ToString());
         }
 
+        /// <summary>
+        /// Adds a VisualElement service as a toolbar tab entry.
+        /// </summary>
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement
         {
@@ -165,6 +178,9 @@ namespace BovineLabs.Anchor.Toolbar
             view = (T)visualElement;
         }
 
+        /// <summary>
+        /// Adds a VisualElement service as a toolbar tab entry.
+        /// </summary>
         public void AddTab(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
         {
             if (!typeof(VisualElement).IsAssignableFrom(viewType))
@@ -205,6 +221,9 @@ namespace BovineLabs.Anchor.Toolbar
             DisableKeyboardNavigation(view);
         }
 
+        /// <summary>
+        /// Removes a previously registered tab by id.
+        /// </summary>
         public T RemoveTab<T>(int id)
             where T : VisualElement
         {
@@ -226,6 +245,7 @@ namespace BovineLabs.Anchor.Toolbar
             return (T)group.View;
         }
 
+        /// <summary>Gets the VisualElement backing a registered tab.</summary>
         public VisualElement GetPanel(int id)
         {
             return this.toolbarGroups.TryGetValue(id, out var group) ? group.View : null;
