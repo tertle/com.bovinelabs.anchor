@@ -16,7 +16,6 @@ namespace BovineLabs.Anchor.Toolbar
     using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
-    using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
@@ -65,7 +64,7 @@ namespace BovineLabs.Anchor.Toolbar
         private const int RestoreClickThreshold = 5;
         private const float RestoreClickResetSeconds = 1f;
 
-        [ConfigVar("debug.toolbar", true, "Should the toolbar be shown", true)]
+        [ConfigVar("anchor.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
 
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
@@ -79,7 +78,7 @@ namespace BovineLabs.Anchor.Toolbar
 
         private ToolbarGroup activeGroup;
 
-        private float uiHeight;
+        private Vector2 uiSize;
         private int key;
         private bool toolbarHidden;
         private int restoreClickCount;
@@ -117,8 +116,6 @@ namespace BovineLabs.Anchor.Toolbar
             this.Add(menu);
 
             DisableKeyboardNavigation(menu);
-
-            this.uiHeight = 0;
 
             this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
@@ -351,11 +348,12 @@ namespace BovineLabs.Anchor.Toolbar
 
         private void OnRootContentChanged(Rect newRect)
         {
-            var height = newRect.height;
+            // var height = newRect.height;
+            var newSize = newRect.size;
 
-            if (Mathf.Abs(this.uiHeight - height) > math.EPSILON)
+            if (!this.uiSize.Equals(newSize))
             {
-                this.uiHeight = height;
+                this.uiSize = newSize;
                 this.ResizeViewRect(this.contentRect);
             }
         }
@@ -627,21 +625,14 @@ namespace BovineLabs.Anchor.Toolbar
 
         private void ResizeViewRect(Rect uiRect)
         {
-            if (this.uiHeight == 0)
+            if (this.uiSize.Equals(Vector2.zero))
             {
                 return;
             }
 
-            var safeSpace = AnchorApp.SafeArea;
-            var xMin = (safeSpace.x / Screen.width) * 100;
-            var xMax = ((Screen.width - safeSpace.width - safeSpace.x) / Screen.width) * 100;
-            var yMin = (safeSpace.y / Screen.height) * 100;
+            this.UpdateSafeArea();
 
-            this.style.paddingLeft = new StyleLength(Length.Percent(xMin));
-            this.style.paddingRight = new StyleLength(Length.Percent(xMax));
-            this.style.paddingTop = new StyleLength(Length.Percent(yMin));
-
-            var cameraHeightNormalized = (this.uiHeight - uiRect.height) / this.uiHeight;
+            var cameraHeightNormalized = (this.uiSize.y - uiRect.height) / this.uiSize.y;
 
             var cam = Camera.main;
             if (cam != null)
@@ -684,6 +675,39 @@ namespace BovineLabs.Anchor.Toolbar
             // {
             //     AnchorApp.current.TooltipContainer.style.top = uiRect.height;
             // }
+        }
+
+        private void UpdateSafeArea()
+        {
+            if (this.uiSize.Equals(Vector2.zero))
+            {
+                return;
+            }
+
+            var safeSpace = AnchorApp.SafeArea;
+            var screenWidth = (float)Screen.width;
+            var screenHeight = (float)Screen.height;
+            var uiWidth = this.uiSize.x;
+            var uiHeight = this.uiSize.y;
+
+            if (screenWidth <= 0 || screenHeight <= 0 || uiWidth <= 0 || uiHeight <= 0)
+            {
+                return;
+            }
+
+            var leftInset = safeSpace.x;
+            var rightInset = screenWidth - safeSpace.width - safeSpace.x;
+            var topInset = screenHeight - safeSpace.height - safeSpace.y;
+
+            var leftPercent = (leftInset / screenWidth) * 100f;
+            var rightPercent = (rightInset / screenWidth) * 100f;
+
+            var topInsetUi = (topInset / screenHeight) * uiHeight;
+            var topPercent = (topInsetUi / uiWidth) * 100f;
+
+            this.style.paddingLeft = new StyleLength(Length.Percent(leftPercent));
+            this.style.paddingRight = new StyleLength(Length.Percent(rightPercent));
+            this.style.paddingTop = new StyleLength(Length.Percent(topPercent));
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

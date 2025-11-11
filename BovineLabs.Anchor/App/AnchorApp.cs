@@ -2,6 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if UNITY_EDITOR || BL_DEBUG
+#define CUSTOM_SAFE_AREA
+#endif
+
 namespace BovineLabs.Anchor
 {
     using System.Diagnostics.CodeAnalysis;
@@ -9,6 +13,7 @@ namespace BovineLabs.Anchor
     using AOT;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Core.ConfigVars;
     using JetBrains.Annotations;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
@@ -22,6 +27,7 @@ namespace BovineLabs.Anchor
     /// Root Anchor application that wires the AppUI navigation stack, toolbar integration, and burst-safe helpers.
     /// </summary>
     [UsedImplicitly]
+    [Configurable]
     public class AnchorApp : App
     {
         /// <summary>The default name for the service tab exposed in the toolbar.</summary>
@@ -51,7 +57,7 @@ namespace BovineLabs.Anchor
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
         public static new AnchorApp current => App.current as AnchorApp;
 
-        public static Rect SafeArea => Screen.safeArea; // new(Screen.safeArea.x, Screen.height - Screen.safeArea.y, Screen.safeArea.width, Screen.safeArea.height);
+        public static Rect SafeArea => GetSafeArea();
 
         /// <summary>Gets the AppUI panel that hosts the Anchor visual tree.</summary>
         public virtual Panel Panel => (Panel)this.rootVisualElement;
@@ -73,6 +79,23 @@ namespace BovineLabs.Anchor
 
         /// <summary>Gets the container that manages tooltip content.</summary>
         public VisualElement TooltipContainer { get; private set; }
+
+#if CUSTOM_SAFE_AREA
+        [ConfigVar("anchor.safe-area", 0, 0, 0, 0, "Custom SafeArea for testing. This is not a rect but instead offsets from each edge so will work on any resolution.")]
+        private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<ToolbarView, SafeAreaType>();
+#endif
+
+        private static Rect GetSafeArea()
+        {
+#if CUSTOM_SAFE_AREA
+            var safeArea = CustomSafeArea.Data;
+            if (!safeArea.Equals(Vector4.zero))
+            {
+                return new Rect(safeArea.x, safeArea.y, Screen.width - safeArea.x - safeArea.z, Screen.height - safeArea.y - safeArea.w);
+            }
+#endif
+            return Screen.safeArea;
+        }
 
         private static (T Method, FunctionPointer<T> Function) CreateDelegate<T>(T method)
         {
@@ -164,5 +187,11 @@ namespace BovineLabs.Anchor
             public static readonly SharedStatic<FunctionPointer<CurrentDelegate>> CurrentFunc =
                 SharedStatic<FunctionPointer<CurrentDelegate>>.GetOrCreate<AnchorApp, FunctionPointer<CurrentDelegate>>();
         }
+
+#if CUSTOM_SAFE_AREA
+        private struct SafeAreaType
+        {
+        }
+#endif
     }
 }
