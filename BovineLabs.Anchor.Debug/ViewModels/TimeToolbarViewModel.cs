@@ -44,8 +44,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         {
             return value switch
             {
-                <= 1 => value,
-                _ => (math.log2(value) + 4) / 4,
+                <= 2 => value,
+                _ => (value + 14) / 8,
             };
         }
 
@@ -54,8 +54,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             return value switch
             {
                 <= 0 => 0.1f,
-                <= 1 => value,
-                _ => math.pow(2, (4 * value) - 4),
+                <= 2 => value,
+                _ => (8 * value) - 14,
             };
         }
     }
