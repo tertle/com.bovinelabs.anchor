@@ -28,6 +28,7 @@ namespace BovineLabs.Anchor.Toolbar
         /// <summary>
         /// Initializes a new instance of the <see cref="ToolbarViewModel"/> class.
         /// </summary>
+        /// <param name="storageService">Service used to persist filter selections.</param>
         public ToolbarViewModel(ILocalStorageService storageService)
         {
             this.storageService = storageService;
@@ -82,6 +83,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <summary>Registers that a toolbar group with the specified filter name is now available.</summary>
+        /// <param name="filterName">Name used to identify the toolbar group.</param>
         public void AddSelection(string filterName)
         {
             this.selectionsCount.TryGetValue(filterName, out var count);
@@ -97,6 +99,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <summary>Unregisters a previously tracked toolbar group.</summary>
+        /// <param name="filterName">Name of the toolbar group being removed.</param>
         public void RemoveSelection(string filterName)
         {
             if (!this.selectionsCount.TryGetValue(filterName, out var currentValue))

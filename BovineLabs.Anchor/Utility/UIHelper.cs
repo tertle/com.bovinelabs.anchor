@@ -26,6 +26,8 @@ namespace BovineLabs.Anchor
         /// <summary>
         /// Initializes the helper and ensures the owning system requires the specified component.
         /// </summary>
+        /// <param name="state">System state used to satisfy component requirements.</param>
+        /// <param name="requiredComponent">Component type that must exist before the UI helper binds.</param>
         public UIHelper(ref SystemState state, ComponentType requiredComponent)
         {
             this = default;
@@ -46,6 +48,8 @@ namespace BovineLabs.Anchor
         /// <summary>
         /// Initializes the helper using a navigation state name instead of a component type.
         /// </summary>
+        /// <param name="state">System state used to satisfy component requirements.</param>
+        /// <param name="name">Navigation state that should be resolved to a component requirement.</param>
         public UIHelper(ref SystemState state, FixedString32Bytes name)
             : this(ref state, ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(UISystemTypes.NameToKey(name))))
         {

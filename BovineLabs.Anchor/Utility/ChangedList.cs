@@ -20,6 +20,8 @@ namespace BovineLabs.Anchor
         /// <summary>
         /// Implicitly wraps a native list and marks it as changed.
         /// </summary>
+        /// <param name="value">Native list to track.</param>
+        /// <returns>A new tracker representing the supplied list.</returns>
         public static implicit operator ChangedList<T>(NativeList<T> value)
         {
             return new ChangedList<T>
@@ -30,6 +32,7 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Replaces the contents of the list and marks the value as changed.</summary>
+        /// <param name="values">Values that should replace the list contents.</param>
         public void SetValue(IEnumerable<T> values)
         {
             this.Value.ClearAddRange(values);
@@ -37,6 +40,7 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Adds a single value and marks the list as changed.</summary>
+        /// <param name="value">Item to append to the list.</param>
         public void Add(T value)
         {
             this.Value.Add(value);

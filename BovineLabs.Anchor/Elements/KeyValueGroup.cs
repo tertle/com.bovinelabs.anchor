@@ -73,6 +73,10 @@ namespace BovineLabs.Anchor.Elements
         /// <summary>
         /// Creates a key/value group and binds each value to the provided view-model path.
         /// </summary>
+        /// <param name="viewModel">View model that provides the data for binding.</param>
+        /// <param name="fields">Keys and property paths that should be rendered.</param>
+        /// <param name="trigger">Binding trigger used when synchronizing values.</param>
+        /// <returns>A fully bound key/value group.</returns>
         public static KeyValueGroup Create(
             object viewModel, (string Key, string Path)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
         {
@@ -100,6 +104,10 @@ namespace BovineLabs.Anchor.Elements
         /// <summary>
         /// Creates a key/value group and binds each value using a per-field binding callback.
         /// </summary>
+        /// <param name="viewModel">View model that supplies binding data.</param>
+        /// <param name="fields">Keys, property paths, and binding callbacks per entry.</param>
+        /// <param name="trigger">Binding trigger used when synchronizing values.</param>
+        /// <returns>A fully bound key/value group.</returns>
         public static KeyValueGroup Create(
             object viewModel, (string Key, string Path, Action<DataBinding> BindCallback)[] fields,
             BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)

@@ -19,6 +19,7 @@ namespace BovineLabs.Anchor
         /// <summary>
         /// Initializes a new instance of the <see cref="UIArray{T}"/> class.
         /// </summary>
+        /// <param name="array">Container that exposes the underlying native array.</param>
         public UIArray(MultiContainer<T> array)
         {
             this.array = array.AsArray();
@@ -47,24 +48,31 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a read-only UIArray from the supplied multi-container.</summary>
+        /// <param name="list">Container that exposes the underlying native array.</param>
+        /// <returns>A read-only wrapper over the provided container.</returns>
         public static implicit operator UIArray<T>(MultiContainer<T> list)
         {
             return new UIArray<T>(list);
         }
 
         /// <summary>Gets an enumerator that iterates through the collection.</summary>
+        /// <returns>An enumerator that iterates through the array.</returns>
         public IEnumerator GetEnumerator()
         {
             return this.array.GetEnumerator();
         }
 
         /// <summary>Copy operation is not supported because the collection is read-only.</summary>
+        /// <param name="a">Destination array.</param>
+        /// <param name="index">Index at which copying would begin.</param>
         public void CopyTo(Array a, int index)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>Adding is not supported.</summary>
+        /// <param name="value">Value that would be added.</param>
+        /// <returns>This method does not return because the collection is read-only.</returns>
         public int Add(object value)
         {
             throw new InvalidOperationException("Write not support");
@@ -77,6 +85,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Determines whether the collection contains the provided value.</summary>
+        /// <param name="value">Value to search for.</param>
+        /// <returns><c>true</c> if the value exists in the collection.</returns>
         public bool Contains(object value)
         {
             if (value is not T t)
@@ -88,6 +98,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Gets the index of the provided value or -1 if the value is not present.</summary>
+        /// <param name="value">Value to search for.</param>
+        /// <returns>The zero-based index of the value, or -1 when not found.</returns>
         public int IndexOf(object value)
         {
             if (value is not T t)
@@ -99,18 +111,22 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Insertion is not supported.</summary>
+        /// <param name="index">Index at which the insertion would occur.</param>
+        /// <param name="value">Value that would be inserted.</param>
         public void Insert(int index, object value)
         {
             throw new InvalidOperationException("Write not support");
         }
 
         /// <summary>Removal is not supported.</summary>
+        /// <param name="value">Value that would be removed.</param>
         public void Remove(object value)
         {
             throw new InvalidOperationException("Write not support");
         }
 
         /// <summary>Removal is not supported.</summary>
+        /// <param name="index">Index that would be removed.</param>
         public void RemoveAt(int index)
         {
             throw new InvalidOperationException("Write not support");

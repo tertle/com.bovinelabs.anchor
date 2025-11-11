@@ -31,7 +31,7 @@ namespace BovineLabs.Anchor.Toolbar
         private TD* data;
 
         /// <summary>
-        /// Initializes a helper for a specific tab and group combination.
+        /// Initializes a new instance of the <see cref="ToolbarHelper{TV, TM, TD}"/> struct.
         /// </summary>
         /// <param name="tabName">Name of the toolbar tab.</param>
         /// <param name="groupName">Name of the group inside the tab.</param>
@@ -47,8 +47,10 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <summary>
-        /// Initializes the helper while resolving the tab name from the DOTS world.
+        /// Initializes a new instance of the <see cref="ToolbarHelper{TV, TM, TD}"/> struct.
         /// </summary>
+        /// <param name="state">System state whose world name will become the tab name.</param>
+        /// <param name="groupName">Name of the group inside the tab.</param>
         public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
             : this(FormatWorld(state.World), groupName)
         {
@@ -59,9 +61,8 @@ namespace BovineLabs.Anchor.Toolbar
 
         private string SaveKey => $"bl.toolbar.{this.tabName}.{this.groupName}";
 
-        // Load the tab onto the group. Usually called from OnStartRunning.
         /// <summary>
-        /// Adds the toolbar tab, loads its view model, and restores serialized state if necessary.
+        /// Adds the toolbar tab, loads its view model, and restores serialized state if necessary. Usually called from OnStartRunning.
         /// </summary>
         public void Load()
         {
@@ -109,6 +110,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <summary>Determines whether the helper’s tab is currently selected.</summary>
+        /// <returns><c>true</c> if the helper’s tab is the active tab.</returns>
         public bool IsVisible()
         {
             return ToolbarViewData.ActiveTab.Data == this.tabName;

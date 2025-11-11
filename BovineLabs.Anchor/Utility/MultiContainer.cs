@@ -58,6 +58,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a container backed by the provided native array.</summary>
+        /// <param name="array">Array whose contents will be exposed.</param>
+        /// <returns>A multi-container that wraps the array.</returns>
         public static implicit operator MultiContainer<T>(NativeArray<T> array)
         {
             return new MultiContainer<T>
@@ -68,6 +70,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a container backed by a read-only native array.</summary>
+        /// <param name="array">Read-only array whose contents will be exposed.</param>
+        /// <returns>A multi-container that wraps the array.</returns>
         public static implicit operator MultiContainer<T>(NativeArray<T>.ReadOnly array)
         {
             return new MultiContainer<T>
@@ -78,6 +82,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a container backed by a native list.</summary>
+        /// <param name="list">List whose contents will be exposed.</param>
+        /// <returns>A multi-container that wraps the list.</returns>
         public static implicit operator MultiContainer<T>(NativeList<T> list)
         {
             return new MultiContainer<T>
@@ -88,6 +94,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a container backed by a dynamic buffer.</summary>
+        /// <param name="list">Buffer whose contents will be exposed.</param>
+        /// <returns>A multi-container that wraps the buffer.</returns>
         public static implicit operator MultiContainer<T>(DynamicBuffer<T> list)
         {
             return new MultiContainer<T>
@@ -98,6 +106,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a container backed by a native hash set.</summary>
+        /// <param name="hashSet">Hash set whose contents will be exposed.</param>
+        /// <returns>A multi-container that wraps the hash set.</returns>
         public static implicit operator MultiContainer<T>(NativeHashSet<T> hashSet)
         {
             return new MultiContainer<T>
@@ -108,6 +118,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Creates a container backed by a read-only native hash set.</summary>
+        /// <param name="hashSet">Read-only hash set whose contents will be exposed.</param>
+        /// <returns>A multi-container that wraps the hash set.</returns>
         public static implicit operator MultiContainer<T>(NativeHashSet<T>.ReadOnly hashSet)
         {
             return new MultiContainer<T>
@@ -118,6 +130,7 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Returns the wrapped data as a native array.</summary>
+        /// <returns>The underlying array in read-only form.</returns>
         public NativeArray<T>.ReadOnly AsArray()
         {
             Debug.Assert(this.type == ContainerType.Array, "AsArray used on non array");

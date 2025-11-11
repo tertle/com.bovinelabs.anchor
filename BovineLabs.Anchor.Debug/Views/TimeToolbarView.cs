@@ -5,15 +5,18 @@
 namespace BovineLabs.Anchor.Debug.Views
 {
     using System;
+    using System.Collections.Generic;
     using System.Text;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.UI;
+    using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.UIElements;
     using FloatField = Unity.AppUI.UI.FloatField;
+    using SliderInt = Unity.AppUI.UI.SliderInt;
 
     [AutoToolbar("Time")]
     public class TimeToolbarView : View<TimeToolbarViewModel>
@@ -26,22 +29,29 @@ namespace BovineLabs.Anchor.Debug.Views
         {
             this.AddToClassList(UssClassName);
 
-            var label = new Text("Timescale");
+            var label = new Text("Timescale") { dataSource = this.ViewModel };
+            label.SetBindingToUI(nameof(Text.text), nameof(TimeToolbarViewModel.TimeScale), static (ref float value) => $"Timescale: {value:0.00}x");
 
-            var timescale = new FloatField
+            var timescale = new SliderFloat
             {
                 dataSource = this.ViewModel,
                 lowValue = 0f,
-                value = Time.timeScale,
+                highValue = 2f,
+                formatString = "0.0",
+                step = 0.25f,
+                track = TrackDisplayType.On,
+                showMarks = true,
+                restrictedValues = RestrictedValuesPolicy.Step,
+                showInputField = false,
+                scale = TimeToolbarViewModel.UIToTimeScale,
+                formatFunction = value => $"{value:0.00}x",
+                displayValueLabel = ValueDisplayMode.Auto,
             };
 
-            timescale.SetBinding(nameof(FloatField.value), new DataBinding
-            {
-                dataSourcePath = new PropertyPath(nameof(TimeToolbarViewModel.TimeScale)),
-            });
+            timescale.SetBindingTwoWay(nameof(FloatField.value), nameof(TimeToolbarViewModel.TimeScale),
+                static (ref float value) => TimeToolbarViewModel.TimescaleToUI(value), static (ref float value) => TimeToolbarViewModel.UIToTimeScale(value));
 
             this.Add(label);
-            this.Add(timescale);
 
             TypeConverter<long, string> timeConverter = (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
             this.Add(KeyValueGroup.Create(this.ViewModel,
@@ -50,6 +60,8 @@ namespace BovineLabs.Anchor.Debug.Views
                     ("Real", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                     ("Scale", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                 }, BindingUpdateTrigger.EveryUpdate));
+
+            this.Add(timescale);
 
             this.schedule.Execute(this.ViewModel.Update).Every(1);
         }

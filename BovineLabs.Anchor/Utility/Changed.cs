@@ -34,6 +34,8 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>Wraps a value and marks it as changed.</summary>
+        /// <param name="value">Value to wrap.</param>
+        /// <returns>A changed wrapper representing the supplied value.</returns>
         public static implicit operator Changed<T>(T value)
         {
             return new Changed<T>(value);

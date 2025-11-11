@@ -171,6 +171,11 @@ namespace BovineLabs.Anchor.Toolbar
         /// <summary>
         /// Adds a VisualElement service as a toolbar tab entry.
         /// </summary>
+        /// <typeparam name="T">Type of view to resolve from the service container.</typeparam>
+        /// <param name="tabName">Name shown on the toolbar tab.</param>
+        /// <param name="elementName">Name of the service element registered in UXML.</param>
+        /// <param name="id">Outputs the assigned unique tab identifier.</param>
+        /// <param name="view">Outputs the instantiated view.</param>
         public void AddTab<T>(string tabName, string elementName, out int id, out T view)
             where T : VisualElement
         {
@@ -181,6 +186,11 @@ namespace BovineLabs.Anchor.Toolbar
         /// <summary>
         /// Adds a VisualElement service as a toolbar tab entry.
         /// </summary>
+        /// <param name="viewType">Concrete view type that will be resolved from services.</param>
+        /// <param name="tabName">Name shown on the toolbar tab.</param>
+        /// <param name="elementName">Name of the service element registered in UXML.</param>
+        /// <param name="id">Outputs the assigned unique tab identifier.</param>
+        /// <param name="view">Outputs the instantiated view.</param>
         public void AddTab(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
         {
             if (!typeof(VisualElement).IsAssignableFrom(viewType))
@@ -224,6 +234,9 @@ namespace BovineLabs.Anchor.Toolbar
         /// <summary>
         /// Removes a previously registered tab by id.
         /// </summary>
+        /// <param name="id">Identifier of the tab that should be removed.</param>
+        /// <typeparam name="T">Expected type of the view backing the tab.</typeparam>
+        /// <returns>The removed view, or null if the id was not found.</returns>
         public T RemoveTab<T>(int id)
             where T : VisualElement
         {
@@ -246,6 +259,8 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <summary>Gets the VisualElement backing a registered tab.</summary>
+        /// <param name="id">Identifier of the tab that should be queried.</param>
+        /// <returns>The view backing the tab, or null when not found.</returns>
         public VisualElement GetPanel(int id)
         {
             return this.toolbarGroups.TryGetValue(id, out var group) ? group.View : null;
@@ -501,7 +516,12 @@ namespace BovineLabs.Anchor.Toolbar
 
         private ToolbarGroup CreateTab(string tabName)
         {
-            var button = new Button { title = tabName, focusable = false};
+            var button = new Button
+            {
+                title = tabName,
+                focusable = false,
+            };
+
             button.AddToClassList(MenuButtonUssClassName);
 
             var contents = new ToolbarGroupElement();

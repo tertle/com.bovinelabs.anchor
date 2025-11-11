@@ -28,6 +28,7 @@ namespace BovineLabs.Anchor.Toolbar
         }
 
         /// <summary>Adds the group to the supplied tab container.</summary>
+        /// <param name="tab">Tab container that should host the group.</param>
         public void AddToTab(VisualElement tab)
         {
             tab.Add(this);
