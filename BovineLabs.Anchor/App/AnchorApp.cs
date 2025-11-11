@@ -15,6 +15,7 @@ namespace BovineLabs.Anchor
     using Unity.AppUI.UI;
     using Unity.Burst;
     using Unity.Collections;
+    using UnityEngine;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -49,6 +50,8 @@ namespace BovineLabs.Anchor
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
         public static new AnchorApp current => App.current as AnchorApp;
+
+        public static Rect SafeArea => Screen.safeArea; // new(Screen.safeArea.x, Screen.height - Screen.safeArea.y, Screen.safeArea.width, Screen.safeArea.height);
 
         /// <summary>Gets the AppUI panel that hosts the Anchor visual tree.</summary>
         public virtual Panel Panel => (Panel)this.rootVisualElement;

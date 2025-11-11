@@ -118,7 +118,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             DisableKeyboardNavigation(menu);
 
-            this.uiHeight = Screen.height; // TODO
+            this.uiHeight = 0;
 
             this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
@@ -143,15 +143,6 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 this.HideToolbar();
             }
-
-            var safeSpace = Screen.safeArea;
-            var xMin = (safeSpace.x / Screen.width) * 100;
-            var xMax = ((Screen.width - safeSpace.width - safeSpace.x) / Screen.width) * 100;
-            var yMin = (safeSpace.y / Screen.height) * 100;
-
-            this.style.paddingLeft = new StyleLength(Length.Percent(xMin));
-            this.style.paddingRight = new StyleLength(Length.Percent(xMax));
-            this.style.paddingTop = new StyleLength(Length.Percent(yMin));
 
             App.current.rootVisualElement.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.OnRootContentChanged(evt.newRect), this);
             App.current.rootVisualElement.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
@@ -640,6 +631,15 @@ namespace BovineLabs.Anchor.Toolbar
             {
                 return;
             }
+
+            var safeSpace = AnchorApp.SafeArea;
+            var xMin = (safeSpace.x / Screen.width) * 100;
+            var xMax = ((Screen.width - safeSpace.width - safeSpace.x) / Screen.width) * 100;
+            var yMin = (safeSpace.y / Screen.height) * 100;
+
+            this.style.paddingLeft = new StyleLength(Length.Percent(xMin));
+            this.style.paddingRight = new StyleLength(Length.Percent(xMax));
+            this.style.paddingTop = new StyleLength(Length.Percent(yMin));
 
             var cameraHeightNormalized = (this.uiHeight - uiRect.height) / this.uiHeight;
 

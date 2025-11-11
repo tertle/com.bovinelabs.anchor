@@ -16,6 +16,9 @@ namespace BovineLabs.Anchor.Toolbar
     /// <summary>
     /// Utility that manages the lifecycle of a toolbar tab bound to a burst-compatible view model.
     /// </summary>
+    /// <typeparam name="TV">VisualElement view type instantiated for the tab.</typeparam>
+    /// <typeparam name="TM">Managed view-model type that exposes binding data.</typeparam>
+    /// <typeparam name="TD">Unmanaged data struct pinned for burst access.</typeparam>
     public unsafe struct ToolbarHelper<TV, TM, TD>
         where TV : View<TM>
         where TM : class, IBindingObjectNotify<TD>
