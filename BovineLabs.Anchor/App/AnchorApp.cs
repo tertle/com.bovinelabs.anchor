@@ -33,6 +33,11 @@ namespace BovineLabs.Anchor
         /// <summary>The default name for the service tab exposed in the toolbar.</summary>
         public const string DefaultServiceTabName = "Service";
 
+#if CUSTOM_SAFE_AREA
+        [ConfigVar("anchor.safe-area", 0, 0, 0, 0, "Custom SafeArea for testing. This is not a rect but instead offsets from each edge so will work on any resolution.")]
+        private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<ToolbarView, SafeAreaType>();
+#endif
+
         private static readonly FunctionPointer<NavigateDelegate> NavigateFunction;
         private static readonly FunctionPointer<CurrentDelegate> CurrentFunction;
 
@@ -79,11 +84,6 @@ namespace BovineLabs.Anchor
 
         /// <summary>Gets the container that manages tooltip content.</summary>
         public VisualElement TooltipContainer { get; private set; }
-
-#if CUSTOM_SAFE_AREA
-        [ConfigVar("anchor.safe-area", 0, 0, 0, 0, "Custom SafeArea for testing. This is not a rect but instead offsets from each edge so will work on any resolution.")]
-        private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<ToolbarView, SafeAreaType>();
-#endif
 
         private static Rect GetSafeArea()
         {
