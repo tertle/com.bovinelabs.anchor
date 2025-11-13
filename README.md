@@ -1,5 +1,5 @@
 # BovineLabs Anchor
-BovineLabs Anchor provides a utility layer on top of Unity's [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest), along with an easy-to-use debug ribbon toolbar and runtime workflow enhancements.
+BovineLabs Anchor builds on Unity's AppUI stack to provide a UXML-first workflow, a Burst-safe MVVM layer for DOTS, and tooling such as the AnchorNavHost and the debug ribbon. It enables fully declarative interfaces where every screen, popup, and toolbar tab is authored entirely with UXML and AppUI bindings.
 
 For support and discussions, join the [Discord](https://discord.gg/RTsw6Cxvw3) community.
 
@@ -7,488 +7,372 @@ If you want to support my work or get access to a few private libraries, [Buy Me
 
 ## Table of Contents
 - [Installation](#installation)
-- [Setup](#setup)
-- [MVVM Architecture](#mvvm-architecture)
-- [Model Data Binding](#model-data-binding)
-- [Runtime UI with Entities](#runtime-ui-with-entities)
+- [Project Setup](#project-setup)
+- [Services and Dependency Injection](#services-and-dependency-injection)
+- [Authoring Screens in UXML](#authoring-screens-in-uxml)
+- [View Models and AppUI Commands](#view-models-and-appui-commands)
+- [ECS-Ready Data Binding](#ecs-ready-data-binding)
+- [Working with AnchorNavHost](#working-with-anchornavhost)
+- [Navigation-Aware Systems](#navigation-aware-systems)
 - [Debug Ribbon Toolbar](#debug-ribbon-toolbar)
+- [UI Building Blocks and Utilities](#ui-building-blocks-and-utilities)
 
 ## Installation
+Install the package from Unity Package Manager using the git URL:
 
-To install the package, add it to the Unity Package Manager using the following URL:
+```
+https://gitlab.com/tertle/com.bovinelabs.anchor.git
+```
 
-`https://gitlab.com/tertle/com.bovinelabs.anchor.git`
+Or add it directly to `manifest.json`:
 
-Alternatively, you can add it directly to your manifest.json file:
+```json
+{
+  "dependencies": {
+    "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git"
+  }
+}
+```
 
-`"com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git",`
+Anchor targets Unity 6.3 and depends on:
 
-### Dependencies
+- [Unity AppUI 2.2.0-pre.2+](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest) for MVVM, bindings, and commands.
+- [Unity Entities / Burst](https://docs.unity3d.com/Packages/com.unity.entities@latest/) for DOTS integration.
+- [BovineLabs Core](https://gitlab.com/tertle/com.bovinelabs.core) for settings, configvars, and helper utilities.
 
-This package depends on [AppUI](https://docs.unity3d.com/Packages/com.unity.dt.app-ui@latest) and my [Core](https://gitlab.com/tertle/com.bovinelabs.core) library and is intended to be used with [Entities](https://docs.unity3d.com/Packages/com.unity.entities@latest/). It includes a binding process compatible with [Burst](https://docs.unity3d.com/Packages/com.unity.burst@latest).
+## Project Setup
 
-Additionally, if you have Unity [Physics](https://docs.unity3d.com/Packages/com.unity.physics@latest) or [Localization](https://docs.unity3d.com/Packages/com.unity.localization@latest) installed, BovineLabs Anchor will provide extra built-in tabs.
+### 1. Wire up the panel
+1. Add a `UIDocument` to your scene.
+2. Point it at a `PanelSettings` asset that uses the **Anchor UI** theme found at `/Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss`. You can extend this theme with your own styles. Leave the `UIDocument` source asset empty—the `AnchorAppBuilder` injects the navigation host, popup containers, and toolbars at runtime.
 
-## Setup
-
-Setting up BovineLabs Anchor is similar to a regular AppUI application, with the key difference being that you'll use `AnchorAppBuilder` or your own inherited version instead of `UIToolkitAppBuilder`. If you're unfamiliar with AppUI, please check out its MVVM and Redux sample.
-
-1. Add a `UIDocument` to your scene as usual.
-2. Set up `PanelSettings` and apply them to your `UIDocument`.
-3. In your `PanelSettings`, change the `Theme Style Sheet` field to point to the `Anchor UI` theme located at `/Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss`.
-
-   Alternatively, you can create your own `Theme Style Sheet`, making sure to import the `Anchor UI`.
-4. Add a `AnchorAppBuilder` component to your `UIDocument`.
-
-Your inspector should look something like this:
-
-![Inspector](Documentation~/Images/inspector.png)
-
-### Creating a Custom AppBuilder (Optional)
-
-For more control over your application, you can create a custom `AnchorAppBuilder` that inherits from `AnchorAppBuilder<T>` where `T` is your custom `AnchorApp` class:
+### 2. Provide an `AnchorAppBuilder`
+Attach `AnchorAppBuilder` (or a derived type) to the same GameObject as the `UIDocument`. Override it whenever you need to register project-specific services or eagerly warm up state:
 
 ```csharp
-public class MyAppBuilder : AnchorAppBuilder<MyApp>
+public class GameAppBuilder : AnchorAppBuilder
 {
-    [SerializeField] 
-    private NavGraphViewAsset navigationGraph;
-
-    protected override NavGraphViewAsset NavigationGraph => this.navigationGraph;
-    
-    // Override any additional properties to customize behavior
-    protected override Type ViewModelService => typeof(MyViewModelService);
-}
-
-// You often don't need to setup your own app and can just use the default AnchorApp in which case you can implement MyAppBuilder with the generic like 
-// public class MyAppBuilder : AnchorAppBuilder
-public class MyApp : AnchorApp
-{
-    public override void Initialize()
+    protected override void OnConfiguringApp(AppBuilder builder)
     {
-        base.Initialize();
-        
-        // Add custom initialization logic
+        base.OnConfiguringApp(builder);
+        builder.services.AddSingleton<IGameStore, GameStore>();
+        builder.services.AddSingleton<IInputService, InputService>();
+    }
+
+    protected override void OnAppInitialized(AnchorApp anchor)
+    {
+        base.OnAppInitialized(anchor);
+        anchor.services.GetRequiredService<OptionsViewModel>();
     }
 }
 ```
 
-This allows you to customize service registration, navigation, and various other aspects of the application.
+`AnchorAppBuilder` saves the `AnchorNavHost` state when the UI tears down so UI Toolkit Live Reload can rehydrate your navigation stack after a UXML hot reload. Anchor fully supports Live Reload, letting you iterate on UXML/USS while the same app instance keeps running.
 
-## MVVM Architecture
+### 3. Configure `AnchorSettings`
+Create or edit `Assets/Settings/Settings/AnchorSettings.asset`. Important fields:
 
-BovineLabs Anchor extends the MVVM (Model-View-ViewModel) implementation that AppUI provides to allow for Burst-compatible data flow when used with Entities.
+- **Toolbar Only** - skip runtime initialization outside the editor/dev environments.
+- **Debug Style Sheets** - additional `.tss` files injected when `BL_DEBUG` or the editor is active.
+- **Start Destination** - the view key to load automatically.
+- **Views** - a list of `Key` -> `VisualTreeAsset`. Keys must match the strings you pass to `AnchorNavHost`.
+- **Actions** - references to `AnchorNamedAction` ScriptableObjects stored under `Assets/UI/Actions`. These define action names, destinations, and default navigation options.
 
-### View
+Each action asset produces a named route; mirror those strings in your own `Actions` constants to avoid typos between UXML and code.
 
-The View is responsible for presenting the UI to the user and handling user interactions. In Anchor, Views:
+## Services and Dependency Injection
+Anchor relies on a lightweight service container:
 
-- Are implemented as `VisualElement` classes that implement `View<T>` base class
-- Have a reference to a ViewModel that they can bind to
-- Usually use UI Toolkit data binding to stay in sync with the ViewModel
-- Are created and destroyed by the system, but are not directly interacted with by the system
+- `AnchorAppBuilder` registers `ILocalStorageService`, `IViewModelService`, `IUXMLService`, toolbar services, and every type marked with `[IsService]`.
+- Add `[Transient]` when you need a fresh instance per resolution; otherwise services behave as singletons.
+- Resolve services via `AnchorApp.current.services.GetRequiredService<T>()`.
+- You can override `AnchorAppBuilder.UXMLService` to supply a custom loader (Addressables, bundles, etc.).
 
-```csharp
-public class MyView : View<MyViewModel>
-{
-    public MyView()
-        : base(new MyViewModel())
-    {
-        // Create UI elements and bind to ViewModel
-        var counter = new Text();
-        counter.dataSource = this.ViewModel;
-        counter.SetBindingToUI(nameof(Text.text), nameof(MyViewModel.Counter));
-        this.Add(counter);
-    }
-}
+When the default `UXMLService` instantiates a `VisualTreeAsset`, it walks the visual tree and automatically assigns `dataSource` for every element that declares a `data-source-type`. That is what bridges UXML to your view models.
+
+## Authoring Screens in UXML
+Anchor encourages building your runtime UI entirely in UXML. Each `VisualTreeAsset` corresponds to a key in `AnchorSettings.Views`, and `AnchorNavHost` clones the asset when a destination becomes active.
+
+Example (`Assets/UI/Menu/Home.uxml`):
+
+```xml
+<ui:VisualElement data-source-type="MyGame.UI.Menu.HomeViewModel, MyGame">
+    <BovineLabs.Anchor.Elements.AnchorActionButton label="@UI:play">
+        <Bindings>
+            <ui:DataBinding property="clickable.command"
+                            binding-mode="ToTarget"
+                            data-source-path="PlayCommand"/>
+        </Bindings>
+    </BovineLabs.Anchor.Elements.AnchorActionButton>
+    <BovineLabs.Anchor.Elements.AnchorActionButton label="@UI:quit">
+        <Bindings>
+            <ui:DataBinding property="commandWithEventInfo"
+                            binding-mode="ToTarget"
+                            data-source-path="QuitCommand"/>
+        </Bindings>
+    </BovineLabs.Anchor.Elements.AnchorActionButton>
+</ui:VisualElement>
 ```
 
-#### VisualElement Extensions
+Key points:
 
-Anchor provides a set of helpful extensions for binding to reduce boilerplate. The previous example uses the SetBindingToUI extension.
-Typically, this would be implemented with the following:
+- Set `data-source-type` on any element that needs a view model. `UXMLService` resolves the type through the service container and assigns it to `dataSource`.
+- Use standard AppUI bindings (`ui:DataBinding`) to synchronize properties such as `text`, `enabledSelf`, `value`, etc.
+- Anchor ships extended controls (`AnchorActionButton`, `AnchorButton`, `AnchorGridView`, ...) that expose extra bindable properties like `commandWithEventInfo`.
+- Complex screens (e.g., `Assets/UI/Options/Options.uxml`) mix multiple `data-source-type` values to pull in nested view models, `ListView` item templates, and AppUI navigation controls such as `SwipeView`.
 
-```csharp
-counter.SetBinding(nameof(Text.text), new DataBinding
-{ 
-    bindingMode = BindingMode.ToTarget,
-    dataSourcePath = new PropertyPath(nameof(MyViewModel.Counter))
-});
- ```
-
-There are overloads that also support [TypeConverters](https://docs.unity3d.com/6000.0/Documentation/Manual/UIE-create-runtime-binding-type-converter.html).
-
-### ViewModel
-
-The ViewModel serves as the intermediary between the View and the Model (entity data):
-
-- When not using Entities, use the AppUI source generation properties. From here out though Entities will be assumed to be used.
-- When using Entities, implement `SystemObservableObject<T>` for Burst compatibility
-- Properties decorated with `[SystemProperty]` attribute in the data struct get auto-generated binding code
-  - Remember to mark your data struct and view model as `partial`
-- Provides observable properties that the View can bind to
-- Handles data conversion between Model and View-friendly formats
+## View Models and AppUI Commands
+Screens bind to regular AppUI `ObservableObject` classes. Decorate them with `[IsService]` so Anchor registers them automatically.
 
 ```csharp
-public partial class MyViewModel : SystemObservableObject<MyViewModel.Data>
+[IsService]
+public partial class HomeViewModel : ObservableObject
 {
-    [CreateProperty(ReadOnly = true)]
-    public int Counter => this.Value.Counter;
-    
-    public partial struct Data
+    private const string QuitText = "@UI:quit";
+
+    [ICommand]
+    private static void Quit(EventBase evt)
     {
-        [SystemProperty]
-        private int counter;
-    }
-}
-```
-
-## Model Data Binding
-
-BovineLabs Anchor provides a powerful data binding system that connects your data models to the UI in a Burst-compatible way. This enables seamless integration with Unity's ECS framework.
-
-### SystemProperty Attribute
-
-The `SystemProperty` attribute uses source generation to create Burst-compatible property accessors in your ViewModel.
-This allows systems to interact with your ViewModel's data while maintaining Burst compatibility.
-
-For a field marked with `[SystemProperty]`, the generator creates:
-
-```csharp
-// Generated in a partial struct matching your original struct
-public int Counter
-{
-    get => this.counter;
-    set => this.SetProperty(ref counter, value);
-}
-```
-
-The source generator supports common field naming conventions:
-- camelCase (`counter` → `Counter`)
-- _underscorePrefixed (`_counter` → `Counter`)
-
-`SetProperty` provides the standard property change notification pattern:
-- Compares current value against the new value
-- If different, fires `OnPropertyChanging` event
-- Updates the field value
-- Fires `OnPropertyChanged` event
-
-What makes this special is that fields in the `Data` struct can be accessed from Burst-compiled systems via the Binding reference.
-
-### Special Field Types
-
-The source generator also supports several special field types that provide additional functionality:
-
-```csharp
-public partial struct Data
-{
-    // Standard property
-    [SystemProperty]
-    private int counter;
-
-    // Changed<T> - Tracks when a value has been changed
-    [SystemProperty]
-    private Changed<int> changedCounter;
-    
-    // NativeList<T> - For collections
-    [SystemProperty]
-    private NativeList<MyData> items;
-    
-    // ChangedList<T> - For collections with change tracking
-    [SystemProperty]
-    private ChangedList<MyData> changedItems;
-}
-```
-
-For `Changed<T>` fields, additional `PropertyNameChanged` helper methods are generated to detect and reset change state:
-
-```csharp
-// Generated method for Changed<T> fields
-public bool CounterChanged(out int value, bool resetToDefault = false)
-{
-    value = this.changedCounter.Value;
-    if (this.changedCounter.HasChanged)
-    {
-        if (resetToDefault)
-            this.Counter = new Changed<int>(default, false);
-        else
-            this.changedCounter = new Changed<int>(this.changedCounter.Value, false);
-        return true;
-    }
-    return false;
-}
-```
-
-### Model Patterns
-
-There are a few common patterns for working with models in Anchor:
-
-1. **Value Types**: Use standard value types for simple properties
-2. **Changed Values**: Use `Changed<T>` to track when a value has been modified
-3. **Collections**: Use `NativeList<T>` or `ChangedList<T>` for collections
-4. **Events/Commands**: Use `Changed<bool>` for one-shot events from UI to system
-
-This model binding system enables clean separation of UI representation and ECS-based logic, while maintaining high performance through Burst compatibility.
-
-## Runtime UI with Entities
-
-Anchor provides a powerful system for integrating UI components with ECS, allowing you to create responsive interfaces that work seamlessly with Burst-compiled systems.
-
-### UIHelper Structure
-
-The `UIHelper` struct is a key component for managing UI-to-ECS binding. It handles:
-- Automatic viewmodel lifecycle management
-- Safe access to unmanaged data from Burst-compiled systems
-- Proper garbage collection and resource management
-
-```csharp
-public partial struct MySystem : ISystem, ISystemStartStop
-{
-    private UIHelper<MyViewModel, MyViewModel.Data> ui;
-
-    public void OnCreate(ref SystemState state)
-    {
-        // For screens using navigation component
-        this.ui = new UIHelper<MyViewModel, MyViewModel.Data>(ref state, "screen-name");
-        
-        // Alternative approach with ComponentType directly
-        this.ui = new UIHelper<MyViewModel, MyViewModel.Data>(ref state, ComponentType.ReadOnly<MyScreenTag>());
-    }
-
-    public void OnStartRunning(ref SystemState state)
-    {
-        this.ui.Bind();
-    }
-
-    public void OnStopRunning(ref SystemState state)
-    {
-        this.ui.Unbind();
-    }
-
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
-    {
-        // Access viewmodel data safely from Burst
-        ref var binding = ref this.ui.Binding;
-        
-        // Update viewmodel data directly
-        binding.Counter++;
-        
-        // Check and consume events from UI
-        if (binding.SubmitButton.TryConsume())
+        if (evt.target is ExVisualElement button)
         {
-            // Handle button click event
+            var dialog = new AlertDialog { title = QuitText };
+            dialog.SetPrimaryAction(99, QuitText, Application.Quit);
+            Modal.Build(button, dialog).Show();
         }
     }
-}
-```
 
-### Binding Workflow
-
-1. Define a view and viewmodel as described in the MVVM section
-2. In your system, create a `UIHelper<TViewModel, TData>` instance
-3. Call `Bind()` when the system starts running
-4. Access and update the viewmodel data through `Binding` property
-5. Call `Unbind()` when the system stops running
-
-This pattern ensures resources are properly managed and provides a clean separation between UI representation and system logic.
-
-### State Management
-
-Anchor supports integration with navigation and state systems:
-
-```csharp
-[UpdateInGroup(typeof(UISystemGroup))]
-public partial struct MyScreenSystem : ISystem, ISystemStartStop
-{
-    private UIHelper<MyViewModel, MyViewModel.Data> ui;
-
-    [BurstCompile]
-    public void OnCreate(ref SystemState state)
+    [ICommand]
+    private void Play()
     {
-        // Register the system with a specific screen state
-        StateAPI.Register<GameState, StateMyScreen, UIStates>(ref state, "my-screen");
+        AnchorApp.current.Navigate(Actions.HomeToPlay);
     }
 
-    public void OnStartRunning(ref SystemState state)
+    [ICommand]
+    private void Options()
     {
-        this.ui.Bind();
-        
-        // Initialize UI on screen load
-        ref var binding = ref this.ui.Binding;
-        binding.Title = "Welcome to My Screen";
-    }
-
-    public void OnStopRunning(ref SystemState state)
-    {
-        this.ui.Unbind();
+        AnchorApp.current.Navigate(Actions.HomeToOptions);
     }
 }
 ```
 
-This allows you to create screen-specific systems that activate only when that screen is visible, providing efficient resource usage.
+The AppUI source generators emit `QuitCommand`, `PlayCommand`, etc., so you only have to bind `clickable.command` in UXML. Use `AnchorActionButton.commandWithEventInfo` when you need access to the original `EventBase`.
 
-### UI Events and Commands
+Because the view models are resolved through the container you can inject services (`ILocalStorageService`, `IStoreService`, `IControlService`, ...) directly through constructors. This makes it easy to persist options, drive localization changes, or talk to custom systems as soon as bound UI state changes.
 
-The `Changed<T>` type enables a command pattern for UI interactions:
-
-```csharp
-public partial struct Data
-{
-    [SystemProperty]
-    private Changed<bool> submitButton;
-}
-
-// In the system:
-ref var binding = ref this.ui.Binding;
-if (binding.SubmitButton.TryConsume())
-{
-    // Button was clicked, handle the action
-    // The TryConsume() method returns true once per click and resets the state
-}
-```
-
-This pattern enables one-shot events from UI to system without the need for callbacks, making it compatible with Burst.
-
-## Debug Ribbon Toolbar
-
-![RibbonToolbar](Documentation~/Images/ribbon.png)
-
-The Ribbon Toolbar provides easily accessible debugging tools and information within the game. It appears as a collapsible panel at the top of the screen, with tabs for different debugging functions.
-
-### Using the Toolbar
-
-- The toolbar is optionally included in **development builds** with `BL_DEBUG` defined or in the **Unity Editor**
-- Click the dropdown button in the top-left to show/hide debugging categories
-- Click the arrow button to collapse or expand the toolbar
-- Click category tabs to switch between different debugging panels, optionally tied to Worlds
-- Can be completely hidden in the configvar window
-
-### Built-in Debug Tabs
-
-Several debugging panels are included by default:
-
-- **Memory**: Displays memory usage statistics
-- **FPS**: Shows framerate information
-- **Entities**: Displays entity, archetype, and chunk counts (if Entities package is installed)
-- **Physics**: Toggle physics debug visualization (if Physics package is installed)
-- **Localization**: Change locale settings (if Localization package is installed)
-- **Quality**: Adjust quality settings
-- **Time**: Control time scale and view elapsed time
-- **UI**: Change UI theme and scale
-
-### Creating Custom Toolbar Tabs
-
-There are two mutually exclusive approaches to creating toolbar tabs:
-
-#### Approach 1: Using AutoToolbar (UI-only)
-
-Use this approach for simple debugging panels that don't need access to ECS data:
+## ECS-Ready Data Binding
+`SystemObservableObject<T>` exposes an unmanaged `Data` struct that Burst systems can mutate. Combine it with `[SystemProperty]` so the source generator emits change notifications.
 
 ```csharp
-[AutoToolbar("MyTab")]
-public class MyToolbarView : View<MyToolbarViewModel>
-{
-    public MyToolbarView()
-        : base(new MyToolbarViewModel())
-    {
-        // Create UI elements and bind to ViewModel
-        var statusText = new Text();
-        statusText.dataSource = this.ViewModel;
-        statusText.SetBindingToUI(nameof(Text.text), nameof(MyToolbarViewModel.StatusText));
-        this.Add(statusText);
-        
-        // For UI-driven functionality, use regular AppUI binding
-        var button = new Button { text = "Refresh" };
-        button.clicked += () => this.ViewModel.RefreshData();
-        this.Add(button);
-    }
-}
-
-// Regular ViewModel without Entities integration
-[ObservableObject]
-public partial class MyToolbarViewModel
-{
-    [ObservableProperty]
-    private string statusText = "Ready";
-    
-    public void RefreshData()
-    {
-        this.StatusText = "Refreshed at " + DateTime.Now.ToString("HH:mm:ss");
-    }
-}
-```
-
-The `[AutoToolbar]` attribute automatically registers your view with the toolbar system. The first parameter is the element name displayed on the tab, and the optional second parameter is the tab group (defaults to "Service").
-
-#### Approach 2: Using ToolbarHelper (With ECS Integration)
-
-Use this approach when you need to update the toolbar with data from ECS systems:
-
-```csharp
-// Create a regular View without AutoToolbar attribute
-[Transient] // Optional: Creates a new instance each time
-public class MyEcsToolbarView : View<MyEcsToolbarViewModel>
-{
-    public MyEcsToolbarView()
-        : base(new MyEcsToolbarViewModel())
-    {
-        // Create UI elements
-        var entityCount = new Text();
-        entityCount.dataSource = this.ViewModel;
-        entityCount.SetBindingToUI(nameof(Text.text), nameof(MyEcsToolbarViewModel.EntityCount));
-        this.Add(entityCount);
-    }
-}
-
-// ViewModel with SystemObservableObject for ECS integration
-public partial class MyEcsToolbarViewModel : SystemObservableObject<MyEcsToolbarViewModel.Data>
+[IsService]
+public partial class PlayViewModel : SystemObservableObject<PlayViewModel.Data>
 {
     [CreateProperty(ReadOnly = true)]
-    public int EntityCount => this.Value.EntityCount;
-    
-    public partial struct Data
+    public bool OnlineAvailable => Application.internetReachability != NetworkReachability.NotReachable;
+
+    [ICommand] private void Private() => Start(ref this.Value.Private);
+    [ICommand] private void Host()    => Start(ref this.Value.Host);
+    [ICommand] private void Join()    => Start(ref this.Value.Join);
+
+    private static void Start(ref ButtonEvent evt)
     {
-        [SystemProperty]
-        private int entityCount;
+        AnchorApp.current.Navigate(Actions.GoToLoading);
+        evt.TryProduce();
+    }
+
+    public struct Data
+    {
+        [SystemProperty] public ButtonEvent Private;
+        [SystemProperty] public ButtonEvent Host;
+        [SystemProperty] public ButtonEvent Join;
     }
 }
+```
 
-// System to create and update the toolbar
-[UpdateInGroup(typeof(ToolbarSystemGroup))]
-public partial struct MyEcsToolbarSystem : ISystem, ISystemStartStop
+Supported field types inside the `Data` struct include:
+
+- Plain unmanaged values (int, float, structs).
+- `Changed<T>` for one-shot events (`TryConsume()`).
+- `ChangedList<T>` and `NativeList<T>` for collections.
+- Custom unmanaged structs such as `ButtonEvent`.
+
+Burst systems interact with these view models through `UIHelper<TViewModel, TData>`:
+
+```csharp
+public partial struct ServiceHomeStateSystem : ISystem, ISystemStartStop
 {
-    private ToolbarHelper<MyEcsToolbarView, MyEcsToolbarViewModel, MyEcsToolbarViewModel.Data> toolbar;
-
-    public void OnCreate(ref SystemState state)
-    {
-        this.toolbar = new ToolbarHelper<MyEcsToolbarView, MyEcsToolbarViewModel, MyEcsToolbarViewModel.Data>(ref state, "MyEcsTab");
-    }
+    private UIHelper<PlayViewModel, PlayViewModel.Data> helper;
 
     public void OnStartRunning(ref SystemState state)
     {
-        this.toolbar.Load();
+        App.current.services.GetRequiredService<SplashViewModel>().IsInitialized = true;
+        this.helper.Bind();
     }
 
-    public void OnStopRunning(ref SystemState state)
-    {
-        this.toolbar.Unload();
-    }
+    public void OnStopRunning(ref SystemState state) => this.helper.Unbind();
 
-    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // Only update when tab is visible
+        ref var binding = ref this.helper.Binding;
+        if (binding.Private.TryConsume()) GameAPI.ServiceStateSet(ref state, ServiceStates.Game);
+    }
+}
+```
+
+`UIHelper` pins the unmanaged data and automatically loads/unloads the view model through `IViewModelService`. Pass a destination name (`new UIHelper<MyVm, MyVm.Data>(ref state, "home")`) when you want the helper to bind only while that navigation state is active.
+
+If a view model needs to react when a screen is shown or hidden, implement `IAnchorNavigationScreen`:
+
+```csharp
+[IsService]
+public partial class UserReportingViewModel : ObservableObject, IAnchorNavigationScreen
+{
+    [ICommand] private void Submit() { /* send report */ }
+
+    void IAnchorNavigationScreen.OnEnter(Argument[] args)
+    {
+        this.Reset();
+        UserReportingService.Instance.CreateNewUserReport();
+    }
+
+    void IAnchorNavigationScreen.OnExit(Argument[] args)
+    {
+        UserReportingService.Instance.ClearOngoingReport();
+    }
+}
+```
+
+`AnchorNavHost` searches the instantiated visual tree for data sources that implement the interface and forwards `Argument[]` from the navigation request.
+
+## Working with AnchorNavHost
+`AnchorNavHost` replaces AppUI's built-in NavHost. It is a `VisualElement` that:
+
+- Instantiates screens from the `AnchorSettings.Views` map using `IUXMLService`.
+- Tracks the active destination stack and a separate back stack snapshot for `PopBackStack()`.
+- Supports popups layered on top of the base screen.
+- Exposes `EnteredDestination`, `ExitedDestination`, `ActionTriggered`, and `DestinationChanged` events.
+- Saves and restores its entire state so the UI survives assembly reloads.
+
+Navigate by calling the static helper or by targeting the host directly:
+
+```csharp
+AnchorApp.current.Navigate(Actions.HomeToPlay);
+AnchorApp.current.NavHost.Navigate(Actions.GoToLoading, Argument.String("saveId", saveGuid));
+```
+
+When you call `Navigate(string name, ...)`, the host first tries to resolve a named action in `AnchorSettings.Actions`. Actions are ScriptableObjects (`AnchorNamedAction`) that bundle a destination, default arguments, and options:
+
+```yaml
+# Assets/UI/Actions/PopUpInventory.asset
+actionName: pop_up_inventory
+action:
+  destination: inventory
+  options:
+    popupStrategy: EnsureBaseAndPopup
+    popupBaseDestination: game
+    popupExistingStrategy: CloseOtherPopups
+```
+
+You can also declare actions in code:
+
+```csharp
+[AnchorNavAction(Actions.GoToGame)]
+public static AnchorNavAction BuildGameAction()
+{
+    return new AnchorNavAction(
+        destination: "game",
+        options: new AnchorNavOptions
+        {
+            StackStrategy = AnchorStackStrategy.PopToRoot,
+            Animations = new AnchorAnimations
+            {
+                EnterAnim = NavigationAnimation.SlideLeft,
+                ExitAnim = NavigationAnimation.SlideRight,
+            },
+        });
+}
+```
+
+`AnchorNavOptions` keys:
+
+- `StackStrategy` - how the back stack is pruned before navigating (`None`, `PopToRoot`, `PopAll`, `PopToSpecificDestination` + `PopupToDestination`).
+- `PopupStrategy` - treat the navigation as a popup (`None`, `PopupOnCurrent`, `EnsureBaseAndPopup`), optionally providing `PopupBaseDestination`, `PopupBaseArguments`, and `PopupExistingStrategy`.
+- `Animations` - per-destination enter/exit/pop animations.
+- Default `Argument[]` merges with runtime arguments so you can pre-populate contextual data.
+
+At runtime you can:
+
+- `AnchorNavHost.PopBackStack()` - return to the previous snapshot.
+- `PopBackStackToPanel()` - pop and close any overlays captured with that snapshot.
+- `CloseAllPopups()` - dismiss only the stacked popups.
+- `SaveState()` and `RestoreState()` - serialize the entire stack if you need to persist UI progress manually.
+
+## Navigation-Aware Systems
+`NavigationStateSystem` keeps DOTS systems in sync with the currently visible destination. To opt in:
+
+1. Create lightweight `IComponentData` tags (e.g., `UIGame`, `UIOptions`) under `Assets/Scripts/.../UI/ViewStates`.
+2. Add entries to `Assets/Settings/Settings/K/UISystemTypes.asset`, mapping destination names to those components.
+3. In your systems, call `StateAPI.Register` (if you use the BovineLabs state machine) or pass the destination name to `UIHelper`.
+
+When `AnchorNavHost` activates `home`, `NavigationStateSystem` adds the mapped component to the systems that registered for it. You can call `state.Enabled`/`RequireForUpdate` based on that component or rely on the string-based `UIHelper` constructor, which already resolves the component for you.
+
+## Debug Ribbon Toolbar
+In the editor or when `BL_DEBUG` is defined, `AnchorApp` injects the ribbon toolbar at the top of the panel. It provides tabs for Memory, FPS, Entities, Physics, Localization, Quality, Time, UI themes, and any tabs you add.
+
+Two ways to add a tab:
+
+1. **`[AutoToolbar]` for UI-only panels**
+
+```csharp
+[AutoToolbar("Save")]
+public class SaveToolbarView : View<SaveToolbarViewModel>
+{
+    public SaveToolbarView() : base(new SaveToolbarViewModel())
+    {
+        var label = new Text();
+        label.dataSource = this.ViewModel;
+        label.SetBindingToUI(nameof(Text.text), nameof(SaveToolbarViewModel.Status));
+        this.Add(label);
+    }
+}
+```
+
+2. **`ToolbarHelper` for ECS-driven tabs**
+
+```csharp
+public partial struct EntitiesToolbarSystem : ISystem, ISystemStartStop
+{
+    private ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> toolbar;
+
+    public void OnCreate(ref SystemState state)
+    {
+        this.toolbar = new ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
+    }
+
+    public void OnStartRunning(ref SystemState state) => this.toolbar.Load();
+    public void OnStopRunning(ref SystemState state)  => this.toolbar.Unload();
+
+    public void OnUpdate(ref SystemState state)
+    {
         if (!this.toolbar.IsVisible())
         {
             return;
         }
 
-        // Update toolbar data from ECS
-        ref var data = ref this.toolbar.Binding;
-        data.EntityCount = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
+        ref var binding = ref this.toolbar.Binding;
+        binding.EntityCount = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
     }
 }
 ```
 
-The `ToolbarHelper` approach uses the same model binding system as regular screens but integrates specially with the toolbar UI. The data binding works the same way with `[SystemProperty]` attributes and source generated binding code, allowing you to create rich debugging tools that can display real-time ECS data.
+`ToolbarHelper` mirrors `UIHelper`: it pins the unmanaged data, restores serialized view-model state, and only updates when the tab is visible.
+
+## UI Building Blocks and Utilities
+Anchor ships several helper types used throughout larger AppUI projects:
+
+- **Elements** - `AnchorActionButton`, `AnchorButton`, `AnchorAccordion`, `AnchorGridView`, `KeyValueElement`, and `KeyValueGroup` provide extra bindable properties and convenience behaviour (dynamic item templates, command bindings, etc.).
+- **Collections** - `AnchorObservableCollection<T>` adds `AddRange`/`Replace` helpers and properly batches `INotifyCollectionChanged` events, which is ideal for inventory lists, quest logs, or other frequently refreshed data sets.
+- **Converters** - common AppUI binding converters (DisplayStyle <-> bool, inverted bool, etc.) live under `BovineLabs.Anchor.Binding`.
+- **Settings hooks** - `AnchorSettings.DebugStyleSheets` inject extra TSS files when debugging, and `ToolbarOnly` lets you ship the package without constructing the runtime UI in release builds.
+- **Custom UXML loading** - override `AnchorAppBuilder.UXMLService` if you need to instantiate assets from a different source; the rest of the stack (AnchorNavHost, bindings, commands) stays untouched.
+
+With these pieces you can author complex AppUI experiences end-to-end in UXML with Burst-aware view models, robust navigation, and a cohesive debug workflow.
