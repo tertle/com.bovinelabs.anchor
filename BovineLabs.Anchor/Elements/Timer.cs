@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor.Elements
     [UxmlElement]
     public partial class Timer : VisualElement
     {
-        private static readonly BindingId CommandTimerProperty = nameof(commandTimer);
+        private static readonly BindingId CommandProperty = nameof(command);
         private static readonly BindingId IntervalProperty = nameof(interval);
 
         private ICommand m_command;
@@ -34,7 +34,7 @@ namespace BovineLabs.Anchor.Elements
 
                     if (value > 0)
                     {
-                        this.m_scheduledItem = this.schedule.Execute(_ => this.commandTimer?.Execute(null)).Every(value);
+                        this.m_scheduledItem = this.schedule.Execute(_ => this.command?.Execute(null)).Every(value);
                     }
 
                     this.NotifyPropertyChanged(in IntervalProperty);
@@ -43,7 +43,7 @@ namespace BovineLabs.Anchor.Elements
         }
 
         [CreateProperty]
-        public ICommand commandTimer
+        public ICommand command
         {
             get => this.m_command;
             set
@@ -51,7 +51,7 @@ namespace BovineLabs.Anchor.Elements
                 if (this.m_command != value)
                 {
                     this.m_command = value;
-                    this.NotifyPropertyChanged(in CommandTimerProperty);
+                    this.NotifyPropertyChanged(in CommandProperty);
                 }
             }
         }
