@@ -1,4 +1,4 @@
-// <copyright file="TimerElement.cs" company="BovineLabs">
+// <copyright file="Timer.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -8,6 +8,9 @@ namespace BovineLabs.Anchor.Elements
     using Unity.Properties;
     using UnityEngine.UIElements;
 
+    /// <summary>
+    /// Visual element that repeatedly invokes a command on a schedule.
+    /// </summary>
     [UxmlElement]
     public partial class Timer : VisualElement
     {
@@ -18,6 +21,9 @@ namespace BovineLabs.Anchor.Elements
         private long m_interval;
         private IVisualElementScheduledItem m_scheduledItem;
 
+        /// <summary>
+        /// Gets or sets the delay between command executions, in milliseconds. A value of 0 disables scheduling.
+        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public long interval
@@ -42,6 +48,9 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
+        /// <summary>
+        /// Gets or sets the command invoked on each interval tick.
+        /// </summary>
         [CreateProperty]
         public ICommand command
         {
