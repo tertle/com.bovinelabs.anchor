@@ -4,6 +4,7 @@
 
 namespace BovineLabs.Anchor
 {
+    using BovineLabs.Anchor.Nav;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Entities;
@@ -54,7 +55,7 @@ namespace BovineLabs.Anchor
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var current = AnchorApp.CurrentDestination();
+            var current = AnchorNavHost.Burst.CurrentDestination();
 
             if (this.previous == current)
             {

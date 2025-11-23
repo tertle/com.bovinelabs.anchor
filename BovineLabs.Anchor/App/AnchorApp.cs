@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.InteropServices;
-    using AOT;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
@@ -19,7 +18,6 @@ namespace BovineLabs.Anchor
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using Unity.Burst;
-    using Unity.Collections;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -37,25 +35,6 @@ namespace BovineLabs.Anchor
         [ConfigVar("anchor.safe-area", 0, 0, 0, 0, "Custom SafeArea for testing. This is not a rect but instead offsets from each edge so will work on any resolution.")]
         private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<ToolbarView, SafeAreaType>();
 #endif
-
-        private static readonly FunctionPointer<NavigateDelegate> NavigateFunction;
-        private static readonly FunctionPointer<CurrentDelegate> CurrentFunction;
-
-        [UsedImplicitly]
-        private static object navigateFunctionGCPrevention;
-
-        [UsedImplicitly]
-        private static object currentFunctionGCPrevention;
-
-        static AnchorApp()
-        {
-            (navigateFunctionGCPrevention, NavigateFunction) = CreateDelegate<NavigateDelegate>(NavigateForwarding);
-            (currentFunctionGCPrevention, CurrentFunction) = CreateDelegate<CurrentDelegate>(CurrentForwarding);
-        }
-
-        private delegate void NavigateDelegate(in FixedString32Bytes screen);
-
-        private delegate void CurrentDelegate(out FixedString32Bytes name);
 
         /// <summary>Gets the strongly typed instance of the currently running <see cref="AnchorApp"/>.</summary>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
@@ -107,9 +86,6 @@ namespace BovineLabs.Anchor
         /// </summary>
         public virtual void Initialize()
         {
-            Burst.NavigateFunc.Data = NavigateFunction;
-            Burst.CurrentFunc.Data = CurrentFunction;
-
             this.Panel.pickingMode = PickingMode.Ignore;
 
 #if BL_DEBUG || UNITY_EDITOR
@@ -130,62 +106,10 @@ namespace BovineLabs.Anchor
             this.TooltipContainer = this.rootVisualElement.Q<VisualElement>("tooltip-container");
         }
 
-        /// <summary> A burst compatible way to Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
-        /// <param name="screen"> The screen to navigate to. </param>
-        public static void Navigate(in FixedString32Bytes screen)
-        {
-            if (Burst.NavigateFunc.Data.IsCreated)
-            {
-                Burst.NavigateFunc.Data.Invoke(screen);
-            }
-        }
-
-        /// <summary> A burst compatible way to get the <see cref="NavController.currentDestination"/> from the <see cref="NavController"/>. </summary>
-        /// <returns>The name of the current destination, or default if null.</returns>
-        public static FixedString32Bytes CurrentDestination()
-        {
-            if (Burst.CurrentFunc.Data.IsCreated)
-            {
-                Burst.CurrentFunc.Data.Invoke(out var name);
-                return name;
-            }
-
-            return default;
-        }
-
-        // TODO this seems pointless with navhsot
-        /// <summary> Navigate to a new screen in the <see cref="GraphViewAsset" />. </summary>
-        /// <param name="screen"> The screen to navigate to. </param>
-        public void Navigate(string screen)
-        {
-            this.NavHost.Navigate(screen);
-        }
-
         /// <summary> This has been disabled in favour of overriding <see cref="Initialize" />. </summary>
         public sealed override void InitializeComponent()
         {
             base.InitializeComponent();
-        }
-
-        [MonoPInvokeCallback(typeof(NavigateDelegate))]
-        private static void NavigateForwarding(in FixedString32Bytes screen)
-        {
-            current.Navigate(screen.ToString());
-        }
-
-        [MonoPInvokeCallback(typeof(CurrentDelegate))]
-        private static void CurrentForwarding(out FixedString32Bytes name)
-        {
-            name = current.NavHost.CurrentDestination ?? default(FixedString32Bytes);
-        }
-
-        private static class Burst
-        {
-            public static readonly SharedStatic<FunctionPointer<NavigateDelegate>> NavigateFunc =
-                SharedStatic<FunctionPointer<NavigateDelegate>>.GetOrCreate<AnchorApp, FunctionPointer<NavigateDelegate>>();
-
-            public static readonly SharedStatic<FunctionPointer<CurrentDelegate>> CurrentFunc =
-                SharedStatic<FunctionPointer<CurrentDelegate>>.GetOrCreate<AnchorApp, FunctionPointer<CurrentDelegate>>();
         }
 
 #if CUSTOM_SAFE_AREA
