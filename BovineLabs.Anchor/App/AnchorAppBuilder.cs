@@ -12,7 +12,6 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core.Utility;
     using Unity.AppUI.MVVM;
-    using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -31,7 +30,7 @@ namespace BovineLabs.Anchor
     public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
         where T : AnchorApp
     {
-        private AnchorNavHost.SavedState state;
+        private AnchorNavHostSaveState state;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
