@@ -108,6 +108,7 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstOutDelegate<bool>> CanGoBackFunc =
                 SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, CanGoBackType>();
 
+            /// <inheritdoc cref="AnchorNavHost.Navigate(string, Argument[])" />
             public static void Navigate(in FixedString32Bytes screen)
             {
                 if (NavigateFunc.Data.IsCreated)
@@ -128,6 +129,7 @@ namespace BovineLabs.Anchor.Nav
                 return default;
             }
 
+            /// <inheritdoc cref="AnchorNavHost.ClearBackStack" />
             public static void ClearBackStack()
             {
                 if (ClearBackStackFunc.Data.IsCreated)
@@ -136,6 +138,7 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
+            /// <inheritdoc cref="AnchorNavHost.PopBackStack" />
             public static bool PopBackStack()
             {
                 if (PopBackStackFunc.Data.IsCreated)
@@ -147,6 +150,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            /// <inheritdoc cref="AnchorNavHost.PopBackStackToPanel" />
             public static bool PopBackStackToPanel()
             {
                 if (PopBackStackToPanelFunc.Data.IsCreated)
@@ -158,6 +162,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            /// <inheritdoc cref="AnchorNavHost.CloseAllPopups" />
             public static bool CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)
             {
                 if (CloseAllPopupsFunc.Data.IsCreated)
@@ -169,6 +174,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            /// <inheritdoc cref="AnchorNavHost.ClosePopup" />
             public static bool ClosePopup(in FixedString32Bytes destination, NavigationAnimation exitAnimation = NavigationAnimation.None)
             {
                 if (ClosePopupFunc.Data.IsCreated)
@@ -180,6 +186,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            /// <inheritdoc cref="AnchorNavHost.HasActivePopups" />
             public static bool HasActivePopups()
             {
                 if (HasActivePopupsFunc.Data.IsCreated)
@@ -191,6 +198,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            /// <inheritdoc cref="AnchorNavHost.CanGoBack" />
             public static bool CanGoBack()
             {
                 if (CanGoBackFunc.Data.IsCreated)

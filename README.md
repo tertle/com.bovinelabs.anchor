@@ -332,7 +332,38 @@ AnchorApp.current.Navigate(Actions.HomeToPlay);
 AnchorApp.current.NavHost.Navigate(Actions.GoToLoading, Argument.String("saveId", saveGuid));
 ```
 
-For Burst-ready code paths, call the static wrappers `AnchorApp.Navigate(FixedString32Bytes screen)` and `AnchorApp.CurrentDestination()`—they forward through shared static delegates so gameplay systems can push navigation from Burst-compiled jobs without touching managed state. Navigation behaviour (stack manipulation, popups, animations, defaults) is defined entirely by the `AnchorNamedAction` assets described earlier.
+### Burst navigation entry points
+Use the `AnchorNavHost.Burst` wrappers from Burst-compiled systems. They forward into the live `AnchorApp.current.NavHost` via shared statics, so they remain Burst-safe while still driving the managed UI:
+
+- `Navigate(FixedString32Bytes screen)` mirrors `Navigate(string, Argument[])`.
+- `CurrentDestination()` returns the active destination as `FixedString32Bytes`.
+- `ClearBackStack()`, `PopBackStack()`, `PopBackStackToPanel()` match the instance stack helpers.
+- `CloseAllPopups(NavigationAnimation exitAnimation)`, `ClosePopup(FixedString32Bytes destination, NavigationAnimation exitAnimation)` close overlays from Burst.
+- `HasActivePopups()` and `CanGoBack()` expose the state flags used by UI/input systems.
+
+Example:
+
+```csharp
+public partial struct ClientGameStateSystem : ISystem, ISystemStartStop
+{
+    [BurstCompile]
+    public void OnStartRunning(ref SystemState state)
+    {
+        AnchorNavHost.Burst.Navigate(Actions.GoToGame);
+    }
+
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
+    {
+        if (input.WantsBack && AnchorNavHost.Burst.CanGoBack())
+        {
+            AnchorNavHost.Burst.PopBackStackToPanel();
+        }
+    }
+}
+```
+
+Navigation behaviour (stack manipulation, popups, animations, defaults) is defined entirely by the `AnchorNamedAction` assets described earlier.
 
 At runtime you can:
 
