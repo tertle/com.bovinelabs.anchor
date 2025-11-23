@@ -6,6 +6,7 @@ namespace BovineLabs.Anchor.Nav
 {
     using AOT;
     using BovineLabs.Core.Utility;
+    using Unity.AppUI.Navigation;
     using Unity.Burst;
     using Unity.Collections;
 
@@ -15,12 +16,61 @@ namespace BovineLabs.Anchor.Nav
         {
             Burst.NavigateFunc.Data = new BurstDelegate<FixedString32Bytes>(NavigateForwarding);
             Burst.CurrentFunc.Data = new BurstOutDelegate<FixedString32Bytes>(CurrentForwarding);
+            Burst.ClearBackStackFunc.Data = new BurstDelegate(ClearBackStackForwarding);
+            Burst.PopBackStackFunc.Data = new BurstOutDelegate<bool>(PopBackStackForwarding);
+            Burst.PopBackStackToPanelFunc.Data = new BurstOutDelegate<bool>(PopBackStackToPanelForwarding);
+            Burst.CloseAllPopupsFunc.Data = new BurstOutDelegate<NavigationAnimation, bool>(CloseAllPopupsForwarding);
+            Burst.ClosePopupFunc.Data = new BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>(ClosePopupForwarding);
+            Burst.HasActivePopupsFunc.Data = new BurstOutDelegate<bool>(HasActivePopupsForwarding);
+            Burst.CanGoBackFunc.Data = new BurstOutDelegate<bool>(CanGoBackForwarding);
         }
 
         [MonoPInvokeCallback(typeof(BurstDelegate<FixedString32Bytes>.ChangedDelegate))]
         private static void NavigateForwarding(in FixedString32Bytes screen)
         {
             AnchorApp.current.NavHost.Navigate(screen.ToString());
+        }
+
+        [MonoPInvokeCallback(typeof(BurstDelegate.ChangedDelegate))]
+        private static void ClearBackStackForwarding()
+        {
+            AnchorApp.current.NavHost.ClearBackStack();
+        }
+
+        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        private static void PopBackStackForwarding(out bool popped)
+        {
+            popped = AnchorApp.current.NavHost.PopBackStack();
+        }
+
+        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        private static void PopBackStackToPanelForwarding(out bool popped)
+        {
+            popped = AnchorApp.current.NavHost.PopBackStackToPanel();
+        }
+
+        [MonoPInvokeCallback(typeof(BurstOutDelegate<NavigationAnimation, bool>.ChangedDelegate))]
+        private static void CloseAllPopupsForwarding(in NavigationAnimation exitAnimation, out bool closed)
+        {
+            closed = AnchorApp.current.NavHost.CloseAllPopups(exitAnimation);
+        }
+
+        [MonoPInvokeCallback(typeof(BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>.ChangedDelegate))]
+        private static void ClosePopupForwarding(in FixedString32Bytes destination, in NavigationAnimation exitAnimation, out bool closed)
+        {
+            closed = AnchorApp.current.NavHost.ClosePopup(destination.ToString(), exitAnimation);
+        }
+
+        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        private static void HasActivePopupsForwarding(out bool hasActivePopups)
+        {
+            hasActivePopups = AnchorApp.current.NavHost.HasActivePopups;
+        }
+
+        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        private static void CanGoBackForwarding(out bool canGoBack)
+        {
+            canGoBack = AnchorApp.current.NavHost.CanGoBack;
         }
 
         [MonoPInvokeCallback(typeof(BurstOutDelegate<FixedString32Bytes>.ChangedDelegate))]
@@ -37,8 +87,27 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstOutDelegate<FixedString32Bytes>> CurrentFunc =
                 SharedStatic<BurstOutDelegate<FixedString32Bytes>>.GetOrCreate<AnchorNavHost, CurrentType>();
 
-            /// <summary> A burst compatible way to Navigate to a new screen. </summary>
-            /// <param name="screen"> The screen to navigate to. </param>
+            internal static readonly SharedStatic<BurstDelegate> ClearBackStackFunc =
+                SharedStatic<BurstDelegate>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
+
+            internal static readonly SharedStatic<BurstOutDelegate<bool>> PopBackStackFunc =
+                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, PopBackStackType>();
+
+            internal static readonly SharedStatic<BurstOutDelegate<bool>> PopBackStackToPanelFunc =
+                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, PopBackStackToPanelType>();
+
+            internal static readonly SharedStatic<BurstOutDelegate<NavigationAnimation, bool>> CloseAllPopupsFunc =
+                SharedStatic<BurstOutDelegate<NavigationAnimation, bool>>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
+
+            internal static readonly SharedStatic<BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>> ClosePopupFunc =
+                SharedStatic<BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>>.GetOrCreate<AnchorNavHost, ClosePopupType>();
+
+            internal static readonly SharedStatic<BurstOutDelegate<bool>> HasActivePopupsFunc =
+                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, HasActivePopupsType>();
+
+            internal static readonly SharedStatic<BurstOutDelegate<bool>> CanGoBackFunc =
+                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, CanGoBackType>();
+
             public static void Navigate(in FixedString32Bytes screen)
             {
                 if (NavigateFunc.Data.IsCreated)
@@ -47,8 +116,7 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            /// <summary> A burst compatible way to get the <see cref="currentDestination"/>. </summary>
-            /// <returns>The name of the current destination, or default if null.</returns>
+            /// <inheritdoc cref="AnchorNavHost.CurrentDestination" />
             public static FixedString32Bytes CurrentDestination()
             {
                 if (CurrentFunc.Data.IsCreated)
@@ -60,12 +128,93 @@ namespace BovineLabs.Anchor.Nav
                 return default;
             }
 
+            public static void ClearBackStack()
+            {
+                if (ClearBackStackFunc.Data.IsCreated)
+                {
+                    ClearBackStackFunc.Data.Invoke();
+                }
+            }
+
+            public static bool PopBackStack()
+            {
+                if (PopBackStackFunc.Data.IsCreated)
+                {
+                    PopBackStackFunc.Data.Invoke(out var popped);
+                    return popped;
+                }
+
+                return false;
+            }
+
+            public static bool PopBackStackToPanel()
+            {
+                if (PopBackStackToPanelFunc.Data.IsCreated)
+                {
+                    PopBackStackToPanelFunc.Data.Invoke(out var popped);
+                    return popped;
+                }
+
+                return false;
+            }
+
+            public static bool CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)
+            {
+                if (CloseAllPopupsFunc.Data.IsCreated)
+                {
+                    CloseAllPopupsFunc.Data.Invoke(exitAnimation, out var closed);
+                    return closed;
+                }
+
+                return false;
+            }
+
+            public static bool ClosePopup(in FixedString32Bytes destination, NavigationAnimation exitAnimation = NavigationAnimation.None)
+            {
+                if (ClosePopupFunc.Data.IsCreated)
+                {
+                    ClosePopupFunc.Data.Invoke(destination, exitAnimation, out var closed);
+                    return closed;
+                }
+
+                return false;
+            }
+
+            public static bool HasActivePopups()
+            {
+                if (HasActivePopupsFunc.Data.IsCreated)
+                {
+                    HasActivePopupsFunc.Data.Invoke(out var hasActivePopups);
+                    return hasActivePopups;
+                }
+
+                return false;
+            }
+
+            public static bool CanGoBack()
+            {
+                if (CanGoBackFunc.Data.IsCreated)
+                {
+                    CanGoBackFunc.Data.Invoke(out var canGoBack);
+                    return canGoBack;
+                }
+
+                return false;
+            }
+
 #pragma warning disable SA1502
 #pragma warning disable SA1516
 #pragma warning disable SA1515
 // @formatter:off
             public struct NavigateType { }
             public struct CurrentType { }
+            public struct ClearBackStackType { }
+            public struct PopBackStackType { }
+            public struct PopBackStackToPanelType { }
+            public struct CloseAllPopupsType { }
+            public struct ClosePopupType { }
+            public struct HasActivePopupsType { }
+            public struct CanGoBackType { }
 // @formatter:on
 #pragma warning restore SA1515
 #pragma warning restore SA1516
