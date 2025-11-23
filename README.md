@@ -322,20 +322,27 @@ public partial class UserReportingViewModel : ObservableObject, IAnchorNavigatio
 - Instantiates screens from the `AnchorSettings.Views` map using `IUXMLService`.
 - Tracks the active destination stack and a separate back stack snapshot for `PopBackStack()`.
 - Supports popups layered on top of the base screen.
-- Exposes `EnteredDestination`, `ExitedDestination`, `ActionTriggered`, and `DestinationChanged` events.
-- Saves and restores its entire state so the UI survives assembly reloads.
+- Saves and restores its entire state so the UI survives UI Toolkit Live Reload.
 
-Navigate by calling the static helper or by targeting the host directly:
+Navigate by calling the host directly:
 
 ```csharp
-AnchorApp.current.Navigate(Actions.HomeToPlay);
+AnchorApp.current.NavHost.Navigate(Actions.HomeToPlay);
 AnchorApp.current.NavHost.Navigate(Actions.GoToLoading, Argument.String("saveId", saveGuid));
 ```
+
+### Runtime navigation helpers
+- `CurrentDestination` returns the active screen key for read-only checks.
+- `CanGoBack` / `HasActivePopups` let input layers branch without mutating state.
+- `PopBackStack()` restores the previous snapshot; `PopBackStackToPanel()` also closes any popups captured with that snapshot.
+- `ClearBackStack()` drops recorded history while keeping the current screen—useful when jumping to a new root destination.
+- `ClosePopup(string destination, NavigationAnimation exitAnimation = NavigationAnimation.None)` removes a specific popup; use it when you know which overlay should close.
+- `CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)` dismisses every stacked popup.
 
 ### Burst navigation entry points
 Use the `AnchorNavHost.Burst` wrappers from Burst-compiled systems. They forward into the live `AnchorApp.current.NavHost` via shared statics, so they remain Burst-safe while still driving the managed UI:
 
-- `Navigate(FixedString32Bytes screen)` mirrors `Navigate(string, Argument[])`.
+- `Navigate(FixedString32Bytes screen)` mirrors the instance `Navigate(string, Argument[])`.
 - `CurrentDestination()` returns the active destination as `FixedString32Bytes`.
 - `ClearBackStack()`, `PopBackStack()`, `PopBackStackToPanel()` match the instance stack helpers.
 - `CloseAllPopups(NavigationAnimation exitAnimation)`, `ClosePopup(FixedString32Bytes destination, NavigationAnimation exitAnimation)` close overlays from Burst.
@@ -364,12 +371,6 @@ public partial struct ClientGameStateSystem : ISystem, ISystemStartStop
 ```
 
 Navigation behaviour (stack manipulation, popups, animations, defaults) is defined entirely by the `AnchorNamedAction` assets described earlier.
-
-At runtime you can:
-
-- `AnchorNavHost.PopBackStack()` - return to the previous snapshot.
-- `PopBackStackToPanel()` - pop and close any overlays captured with that snapshot.
-- `CloseAllPopups()` - dismiss only the stacked popups.
 
 ## Navigation-Aware Systems
 `NavigationStateSystem` keeps DOTS systems in sync with the currently visible destination. To opt in:
