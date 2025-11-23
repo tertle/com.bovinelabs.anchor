@@ -461,6 +461,48 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
+        /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
+        /// <param name="destination"> The destination key of the popup to close. </param>
+        /// <param name="exitAnimation"> Optional animation to play when dismissing the popup. </param>
+        /// <returns> True if the popup was closed; otherwise, false. </returns>
+        public bool ClosePopup(string destination, NavigationAnimation exitAnimation = NavigationAnimation.None)
+        {
+            if (string.IsNullOrWhiteSpace(destination) || this.activeStack.Count == 0)
+            {
+                return false;
+            }
+
+            var index = -1;
+            for (var i = this.activeStack.Count - 1; i >= 0; i--)
+            {
+                var entry = this.activeStack[i];
+                if (!entry.IsPopup)
+                {
+                    break;
+                }
+
+                if (entry.Destination == destination)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            this.RemoveActiveEntryAt(index, exitAnimation);
+            this.TrimBackStackToActive();
+
+            var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
+            this.CurrentDestination = top?.Destination;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim ?? NavigationAnimation.None;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim ?? NavigationAnimation.None;
+            return true;
+        }
+
         /// <summary>
         /// Captures the current visual stack, back stack, and popup configuration so it can be restored later.
         /// </summary>
@@ -871,6 +913,19 @@ namespace BovineLabs.Anchor.Nav
             this.backStack.Push(entry);
         }
 
+        private void TrimBackStackToActive()
+        {
+            while (this.backStack.TryPeek(out var entry))
+            {
+                if (!this.MatchesActiveStack(entry.Snapshot))
+                {
+                    break;
+                }
+
+                this.backStack.Pop();
+            }
+        }
+
         private void AddActiveEntry(int index, AnchorNavStackItem item, NavigationAnimation enterAnim)
         {
             var element = this.CreateItem(item.Destination);
@@ -1014,6 +1069,29 @@ namespace BovineLabs.Anchor.Nav
             }
 
             return existing.Destination == target.Destination && existing.IsPopup == target.IsPopup;
+        }
+
+        private bool MatchesActiveStack(AnchorNavStackSnapshot snapshot)
+        {
+            var items = snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
+
+            if (items.Count != this.activeStack.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < items.Count; i++)
+            {
+                var target = items[i];
+                var existing = this.activeStack[i];
+
+                if (existing.Destination != target.Destination || existing.IsPopup != target.IsPopup)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private VisualElement CreateItem(string destination)
