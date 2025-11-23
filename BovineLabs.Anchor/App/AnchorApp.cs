@@ -9,7 +9,6 @@
 namespace BovineLabs.Anchor
 {
     using System.Diagnostics.CodeAnalysis;
-    using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
@@ -76,11 +75,6 @@ namespace BovineLabs.Anchor
             return Screen.safeArea;
         }
 
-        private static (T Method, FunctionPointer<T> Function) CreateDelegate<T>(T method)
-        {
-            return (method, new FunctionPointer<T>(Marshal.GetFunctionPointerForDelegate(method)));
-        }
-
         /// <summary>
         /// Configures the root visual tree, initializes the navigation host, and registers toolbars and containers.
         /// </summary>
@@ -106,7 +100,7 @@ namespace BovineLabs.Anchor
             this.TooltipContainer = this.rootVisualElement.Q<VisualElement>("tooltip-container");
         }
 
-        /// <summary> This has been disabled in favour of overriding <see cref="Initialize" />. </summary>
+        /// <summary> This has been disabled in favor of overriding <see cref="Initialize" />. </summary>
         public sealed override void InitializeComponent()
         {
             base.InitializeComponent();
