@@ -14,66 +14,66 @@ namespace BovineLabs.Anchor.Nav
     {
         static AnchorNavHost()
         {
-            Burst.NavigateFunc.Data = new BurstDelegate<FixedString32Bytes>(NavigateForwarding);
-            Burst.CurrentFunc.Data = new BurstOutDelegate<FixedString32Bytes>(CurrentForwarding);
-            Burst.ClearBackStackFunc.Data = new BurstDelegate(ClearBackStackForwarding);
-            Burst.PopBackStackFunc.Data = new BurstOutDelegate<bool>(PopBackStackForwarding);
-            Burst.PopBackStackToPanelFunc.Data = new BurstOutDelegate<bool>(PopBackStackToPanelForwarding);
-            Burst.CloseAllPopupsFunc.Data = new BurstOutDelegate<NavigationAnimation, bool>(CloseAllPopupsForwarding);
-            Burst.ClosePopupFunc.Data = new BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>(ClosePopupForwarding);
-            Burst.HasActivePopupsFunc.Data = new BurstOutDelegate<bool>(HasActivePopupsForwarding);
-            Burst.CanGoBackFunc.Data = new BurstOutDelegate<bool>(CanGoBackForwarding);
+            Burst.NavigateFunc.Data = new BurstTrampoline<FixedString32Bytes>(NavigateForwarding);
+            Burst.CurrentFunc.Data = new BurstTrampolineOut<FixedString32Bytes>(CurrentForwarding);
+            Burst.ClearBackStackFunc.Data = new BurstTrampoline(ClearBackStackForwarding);
+            Burst.PopBackStackFunc.Data = new BurstTrampolineOut<bool>(PopBackStackForwarding);
+            Burst.PopBackStackToPanelFunc.Data = new BurstTrampolineOut<bool>(PopBackStackToPanelForwarding);
+            Burst.CloseAllPopupsFunc.Data = new BurstTrampolineOut<NavigationAnimation, bool>(CloseAllPopupsForwarding);
+            Burst.ClosePopupFunc.Data = new BurstTrampolineOut<FixedString32Bytes, NavigationAnimation, bool>(ClosePopupForwarding);
+            Burst.HasActivePopupsFunc.Data = new BurstTrampolineOut<bool>(HasActivePopupsForwarding);
+            Burst.CanGoBackFunc.Data = new BurstTrampolineOut<bool>(CanGoBackForwarding);
         }
 
-        [MonoPInvokeCallback(typeof(BurstDelegate<FixedString32Bytes>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampoline<FixedString32Bytes>.ChangedDelegate))]
         private static void NavigateForwarding(in FixedString32Bytes screen)
         {
             AnchorApp.current.NavHost.Navigate(screen.ToString());
         }
 
-        [MonoPInvokeCallback(typeof(BurstDelegate.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampoline.ChangedDelegate))]
         private static void ClearBackStackForwarding()
         {
             AnchorApp.current.NavHost.ClearBackStack();
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.ChangedDelegate))]
         private static void PopBackStackForwarding(out bool popped)
         {
             popped = AnchorApp.current.NavHost.PopBackStack();
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.ChangedDelegate))]
         private static void PopBackStackToPanelForwarding(out bool popped)
         {
             popped = AnchorApp.current.NavHost.PopBackStackToPanel();
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<NavigationAnimation, bool>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<NavigationAnimation, bool>.ChangedDelegate))]
         private static void CloseAllPopupsForwarding(in NavigationAnimation exitAnimation, out bool closed)
         {
             closed = AnchorApp.current.NavHost.CloseAllPopups(exitAnimation);
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes, NavigationAnimation, bool>.ChangedDelegate))]
         private static void ClosePopupForwarding(in FixedString32Bytes destination, in NavigationAnimation exitAnimation, out bool closed)
         {
             closed = AnchorApp.current.NavHost.ClosePopup(destination.ToString(), exitAnimation);
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.ChangedDelegate))]
         private static void HasActivePopupsForwarding(out bool hasActivePopups)
         {
             hasActivePopups = AnchorApp.current.NavHost.HasActivePopups;
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<bool>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.ChangedDelegate))]
         private static void CanGoBackForwarding(out bool canGoBack)
         {
             canGoBack = AnchorApp.current.NavHost.CanGoBack;
         }
 
-        [MonoPInvokeCallback(typeof(BurstOutDelegate<FixedString32Bytes>.ChangedDelegate))]
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes>.ChangedDelegate))]
         private static void CurrentForwarding(out FixedString32Bytes name)
         {
             name = AnchorApp.current.NavHost.CurrentDestination ?? default(FixedString32Bytes);
@@ -81,32 +81,32 @@ namespace BovineLabs.Anchor.Nav
 
         public static class Burst
         {
-            internal static readonly SharedStatic<BurstDelegate<FixedString32Bytes>> NavigateFunc =
-                SharedStatic<BurstDelegate<FixedString32Bytes>>.GetOrCreate<AnchorNavHost, NavigateType>();
+            internal static readonly SharedStatic<BurstTrampoline<FixedString32Bytes>> NavigateFunc =
+                SharedStatic<BurstTrampoline<FixedString32Bytes>>.GetOrCreate<AnchorNavHost, NavigateType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<FixedString32Bytes>> CurrentFunc =
-                SharedStatic<BurstOutDelegate<FixedString32Bytes>>.GetOrCreate<AnchorNavHost, CurrentType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<FixedString32Bytes>> CurrentFunc =
+                SharedStatic<BurstTrampolineOut<FixedString32Bytes>>.GetOrCreate<AnchorNavHost, CurrentType>();
 
-            internal static readonly SharedStatic<BurstDelegate> ClearBackStackFunc =
-                SharedStatic<BurstDelegate>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
+            internal static readonly SharedStatic<BurstTrampoline> ClearBackStackFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<bool>> PopBackStackFunc =
-                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, PopBackStackType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<bool>> PopBackStackFunc =
+                SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, PopBackStackType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<bool>> PopBackStackToPanelFunc =
-                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, PopBackStackToPanelType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<bool>> PopBackStackToPanelFunc =
+                SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, PopBackStackToPanelType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<NavigationAnimation, bool>> CloseAllPopupsFunc =
-                SharedStatic<BurstOutDelegate<NavigationAnimation, bool>>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<NavigationAnimation, bool>> CloseAllPopupsFunc =
+                SharedStatic<BurstTrampolineOut<NavigationAnimation, bool>>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>> ClosePopupFunc =
-                SharedStatic<BurstOutDelegate<FixedString32Bytes, NavigationAnimation, bool>>.GetOrCreate<AnchorNavHost, ClosePopupType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<FixedString32Bytes, NavigationAnimation, bool>> ClosePopupFunc =
+                SharedStatic<BurstTrampolineOut<FixedString32Bytes, NavigationAnimation, bool>>.GetOrCreate<AnchorNavHost, ClosePopupType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<bool>> HasActivePopupsFunc =
-                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, HasActivePopupsType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<bool>> HasActivePopupsFunc =
+                SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, HasActivePopupsType>();
 
-            internal static readonly SharedStatic<BurstOutDelegate<bool>> CanGoBackFunc =
-                SharedStatic<BurstOutDelegate<bool>>.GetOrCreate<AnchorNavHost, CanGoBackType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<bool>> CanGoBackFunc =
+                SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, CanGoBackType>();
 
             /// <inheritdoc cref="AnchorNavHost.Navigate(string, Argument[])" />
             public static void Navigate(in FixedString32Bytes screen)
