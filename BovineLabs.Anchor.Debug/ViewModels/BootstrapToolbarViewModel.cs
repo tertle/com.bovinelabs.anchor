@@ -19,6 +19,20 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private bool hostEnabled;
 #endif
 
+#if !UNITY_SERVER
+        private bool local;
+        private bool localEnabled;
+#if UNITY_NETCODE
+        private bool client;
+        private bool clientEnabled;
+#endif
+#endif
+
+#if UNITY_NETCODE && !UNITY_CLIENT
+        private bool server;
+        private bool serverEnabled;
+#endif
+
 #if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
         [CreateProperty]
         public bool Host
@@ -52,45 +66,38 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool Local
         {
-            get => BovineLabsBootstrap.GameWorld != null;
-            set => this.SetProperty(this.Local, value, value =>
+            get => this.local;
+            set
             {
-                if (value)
+                if (this.SetProperty(ref this.local, value))
                 {
-                    BovineLabsBootstrap.Instance.CreateGameWorld();
+                    if (value)
+                    {
+                        BovineLabsBootstrap.Instance.CreateGameWorld();
+                    }
+                    else
+                    {
+                        BovineLabsBootstrap.Instance.DestroyGameWorld();
+                    }
                 }
-                else
-                {
-                    BovineLabsBootstrap.Instance.DestroyGameWorld();
-                }
-            });
+            }
         }
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public bool LocalEnabled
         {
-            get
-            {
-#if UNITY_NETCODE
-#if UNITY_CLIENT || UNITY_SERVER
-                return false;
-#else
-                return !this.Client && !this.Server;
-#endif
-#else
-                return true;
-#endif
-            }
+            get => this.localEnabled;
+            set => this.SetProperty(ref this.localEnabled, value);
         }
 
 #if UNITY_NETCODE
         [CreateProperty]
         public bool Client
         {
-            get => ClientServerBootstrap.ClientWorld != null;
+            get => this.client;
             set
             {
-                this.SetProperty(this.Client, value, value =>
+                if (this.SetProperty(ref this.client, value))
                 {
                     if (value)
                     {
@@ -100,12 +107,16 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                     {
                         BovineLabsBootstrap.Instance.DestroyClientWorld();
                     }
-                });
+                }
             }
         }
 
-        [CreateProperty]
-        public bool ClientEnabled => !this.Local;
+        [CreateProperty(ReadOnly = true)]
+        public bool ClientEnabled
+        {
+            get => this.clientEnabled;
+            set => this.SetProperty(ref this.clientEnabled, value);
+        }
 
 #endif // UNITY_NETCODE
 #endif // !UNITY_SERVER
@@ -115,43 +126,74 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool Server
         {
-            get => ClientServerBootstrap.ServerWorld != null;
-            set => this.SetProperty(this.Server, value, value =>
+            get => this.server;
+            set
             {
-                if (value)
+                if (this.SetProperty(ref this.server, value))
                 {
-                    BovineLabsBootstrap.Instance.CreateServerWorld();
+                    if (value)
+                    {
+                        BovineLabsBootstrap.Instance.CreateServerWorld();
+                    }
+                    else
+                    {
+                        BovineLabsBootstrap.Instance.DestroyServerWorld();
+                    }
                 }
-                else
-                {
-                    BovineLabsBootstrap.Instance.DestroyServerWorld();
-                }
-            });
+            }
         }
 
-        [CreateProperty]
+        [CreateProperty(ReadOnly = true)]
         public bool ServerEnabled
         {
-            get
-            {
-#if !UNITY_SERVER
-                return !this.Local;
-#else
-                return true;
-#endif
-            }
+            get => this.serverEnabled;
+            set => this.SetProperty(ref this.serverEnabled, value);
         }
 #endif
 #endif
 
         public void Update()
         {
+#if !UNITY_SERVER
+            this.Local = BovineLabsBootstrap.GameWorld != null;
+#endif
+
+#if UNITY_NETCODE
+            var clientWorldExists = ClientServerBootstrap.ClientWorld != null;
+            var serverWorldExists = ClientServerBootstrap.ServerWorld != null;
+#endif
+
 #if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
-            this.Host = ClientServerBootstrap.ClientWorld != null && ClientServerBootstrap.ServerWorld != null;
-            this.HostEnabled = !this.Local && (ClientServerBootstrap.ClientWorld != null) == (ClientServerBootstrap.ServerWorld != null);
+            this.Host = clientWorldExists && serverWorldExists;
+            this.HostEnabled = !this.Local && (clientWorldExists == serverWorldExists);
+#endif
+
+#if UNITY_NETCODE && !UNITY_SERVER
+            this.Client = clientWorldExists;
+            this.ClientEnabled = !this.Local;
+#endif
+
+#if UNITY_NETCODE && !UNITY_CLIENT
+            this.Server = serverWorldExists;
+#if !UNITY_SERVER
+            this.ServerEnabled = !this.Local;
+#else
+            this.ServerEnabled = true;
+#endif
+#endif
+
+#if !UNITY_SERVER
+#if UNITY_NETCODE
+#if UNITY_CLIENT || UNITY_SERVER
+            this.LocalEnabled = false;
+#else
+            this.LocalEnabled = !this.Client && !this.Server;
+#endif
+#else
+            this.LocalEnabled = true;
+#endif
 #endif
         }
-
     }
 }
 #endif

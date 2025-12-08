@@ -5,15 +5,14 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using Unity.AppUI.MVVM;
-    using Unity.Mathematics;
     using Unity.Properties;
     using UnityEngine;
 
-    [ObservableObject]
-    public partial class TimeToolbarViewModel
+    public class TimeToolbarViewModel : ObservableObject
     {
-        private static readonly float[] TimescaleValues = { 0.1f, 0.25f, 0.5f, 0.75f, 1f, 2f, 4f, 8f, 16f };
         private float timescale;
+        private long unscaledSeconds;
+        private long seconds;
 
         [CreateProperty]
         public float TimeScale
@@ -30,14 +29,24 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 
         [CreateProperty(ReadOnly = true)]
-        public long UnscaledSeconds => (long)Time.unscaledTimeAsDouble;
+        public long UnscaledSeconds
+        {
+            get => this.unscaledSeconds;
+            set => this.SetProperty(ref this.unscaledSeconds, value);
+        }
 
         [CreateProperty(ReadOnly = true)]
-        public long Seconds => (long)Time.timeAsDouble;
+        public long Seconds
+        {
+            get => this.seconds;
+            set => this.SetProperty(ref this.seconds, value);
+        }
 
         public void Update()
         {
             this.TimeScale = Time.timeScale;
+            this.UnscaledSeconds = (long)Time.unscaledTimeAsDouble;
+            this.Seconds = (long)Time.timeAsDouble;
         }
 
         public static float TimescaleToUI(float value)

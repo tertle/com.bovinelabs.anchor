@@ -38,7 +38,7 @@ namespace BovineLabs.Anchor.Debug.Views
                     ("Real", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                     ("Scale", nameof(TimeToolbarViewModel.Seconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
                     ("Timescale", nameof(TimeToolbarViewModel.TimeScale), db => db.sourceToUiConverters.AddConverter(timescaleConverter)),
-                }, BindingUpdateTrigger.EveryUpdate));
+                }));
 
             var timescale = new SliderFloat
             {
