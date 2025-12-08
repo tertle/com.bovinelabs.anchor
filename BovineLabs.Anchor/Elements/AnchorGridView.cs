@@ -154,8 +154,7 @@ namespace BovineLabs.Anchor.Elements
 
         private void BindItem(VisualElement element, int index)
         {
-            element.dataSource = this.itemsSource;
-            element.dataSourcePath = PropertyPath.FromIndex(index);
+            element.dataSource = this.itemsSource[index];
         }
     }
 }

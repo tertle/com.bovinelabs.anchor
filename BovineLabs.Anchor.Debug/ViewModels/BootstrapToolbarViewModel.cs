@@ -15,13 +15,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     public class BootstrapToolbarViewModel : ObservableObject
     {
 #if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
+        private bool host;
+        private bool hostEnabled;
+#endif
+
+#if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
         [CreateProperty]
         public bool Host
         {
-            get => ClientServerBootstrap.ClientWorld != null && ClientServerBootstrap.ServerWorld != null;
+            get => this.host;
             set
             {
-                this.SetProperty(this.Host, value, value =>
+                if (this.SetProperty(ref this.host, value))
                 {
                     if (value)
                     {
@@ -31,12 +36,16 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                     {
                         BovineLabsBootstrap.Instance.DestroyClientServerWorlds();
                     }
-                });
+                }
             }
         }
 
-        [CreateProperty]
-        public bool HostEnabled => !this.Local && (ClientServerBootstrap.ClientWorld != null) == (ClientServerBootstrap.ServerWorld != null);
+        [CreateProperty(ReadOnly = true)]
+        public bool HostEnabled
+        {
+            get => this.hostEnabled;
+            set => this.SetProperty(ref this.hostEnabled, value);
+        }
 #endif
 
 #if !UNITY_SERVER
@@ -134,6 +143,15 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 #endif
 #endif
+
+        public void Update()
+        {
+#if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
+            this.Host = ClientServerBootstrap.ClientWorld != null && ClientServerBootstrap.ServerWorld != null;
+            this.HostEnabled = !this.Local && (ClientServerBootstrap.ClientWorld != null) == (ClientServerBootstrap.ServerWorld != null);
+#endif
+        }
+
     }
 }
 #endif

@@ -29,25 +29,9 @@ namespace BovineLabs.Anchor.Debug.Views
             this.AddToClassList(UssClassName);
 
 #if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
-            var host = new Toggle
-            {
-                label = "Host",
-                dataSource = this.ViewModel,
-            };
-
-            host.SetBinding(nameof(Toggle.value), new DataBinding
-            {
-                updateTrigger = BindingUpdateTrigger.EveryUpdate,
-                dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.Host)),
-            });
-
-            host.SetBinding(nameof(this.enabledSelf), new DataBinding
-            {
-                bindingMode = BindingMode.ToTarget,
-                updateTrigger = BindingUpdateTrigger.EveryUpdate,
-                dataSourcePath = new PropertyPath(nameof(BootstrapToolbarViewModel.HostEnabled)),
-            });
-
+            var host = new Toggle { label = "Host", dataSource = this.ViewModel };
+            host.SetBindingTwoWay(nameof(Toggle.value), nameof(BootstrapToolbarViewModel.Host));
+            host.SetBindingToUI(nameof(this.enabledSelf), nameof(BootstrapToolbarViewModel.HostEnabled));
             this.Add(host);
 #endif
 
@@ -121,6 +105,8 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.Add(game);
 #endif
+
+            this.schedule.Execute(this.ViewModel.Update).Every(1);
         }
     }
 }
