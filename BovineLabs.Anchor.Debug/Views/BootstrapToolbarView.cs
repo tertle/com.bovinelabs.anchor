@@ -26,7 +26,8 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.AddToClassList(UssClassName);
 
-#if UNITY_NETCODE && !UNITY_CLIENT && !UNITY_SERVER
+#if UNITY_NETCODE
+#if !UNITY_CLIENT && !UNITY_SERVER
             var host = new Toggle { label = "Host", dataSource = this.ViewModel };
             host.SetBindingTwoWay(nameof(Toggle.value), nameof(BootstrapToolbarViewModel.Host));
             host.SetBindingToUI(nameof(this.enabledSelf), nameof(BootstrapToolbarViewModel.HostEnabled));
@@ -34,7 +35,6 @@ namespace BovineLabs.Anchor.Debug.Views
 #endif
 
 #if !UNITY_CLIENT
-#if UNITY_NETCODE
             var server = new Toggle
             {
                 label = "Server",
@@ -45,10 +45,8 @@ namespace BovineLabs.Anchor.Debug.Views
             server.SetBindingToUI(nameof(this.enabledSelf), nameof(BootstrapToolbarViewModel.ServerEnabled));
             this.Add(server);
 #endif
-#endif
 
 #if !UNITY_SERVER
-#if UNITY_NETCODE
             var client = new Toggle
             {
                 label = "Client",
@@ -59,7 +57,7 @@ namespace BovineLabs.Anchor.Debug.Views
             client.SetBindingToUI(nameof(this.enabledSelf), nameof(BootstrapToolbarViewModel.ClientEnabled));
             this.Add(client);
 #endif
-
+#else
             var game = new Toggle
             {
                 label = "Local",
@@ -67,7 +65,6 @@ namespace BovineLabs.Anchor.Debug.Views
             };
 
             game.SetBindingTwoWay(nameof(Toggle.value), nameof(BootstrapToolbarViewModel.Local));
-            game.SetBindingToUI(nameof(this.enabledSelf), nameof(BootstrapToolbarViewModel.LocalEnabled));
             this.Add(game);
 #endif
 
