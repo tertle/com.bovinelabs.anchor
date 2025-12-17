@@ -2,6 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if !APP_UI_EDITOR_ONLY
 namespace BovineLabs.Anchor
 {
     using System;
@@ -35,6 +36,10 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private List<AnchorNamedAction> actions = new();
 
+#if APP_UI_EDITOR_ONLY
+        public override bool IncludeInBuild => false;
+#endif
+
         /// <summary>Gets the list of UXML assets that can be instantiated by key.</summary>
         public KeyUXML[] Views => this.views;
 
@@ -59,3 +64,4 @@ namespace BovineLabs.Anchor
         }
     }
 }
+#endif
