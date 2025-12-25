@@ -634,7 +634,7 @@ namespace BovineLabs.Anchor.Nav
         private VisualElement CreateItem(string destination)
         {
             var element = AnchorApp.current.services.GetService<IUXMLService>().Instantiate(destination);
-            element.StretchToParentSize(); // TODO need to confirm this
+            element.StretchToParentSize();
             element.pickingMode = PickingMode.Ignore;
             return element;
         }
