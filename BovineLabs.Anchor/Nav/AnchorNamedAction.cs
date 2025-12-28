@@ -12,7 +12,7 @@ namespace BovineLabs.Anchor.Nav
     /// Serializable pairing of an action name and its definition.
     /// </summary>
     [Serializable]
-    [AutoRef("AnchorSettings", "actions", nameof(AnchorNamedAction), "UI/Actions", false)]
+    [AutoRef("AnchorSettings", "actions", nameof(AnchorNamedAction), "UI/Actions")]
     public class AnchorNamedAction : ScriptableObject
     {
         [SerializeField]

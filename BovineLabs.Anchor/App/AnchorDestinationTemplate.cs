@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor
 {
     using System;
+    using BovineLabs.Core;
     using Unity.AppUI.Navigation;
     using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace BovineLabs.Anchor
             if (type == null)
             {
                 var msg = string.IsNullOrEmpty(this.template) ? "The template type is not set." : $"The template type '{this.template}' is not valid.";
-                Debug.LogWarning($"{msg} Falling back to default screen type.");
+                BLGlobalLogger.LogWarningString($"{msg} Falling back to default screen type.");
                 screen = new NavigationScreen();
             }
             else
