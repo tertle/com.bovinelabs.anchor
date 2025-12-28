@@ -18,7 +18,7 @@ namespace BovineLabs.Anchor.Toolbar
             tr.anchorMax = Vector2.one;
 
             tr.offsetMin = Vector2.zero;
-            tr.offsetMax = Vector2.zero; // new Vector2(0, 0);
+            tr.offsetMax = Vector2.zero;
         }
     }
 }
