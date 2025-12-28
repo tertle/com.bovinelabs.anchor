@@ -21,6 +21,8 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.Assertions;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
+    using Canvas = UnityEngine.Canvas;
+    using Object = UnityEngine.Object;
 
     /// <summary>
     /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
@@ -67,6 +69,7 @@ namespace BovineLabs.Anchor.Toolbar
         [ConfigVar("anchor.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
 
+        private readonly List<Transform> transformList = new();
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
         private readonly ToolbarViewModel viewModel;
@@ -633,33 +636,8 @@ namespace BovineLabs.Anchor.Toolbar
             this.UpdateSafeArea();
 
             var cameraHeightNormalized = (this.uiSize.y - uiRect.height) / this.uiSize.y;
-
-            var cam = Camera.main;
-            if (cam != null)
-            {
-                var rect = cam.rect;
-                rect.height = cameraHeightNormalized;
-                cam.rect = rect;
-
-#if UNITY_URP
-                var additional = cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-                if (additional != null)
-                {
-	                foreach (var camera in additional.cameraStack)
-	                {
-		                if (camera == null)
-		                {
-			                continue;
-		                }
-
-		                if (camera.rect != rect)
-		                {
-			                camera.rect = rect;
-		                }
-	                }
-                }
-#endif
-            }
+            this.ResizeCamera(cameraHeightNormalized);
+            this.ResizeCanvas(cameraHeightNormalized);
 
             // if (AnchorApp.current.PopupContainer != null)
             // {
@@ -675,6 +653,84 @@ namespace BovineLabs.Anchor.Toolbar
             // {
             //     AnchorApp.current.TooltipContainer.style.top = uiRect.height;
             // }
+        }
+
+        private void ResizeCamera(float cameraHeightNormalized)
+        {
+            var cam = Camera.main;
+            if (cam != null)
+            {
+                var rect = cam.rect;
+                rect.height = cameraHeightNormalized;
+                cam.rect = rect;
+
+#if UNITY_URP
+                var additional = cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                if (additional != null)
+                {
+                    foreach (var camera in additional.cameraStack)
+                    {
+                        if (camera == null)
+                        {
+                            continue;
+                        }
+
+                        if (camera.rect != rect)
+                        {
+                            camera.rect = rect;
+                        }
+                    }
+                }
+#endif
+            }
+        }
+
+        private void ResizeCanvas(float cameraHeightNormalized)
+        {
+            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            foreach (var canvas in canvases)
+            {
+                if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                {
+                    continue;
+                }
+
+                ToolbarOffset offset = null;
+
+                // Only look in direct children
+                for (var i = 0; i < canvas.transform.childCount; i++)
+                {
+                    offset = canvas.transform.GetChild(i).GetComponent<ToolbarOffset>();
+                    if (offset != null)
+                    {
+                        break;
+                    }
+                }
+
+                if (offset == null)
+                {
+                    // Get children to move
+                    this.transformList.Clear();
+                    for (var i = 0; i < canvas.transform.childCount; i++)
+                    {
+                        this.transformList.Add(canvas.transform.GetChild(i));
+                    }
+
+                    // Create new
+                    var go = new GameObject("ToolbarOffset");
+                    go.transform.SetParent(canvas.transform);
+
+                    offset = go.AddComponent<ToolbarOffset>();
+                    var offsetTr = offset.transform;
+
+                    foreach (var child in this.transformList)
+                    {
+                        child.SetParent(offsetTr, true);
+                    }
+                }
+
+                ((RectTransform)offset.transform).offsetMax = new Vector2(0, (cameraHeightNormalized-1) * Screen.height);
+            }
         }
 
         private void UpdateSafeArea()
