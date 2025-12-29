@@ -734,7 +734,15 @@ namespace BovineLabs.Anchor.Toolbar
                     }
                 }
 
-                ((RectTransform)offset.transform).offsetMax = new Vector2(0, (cameraHeightNormalized-1) * Screen.height);
+                var scaleFactor = canvas.scaleFactor;
+                if (scaleFactor <= 0f)
+                {
+                    scaleFactor = 1f;
+                }
+
+                // Convert screen-pixel offset into canvas units (handles CanvasScaler).
+                var offsetHeight = (cameraHeightNormalized - 1f) * (Screen.height / scaleFactor);
+                ((RectTransform)offset.transform).offsetMax = new Vector2(0f, offsetHeight);
             }
         }
 
