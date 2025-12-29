@@ -695,6 +695,11 @@ namespace BovineLabs.Anchor.Toolbar
                     continue;
                 }
 
+                if (!canvas.isRootCanvas)
+                {
+                    continue;
+                }
+
                 ToolbarOffset offset = null;
 
                 // Only look in direct children
