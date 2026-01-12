@@ -21,6 +21,9 @@ namespace BovineLabs.Anchor.Toolbar
     using UnityEngine.Assertions;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
+#if UNITY_URP
+    using UnityEngine.Rendering.Universal;
+#endif
 
     /// <summary>
     /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
@@ -642,21 +645,21 @@ namespace BovineLabs.Anchor.Toolbar
                 cam.rect = rect;
 
 #if UNITY_URP
-                var additional = cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-                if (additional != null)
+                var additional = cam.GetComponent<UniversalAdditionalCameraData>();
+                if (additional != null && additional.scriptableRenderer.SupportsCameraStackingType(CameraRenderType.Base))
                 {
-	                foreach (var camera in additional.cameraStack)
-	                {
-		                if (camera == null)
-		                {
-			                continue;
-		                }
+                    foreach (var camera in additional.cameraStack)
+                    {
+                        if (camera == null)
+                        {
+                            continue;
+                        }
 
-		                if (camera.rect != rect)
-		                {
-			                camera.rect = rect;
-		                }
-	                }
+                        if (camera.rect != rect)
+                        {
+                            camera.rect = rect;
+                        }
+                    }
                 }
 #endif
             }
