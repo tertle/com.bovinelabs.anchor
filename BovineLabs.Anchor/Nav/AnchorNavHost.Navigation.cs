@@ -23,10 +23,11 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
-        public void ClearNavigation()
+        /// <param name="exitAnimation"> The animation used when removing the last active entry. </param>
+        public void ClearNavigation(NavigationAnimation exitAnimation = NavigationAnimation.None)
         {
             this.backStack.Clear();
-            this.ApplySnapshot(AnchorNavStackSnapshot.Empty, NavigationAnimation.None, NavigationAnimation.None, new AnchorNavOptions());
+            this.ApplySnapshot(AnchorNavStackSnapshot.Empty, exitAnimation, NavigationAnimation.None, new AnchorNavOptions());
         }
 
         /// <summary> Navigate to the destination with the given name. </summary>

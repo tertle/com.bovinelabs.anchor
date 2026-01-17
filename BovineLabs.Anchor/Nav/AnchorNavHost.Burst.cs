@@ -17,7 +17,7 @@ namespace BovineLabs.Anchor.Nav
             Burst.NavigateFunc.Data = new BurstTrampoline<FixedString32Bytes>(NavigateForwarding);
             Burst.CurrentFunc.Data = new BurstTrampolineOut<FixedString32Bytes>(CurrentForwarding);
             Burst.ClearBackStackFunc.Data = new BurstTrampoline(ClearBackStackForwarding);
-            Burst.ClearNavigationFunc.Data = new BurstTrampoline(ClearNavigationForwarding);
+            Burst.ClearNavigationFunc.Data = new BurstTrampoline<NavigationAnimation>(ClearNavigationForwarding);
             Burst.PopBackStackFunc.Data = new BurstTrampolineOut<bool>(PopBackStackForwarding);
             Burst.PopBackStackToPanelFunc.Data = new BurstTrampolineOut<bool>(PopBackStackToPanelForwarding);
             Burst.CloseAllPopupsFunc.Data = new BurstTrampolineOut<NavigationAnimation, bool>(CloseAllPopupsForwarding);
@@ -38,10 +38,10 @@ namespace BovineLabs.Anchor.Nav
             AnchorApp.current.NavHost.ClearBackStack();
         }
 
-        [MonoPInvokeCallback(typeof(BurstTrampoline.Delegate))]
-        private static void ClearNavigationForwarding()
+        [MonoPInvokeCallback(typeof(BurstTrampoline<NavigationAnimation>.Delegate))]
+        private static void ClearNavigationForwarding(in NavigationAnimation exitAnimation)
         {
-            AnchorApp.current.NavHost.ClearNavigation();
+            AnchorApp.current.NavHost.ClearNavigation(exitAnimation);
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.Delegate))]
@@ -97,8 +97,8 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampoline> ClearBackStackFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
 
-            internal static readonly SharedStatic<BurstTrampoline> ClearNavigationFunc =
-                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
+            internal static readonly SharedStatic<BurstTrampoline<NavigationAnimation>> ClearNavigationFunc =
+                SharedStatic<BurstTrampoline<NavigationAnimation>>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
 
             internal static readonly SharedStatic<BurstTrampolineOut<bool>> PopBackStackFunc =
                 SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, PopBackStackType>();
@@ -148,12 +148,12 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            /// <inheritdoc cref="AnchorNavHost.ClearNavigation" />
-            public static void ClearNavigation()
+            /// <inheritdoc cref="AnchorNavHost.ClearNavigation(Unity.AppUI.Navigation.NavigationAnimation)" />
+            public static void ClearNavigation(NavigationAnimation exitAnimation = NavigationAnimation.None)
             {
                 if (ClearNavigationFunc.Data.IsCreated)
                 {
-                    ClearNavigationFunc.Data.Invoke();
+                    ClearNavigationFunc.Data.Invoke(exitAnimation);
                 }
             }
 
