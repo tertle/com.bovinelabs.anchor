@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor
 {
     using BovineLabs.Anchor.Nav;
+    using BovineLabs.Core;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Entities;
@@ -13,6 +14,7 @@ namespace BovineLabs.Anchor
     /// <summary>
     /// Synchronizes DOTS component states with the currently active Anchor navigation destination.
     /// </summary>
+    [WorldSystemFilter(WorldSystemFilterFlags.Presentation | Worlds.Menu)]
     [UpdateInGroup(typeof(UISystemGroup))]
     public partial struct NavigationStateSystem : ISystem
     {

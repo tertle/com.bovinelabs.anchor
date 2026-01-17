@@ -24,7 +24,7 @@ namespace BovineLabs.Anchor
         private TD* data;
 
         /// <summary>
-        /// Initializes the helper and ensures the owning system requires the specified component.
+        /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
         /// </summary>
         /// <param name="state">System state used to satisfy component requirements.</param>
         /// <param name="requiredComponent">Component type that must exist before the UI helper binds.</param>
@@ -46,7 +46,7 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>
-        /// Initializes the helper using a navigation state name instead of a component type.
+        /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
         /// </summary>
         /// <param name="state">System state used to satisfy component requirements.</param>
         /// <param name="name">Navigation state that should be resolved to a component requirement.</param>
