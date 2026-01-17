@@ -17,6 +17,7 @@ namespace BovineLabs.Anchor.Nav
             Burst.NavigateFunc.Data = new BurstTrampoline<FixedString32Bytes>(NavigateForwarding);
             Burst.CurrentFunc.Data = new BurstTrampolineOut<FixedString32Bytes>(CurrentForwarding);
             Burst.ClearBackStackFunc.Data = new BurstTrampoline(ClearBackStackForwarding);
+            Burst.ClearNavigationFunc.Data = new BurstTrampoline(ClearNavigationForwarding);
             Burst.PopBackStackFunc.Data = new BurstTrampolineOut<bool>(PopBackStackForwarding);
             Burst.PopBackStackToPanelFunc.Data = new BurstTrampolineOut<bool>(PopBackStackToPanelForwarding);
             Burst.CloseAllPopupsFunc.Data = new BurstTrampolineOut<NavigationAnimation, bool>(CloseAllPopupsForwarding);
@@ -35,6 +36,12 @@ namespace BovineLabs.Anchor.Nav
         private static void ClearBackStackForwarding()
         {
             AnchorApp.current.NavHost.ClearBackStack();
+        }
+
+        [MonoPInvokeCallback(typeof(BurstTrampoline.Delegate))]
+        private static void ClearNavigationForwarding()
+        {
+            AnchorApp.current.NavHost.ClearNavigation();
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.Delegate))]
@@ -90,6 +97,9 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampoline> ClearBackStackFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
 
+            internal static readonly SharedStatic<BurstTrampoline> ClearNavigationFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
+
             internal static readonly SharedStatic<BurstTrampolineOut<bool>> PopBackStackFunc =
                 SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, PopBackStackType>();
 
@@ -135,6 +145,15 @@ namespace BovineLabs.Anchor.Nav
                 if (ClearBackStackFunc.Data.IsCreated)
                 {
                     ClearBackStackFunc.Data.Invoke();
+                }
+            }
+
+            /// <inheritdoc cref="AnchorNavHost.ClearNavigation" />
+            public static void ClearNavigation()
+            {
+                if (ClearNavigationFunc.Data.IsCreated)
+                {
+                    ClearNavigationFunc.Data.Invoke();
                 }
             }
 
@@ -217,6 +236,7 @@ namespace BovineLabs.Anchor.Nav
             public struct NavigateType { }
             public struct CurrentType { }
             public struct ClearBackStackType { }
+            public struct ClearNavigationType { }
             public struct PopBackStackType { }
             public struct PopBackStackToPanelType { }
             public struct CloseAllPopupsType { }

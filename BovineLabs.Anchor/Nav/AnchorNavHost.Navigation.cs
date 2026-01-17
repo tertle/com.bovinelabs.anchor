@@ -22,6 +22,13 @@ namespace BovineLabs.Anchor.Nav
             this.backStack.Clear();
         }
 
+        /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
+        public void ClearNavigation()
+        {
+            this.backStack.Clear();
+            this.ApplySnapshot(AnchorNavStackSnapshot.Empty, NavigationAnimation.None, NavigationAnimation.None, new AnchorNavOptions());
+        }
+
         /// <summary> Navigate to the destination with the given name. </summary>
         /// <param name="actionOrDestination"> The name of the action. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
@@ -414,6 +421,8 @@ namespace BovineLabs.Anchor.Nav
             NavigationAnimation enterAnim,
             AnchorNavOptions optionsForTop)
         {
+            optionsForTop ??= new AnchorNavOptions();
+
             var targetItems = snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
             var sharedPrefix = this.GetSharedPrefix(targetItems);
 

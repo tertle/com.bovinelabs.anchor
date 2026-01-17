@@ -335,7 +335,8 @@ AnchorApp.current.NavHost.Navigate(Actions.GoToLoading, Argument.String("saveId"
 - `CurrentDestination` returns the active screen key for read-only checks.
 - `CanGoBack` / `HasActivePopups` let input layers branch without mutating state.
 - `PopBackStack()` restores the previous snapshot; `PopBackStackToPanel()` also closes any popups captured with that snapshot.
-- `ClearBackStack()` drops recorded history while keeping the current screen—useful when jumping to a new root destination.
+- `ClearBackStack()` drops recorded history while keeping the current screen-useful when jumping to a new root destination.
+- `ClearNavigation()` removes all active destinations and clears the back stack so `CurrentDestination` becomes null.
 - `ClosePopup(string destination, NavigationAnimation exitAnimation = NavigationAnimation.None)` removes a specific popup; use it when you know which overlay should close.
 - `CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)` dismisses every stacked popup.
 
@@ -344,7 +345,7 @@ Use the `AnchorNavHost.Burst` wrappers from Burst-compiled systems. They forward
 
 - `Navigate(FixedString32Bytes screen)` mirrors the instance `Navigate(string, Argument[])`.
 - `CurrentDestination()` returns the active destination as `FixedString32Bytes`.
-- `ClearBackStack()`, `PopBackStack()`, `PopBackStackToPanel()` match the instance stack helpers.
+- `ClearBackStack()`, `ClearNavigation()`, `PopBackStack()`, `PopBackStackToPanel()` match the instance stack helpers.
 - `CloseAllPopups(NavigationAnimation exitAnimation)`, `ClosePopup(FixedString32Bytes destination, NavigationAnimation exitAnimation)` close overlays from Burst.
 - `HasActivePopups()` and `CanGoBack()` expose the state flags used by UI/input systems.
 
