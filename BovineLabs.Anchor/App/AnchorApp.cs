@@ -87,7 +87,7 @@ namespace BovineLabs.Anchor
             this.rootVisualElement.Add(toolbarView);
 #endif
 
-            this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions);
+            this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
             if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
             {
                 this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());

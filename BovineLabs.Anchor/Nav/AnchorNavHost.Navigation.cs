@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor.Nav
     using BovineLabs.Core;
     using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
+    using Unity.Collections;
     using UnityEngine.UIElements;
 
     public partial class AnchorNavHost
@@ -24,10 +25,30 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
         /// <param name="exitAnimation"> The animation used when removing the last active entry. </param>
-        public void ClearNavigation(NavigationAnimation exitAnimation = NavigationAnimation.None)
+        public void ClearNavigation(AnchorNavAnimation exitAnimation)
         {
             this.backStack.Clear();
-            this.ApplySnapshot(AnchorNavStackSnapshot.Empty, exitAnimation, NavigationAnimation.None, new AnchorNavOptions());
+            this.ApplySnapshot(AnchorNavStackSnapshot.Empty, exitAnimation, null, new AnchorNavOptions());
+        }
+
+        /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
+        public void ClearNavigation()
+        {
+            this.ClearNavigation((AnchorNavAnimation)null);
+        }
+
+        /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
+        /// <param name="exitAnimation"> The animation name used when removing the last active entry. </param>
+        public void ClearNavigation(string exitAnimation)
+        {
+            this.ClearNavigation(this.ResolveAnimation(exitAnimation));
+        }
+
+        /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
+        /// <param name="exitAnimation"> The animation name used when removing the last active entry. </param>
+        public void ClearNavigation(in FixedString32Bytes exitAnimation)
+        {
+            this.ClearNavigation(this.ResolveAnimation(exitAnimation));
         }
 
         /// <summary> Navigate to the destination with the given name. </summary>
@@ -128,7 +149,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary> Close all currently-displayed popup overlays. </summary>
         /// <param name="exitAnimation"> The animation to play when dismissing each popup. </param>
         /// <returns> True if at least one popup was closed. </returns>
-        public bool CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)
+        public bool CloseAllPopups(AnchorNavAnimation exitAnimation)
         {
             var removed = false;
 
@@ -150,16 +171,38 @@ namespace BovineLabs.Anchor.Nav
 
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
             this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
             return true;
+        }
+
+        /// <summary> Close all currently-displayed popup overlays. </summary>
+        public bool CloseAllPopups()
+        {
+            return this.CloseAllPopups((AnchorNavAnimation)null);
+        }
+
+        /// <summary> Close all currently-displayed popup overlays. </summary>
+        /// <param name="exitAnimation"> The animation name to play when dismissing each popup. </param>
+        /// <returns> True if at least one popup was closed. </returns>
+        public bool CloseAllPopups(string exitAnimation)
+        {
+            return this.CloseAllPopups(this.ResolveAnimation(exitAnimation));
+        }
+
+        /// <summary> Close all currently-displayed popup overlays. </summary>
+        /// <param name="exitAnimation"> The animation name to play when dismissing each popup. </param>
+        /// <returns> True if at least one popup was closed. </returns>
+        public bool CloseAllPopups(in FixedString32Bytes exitAnimation)
+        {
+            return this.CloseAllPopups(this.ResolveAnimation(exitAnimation));
         }
 
         /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
         /// <param name="destination"> The destination key of the popup to close. </param>
         /// <param name="exitAnimation"> Optional animation to play when dismissing the popup. </param>
         /// <returns> True if the popup was closed; otherwise, false. </returns>
-        public bool ClosePopup(string destination, NavigationAnimation exitAnimation = NavigationAnimation.None)
+        public bool ClosePopup(string destination, AnchorNavAnimation exitAnimation)
         {
             if (string.IsNullOrWhiteSpace(destination) || this.activeStack.Count == 0)
             {
@@ -192,9 +235,35 @@ namespace BovineLabs.Anchor.Nav
 
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
             this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
             return true;
+        }
+
+        /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
+        /// <param name="destination"> The destination key of the popup to close. </param>
+        /// <returns> True if the popup was closed; otherwise, false. </returns>
+        public bool ClosePopup(string destination)
+        {
+            return this.ClosePopup(destination, (AnchorNavAnimation)null);
+        }
+
+        /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
+        /// <param name="destination"> The destination key of the popup to close. </param>
+        /// <param name="exitAnimation"> Optional animation name to play when dismissing the popup. </param>
+        /// <returns> True if the popup was closed; otherwise, false. </returns>
+        public bool ClosePopup(string destination, string exitAnimation)
+        {
+            return this.ClosePopup(destination, this.ResolveAnimation(exitAnimation));
+        }
+
+        /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
+        /// <param name="destination"> The destination key of the popup to close. </param>
+        /// <param name="exitAnimation"> Optional animation name to play when dismissing the popup. </param>
+        /// <returns> True if the popup was closed; otherwise, false. </returns>
+        public bool ClosePopup(string destination, in FixedString32Bytes exitAnimation)
+        {
+            return this.ClosePopup(destination, this.ResolveAnimation(exitAnimation));
         }
 
         private bool PopBackStack(bool clearPopups)
@@ -416,10 +485,31 @@ namespace BovineLabs.Anchor.Nav
             this.CurrentDestination = entry.Destination;
         }
 
+        private AnchorNavAnimation ResolveAnimation(string animationName)
+        {
+            if (string.IsNullOrWhiteSpace(animationName))
+            {
+                return null;
+            }
+
+            if (this.TryGetAnimation(animationName, out var animation))
+            {
+                return animation;
+            }
+
+            BLGlobalLogger.LogWarning($"AnchorNavHost could not find animation '{animationName}'.");
+            return null;
+        }
+
+        private AnchorNavAnimation ResolveAnimation(in FixedString32Bytes animationName)
+        {
+            return animationName.Length == 0 ? null : this.ResolveAnimation(animationName.ToString());
+        }
+
         private void ApplySnapshot(
             AnchorNavStackSnapshot snapshot,
-            NavigationAnimation exitAnim,
-            NavigationAnimation enterAnim,
+            AnchorNavAnimation exitAnim,
+            AnchorNavAnimation enterAnim,
             AnchorNavOptions optionsForTop)
         {
             optionsForTop ??= new AnchorNavOptions();
@@ -436,14 +526,14 @@ namespace BovineLabs.Anchor.Nav
 
             for (var i = this.activeStack.Count - 1; i >= sharedPrefix; i--)
             {
-                var animation = i == this.activeStack.Count - 1 ? exitAnim : NavigationAnimation.None;
+                var animation = i == this.activeStack.Count - 1 ? exitAnim : null;
                 this.RemoveActiveEntryAt(i, animation);
             }
 
             for (var i = sharedPrefix; i < targetItems.Count; i++)
             {
                 var item = targetItems[i];
-                var animation = i == targetItems.Count - 1 ? enterAnim : NavigationAnimation.None;
+                var animation = i == targetItems.Count - 1 ? enterAnim : null;
                 this.AddActiveEntry(i, item, animation);
             }
 
@@ -495,7 +585,7 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private void AddActiveEntry(int index, AnchorNavStackItem item, NavigationAnimation enterAnim)
+        private void AddActiveEntry(int index, AnchorNavStackItem item, AnchorNavAnimation enterAnim)
         {
             var element = this.CreateItem(item.Destination);
 
@@ -517,7 +607,7 @@ namespace BovineLabs.Anchor.Nav
             this.EnteredDestination?.Invoke(this, element, entry.Arguments);
         }
 
-        private void RemoveActiveEntryAt(int index, NavigationAnimation exitAnim)
+        private void RemoveActiveEntryAt(int index, AnchorNavAnimation exitAnim)
         {
             var entry = this.activeStack[index];
             this.activeStack.RemoveAt(index);

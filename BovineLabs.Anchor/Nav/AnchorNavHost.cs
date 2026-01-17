@@ -29,47 +29,25 @@ namespace BovineLabs.Anchor.Nav
 
         private readonly Stack<AnchorNavBackStackEntry> backStack = new();
         private readonly Dictionary<string, AnchorNavAction> actions = new();
+        private readonly Dictionary<string, AnchorNavAnimation> animations = new();
         private readonly List<AnchorNavActiveEntry> activeStack = new();
         private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
 
         private string currentDestination;
 
-        private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
-        private NavigationAnimation currentPopEnterAnimation = NavigationAnimation.None;
+        private AnchorNavAnimation currentPopExitAnimation;
+        private AnchorNavAnimation currentPopEnterAnimation;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class with a predefined set of actions.
+        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class with predefined actions and animations.
         /// </summary>
         /// <param name="actions">Named actions that can be invoked for navigation.</param>
-        public AnchorNavHost(IEnumerable<AnchorNamedAction> actions)
+        /// <param name="animations">Named animations that can be invoked by key.</param>
+        public AnchorNavHost(IEnumerable<AnchorNamedAction> actions, IEnumerable<AnchorNavAnimation> animations)
             : this()
         {
-            if (actions == null)
-            {
-                return;
-            }
-
-            foreach (var action in actions)
-            {
-                if (action == null)
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(action.ActionName))
-                {
-                    BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
-                    continue;
-                }
-
-                if (this.actions.ContainsKey(action.ActionName))
-                {
-                    BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
-                    continue;
-                }
-
-                this.actions.Add(action.ActionName, action.Action);
-            }
+            this.RegisterActions(actions);
+            this.RegisterAnimations(animations);
         }
 
         /// <summary>
@@ -140,6 +118,59 @@ namespace BovineLabs.Anchor.Nav
         /// <summary> Gets the last entry on the back stack. </summary>
         private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
 
+        /// <summary>
+        /// Register an animation by name for lookup during navigation.
+        /// </summary>
+        /// <param name="animationName">The animation name.</param>
+        /// <param name="animation">The animation definition.</param>
+        public void RegisterAnimation(string animationName, AnchorNavAnimation animation)
+        {
+            if (string.IsNullOrWhiteSpace(animationName))
+            {
+                BLGlobalLogger.LogError("Encountered AnchorNamedAnimation with an empty name.");
+                return;
+            }
+
+            if (animation == null)
+            {
+                BLGlobalLogger.LogError($"AnchorNavAnimation '{animationName}' is null.");
+                return;
+            }
+
+            if (!this.animations.TryAdd(animationName, animation))
+            {
+                BLGlobalLogger.LogError($"AnchorNavAnimation '{animationName}' is already registered.");
+            }
+        }
+
+        /// <summary>
+        /// Try to resolve a registered animation by name.
+        /// </summary>
+        /// <param name="name">The animation name.</param>
+        /// <param name="animation">The animation definition.</param>
+        /// <returns>True if the animation was found.</returns>
+        public bool TryGetAnimation(string name, out AnchorNavAnimation animation)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                animation = null;
+                return false;
+            }
+
+            return this.animations.TryGetValue(name, out animation);
+        }
+
+        /// <summary>
+        /// Resolve a registered animation by name.
+        /// </summary>
+        /// <param name="name">The animation name.</param>
+        /// <returns>The animation definition, or null if not found.</returns>
+        public AnchorNavAnimation GetAnimation(string name)
+        {
+            this.TryGetAnimation(name, out var animation);
+            return animation;
+        }
+
         private void RegisterAllActions()
         {
             foreach (var (method, attribute) in ReflectionUtility.GetMethodsAndAttribute<AnchorNavActionAttribute>())
@@ -186,6 +217,54 @@ namespace BovineLabs.Anchor.Nav
                 }
 
                 this.actions.Add(attribute.Name, action);
+            }
+        }
+
+        private void RegisterActions(IEnumerable<AnchorNamedAction> allActions)
+        {
+            if (allActions == null)
+            {
+                return;
+            }
+
+            foreach (var action in allActions)
+            {
+                if (action == null)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(action.ActionName))
+                {
+                    BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
+                    continue;
+                }
+
+                if (this.actions.ContainsKey(action.ActionName))
+                {
+                    BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
+                    continue;
+                }
+
+                this.actions.Add(action.ActionName, action.Action);
+            }
+        }
+
+        private void RegisterAnimations(IEnumerable<AnchorNavAnimation> allAnimations)
+        {
+            if (allAnimations == null)
+            {
+                return;
+            }
+
+            foreach (var animation in allAnimations)
+            {
+                if (animation == null)
+                {
+                    continue;
+                }
+
+                this.RegisterAnimation(animation.name, animation);
             }
         }
 

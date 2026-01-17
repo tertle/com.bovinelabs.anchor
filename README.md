@@ -77,6 +77,7 @@ Open **BovineLabs → Settings** and select the Anchor group. The Core settings 
 - **Start Destination** - the view key to load automatically.
 - **Views** - a list of `Key` -> `VisualTreeAsset`. Keys must match the strings you pass to `AnchorNavHost`.
 - **Actions** - references to `AnchorNamedAction` ScriptableObjects stored in your UI folder. These define action names, destinations, and default navigation options.
+- **Animations** - references to `AnchorNamedAnimation` ScriptableObjects stored in your UI folder. These register animation names for navigation helpers.
 
 ### AnchorNamedAction assets
 Navigation in Anchor is centrally configured through `AnchorNamedAction` assets. They matter for more than just keeping string literals organized:
@@ -105,6 +106,11 @@ You can also define actions in code for rapid iteration:
 [AnchorNavAction(Actions.GoToGame)]
 public static AnchorNavAction BuildGameAction()
 {
+    var enterAnim = AnchorSettings.I.Animations
+        .FirstOrDefault(animation => animation.AnimationName == "game_enter")?.Animation;
+    var exitAnim = AnchorSettings.I.Animations
+        .FirstOrDefault(animation => animation.AnimationName == "game_exit")?.Animation;
+
     return new AnchorNavAction(
         destination: "game",
         options: new AnchorNavOptions
@@ -112,8 +118,8 @@ public static AnchorNavAction BuildGameAction()
             StackStrategy = AnchorStackStrategy.PopToRoot,
             Animations = new AnchorAnimations
             {
-                EnterAnim = NavigationAnimation.SlideLeft,
-                ExitAnim = NavigationAnimation.SlideRight,
+                EnterAnim = enterAnim,
+                ExitAnim = exitAnim,
             },
         });
 }
@@ -121,11 +127,14 @@ public static AnchorNavAction BuildGameAction()
 
 Key `AnchorNavOptions` fields:
 
-- `StackStrategy` – prune back-stack entries before pushing the destination (`None`, `PopToRoot`, `PopAll`, `PopToSpecificDestination` + `PopupToDestination`).
-- `PopupStrategy` – treat the navigation as a popup overlay (`None`, `PopupOnCurrent`, `EnsureBaseAndPopup`) with optional base destination and existing popup strategy.
-- `Animations` – per-destination enter/exit/pop animation set.
-- `PopupBaseDestination`/`PopupBaseArguments` – ensure a particular base screen is active before showing the popup.
-- Default `Argument[]` – initial arguments merged with the runtime payload so you can override values selectively.
+- `StackStrategy` - prune back-stack entries before pushing the destination (`None`, `PopToRoot`, `PopAll`, `PopToSpecificDestination` + `PopupToDestination`).
+- `PopupStrategy` - treat the navigation as a popup overlay (`None`, `PopupOnCurrent`, `EnsureBaseAndPopup`) with optional base destination and existing popup strategy.
+- `Animations` - per-destination enter/exit/pop animation set.
+- `PopupBaseDestination`/`PopupBaseArguments` - ensure a particular base screen is active before showing the popup.
+- Default `Argument[]` - initial arguments merged with the runtime payload so you can override values selectively.
+
+Animations are defined by `AnchorNavAnimation` ScriptableObjects and registered by name using `AnchorNamedAnimation` assets in AnchorSettings.
+Use the animation name for Burst calls and the name-based navigation overloads; managed code can still reference the assets directly.
 
 The code sample above uses `[AnchorNavAction]` to register an action without creating an asset—handy for prototypes or testing utilities.
 
@@ -336,17 +345,17 @@ AnchorApp.current.NavHost.Navigate(Actions.GoToLoading, Argument.String("saveId"
 - `CanGoBack` / `HasActivePopups` let input layers branch without mutating state.
 - `PopBackStack()` restores the previous snapshot; `PopBackStackToPanel()` also closes any popups captured with that snapshot.
 - `ClearBackStack()` drops recorded history while keeping the current screen-useful when jumping to a new root destination.
-- `ClearNavigation(NavigationAnimation exitAnimation = NavigationAnimation.None)` removes all active destinations and clears the back stack so `CurrentDestination` becomes null.
-- `ClosePopup(string destination, NavigationAnimation exitAnimation = NavigationAnimation.None)` removes a specific popup; use it when you know which overlay should close.
-- `CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)` dismisses every stacked popup.
+- `ClearNavigation()` removes all active destinations and clears the back stack so `CurrentDestination` becomes null; use `ClearNavigation(string exitAnimation)` to play a registered animation.
+- `ClosePopup(string destination)` removes a specific popup; use the animation name overload when you want a registered exit animation.
+- `CloseAllPopups()` dismisses every stacked popup; use the animation name overload to animate them.
 
 ### Burst navigation entry points
 Use the `AnchorNavHost.Burst` wrappers from Burst-compiled systems. They forward into the live `AnchorApp.current.NavHost` via shared statics, so they remain Burst-safe while still driving the managed UI:
 
 - `Navigate(FixedString32Bytes screen)` mirrors the instance `Navigate(string, Argument[])`.
 - `CurrentDestination()` returns the active destination as `FixedString32Bytes`.
-- `ClearBackStack()`, `ClearNavigation(NavigationAnimation exitAnimation)`, `PopBackStack()`, `PopBackStackToPanel()` match the instance stack helpers.
-- `CloseAllPopups(NavigationAnimation exitAnimation)`, `ClosePopup(FixedString32Bytes destination, NavigationAnimation exitAnimation)` close overlays from Burst.
+- `ClearBackStack()`, `ClearNavigation(FixedString32Bytes exitAnimation)`, `PopBackStack()`, `PopBackStackToPanel()` match the instance stack helpers (empty animation key plays no animation).
+- `CloseAllPopups(FixedString32Bytes exitAnimation)`, `ClosePopup(FixedString32Bytes destination, FixedString32Bytes exitAnimation)` close overlays from Burst.
 - `HasActivePopups()` and `CanGoBack()` expose the state flags used by UI/input systems.
 
 Example:

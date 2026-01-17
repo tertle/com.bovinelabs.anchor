@@ -23,7 +23,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="activeStack">Snapshot of the active visual stack.</param>
         /// <param name="backStack">Snapshot of the back stack entries.</param>
         public AnchorNavHostSaveState(
-            string currentDestination, NavigationAnimation currentPopEnterAnimation, NavigationAnimation currentPopExitAnimation,
+            string currentDestination, AnchorNavAnimation currentPopEnterAnimation, AnchorNavAnimation currentPopExitAnimation,
             IReadOnlyList<StackItem> activeStack, IReadOnlyList<BackStackEntry> backStack)
         {
             this.CurrentDestination = currentDestination;
@@ -37,10 +37,10 @@ namespace BovineLabs.Anchor.Nav
         public string CurrentDestination { get; }
 
         /// <summary> Gets the animation that should play when an entry re-enters the stack after a pop. </summary>
-        public NavigationAnimation CurrentPopEnterAnimation { get; }
+        public AnchorNavAnimation CurrentPopEnterAnimation { get; }
 
         /// <summary> Gets the animation that should play when popping the current destination. </summary>
-        public NavigationAnimation CurrentPopExitAnimation { get; }
+        public AnchorNavAnimation CurrentPopExitAnimation { get; }
 
         /// <summary> Gets the ordered list representing the currently active visual stack. </summary>
         public IReadOnlyList<StackItem> ActiveStack { get; }

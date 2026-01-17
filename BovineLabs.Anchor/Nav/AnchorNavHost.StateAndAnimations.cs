@@ -9,60 +9,16 @@ namespace BovineLabs.Anchor.Nav
     using System.Linq;
     using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
-    using UnityEngine;
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
     public partial class AnchorNavHost
     {
-        /// <summary> No animation. </summary>
         private static readonly AnimationDescription NoneAnimation = new()
         {
             easing = Easing.Linear,
             durationMs = 0,
             callback = null,
-        };
-
-        /// <summary> Scale down and fade in animation. </summary>
-        private static readonly AnimationDescription ScaleDownFadeInAnimation = new()
-        {
-            easing = Easing.OutCubic,
-            durationMs = 150,
-            callback = (v, f) =>
-            {
-                var delta = 1.2f - (f * 0.2f);
-                v.style.scale = new Scale(new Vector3(delta, delta, 1));
-                v.style.opacity = f;
-            },
-        };
-
-        /// <summary> Scale up and fade out animation. </summary>
-        private static readonly AnimationDescription ScaleUpFadeOutAnimation = new()
-        {
-            easing = Easing.OutCubic,
-            durationMs = 150,
-            callback = (v, f) =>
-            {
-                var delta = 1.0f + (f * 0.2f);
-                v.style.scale = new Scale(new Vector3(delta, delta, 1));
-                v.style.opacity = 1.0f - f;
-            },
-        };
-
-        /// <summary> Fade in animation. </summary>
-        private static readonly AnimationDescription FadeInAnimation = new()
-        {
-            easing = Easing.OutCubic,
-            durationMs = 500,
-            callback = (v, f) => v.style.opacity = f,
-        };
-
-        /// <summary> Fade out animation. </summary>
-        private static readonly AnimationDescription FadeOutAnimation = new()
-        {
-            easing = Easing.OutCubic,
-            durationMs = 500,
-            callback = (v, f) => v.style.opacity = 1.0f - f,
         };
 
         /// <summary>
@@ -115,7 +71,7 @@ namespace BovineLabs.Anchor.Nav
 
             while (this.activeStack.Count > 0)
             {
-                this.RemoveActiveEntryAt(this.activeStack.Count - 1, NavigationAnimation.None);
+                this.RemoveActiveEntryAt(this.activeStack.Count - 1, null);
             }
 
             this.backStack.Clear();
@@ -136,7 +92,7 @@ namespace BovineLabs.Anchor.Nav
 
             var activeSnapshot = CreateSnapshotFromSaved(state.ActiveStack);
             var topOptions = activeSnapshot.Top?.Options;
-            this.ApplySnapshot(activeSnapshot, NavigationAnimation.None, NavigationAnimation.None, topOptions);
+            this.ApplySnapshot(activeSnapshot, null, null, topOptions);
 
             this.currentPopEnterAnimation = state.CurrentPopEnterAnimation;
             this.currentPopExitAnimation = state.CurrentPopExitAnimation;
@@ -222,27 +178,9 @@ namespace BovineLabs.Anchor.Nav
             return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
         }
 
-        private static AnimationDescription GetAnimationFunc(NavigationAnimation anim)
+        private bool TryPlayAnimation(VisualElement element, AnchorNavAnimation animation, Action onCompleted)
         {
-            switch (anim)
-            {
-                case NavigationAnimation.ScaleDownFadeIn:
-                    return ScaleDownFadeInAnimation;
-                case NavigationAnimation.ScaleUpFadeOut:
-                    return ScaleUpFadeOutAnimation;
-                case NavigationAnimation.FadeIn:
-                    return FadeInAnimation;
-                case NavigationAnimation.FadeOut:
-                    return FadeOutAnimation;
-                case NavigationAnimation.None:
-                default:
-                    return NoneAnimation;
-            }
-        }
-
-        private bool TryPlayAnimation(VisualElement element, NavigationAnimation animation, Action onCompleted)
-        {
-            var description = GetAnimationFunc(animation);
+            var description = GetAnimationDescription(animation);
             if (description is { durationMs: <= 0, callback: null })
             {
                 onCompleted?.Invoke();
@@ -268,6 +206,13 @@ namespace BovineLabs.Anchor.Nav
             handleInfo.Handle = handle;
             this.runningAnimations.Add(handleInfo);
             return true;
+        }
+
+        private static AnimationDescription GetAnimationDescription(AnchorNavAnimation animation)
+        {
+            return animation != null
+                ? animation.GetDescription()
+                : NoneAnimation;
         }
 
         private void CancelRunningAnimations()

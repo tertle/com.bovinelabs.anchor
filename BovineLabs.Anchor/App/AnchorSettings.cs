@@ -36,6 +36,9 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private List<AnchorNamedAction> actions = new();
 
+        [SerializeField]
+        private List<AnchorNavAnimation> animations = new();
+
 #if APP_UI_EDITOR_ONLY
         public override bool IncludeInBuild => false;
 #endif
@@ -51,6 +54,9 @@ namespace BovineLabs.Anchor
 
         /// <summary>Gets the collection of named navigation actions that are available globally.</summary>
         public IReadOnlyList<AnchorNamedAction> Actions => this.actions;
+
+        /// <summary>Gets the collection of navigation animations that are available globally.</summary>
+        public IReadOnlyList<AnchorNavAnimation> Animations => this.animations;
 
         /// <summary>Gets any additional style sheets that should be injected while running in debug contexts.</summary>
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
