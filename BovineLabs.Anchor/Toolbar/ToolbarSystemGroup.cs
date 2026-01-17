@@ -24,6 +24,7 @@ namespace BovineLabs.Anchor.Toolbar
 #endif
     public partial class ToolbarSystemGroup : ComponentSystemGroup
     {
+        /// <inheritdoc/>
         protected override void OnUpdate()
         {
             if (ToolbarView.Instance == null || AnchorApp.current == null)

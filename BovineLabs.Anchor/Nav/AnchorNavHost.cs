@@ -29,7 +29,7 @@ namespace BovineLabs.Anchor.Nav
 
         private readonly Stack<AnchorNavBackStackEntry> backStack = new();
         private readonly Dictionary<string, AnchorNavAction> actions = new();
-        private readonly Dictionary<string, AnchorNavAnimation> animations = new();
+        private readonly Dictionary<int, AnchorNavAnimation> animations = new();
         private readonly List<AnchorNavActiveEntry> activeStack = new();
         private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
 
@@ -121,54 +121,35 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>
         /// Register an animation by name for lookup during navigation.
         /// </summary>
-        /// <param name="animationName">The animation name.</param>
         /// <param name="animation">The animation definition.</param>
-        public void RegisterAnimation(string animationName, AnchorNavAnimation animation)
+        private void RegisterAnimation(AnchorNavAnimation animation)
         {
-            if (string.IsNullOrWhiteSpace(animationName))
-            {
-                BLGlobalLogger.LogError("Encountered AnchorNamedAnimation with an empty name.");
-                return;
-            }
-
             if (animation == null)
             {
-                BLGlobalLogger.LogError($"AnchorNavAnimation '{animationName}' is null.");
                 return;
             }
 
-            if (!this.animations.TryAdd(animationName, animation))
+            if (!this.animations.TryAdd(animation.ID, animation))
             {
-                BLGlobalLogger.LogError($"AnchorNavAnimation '{animationName}' is already registered.");
+                BLGlobalLogger.LogError($"AnchorNavAnimation id {animation.ID} on '{animation.name}' is already registered.");
             }
         }
 
         /// <summary>
         /// Try to resolve a registered animation by name.
         /// </summary>
-        /// <param name="name">The animation name.</param>
+        /// <param name="id">The animation id.</param>
         /// <param name="animation">The animation definition.</param>
         /// <returns>True if the animation was found.</returns>
-        public bool TryGetAnimation(string name, out AnchorNavAnimation animation)
+        public bool TryGetAnimation(int id, out AnchorNavAnimation animation)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (id == 0)
             {
                 animation = null;
-                return false;
+                return true;
             }
 
-            return this.animations.TryGetValue(name, out animation);
-        }
-
-        /// <summary>
-        /// Resolve a registered animation by name.
-        /// </summary>
-        /// <param name="name">The animation name.</param>
-        /// <returns>The animation definition, or null if not found.</returns>
-        public AnchorNavAnimation GetAnimation(string name)
-        {
-            this.TryGetAnimation(name, out var animation);
-            return animation;
+            return this.animations.TryGetValue(id, out animation);
         }
 
         private void RegisterAllActions()
@@ -259,12 +240,7 @@ namespace BovineLabs.Anchor.Nav
 
             foreach (var animation in allAnimations)
             {
-                if (animation == null)
-                {
-                    continue;
-                }
-
-                this.RegisterAnimation(animation.name, animation);
+                this.RegisterAnimation(animation);
             }
         }
 

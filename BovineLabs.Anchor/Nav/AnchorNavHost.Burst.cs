@@ -16,11 +16,11 @@ namespace BovineLabs.Anchor.Nav
             Burst.NavigateFunc.Data = new BurstTrampoline<FixedString32Bytes>(NavigateForwarding);
             Burst.CurrentFunc.Data = new BurstTrampolineOut<FixedString32Bytes>(CurrentForwarding);
             Burst.ClearBackStackFunc.Data = new BurstTrampoline(ClearBackStackForwarding);
-            Burst.ClearNavigationFunc.Data = new BurstTrampoline<FixedString32Bytes>(ClearNavigationForwarding);
+            Burst.ClearNavigationFunc.Data = new BurstTrampoline<int>(ClearNavigationForwarding);
             Burst.PopBackStackFunc.Data = new BurstTrampolineOut<bool>(PopBackStackForwarding);
             Burst.PopBackStackToPanelFunc.Data = new BurstTrampolineOut<bool>(PopBackStackToPanelForwarding);
-            Burst.CloseAllPopupsFunc.Data = new BurstTrampolineOut<FixedString32Bytes, bool>(CloseAllPopupsForwarding);
-            Burst.ClosePopupFunc.Data = new BurstTrampolineOut<FixedString32Bytes, FixedString32Bytes, bool>(ClosePopupForwarding);
+            Burst.CloseAllPopupsFunc.Data = new BurstTrampolineOut<int, bool>(CloseAllPopupsForwarding);
+            Burst.ClosePopupFunc.Data = new BurstTrampolineOut<FixedString32Bytes, int, bool>(ClosePopupForwarding);
             Burst.HasActivePopupsFunc.Data = new BurstTrampolineOut<bool>(HasActivePopupsForwarding);
             Burst.CanGoBackFunc.Data = new BurstTrampolineOut<bool>(CanGoBackForwarding);
         }
@@ -37,8 +37,8 @@ namespace BovineLabs.Anchor.Nav
             AnchorApp.current.NavHost.ClearBackStack();
         }
 
-        [MonoPInvokeCallback(typeof(BurstTrampoline<FixedString32Bytes>.Delegate))]
-        private static void ClearNavigationForwarding(in FixedString32Bytes exitAnimation)
+        [MonoPInvokeCallback(typeof(BurstTrampoline<int>.Delegate))]
+        private static void ClearNavigationForwarding(in int exitAnimation)
         {
             AnchorApp.current.NavHost.ClearNavigation(exitAnimation);
         }
@@ -55,14 +55,14 @@ namespace BovineLabs.Anchor.Nav
             popped = AnchorApp.current.NavHost.PopBackStackToPanel();
         }
 
-        [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes, bool>.Delegate))]
-        private static void CloseAllPopupsForwarding(in FixedString32Bytes exitAnimation, out bool closed)
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<int, bool>.Delegate))]
+        private static void CloseAllPopupsForwarding(in int exitAnimation, out bool closed)
         {
             closed = AnchorApp.current.NavHost.CloseAllPopups(exitAnimation);
         }
 
-        [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes, FixedString32Bytes, bool>.Delegate))]
-        private static void ClosePopupForwarding(in FixedString32Bytes destination, in FixedString32Bytes exitAnimation, out bool closed)
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes, int, bool>.Delegate))]
+        private static void ClosePopupForwarding(in FixedString32Bytes destination, in int exitAnimation, out bool closed)
         {
             closed = AnchorApp.current.NavHost.ClosePopup(destination.ToString(), exitAnimation);
         }
@@ -96,8 +96,8 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampoline> ClearBackStackFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
 
-            internal static readonly SharedStatic<BurstTrampoline<FixedString32Bytes>> ClearNavigationFunc =
-                SharedStatic<BurstTrampoline<FixedString32Bytes>>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
+            internal static readonly SharedStatic<BurstTrampoline<int>> ClearNavigationFunc =
+                SharedStatic<BurstTrampoline<int>>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
 
             internal static readonly SharedStatic<BurstTrampolineOut<bool>> PopBackStackFunc =
                 SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, PopBackStackType>();
@@ -105,11 +105,11 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampolineOut<bool>> PopBackStackToPanelFunc =
                 SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, PopBackStackToPanelType>();
 
-            internal static readonly SharedStatic<BurstTrampolineOut<FixedString32Bytes, bool>> CloseAllPopupsFunc =
-                SharedStatic<BurstTrampolineOut<FixedString32Bytes, bool>>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<int, bool>> CloseAllPopupsFunc =
+                SharedStatic<BurstTrampolineOut<int, bool>>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
 
-            internal static readonly SharedStatic<BurstTrampolineOut<FixedString32Bytes, FixedString32Bytes, bool>> ClosePopupFunc =
-                SharedStatic<BurstTrampolineOut<FixedString32Bytes, FixedString32Bytes, bool>>.GetOrCreate<AnchorNavHost, ClosePopupType>();
+            internal static readonly SharedStatic<BurstTrampolineOut<FixedString32Bytes, int, bool>> ClosePopupFunc =
+                SharedStatic<BurstTrampolineOut<FixedString32Bytes, int, bool>>.GetOrCreate<AnchorNavHost, ClosePopupType>();
 
             internal static readonly SharedStatic<BurstTrampolineOut<bool>> HasActivePopupsFunc =
                 SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, HasActivePopupsType>();
@@ -148,16 +148,7 @@ namespace BovineLabs.Anchor.Nav
             }
 
             /// <inheritdoc cref="AnchorNavHost.ClearNavigation" />
-            public static void ClearNavigation()
-            {
-                if (ClearNavigationFunc.Data.IsCreated)
-                {
-                    ClearNavigationFunc.Data.Invoke(default);
-                }
-            }
-
-            /// <inheritdoc cref="AnchorNavHost.ClearNavigation" />
-            public static void ClearNavigation(in FixedString32Bytes exitAnimation)
+            public static void ClearNavigation(in int exitAnimation = 0)
             {
                 if (ClearNavigationFunc.Data.IsCreated)
                 {
@@ -190,19 +181,7 @@ namespace BovineLabs.Anchor.Nav
             }
 
             /// <inheritdoc cref="AnchorNavHost.CloseAllPopups" />
-            public static bool CloseAllPopups()
-            {
-                if (CloseAllPopupsFunc.Data.IsCreated)
-                {
-                    CloseAllPopupsFunc.Data.Invoke(default, out var closed);
-                    return closed;
-                }
-
-                return false;
-            }
-
-            /// <inheritdoc cref="AnchorNavHost.CloseAllPopups" />
-            public static bool CloseAllPopups(in FixedString32Bytes exitAnimation)
+            public static bool CloseAllPopups(int exitAnimation = 0)
             {
                 if (CloseAllPopupsFunc.Data.IsCreated)
                 {
@@ -213,20 +192,8 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.ClosePopup(string)" />
-            public static bool ClosePopup(in FixedString32Bytes destination)
-            {
-                if (ClosePopupFunc.Data.IsCreated)
-                {
-                    ClosePopupFunc.Data.Invoke(destination, default, out var closed);
-                    return closed;
-                }
-
-                return false;
-            }
-
             /// <inheritdoc cref="AnchorNavHost.ClosePopup" />
-            public static bool ClosePopup(in FixedString32Bytes destination, in FixedString32Bytes exitAnimation)
+            public static bool ClosePopup(in FixedString32Bytes destination, in int exitAnimation = 0)
             {
                 if (ClosePopupFunc.Data.IsCreated)
                 {
