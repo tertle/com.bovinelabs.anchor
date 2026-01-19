@@ -28,61 +28,61 @@ namespace BovineLabs.Anchor.Nav
         [MonoPInvokeCallback(typeof(BurstTrampoline<FixedString32Bytes>.Delegate))]
         private static void NavigateForwarding(in FixedString32Bytes screen)
         {
-            AnchorApp.current.NavHost.Navigate(screen.ToString());
+            AnchorApp.current?.NavHost.Navigate(screen.ToString());
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampoline.Delegate))]
         private static void ClearBackStackForwarding()
         {
-            AnchorApp.current.NavHost.ClearBackStack();
+            AnchorApp.current?.NavHost.ClearBackStack();
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampoline<int>.Delegate))]
         private static void ClearNavigationForwarding(in int exitAnimation)
         {
-            AnchorApp.current.NavHost.ClearNavigation(exitAnimation);
+            AnchorApp.current?.NavHost.ClearNavigation(exitAnimation);
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.Delegate))]
         private static void PopBackStackForwarding(out bool popped)
         {
-            popped = AnchorApp.current.NavHost.PopBackStack();
+            popped = AnchorApp.current?.NavHost.PopBackStack() ?? false;
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.Delegate))]
         private static void PopBackStackToPanelForwarding(out bool popped)
         {
-            popped = AnchorApp.current.NavHost.PopBackStackToPanel();
+            popped = AnchorApp.current?.NavHost.PopBackStackToPanel() ?? false;
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<int, bool>.Delegate))]
         private static void CloseAllPopupsForwarding(in int exitAnimation, out bool closed)
         {
-            closed = AnchorApp.current.NavHost.CloseAllPopups(exitAnimation);
+            closed = AnchorApp.current?.NavHost.CloseAllPopups(exitAnimation) ?? false;
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes, int, bool>.Delegate))]
         private static void ClosePopupForwarding(in FixedString32Bytes destination, in int exitAnimation, out bool closed)
         {
-            closed = AnchorApp.current.NavHost.ClosePopup(destination.ToString(), exitAnimation);
+            closed = AnchorApp.current?.NavHost.ClosePopup(destination.ToString(), exitAnimation) ?? false;
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.Delegate))]
         private static void HasActivePopupsForwarding(out bool hasActivePopups)
         {
-            hasActivePopups = AnchorApp.current.NavHost.HasActivePopups;
+            hasActivePopups = AnchorApp.current?.NavHost.HasActivePopups ?? false;
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<bool>.Delegate))]
         private static void CanGoBackForwarding(out bool canGoBack)
         {
-            canGoBack = AnchorApp.current.NavHost.CanGoBack;
+            canGoBack = AnchorApp.current?.NavHost.CanGoBack ?? false;
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampolineOut<FixedString32Bytes>.Delegate))]
         private static void CurrentForwarding(out FixedString32Bytes name)
         {
-            name = AnchorApp.current.NavHost.CurrentDestination ?? default(FixedString32Bytes);
+            name = AnchorApp.current?.NavHost.CurrentDestination ?? default(FixedString32Bytes);
         }
 
         public static class Burst

@@ -53,9 +53,9 @@ namespace BovineLabs.Anchor.Nav
         {
             return new AnimationDescription
             {
-                easing = this.EasingFunction,
-                durationMs = this.duration,
-                callback = this.Callback,
+                Easing = this.EasingFunction,
+                DurationMs = this.duration,
+                Callback = this.Callback,
             };
         }
 

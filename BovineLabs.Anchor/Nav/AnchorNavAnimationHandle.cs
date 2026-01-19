@@ -53,7 +53,7 @@ namespace BovineLabs.Anchor.Nav
 
             this.Handle?.Recycle();
             this.Handle = null;
-            this.description.callback?.Invoke(this.Element, 1f);
+            this.description.Callback?.Invoke(this.Element, 1f);
             this.onCompleted?.Invoke();
         }
     }

@@ -16,9 +16,9 @@ namespace BovineLabs.Anchor.Nav
     {
         private static readonly AnimationDescription NoneAnimation = new()
         {
-            easing = Easing.Linear,
-            durationMs = 0,
-            callback = null,
+            Easing = Easing.Linear,
+            DurationMs = 0,
+            Callback = null,
         };
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace BovineLabs.Anchor.Nav
         private bool TryPlayAnimation(VisualElement element, AnchorNavAnimation animation, Action onCompleted)
         {
             var description = GetAnimationDescription(animation);
-            if (description is { durationMs: <= 0, callback: null })
+            if (description is { DurationMs: <= 0, Callback: null })
             {
                 onCompleted?.Invoke();
                 return false;
@@ -189,8 +189,8 @@ namespace BovineLabs.Anchor.Nav
 
             var handleInfo = new AnchorNavAnimationHandle(element, description, onCompleted);
             var handle = element.experimental.animation
-                .Start(0, 1, description.durationMs, description.callback)
-                .Ease(description.easing)
+                .Start(0, 1, description.DurationMs, description.Callback)
+                .Ease(description.Easing)
                 .OnCompleted(() =>
                 {
                     if (!handleInfo.TryFinalizeFromAnimation())
