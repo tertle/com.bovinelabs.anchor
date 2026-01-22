@@ -119,23 +119,6 @@ namespace BovineLabs.Anchor.Nav
         private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
 
         /// <summary>
-        /// Register an animation by name for lookup during navigation.
-        /// </summary>
-        /// <param name="animation">The animation definition.</param>
-        private void RegisterAnimation(AnchorNavAnimation animation)
-        {
-            if (animation == null)
-            {
-                return;
-            }
-
-            if (!this.animations.TryAdd(animation.ID, animation))
-            {
-                BLGlobalLogger.LogError($"AnchorNavAnimation id {animation.ID} on '{animation.name}' is already registered.");
-            }
-        }
-
-        /// <summary>
         /// Try to resolve a registered animation by name.
         /// </summary>
         /// <param name="id">The animation id.</param>
@@ -150,6 +133,23 @@ namespace BovineLabs.Anchor.Nav
             }
 
             return this.animations.TryGetValue(id, out animation);
+        }
+
+        /// <summary>
+        /// Register an animation by name for lookup during navigation.
+        /// </summary>
+        /// <param name="animation">The animation definition.</param>
+        private void RegisterAnimation(AnchorNavAnimation animation)
+        {
+            if (animation == null)
+            {
+                return;
+            }
+
+            if (!this.animations.TryAdd(animation.ID, animation))
+            {
+                BLGlobalLogger.LogError($"AnchorNavAnimation id {animation.ID} on '{animation.name}' is already registered.");
+            }
         }
 
         private void RegisterAllActions()
