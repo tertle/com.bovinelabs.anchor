@@ -33,7 +33,7 @@ namespace BovineLabs.Anchor.Toolbar
             groupLabel.AddToClassList(NameClass);
             this.hierarchy.Add(groupLabel);
 
-            focusable = false;
+            this.focusable = false;
         }
 
         /// <summary>Gets the container that should receive dynamically added content.</summary>

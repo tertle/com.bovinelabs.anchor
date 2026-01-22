@@ -57,7 +57,6 @@ namespace BovineLabs.Anchor.Nav
         {
             this.AddToClassList(USSClassName);
 
-            this.focusable = true;
             this.style.flexGrow = 1;
             this.pickingMode = PickingMode.Ignore;
             this.container = new StackView();
