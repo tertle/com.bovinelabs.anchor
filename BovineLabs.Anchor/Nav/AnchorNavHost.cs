@@ -249,6 +249,13 @@ namespace BovineLabs.Anchor.Nav
             {
                 evt.StopPropagation();
                 this.PopBackStack();
+                return;
+            }
+
+            if (this.HasActivePopups)
+            {
+                evt.StopPropagation();
+                this.CloseAllPopups();
             }
         }
     }

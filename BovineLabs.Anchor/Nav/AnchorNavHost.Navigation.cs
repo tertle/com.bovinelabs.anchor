@@ -150,6 +150,8 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            this.TrimBackStackToActive();
+
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
             this.CurrentDestination = top?.Destination;
             this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
