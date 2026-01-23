@@ -444,15 +444,22 @@ namespace BovineLabs.Anchor.Nav
 
             for (var i = 0; i < sharedPrefix; i++)
             {
-                this.activeStack[i].Update(targetItems[i]);
+                var entry = this.activeStack[i];
+                var targetItem = targetItems[i];
+                var argumentsChanged = !ArgumentsEqual(entry.Arguments, targetItem.Arguments);
+                entry.Update(targetItem);
+
+                if (argumentsChanged)
+                {
+                    OnEntered(entry);
+                }
             }
 
             this.CancelRunningAnimations();
 
             for (var i = this.activeStack.Count - 1; i >= sharedPrefix; i--)
             {
-                var animation = i == this.activeStack.Count - 1 ? exitAnim : null;
-                this.RemoveActiveEntryAt(i, animation);
+                this.RemoveActiveEntryAt(i, exitAnim);
             }
 
             for (var i = sharedPrefix; i < targetItems.Count; i++)
@@ -631,6 +638,29 @@ namespace BovineLabs.Anchor.Nav
             }
 
             return existing.Destination == target.Destination && existing.IsPopup == target.IsPopup;
+        }
+
+        private static bool ArgumentsEqual(Argument[] left, Argument[] right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (left == null || right == null || left.Length != right.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < left.Length; i++)
+            {
+                if (!EqualityComparer<Argument>.Default.Equals(left[i], right[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool MatchesActiveStack(AnchorNavStackSnapshot snapshot)

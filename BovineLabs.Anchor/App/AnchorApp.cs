@@ -51,9 +51,6 @@ namespace BovineLabs.Anchor
         /// <summary>Gets or sets the navigation host that manages screen transitions.</summary>
         public AnchorNavHost NavHost { get; set; }
 
-        /// <summary>Gets or sets the navigation graph asset that describes available destinations.</summary>
-        public NavGraphViewAsset GraphViewAsset { get; set; }
-
         /// <summary>Gets the container that holds popup visual elements instantiated by the app.</summary>
         public VisualElement PopupContainer { get; private set; }
 
