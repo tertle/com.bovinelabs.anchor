@@ -11,6 +11,8 @@ namespace BovineLabs.Anchor.Nav
         private readonly Dictionary<int, AnchorNavHostSaveState> savedStates = new();
         private int nextStateHandle = 1;
 
+        /// <summary> Captures a navigation state snapshot and returns a handle to restore it later. </summary>
+        /// <returns> The handle. </returns>
         public int SaveStateHandle()
         {
             var state = this.SaveState();
@@ -19,14 +21,23 @@ namespace BovineLabs.Anchor.Nav
             return handle;
         }
 
-        public void RestoreStateHandle(int handle)
+        /// <summary> Releases a navigation state snapshot, optionally restoring it first. </summary>
+        /// <param name="handle"> The handle to release. </param>
+        /// <param name="restore"> Should the UI state also be restored to the saved snapshot. </param>
+        /// <returns> True if the handle existed. </returns>
+        public bool ReleaseStateHandle(int handle, bool restore = true)
         {
             if (!this.savedStates.Remove(handle, out var state))
             {
-                return;
+                return false;
             }
 
-            this.RestoreState(state);
+            if (restore)
+            {
+                this.RestoreState(state);
+            }
+
+            return true;
         }
     }
 }

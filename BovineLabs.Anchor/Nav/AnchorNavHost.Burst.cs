@@ -24,7 +24,7 @@ namespace BovineLabs.Anchor.Nav
             Burst.HasActivePopupsFunc.Data = new BurstTrampolineOut<bool>(HasActivePopupsForwarding);
             Burst.CanGoBackFunc.Data = new BurstTrampolineOut<bool>(CanGoBackForwarding);
             Burst.SaveStateFunc.Data = new BurstTrampolineOut<int>(SaveStateForwarding);
-            Burst.RestoreStateFunc.Data = new BurstTrampoline<int>(RestoreStateForwarding);
+            Burst.ReleaseStateFunc.Data = new BurstTrampoline<int, bool>(ReleaseStateForwarding);
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampoline<FixedString32Bytes>.Delegate))]
@@ -93,10 +93,10 @@ namespace BovineLabs.Anchor.Nav
             handle = AnchorApp.current?.NavHost?.SaveStateHandle() ?? 0;
         }
 
-        [MonoPInvokeCallback(typeof(BurstTrampoline<int>.Delegate))]
-        private static void RestoreStateForwarding(in int handle)
+        [MonoPInvokeCallback(typeof(BurstTrampoline<int, bool>.Delegate))]
+        private static void ReleaseStateForwarding(in int handle, in bool restore)
         {
-            AnchorApp.current?.NavHost?.RestoreStateHandle(handle);
+            AnchorApp.current?.NavHost?.ReleaseStateHandle(handle, restore);
         }
 
         public static class Burst
@@ -134,8 +134,8 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampolineOut<int>> SaveStateFunc =
                 SharedStatic<BurstTrampolineOut<int>>.GetOrCreate<AnchorNavHost, SaveStateType>();
 
-            internal static readonly SharedStatic<BurstTrampoline<int>> RestoreStateFunc =
-                SharedStatic<BurstTrampoline<int>>.GetOrCreate<AnchorNavHost, RestoreStateType>();
+            internal static readonly SharedStatic<BurstTrampoline<int, bool>> ReleaseStateFunc =
+                SharedStatic<BurstTrampoline<int, bool>>.GetOrCreate<AnchorNavHost, ReleaseStateType>();
 
             /// <inheritdoc cref="AnchorNavHost.Navigate(string, Unity.AppUI.Navigation.Argument[])" />
             public static void Navigate(in FixedString32Bytes screen)
@@ -248,9 +248,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <summary>
-            /// Captures a navigation state snapshot and returns a handle to restore it later.
-            /// </summary>
+            /// <inheritdoc cref="AnchorNavHost.SaveStateHandle" />
             public static int SaveStateHandle()
             {
                 if (SaveStateFunc.Data.IsCreated)
@@ -262,14 +260,12 @@ namespace BovineLabs.Anchor.Nav
                 return 0;
             }
 
-            /// <summary>
-            /// Restores a navigation state snapshot previously captured.
-            /// </summary>
-            public static void RestoreStateHandle(int handle)
+            /// <inheritdoc cref="AnchorNavHost.ReleaseStateHandle" />
+            public static void ReleaseStateHandle(int handle, bool restore = true)
             {
-                if (RestoreStateFunc.Data.IsCreated)
+                if (ReleaseStateFunc.Data.IsCreated)
                 {
-                    RestoreStateFunc.Data.Invoke(handle);
+                    ReleaseStateFunc.Data.Invoke(handle, restore);
                 }
             }
 
@@ -288,7 +284,7 @@ namespace BovineLabs.Anchor.Nav
             public struct HasActivePopupsType { }
             public struct CanGoBackType { }
             public struct SaveStateType { }
-            public struct RestoreStateType { }
+            public struct ReleaseStateType { }
 // @formatter:on
 #pragma warning restore SA1515
 #pragma warning restore SA1516
