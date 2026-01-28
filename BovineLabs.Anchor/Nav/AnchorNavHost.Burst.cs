@@ -23,6 +23,8 @@ namespace BovineLabs.Anchor.Nav
             Burst.ClosePopupFunc.Data = new BurstTrampolineOut<FixedString32Bytes, int, bool>(ClosePopupForwarding);
             Burst.HasActivePopupsFunc.Data = new BurstTrampolineOut<bool>(HasActivePopupsForwarding);
             Burst.CanGoBackFunc.Data = new BurstTrampolineOut<bool>(CanGoBackForwarding);
+            Burst.SaveStateFunc.Data = new BurstTrampolineOut<int>(SaveStateForwarding);
+            Burst.RestoreStateFunc.Data = new BurstTrampoline<int>(RestoreStateForwarding);
         }
 
         [MonoPInvokeCallback(typeof(BurstTrampoline<FixedString32Bytes>.Delegate))]
@@ -85,6 +87,18 @@ namespace BovineLabs.Anchor.Nav
             name = AnchorApp.current?.NavHost.CurrentDestination ?? default(FixedString32Bytes);
         }
 
+        [MonoPInvokeCallback(typeof(BurstTrampolineOut<int>.Delegate))]
+        private static void SaveStateForwarding(out int handle)
+        {
+            handle = AnchorApp.current?.NavHost?.SaveStateHandle() ?? 0;
+        }
+
+        [MonoPInvokeCallback(typeof(BurstTrampoline<int>.Delegate))]
+        private static void RestoreStateForwarding(in int handle)
+        {
+            AnchorApp.current?.NavHost?.RestoreStateHandle(handle);
+        }
+
         public static class Burst
         {
             internal static readonly SharedStatic<BurstTrampoline<FixedString32Bytes>> NavigateFunc =
@@ -116,6 +130,12 @@ namespace BovineLabs.Anchor.Nav
 
             internal static readonly SharedStatic<BurstTrampolineOut<bool>> CanGoBackFunc =
                 SharedStatic<BurstTrampolineOut<bool>>.GetOrCreate<AnchorNavHost, CanGoBackType>();
+
+            internal static readonly SharedStatic<BurstTrampolineOut<int>> SaveStateFunc =
+                SharedStatic<BurstTrampolineOut<int>>.GetOrCreate<AnchorNavHost, SaveStateType>();
+
+            internal static readonly SharedStatic<BurstTrampoline<int>> RestoreStateFunc =
+                SharedStatic<BurstTrampoline<int>>.GetOrCreate<AnchorNavHost, RestoreStateType>();
 
             /// <inheritdoc cref="AnchorNavHost.Navigate(string, Unity.AppUI.Navigation.Argument[])" />
             public static void Navigate(in FixedString32Bytes screen)
@@ -228,6 +248,31 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            /// <summary>
+            /// Captures a navigation state snapshot and returns a handle to restore it later.
+            /// </summary>
+            public static int SaveStateHandle()
+            {
+                if (SaveStateFunc.Data.IsCreated)
+                {
+                    SaveStateFunc.Data.Invoke(out var handle);
+                    return handle;
+                }
+
+                return 0;
+            }
+
+            /// <summary>
+            /// Restores a navigation state snapshot previously captured.
+            /// </summary>
+            public static void RestoreStateHandle(int handle)
+            {
+                if (RestoreStateFunc.Data.IsCreated)
+                {
+                    RestoreStateFunc.Data.Invoke(handle);
+                }
+            }
+
 #pragma warning disable SA1502
 #pragma warning disable SA1516
 #pragma warning disable SA1515
@@ -242,6 +287,8 @@ namespace BovineLabs.Anchor.Nav
             public struct ClosePopupType { }
             public struct HasActivePopupsType { }
             public struct CanGoBackType { }
+            public struct SaveStateType { }
+            public struct RestoreStateType { }
 // @formatter:on
 #pragma warning restore SA1515
 #pragma warning restore SA1516
