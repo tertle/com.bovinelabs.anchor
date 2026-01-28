@@ -1,4 +1,4 @@
-// <copyright file="AnchorNavHost.StateAndAnimations.cs" company="BovineLabs">
+// <copyright file="AnchorNavHost.State.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -8,18 +8,11 @@ namespace BovineLabs.Anchor.Nav
     using System.Collections.Generic;
     using System.Linq;
     using Unity.AppUI.Navigation;
-    using Unity.AppUI.UI;
-    using UnityEngine.UIElements;
-    using UnityEngine.UIElements.Experimental;
 
     public partial class AnchorNavHost
     {
-        private static readonly AnimationDescription NoneAnimation = new()
-        {
-            Easing = Easing.Linear,
-            DurationMs = 0,
-            Callback = null,
-        };
+        private readonly Dictionary<int, AnchorNavHostSaveState> savedStates = new();
+        private int nextStateHandle = 1;
 
         /// <summary>
         /// Captures the current visual stack, back stack, and popup configuration so it can be restored later.
@@ -99,24 +92,43 @@ namespace BovineLabs.Anchor.Nav
             this.CurrentDestination = state.CurrentDestination;
         }
 
-        private static AnchorNavHostSaveState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
+        /// <summary> Captures a navigation state snapshot and returns a handle to restore it later. </summary>
+        /// <returns> The handle. </returns>
+        public int SaveStateHandle()
         {
-            if (entry == null)
+            var state = this.SaveState();
+            var handle = this.nextStateHandle++;
+            this.savedStates.Add(handle, state);
+            return handle;
+        }
+
+        /// <summary> Releases a navigation state snapshot, optionally restoring it first. </summary>
+        /// <param name="handle"> The handle to release. </param>
+        /// <param name="restore"> Should the UI state also be restored to the saved snapshot. </param>
+        /// <returns> True if the handle existed. </returns>
+        public bool ReleaseStateHandle(int handle, bool restore = true)
+        {
+            if (!this.savedStates.Remove(handle, out var state))
             {
-                return null;
+                return false;
             }
 
-            return new AnchorNavHostSaveState.StackItem(entry.Destination, entry.Options, entry.Arguments, entry.IsPopup);
+            if (restore)
+            {
+                this.RestoreState(state);
+            }
+
+            return true;
+        }
+
+        private static AnchorNavHostSaveState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
+        {
+            return entry == null ? null : new AnchorNavHostSaveState.StackItem(entry.Destination, entry.Options, entry.Arguments, entry.IsPopup);
         }
 
         private static AnchorNavHostSaveState.StackItem CreateSavedStackItem(AnchorNavStackItem item)
         {
-            if (item == null)
-            {
-                return null;
-            }
-
-            return new AnchorNavHostSaveState.StackItem(item.Destination, item.Options, item.Arguments, item.IsPopup);
+            return item == null ? null : new AnchorNavHostSaveState.StackItem(item.Destination, item.Options, item.Arguments, item.IsPopup);
         }
 
         private static AnchorNavHostSaveState.BackStackEntry CreateSavedBackStackEntry(AnchorNavBackStackEntry entry)
@@ -176,73 +188,6 @@ namespace BovineLabs.Anchor.Nav
             var options = item.Options?.Clone();
             var arguments = item.Arguments?.ToArray() ?? Array.Empty<Argument>();
             return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
-        }
-
-        private bool TryPlayAnimation(VisualElement element, AnchorNavAnimation animation, Action onCompleted)
-        {
-            var description = GetAnimationDescription(animation);
-            if (description is { DurationMs: <= 0, Callback: null })
-            {
-                onCompleted?.Invoke();
-                return false;
-            }
-
-            var handleInfo = new AnchorNavAnimationHandle(element, description, onCompleted);
-            var handle = element.experimental.animation
-                .Start(0, 1, description.DurationMs, description.Callback)
-                .Ease(description.Easing)
-                .OnCompleted(() =>
-                {
-                    if (!handleInfo.TryFinalizeFromAnimation())
-                    {
-                        return;
-                    }
-
-                    onCompleted?.Invoke();
-                    this.runningAnimations.Remove(handleInfo);
-                })
-                .KeepAlive();
-
-            handleInfo.Handle = handle;
-            this.runningAnimations.Add(handleInfo);
-            return true;
-        }
-
-        private static AnimationDescription GetAnimationDescription(AnchorNavAnimation animation)
-        {
-            return animation != null
-                ? animation.GetDescription()
-                : NoneAnimation;
-        }
-
-        private void CancelRunningAnimations()
-        {
-            if (this.runningAnimations.Count == 0)
-            {
-                return;
-            }
-
-            foreach (var animation in this.runningAnimations)
-            {
-                animation.CompleteImmediately();
-            }
-
-            this.runningAnimations.Clear();
-        }
-
-        private void CompleteAnimationsFor(VisualElement element)
-        {
-            for (var i = this.runningAnimations.Count - 1; i >= 0; i--)
-            {
-                var handle = this.runningAnimations[i];
-                if (handle.Element != element)
-                {
-                    continue;
-                }
-
-                handle.CompleteImmediately();
-                this.runningAnimations.RemoveAt(i);
-            }
         }
     }
 }

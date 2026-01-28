@@ -603,6 +603,71 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
+        private bool TryPlayAnimation(VisualElement element, AnchorNavAnimation animation, Action onCompleted)
+        {
+            var description = GetAnimationDescription(animation);
+            if (description is { DurationMs: <= 0, Callback: null })
+            {
+                onCompleted?.Invoke();
+                return false;
+            }
+
+            var handleInfo = new AnchorNavAnimationHandle(element, description, onCompleted);
+            var handle = element.experimental.animation
+                .Start(0, 1, description.DurationMs, description.Callback)
+                .Ease(description.Easing)
+                .OnCompleted(() =>
+                {
+                    if (!handleInfo.TryFinalizeFromAnimation())
+                    {
+                        return;
+                    }
+
+                    onCompleted?.Invoke();
+                    this.runningAnimations.Remove(handleInfo);
+                })
+                .KeepAlive();
+
+            handleInfo.Handle = handle;
+            this.runningAnimations.Add(handleInfo);
+            return true;
+        }
+
+        private static AnimationDescription GetAnimationDescription(AnchorNavAnimation animation)
+        {
+            return animation != null ? animation.GetDescription() : AnimationDescription.None;
+        }
+
+        private void CancelRunningAnimations()
+        {
+            if (this.runningAnimations.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var animation in this.runningAnimations)
+            {
+                animation.CompleteImmediately();
+            }
+
+            this.runningAnimations.Clear();
+        }
+
+        private void CompleteAnimationsFor(VisualElement element)
+        {
+            for (var i = this.runningAnimations.Count - 1; i >= 0; i--)
+            {
+                var handle = this.runningAnimations[i];
+                if (handle.Element != element)
+                {
+                    continue;
+                }
+
+                handle.CompleteImmediately();
+                this.runningAnimations.RemoveAt(i);
+            }
+        }
+
         private bool TryGetCurrentBase(out AnchorNavActiveEntry entry)
         {
             for (var i = this.activeStack.Count - 1; i >= 0; i--)

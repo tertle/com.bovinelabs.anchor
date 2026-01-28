@@ -12,6 +12,13 @@ namespace BovineLabs.Anchor.Nav
     /// </summary>
     public struct AnimationDescription
     {
+        public static readonly AnimationDescription None = new()
+        {
+            Easing = UnityEngine.UIElements.Experimental.Easing.Linear,
+            DurationMs = 0,
+            Callback = null,
+        };
+
         /// <summary>
         /// The duration of the animation in milliseconds.
         /// </summary>
