@@ -30,8 +30,8 @@ namespace BovineLabs.Anchor.Elements
         private static readonly BindingId SelectedTextProperty = nameof(selectedText);
         private static readonly BindingId WrapProperty = nameof(wrap);
         private static readonly BindingId EmptyTextProperty = nameof(emptyText);
-        private static readonly BindingId PreviousButtonTextProperty = nameof(previousButtonText);
-        private static readonly BindingId NextButtonTextProperty = nameof(nextButtonText);
+        private static readonly BindingId PreviousButtonIconProperty = nameof(previousButtonIcon);
+        private static readonly BindingId NextButtonIconProperty = nameof(nextButtonIcon);
         private static readonly BindingId ShowIndicatorProperty = nameof(showIndicator);
 
         private readonly ActionButton m_previousButton;
@@ -46,8 +46,8 @@ namespace BovineLabs.Anchor.Elements
         private string m_selectedText = string.Empty;
         private bool m_wrap = true;
         private string m_emptyText = string.Empty;
-        private string m_previousButtonText = "<";
-        private string m_nextButtonText = ">";
+        private string m_previousButtonIcon = "caret-left";
+        private string m_nextButtonIcon = "caret-right";
         private bool m_showIndicator = true;
 
         /// <summary>Initializes a new instance of the <see cref="OptionPager"/> class.</summary>
@@ -55,17 +55,19 @@ namespace BovineLabs.Anchor.Elements
         {
             this.AddToClassList(UssClassName);
             this.style.flexDirection = FlexDirection.Column;
-            this.style.alignItems = Align.Center;
+            this.style.alignItems = Align.Stretch;
 
             var controls = new VisualElement();
             controls.AddToClassList(ControlsUssClassName);
             controls.style.flexDirection = FlexDirection.Row;
             controls.style.alignItems = Align.Center;
-            controls.style.justifyContent = Justify.Center;
+            controls.style.justifyContent = Justify.SpaceBetween;
+            controls.style.width = Length.Percent(100);
 
             this.m_previousButton = new ActionButton(this.SelectPrevious)
             {
-                label = this.m_previousButtonText,
+                icon = this.m_previousButtonIcon,
+                label = null,
                 quiet = true,
             };
             this.m_previousButton.AddToClassList(PreviousButtonUssClassName);
@@ -76,13 +78,16 @@ namespace BovineLabs.Anchor.Elements
             };
             this.m_selectedTextElement.AddToClassList(ValueUssClassName);
             this.m_selectedTextElement.style.unityTextAlign = TextAnchor.MiddleCenter;
-            this.m_selectedTextElement.style.minWidth = 80;
+            this.m_selectedTextElement.style.flexGrow = 1;
+            this.m_selectedTextElement.style.flexShrink = 1;
+            this.m_selectedTextElement.style.minWidth = 0;
             this.m_selectedTextElement.style.marginLeft = 6;
             this.m_selectedTextElement.style.marginRight = 6;
 
             this.m_nextButton = new ActionButton(this.SelectNext)
             {
-                label = this.m_nextButtonText,
+                icon = this.m_nextButtonIcon,
+                label = null,
                 quiet = true,
             };
             this.m_nextButton.AddToClassList(NextButtonUssClassName);
@@ -242,48 +247,48 @@ namespace BovineLabs.Anchor.Elements
         }
 
         /// <summary>
-        /// Gets or sets the previous button label.
+        /// Gets or sets the previous button icon.
         /// </summary>
         [CreateProperty]
         [UxmlAttribute]
-        public string previousButtonText
+        public string previousButtonIcon
         {
-            get => this.m_previousButtonText;
+            get => this.m_previousButtonIcon;
             set
             {
                 value ??= string.Empty;
 
-                if (this.m_previousButtonText == value)
+                if (this.m_previousButtonIcon == value)
                 {
                     return;
                 }
 
-                this.m_previousButtonText = value;
-                this.m_previousButton.label = value;
-                this.NotifyPropertyChanged(in PreviousButtonTextProperty);
+                this.m_previousButtonIcon = value;
+                this.m_previousButton.icon = value;
+                this.NotifyPropertyChanged(in PreviousButtonIconProperty);
             }
         }
 
         /// <summary>
-        /// Gets or sets the next button label.
+        /// Gets or sets the next button icon.
         /// </summary>
         [CreateProperty]
         [UxmlAttribute]
-        public string nextButtonText
+        public string nextButtonIcon
         {
-            get => this.m_nextButtonText;
+            get => this.m_nextButtonIcon;
             set
             {
                 value ??= string.Empty;
 
-                if (this.m_nextButtonText == value)
+                if (this.m_nextButtonIcon == value)
                 {
                     return;
                 }
 
-                this.m_nextButtonText = value;
-                this.m_nextButton.label = value;
-                this.NotifyPropertyChanged(in NextButtonTextProperty);
+                this.m_nextButtonIcon = value;
+                this.m_nextButton.icon = value;
+                this.NotifyPropertyChanged(in NextButtonIconProperty);
             }
         }
 
