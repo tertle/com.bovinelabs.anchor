@@ -21,7 +21,7 @@ namespace BovineLabs.Anchor.Elements
         /// <summary>
         /// Main USS class.
         /// </summary>
-        public const string UssClassName = "bl-touchslider";
+        public const string UssClassName = "appui-touchslider";
 
         /// <summary>
         /// Progress USS class.
@@ -41,12 +41,12 @@ namespace BovineLabs.Anchor.Elements
         /// <summary>
         /// Value container USS class.
         /// </summary>
-        public const string ValueContainerUssClassName = UssClassName + "__value-container";
+        public const string ValueContainerUssClassName = UssClassName + "__valuelabel-container";
 
         /// <summary>
         /// Value USS class.
         /// </summary>
-        public const string ValueUssClassName = UssClassName + "__value";
+        public const string ValueUssClassName = UssClassName + "__valuelabel";
 
         /// <summary>
         /// Size USS class prefix.
@@ -57,6 +57,11 @@ namespace BovineLabs.Anchor.Elements
         /// Orientation USS class prefix.
         /// </summary>
         public const string VariantUssClassName = UssClassName + "--";
+
+        /// <summary>
+        /// Additional class used to scope the overflow workaround override.
+        /// </summary>
+        public const string WorkaroundUssClassName = "bl-touchslider-workaround";
 
         private static readonly BindingId SizeProperty = nameof(size);
         private static readonly BindingId LabelProperty = nameof(label);
@@ -76,6 +81,7 @@ namespace BovineLabs.Anchor.Elements
         protected AnchorTouchSlider()
         {
             this.AddToClassList(UssClassName);
+            this.AddToClassList(WorkaroundUssClassName);
 
             this.focusable = true;
             this.pickingMode = PickingMode.Position;
