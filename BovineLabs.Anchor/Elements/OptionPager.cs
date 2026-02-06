@@ -19,6 +19,7 @@ namespace BovineLabs.Anchor.Elements
         public const string UssClassName = "bl-option-pager";
         public const string ControlsUssClassName = UssClassName + "__controls";
         public const string PreviousButtonUssClassName = UssClassName + "__previous";
+        public const string CenterUssClassName = UssClassName + "__center";
         public const string ValueUssClassName = UssClassName + "__value";
         public const string NextButtonUssClassName = UssClassName + "__next";
         public const string IndicatorUssClassName = UssClassName + "__indicator";
@@ -78,11 +79,9 @@ namespace BovineLabs.Anchor.Elements
             };
             this.m_selectedTextElement.AddToClassList(ValueUssClassName);
             this.m_selectedTextElement.style.unityTextAlign = TextAnchor.MiddleCenter;
-            this.m_selectedTextElement.style.flexGrow = 1;
             this.m_selectedTextElement.style.flexShrink = 1;
             this.m_selectedTextElement.style.minWidth = 0;
-            this.m_selectedTextElement.style.marginLeft = 6;
-            this.m_selectedTextElement.style.marginRight = 6;
+            this.m_selectedTextElement.style.maxWidth = Length.Percent(100);
 
             this.m_nextButton = new ActionButton(this.SelectNext)
             {
@@ -92,17 +91,31 @@ namespace BovineLabs.Anchor.Elements
             };
             this.m_nextButton.AddToClassList(NextButtonUssClassName);
 
-            controls.Add(this.m_previousButton);
-            controls.Add(this.m_selectedTextElement);
-            controls.Add(this.m_nextButton);
+            var center = new VisualElement();
+            center.AddToClassList(CenterUssClassName);
+            center.style.flexDirection = FlexDirection.Column;
+            center.style.alignItems = Align.Stretch;
+            center.style.justifyContent = Justify.Center;
+            center.style.flexGrow = 1;
+            center.style.flexShrink = 1;
+            center.style.minWidth = 0;
+            center.style.marginLeft = 6;
+            center.style.marginRight = 6;
 
             this.m_pageIndicator = new PageIndicator();
             this.m_pageIndicator.AddToClassList(IndicatorUssClassName);
+            this.m_pageIndicator.style.alignSelf = Align.Center;
             this.m_pageIndicator.style.marginTop = 4;
             this.m_pageIndicator.RegisterValueChangedCallback(this.OnPageIndicatorValueChanged);
 
+            center.Add(this.m_selectedTextElement);
+            center.Add(this.m_pageIndicator);
+
+            controls.Add(this.m_previousButton);
+            controls.Add(center);
+            controls.Add(this.m_nextButton);
+
             this.Add(controls);
-            this.Add(this.m_pageIndicator);
 
             this.ApplySelection(sendChangeEvent: false, notifyBindings: false);
         }
