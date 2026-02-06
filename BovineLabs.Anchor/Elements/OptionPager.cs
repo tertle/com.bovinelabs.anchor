@@ -102,13 +102,10 @@ namespace BovineLabs.Anchor.Elements
             center.style.flexGrow = 1;
             center.style.flexShrink = 1;
             center.style.minWidth = 0;
-            center.style.marginLeft = 6;
-            center.style.marginRight = 6;
 
             this.m_pageIndicator = new PageIndicator();
             this.m_pageIndicator.AddToClassList(IndicatorUssClassName);
             this.m_pageIndicator.style.alignSelf = Align.Center;
-            this.m_pageIndicator.style.marginTop = 4;
             this.m_pageIndicator.RegisterValueChangedCallback(this.OnPageIndicatorValueChanged);
 
             center.Add(this.m_selectedItemElement);

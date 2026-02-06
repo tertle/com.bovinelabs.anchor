@@ -24,3 +24,12 @@
 .appui-touchslider.bl-touchslider-workaround {
     overflow: visible;
 }
+
+.bl-option-pager__center {
+    margin-left: var(--appui-alias-control-gap-md);
+    margin-right: var(--appui-alias-control-gap-md);
+}
+
+.bl-option-pager__indicator {
+    margin-top: var(--appui-alias-control-gap-sm);
+}
