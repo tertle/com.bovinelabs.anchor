@@ -36,11 +36,11 @@ namespace BovineLabs.Anchor.Elements
         private static readonly BindingId ShowIndicatorProperty = nameof(showIndicator);
 
         private readonly ActionButton m_previousButton;
-        private readonly Text m_selectedTextElement;
+        private readonly DropdownItem m_selectedItemElement;
         private readonly ActionButton m_nextButton;
         private readonly PageIndicator m_pageIndicator;
 
-        private BindItemFunc m_bindItem;
+        private Dropdown.BindItemFunc m_bindItem;
         private IList m_sourceItems;
         private int m_selectedIndex = -1;
         private int m_desiredSelectedIndex = -1;
@@ -73,15 +73,18 @@ namespace BovineLabs.Anchor.Elements
             };
             this.m_previousButton.AddToClassList(PreviousButtonUssClassName);
 
-            this.m_selectedTextElement = new Text(this.m_emptyText)
+            this.m_selectedItemElement = new DropdownItem
             {
-                primary = true,
+                label = this.m_emptyText,
+                pickingMode = PickingMode.Ignore,
             };
-            this.m_selectedTextElement.AddToClassList(ValueUssClassName);
-            this.m_selectedTextElement.style.unityTextAlign = TextAnchor.MiddleCenter;
-            this.m_selectedTextElement.style.flexShrink = 1;
-            this.m_selectedTextElement.style.minWidth = 0;
-            this.m_selectedTextElement.style.maxWidth = Length.Percent(100);
+            this.m_selectedItemElement.AddToClassList(ValueUssClassName);
+            this.m_selectedItemElement.style.justifyContent = Justify.Center;
+            this.m_selectedItemElement.style.flexShrink = 1;
+            this.m_selectedItemElement.style.flexGrow = 1;
+            this.m_selectedItemElement.style.minWidth = 0;
+            this.m_selectedItemElement.style.maxWidth = Length.Percent(100);
+            this.m_selectedItemElement.labelElement.style.unityTextAlign = TextAnchor.MiddleCenter;
 
             this.m_nextButton = new ActionButton(this.SelectNext)
             {
@@ -108,7 +111,7 @@ namespace BovineLabs.Anchor.Elements
             this.m_pageIndicator.style.marginTop = 4;
             this.m_pageIndicator.RegisterValueChangedCallback(this.OnPageIndicatorValueChanged);
 
-            center.Add(this.m_selectedTextElement);
+            center.Add(this.m_selectedItemElement);
             center.Add(this.m_pageIndicator);
 
             controls.Add(this.m_previousButton);
@@ -120,21 +123,14 @@ namespace BovineLabs.Anchor.Elements
             this.ApplySelection(sendChangeEvent: false, notifyBindings: false);
         }
 
-        /// <summary>
-        /// Method used to bind the selected source item to the center text element.
-        /// </summary>
-        /// <param name="item">The text element used to display the selected item.</param>
-        /// <param name="index">The selected source item index.</param>
-        public delegate void BindItemFunc(Text item, int index);
-
         /// <summary>Gets the previous navigation button.</summary>
         public ActionButton PreviousButton => this.m_previousButton;
 
         /// <summary>Gets the next navigation button.</summary>
         public ActionButton NextButton => this.m_nextButton;
 
-        /// <summary>Gets the text element that renders the selected option.</summary>
-        public Text SelectedTextElement => this.m_selectedTextElement;
+        /// <summary>Gets the dropdown item element that renders the selected option.</summary>
+        public DropdownItem SelectedItemElement => this.m_selectedItemElement;
 
         /// <summary>Gets the page indicator used to visualize selection position.</summary>
         public PageIndicator Indicator => this.m_pageIndicator;
@@ -175,7 +171,7 @@ namespace BovineLabs.Anchor.Elements
         /// Gets or sets the function used to bind the selected source item to the center text.
         /// </summary>
         [CreateProperty]
-        public BindItemFunc bindItem
+        public Dropdown.BindItemFunc bindItem
         {
             get => this.m_bindItem;
             set
@@ -457,21 +453,23 @@ namespace BovineLabs.Anchor.Elements
         {
             if (this.m_selectedIndex < 0 || this.m_selectedIndex >= this.optionsCount)
             {
-                this.m_selectedTextElement.text = this.emptyText;
-                this.m_selectedText = this.m_selectedTextElement.text ?? string.Empty;
+                this.m_selectedItemElement.icon = null;
+                this.m_selectedItemElement.label = this.emptyText;
+                this.m_selectedText = this.m_selectedItemElement.labelElement.text ?? string.Empty;
                 return;
             }
 
             if (this.bindItem != null)
             {
-                this.bindItem.Invoke(this.m_selectedTextElement, this.m_selectedIndex);
+                this.bindItem.Invoke(this.m_selectedItemElement, this.m_selectedIndex);
             }
             else
             {
-                this.m_selectedTextElement.text = this.GetOptionText(this.m_selectedIndex);
+                this.m_selectedItemElement.icon = null;
+                this.m_selectedItemElement.label = this.GetOptionText(this.m_selectedIndex);
             }
 
-            this.m_selectedText = this.m_selectedTextElement.text ?? string.Empty;
+            this.m_selectedText = this.m_selectedItemElement.labelElement.text ?? string.Empty;
         }
     }
 }
