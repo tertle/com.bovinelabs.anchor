@@ -37,6 +37,11 @@ namespace BovineLabs.Anchor.Nav
         /// <returns> True if the navigation was successful. </returns>
         public bool Navigate(string actionOrDestination, params Argument[] arguments)
         {
+            if (string.IsNullOrWhiteSpace(actionOrDestination))
+            {
+                return false;
+            }
+
             if (this.actions.TryGetValue(actionOrDestination, out var action))
             {
                 this.ActionTriggered?.Invoke(this, action);

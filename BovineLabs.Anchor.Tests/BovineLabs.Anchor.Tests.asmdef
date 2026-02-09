@@ -5,6 +5,7 @@
     "BovineLabs.Anchor",
     "BovineLabs.Core",
     "BovineLabs.Core.Extensions",
+    "BovineLabs.Testing",
     "Unity.AppUI",
     "Unity.AppUI.MVVM",
     "Unity.AppUI.Navigation",

@@ -21,6 +21,11 @@ namespace BovineLabs.Anchor.Toolbar
         /// <param name="tabName">Optional tab name; defaults to the service tab.</param>
         public AutoToolbarAttribute(string elementName, string tabName = null)
         {
+            if (string.IsNullOrWhiteSpace(elementName))
+            {
+                throw new ArgumentException("Element name cannot be null or whitespace.", nameof(elementName));
+            }
+
             this.ElementName = elementName;
             this.TabName = tabName;
         }
