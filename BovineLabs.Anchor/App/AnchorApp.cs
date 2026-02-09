@@ -9,6 +9,7 @@
 namespace BovineLabs.Anchor
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Reflection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
@@ -101,6 +102,20 @@ namespace BovineLabs.Anchor
         public sealed override void InitializeComponent()
         {
             base.InitializeComponent();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            // this is a workaround for finalizer bug in AppUI to avoid SetCurrentApp(null)
+            var restore = App.current != this;
+            var previous = App.current;
+
+            base.Dispose(disposing);
+
+            if (restore)
+            {
+                typeof(App).GetMethod("SetCurrentApp", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, new object[] { previous });
+            }
         }
 
 #if CUSTOM_SAFE_AREA

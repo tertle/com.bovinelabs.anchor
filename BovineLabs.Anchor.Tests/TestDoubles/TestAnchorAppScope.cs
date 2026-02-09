@@ -34,8 +34,8 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public void Dispose()
         {
-            this.app.Dispose();
             this.serviceProvider.Dispose();
+            this.app.Dispose();
         }
     }
 }
