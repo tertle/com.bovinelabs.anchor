@@ -312,7 +312,7 @@ namespace BovineLabs.Anchor.Nav
         {
             if (this.activeStack.Count == 0)
             {
-                BLGlobalLogger.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
+                BLGlobalLogger.LogWarningString($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
 
                 var fallbackOptions = options.Clone();
                 fallbackOptions.PopupStrategy = AnchorPopupStrategy.None;
@@ -434,7 +434,7 @@ namespace BovineLabs.Anchor.Nav
                 return animation;
             }
 
-            BLGlobalLogger.LogWarning($"AnchorNavHost could not find animation '{id}'.");
+            BLGlobalLogger.LogWarningString($"AnchorNavHost could not find animation '{id}'.");
             return null;
         }
 
@@ -585,7 +585,7 @@ namespace BovineLabs.Anchor.Nav
 
             if (!handled && entry.Arguments is { Length: > 0 })
             {
-                BLGlobalLogger.LogWarning($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnEnter.");
+                BLGlobalLogger.LogWarningString($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnEnter.");
             }
         }
 
@@ -604,7 +604,7 @@ namespace BovineLabs.Anchor.Nav
 
             if (!handled && entry.Arguments is { Length: > 0 })
             {
-                BLGlobalLogger.LogWarning($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnExit.");
+                BLGlobalLogger.LogWarningString($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnExit.");
             }
         }
 
