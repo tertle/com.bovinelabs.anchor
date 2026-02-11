@@ -14,8 +14,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     [ObservableObject]
     public partial class AppUIToolbarViewModel
     {
-        private const string ThemeKey = "bl.ui.theme";
-        private const string ScaleKey = "bl.ui.scale";
+        private const string ThemeKey = "bl.options.ui.theme";
+        private const string ScaleKey = "bl.options.ui-scale";
 
         private readonly ILocalStorageService localStorageService;
 
