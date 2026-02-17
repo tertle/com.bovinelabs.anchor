@@ -12,23 +12,23 @@ namespace BovineLabs.Anchor.Nav
     {
         static AnchorNavHost()
         {
-            Burst.NavigateFunc.Data = new BurstManagedCallWrapper(&NavigateForwardingPacked);
-            Burst.CurrentFunc.Data = new BurstManagedCallWrapper(&CurrentForwardingPacked);
-            Burst.ClearBackStackFunc.Data = new BurstManagedCallWrapper(&ClearBackStackForwardingPacked);
-            Burst.ClearNavigationFunc.Data = new BurstManagedCallWrapper(&ClearNavigationForwardingPacked);
-            Burst.PopBackStackFunc.Data = new BurstManagedCallWrapper(&PopBackStackForwardingPacked);
-            Burst.PopBackStackToPanelFunc.Data = new BurstManagedCallWrapper(&PopBackStackToPanelForwardingPacked);
-            Burst.CloseAllPopupsFunc.Data = new BurstManagedCallWrapper(&CloseAllPopupsForwardingPacked);
-            Burst.ClosePopupFunc.Data = new BurstManagedCallWrapper(&ClosePopupForwardingPacked);
-            Burst.HasActivePopupsFunc.Data = new BurstManagedCallWrapper(&HasActivePopupsForwardingPacked);
-            Burst.CanGoBackFunc.Data = new BurstManagedCallWrapper(&CanGoBackForwardingPacked);
-            Burst.SaveStateFunc.Data = new BurstManagedCallWrapper(&SaveStateForwardingPacked);
-            Burst.ReleaseStateFunc.Data = new BurstManagedCallWrapper(&ReleaseStateForwardingPacked);
+            Burst.NavigateFunc.Data = new BurstTrampoline(&NavigateForwardingPacked);
+            Burst.CurrentFunc.Data = new BurstTrampoline(&CurrentForwardingPacked);
+            Burst.ClearBackStackFunc.Data = new BurstTrampoline(&ClearBackStackForwardingPacked);
+            Burst.ClearNavigationFunc.Data = new BurstTrampoline(&ClearNavigationForwardingPacked);
+            Burst.PopBackStackFunc.Data = new BurstTrampoline(&PopBackStackForwardingPacked);
+            Burst.PopBackStackToPanelFunc.Data = new BurstTrampoline(&PopBackStackToPanelForwardingPacked);
+            Burst.CloseAllPopupsFunc.Data = new BurstTrampoline(&CloseAllPopupsForwardingPacked);
+            Burst.ClosePopupFunc.Data = new BurstTrampoline(&ClosePopupForwardingPacked);
+            Burst.HasActivePopupsFunc.Data = new BurstTrampoline(&HasActivePopupsForwardingPacked);
+            Burst.CanGoBackFunc.Data = new BurstTrampoline(&CanGoBackForwardingPacked);
+            Burst.SaveStateFunc.Data = new BurstTrampoline(&SaveStateForwardingPacked);
+            Burst.ReleaseStateFunc.Data = new BurstTrampoline(&ReleaseStateForwardingPacked);
         }
 
         private static void NavigateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var screen = ref BurstManagedCallWrapper.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
+            ref var screen = ref BurstTrampoline.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
             AnchorApp.current?.NavHost.Navigate(screen.ToString());
         }
 
@@ -41,101 +41,101 @@ namespace BovineLabs.Anchor.Nav
 
         private static void ClearNavigationForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var exitAnimation = ref BurstManagedCallWrapper.ArgumentsFromPtr<int>(argumentsPtr, argumentsSize);
+            ref var exitAnimation = ref BurstTrampoline.ArgumentsFromPtr<int>(argumentsPtr, argumentsSize);
             AnchorApp.current?.NavHost.ClearNavigation(exitAnimation);
         }
 
         private static void PopBackStackForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var popped = ref BurstManagedCallWrapper.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
+            ref var popped = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
             popped = AnchorApp.current?.NavHost.PopBackStack() ?? false;
         }
 
         private static void PopBackStackToPanelForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var popped = ref BurstManagedCallWrapper.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
+            ref var popped = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
             popped = AnchorApp.current?.NavHost.PopBackStackToPanel() ?? false;
         }
 
         private static void CloseAllPopupsForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
+            ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
             arguments.Second = AnchorApp.current?.NavHost.CloseAllPopups(arguments.First) ?? false;
         }
 
         private static void ClosePopupForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<BurstManagedTriple<FixedString32Bytes, int, bool>>(argumentsPtr, argumentsSize);
+            ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedTriple<FixedString32Bytes, int, bool>>(argumentsPtr, argumentsSize);
             arguments.Third = AnchorApp.current?.NavHost.ClosePopup(arguments.First.ToString(), arguments.Second) ?? false;
         }
 
         private static void HasActivePopupsForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var hasActivePopups = ref BurstManagedCallWrapper.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
+            ref var hasActivePopups = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
             hasActivePopups = AnchorApp.current?.NavHost.HasActivePopups ?? false;
         }
 
         private static void CanGoBackForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var canGoBack = ref BurstManagedCallWrapper.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
+            ref var canGoBack = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
             canGoBack = AnchorApp.current?.NavHost.CanGoBack ?? false;
         }
 
         private static void CurrentForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var name = ref BurstManagedCallWrapper.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
+            ref var name = ref BurstTrampoline.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
             name = AnchorApp.current?.NavHost.CurrentDestination ?? default(FixedString32Bytes);
         }
 
         private static void SaveStateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var handle = ref BurstManagedCallWrapper.ArgumentsFromPtr<int>(argumentsPtr, argumentsSize);
+            ref var handle = ref BurstTrampoline.ArgumentsFromPtr<int>(argumentsPtr, argumentsSize);
             handle = AnchorApp.current?.NavHost?.SaveStateHandle() ?? 0;
         }
 
         private static void ReleaseStateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
+            ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
             AnchorApp.current?.NavHost?.ReleaseStateHandle(arguments.First, arguments.Second);
         }
 
         public static class Burst
         {
-            internal static readonly SharedStatic<BurstManagedCallWrapper> NavigateFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, NavigateType>();
+            internal static readonly SharedStatic<BurstTrampoline> NavigateFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, NavigateType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> CurrentFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, CurrentType>();
+            internal static readonly SharedStatic<BurstTrampoline> CurrentFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, CurrentType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> ClearBackStackFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
+            internal static readonly SharedStatic<BurstTrampoline> ClearBackStackFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearBackStackType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> ClearNavigationFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
+            internal static readonly SharedStatic<BurstTrampoline> ClearNavigationFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClearNavigationType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> PopBackStackFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, PopBackStackType>();
+            internal static readonly SharedStatic<BurstTrampoline> PopBackStackFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, PopBackStackType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> PopBackStackToPanelFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, PopBackStackToPanelType>();
+            internal static readonly SharedStatic<BurstTrampoline> PopBackStackToPanelFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, PopBackStackToPanelType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> CloseAllPopupsFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
+            internal static readonly SharedStatic<BurstTrampoline> CloseAllPopupsFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, CloseAllPopupsType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> ClosePopupFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, ClosePopupType>();
+            internal static readonly SharedStatic<BurstTrampoline> ClosePopupFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ClosePopupType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> HasActivePopupsFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, HasActivePopupsType>();
+            internal static readonly SharedStatic<BurstTrampoline> HasActivePopupsFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, HasActivePopupsType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> CanGoBackFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, CanGoBackType>();
+            internal static readonly SharedStatic<BurstTrampoline> CanGoBackFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, CanGoBackType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> SaveStateFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, SaveStateType>();
+            internal static readonly SharedStatic<BurstTrampoline> SaveStateFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, SaveStateType>();
 
-            internal static readonly SharedStatic<BurstManagedCallWrapper> ReleaseStateFunc =
-                SharedStatic<BurstManagedCallWrapper>.GetOrCreate<AnchorNavHost, ReleaseStateType>();
+            internal static readonly SharedStatic<BurstTrampoline> ReleaseStateFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ReleaseStateType>();
 
             /// <inheritdoc cref="AnchorNavHost.Navigate(string, Unity.AppUI.Navigation.Argument[])" />
             public static void Navigate(in FixedString32Bytes screen)
