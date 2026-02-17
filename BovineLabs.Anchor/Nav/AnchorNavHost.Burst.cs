@@ -59,14 +59,14 @@ namespace BovineLabs.Anchor.Nav
 
         private static void CloseAllPopupsForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<CloseAllPopupsArguments>(argumentsPtr, argumentsSize);
-            arguments.Closed = AnchorApp.current?.NavHost.CloseAllPopups(arguments.ExitAnimation) ?? false;
+            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
+            arguments.Second = AnchorApp.current?.NavHost.CloseAllPopups(arguments.First) ?? false;
         }
 
         private static void ClosePopupForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<ClosePopupArguments>(argumentsPtr, argumentsSize);
-            arguments.Closed = AnchorApp.current?.NavHost.ClosePopup(arguments.Destination.ToString(), arguments.ExitAnimation) ?? false;
+            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<BurstManagedTriple<FixedString32Bytes, int, bool>>(argumentsPtr, argumentsSize);
+            arguments.Third = AnchorApp.current?.NavHost.ClosePopup(arguments.First.ToString(), arguments.Second) ?? false;
         }
 
         private static void HasActivePopupsForwardingPacked(void* argumentsPtr, int argumentsSize)
@@ -95,27 +95,8 @@ namespace BovineLabs.Anchor.Nav
 
         private static void ReleaseStateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
-            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<ReleaseStateArguments>(argumentsPtr, argumentsSize);
-            AnchorApp.current?.NavHost?.ReleaseStateHandle(arguments.Handle, arguments.Restore);
-        }
-
-        private struct CloseAllPopupsArguments
-        {
-            public int ExitAnimation;
-            public bool Closed;
-        }
-
-        private struct ClosePopupArguments
-        {
-            public FixedString32Bytes Destination;
-            public int ExitAnimation;
-            public bool Closed;
-        }
-
-        private struct ReleaseStateArguments
-        {
-            public int Handle;
-            public bool Restore;
+            ref var arguments = ref BurstManagedCallWrapper.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
+            AnchorApp.current?.NavHost?.ReleaseStateHandle(arguments.First, arguments.Second);
         }
 
         public static class Burst
@@ -161,8 +142,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (NavigateFunc.Data.IsCreated)
                 {
-                    var screenCopy = screen;
-                    NavigateFunc.Data.Invoke(ref screenCopy);
+                    NavigateFunc.Data.Invoke(screen);
                 }
             }
 
@@ -171,8 +151,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (CurrentFunc.Data.IsCreated)
                 {
-                    var name = default(FixedString32Bytes);
-                    CurrentFunc.Data.Invoke(ref name);
+                    CurrentFunc.Data.InvokeOut(out FixedString32Bytes name);
                     return name;
                 }
 
@@ -184,8 +163,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (ClearBackStackFunc.Data.IsCreated)
                 {
-                    var ignored = false;
-                    ClearBackStackFunc.Data.Invoke(ref ignored);
+                    ClearBackStackFunc.Data.Invoke();
                 }
             }
 
@@ -194,8 +172,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (ClearNavigationFunc.Data.IsCreated)
                 {
-                    var exitAnimationCopy = exitAnimation;
-                    ClearNavigationFunc.Data.Invoke(ref exitAnimationCopy);
+                    ClearNavigationFunc.Data.Invoke(exitAnimation);
                 }
             }
 
@@ -204,8 +181,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (PopBackStackFunc.Data.IsCreated)
                 {
-                    var popped = false;
-                    PopBackStackFunc.Data.Invoke(ref popped);
+                    PopBackStackFunc.Data.InvokeOut(out bool popped);
                     return popped;
                 }
 
@@ -217,8 +193,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (PopBackStackToPanelFunc.Data.IsCreated)
                 {
-                    var popped = false;
-                    PopBackStackToPanelFunc.Data.Invoke(ref popped);
+                    PopBackStackToPanelFunc.Data.InvokeOut(out bool popped);
                     return popped;
                 }
 
@@ -230,9 +205,8 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (CloseAllPopupsFunc.Data.IsCreated)
                 {
-                    var arguments = new CloseAllPopupsArguments { ExitAnimation = exitAnimation };
-                    CloseAllPopupsFunc.Data.Invoke(ref arguments);
-                    return arguments.Closed;
+                    CloseAllPopupsFunc.Data.InvokeOut(exitAnimation, out bool closed);
+                    return closed;
                 }
 
                 return false;
@@ -243,9 +217,8 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (ClosePopupFunc.Data.IsCreated)
                 {
-                    var arguments = new ClosePopupArguments { Destination = destination, ExitAnimation = exitAnimation };
-                    ClosePopupFunc.Data.Invoke(ref arguments);
-                    return arguments.Closed;
+                    ClosePopupFunc.Data.InvokeOut(destination, exitAnimation, out bool closed);
+                    return closed;
                 }
 
                 return false;
@@ -256,8 +229,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (HasActivePopupsFunc.Data.IsCreated)
                 {
-                    var hasActivePopups = false;
-                    HasActivePopupsFunc.Data.Invoke(ref hasActivePopups);
+                    HasActivePopupsFunc.Data.InvokeOut(out bool hasActivePopups);
                     return hasActivePopups;
                 }
 
@@ -269,8 +241,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (CanGoBackFunc.Data.IsCreated)
                 {
-                    var canGoBack = false;
-                    CanGoBackFunc.Data.Invoke(ref canGoBack);
+                    CanGoBackFunc.Data.InvokeOut(out bool canGoBack);
                     return canGoBack;
                 }
 
@@ -282,8 +253,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (SaveStateFunc.Data.IsCreated)
                 {
-                    var handle = 0;
-                    SaveStateFunc.Data.Invoke(ref handle);
+                    SaveStateFunc.Data.InvokeOut(out int handle);
                     return handle;
                 }
 
@@ -295,8 +265,7 @@ namespace BovineLabs.Anchor.Nav
             {
                 if (ReleaseStateFunc.Data.IsCreated)
                 {
-                    var arguments = new ReleaseStateArguments { Handle = handle, Restore = restore };
-                    ReleaseStateFunc.Data.Invoke(ref arguments);
+                    ReleaseStateFunc.Data.Invoke(handle, restore);
                 }
             }
 
