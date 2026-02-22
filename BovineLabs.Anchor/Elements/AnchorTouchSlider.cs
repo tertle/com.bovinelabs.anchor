@@ -15,7 +15,8 @@ namespace BovineLabs.Anchor.Elements
     /// Touch-first slider base used by Anchor replacements for AppUI touch sliders.
     /// </summary>
     /// <typeparam name="TValue">A comparable value type.</typeparam>
-    public abstract class AnchorTouchSlider<TValue> : BaseSlider<TValue, TValue>
+    [UxmlElement]
+    public abstract partial class AnchorTouchSlider<TValue> : BaseSlider<TValue, TValue>
         where TValue : unmanaged, IComparable, IEquatable<TValue>
     {
         /// <summary>
