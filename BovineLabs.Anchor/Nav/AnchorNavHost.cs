@@ -59,7 +59,7 @@ namespace BovineLabs.Anchor.Nav
 
             this.style.flexGrow = 1;
             this.pickingMode = PickingMode.Ignore;
-            this.container = new StackView();
+            this.container = new ExVisualElement();
             this.container.AddToClassList(ContainerUssClassName);
             this.container.pickingMode = PickingMode.Ignore;
             this.container.StretchToParentSize();
