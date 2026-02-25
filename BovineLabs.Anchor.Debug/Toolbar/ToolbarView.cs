@@ -94,7 +94,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
         {
             Instance = this;
-            ToolbarHostBridge.Register(this);
 
             this.viewModel = viewModel;
             this.storageService = storageService;
@@ -152,9 +151,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         /// <summary>Gets the active toolbar view instance, if any.</summary>
         public static ToolbarView Instance { get; private set; }
-
-        /// <inheritdoc />
-        public bool IsReady => true;
 
         /// <inheritdoc />
         public VisualElement RootVisualElement => this;
@@ -304,8 +300,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             {
                 Instance = null;
             }
-
-            ToolbarHostBridge.Unregister(this);
 
             if (AnchorApp.Current?.RootVisualElement != null)
             {

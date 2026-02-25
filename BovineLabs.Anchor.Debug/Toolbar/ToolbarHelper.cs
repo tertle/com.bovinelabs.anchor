@@ -68,12 +68,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// </summary>
         public void Load()
         {
-            if (!ToolbarHostBridge.IsReady)
-            {
-                throw new InvalidOperationException("Toolbar host is not ready.");
-            }
-
-            ToolbarHostBridge.Host.AddTab(typeof(TV), this.tabName.ToString(), this.groupName.ToString(), out this.key, out var visual);
+            var host = ToolbarView.Instance;
+            host.AddTab(typeof(TV), this.tabName.ToString(), this.groupName.ToString(), out this.key, out var visual);
             var view = (TV)visual;
 
             view.ViewModel.Load();
@@ -98,7 +94,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// </summary>
         public void Unload()
         {
-            var view = ToolbarHostBridge.Host?.RemoveTab(this.key) as TV;
+            var view = ToolbarView.Instance?.RemoveTab(this.key) as TV;
 
             if (this.isSerializable)
             {

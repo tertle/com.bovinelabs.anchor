@@ -12,9 +12,6 @@ namespace BovineLabs.Anchor.Toolbar
     /// </summary>
     public interface IAnchorToolbarHost
     {
-        /// <summary>Gets whether the host is ready to accept tab registration.</summary>
-        bool IsReady { get; }
-
         /// <summary>Gets the root visual element for the toolbar UI.</summary>
         VisualElement RootVisualElement { get; }
 

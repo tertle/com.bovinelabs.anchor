@@ -104,13 +104,15 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnConfigureServices(AnchorServiceCollection services)
         {
+            services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
+
 #if !UNITY_EDITOR && !BL_DEBUG
             if (this.ToolbarOnly)
             {
                 return;
             }
 #endif
-            services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
+
             services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
             if (this.UXMLService != null)

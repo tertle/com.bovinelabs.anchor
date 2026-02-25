@@ -26,7 +26,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (!ToolbarHostBridge.IsReady || AnchorApp.Current == null)
+            if (ToolbarView.Instance == null || AnchorApp.Current == null)
             {
                 return;
             }
