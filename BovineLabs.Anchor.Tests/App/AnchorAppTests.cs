@@ -22,8 +22,8 @@ namespace BovineLabs.Anchor.Tests.App
             var shared = new SharedSettings();
             var services = new AnchorServiceCollection();
             services.AddSingletonInstance(typeof(SharedSettings), shared);
-            services.AddAlias(typeof(IFooSettings), typeof(SharedSettings));
-            services.AddAlias(typeof(IBarSettings), typeof(SharedSettings));
+            services.AddAlias<IFooSettings, SharedSettings>();
+            services.AddAlias<IBarSettings, SharedSettings>();
 
             using var provider = services.BuildServiceProvider();
 
@@ -309,4 +309,3 @@ namespace BovineLabs.Anchor.Tests.App
         }
     }
 }
-

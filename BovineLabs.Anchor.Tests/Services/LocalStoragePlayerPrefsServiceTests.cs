@@ -6,11 +6,8 @@ namespace BovineLabs.Anchor.Tests.Services
 {
     using System;
     using System.Collections.Generic;
-    using System.Text.RegularExpressions;
     using BovineLabs.Anchor.Services;
     using NUnit.Framework;
-    using UnityEngine;
-    using UnityEngine.TestTools;
 
     public class LocalStoragePlayerPrefsServiceTests
     {
@@ -29,8 +26,6 @@ namespace BovineLabs.Anchor.Tests.Services
             foreach (var key in this.keysToCleanup)
             {
                 this.service.DeleteKey(key);
-                this.service.DeleteJson(key);
-                this.service.DeleteBytes(key);
             }
 
             this.keysToCleanup.Clear();
@@ -52,57 +47,11 @@ namespace BovineLabs.Anchor.Tests.Services
             Assert.IsTrue(this.service.GetValue(boolKey, false));
         }
 
-        [Test]
-        public void JsonGetSet_HandlesValidPayload_AndFallbackOnInvalidPayload()
-        {
-            var validKey = this.NewKey();
-            var invalidKey = this.NewKey();
-
-            var payload = new TestPayload { IntValue = 7, StringValue = "abc" };
-            this.service.SetJson(validKey, payload);
-
-            var loaded = this.service.GetJson<TestPayload>(validKey, default);
-            Assert.IsNotNull(loaded);
-            Assert.AreEqual(7, loaded.IntValue);
-            Assert.AreEqual("abc", loaded.StringValue);
-
-            PlayerPrefs.SetString(invalidKey, "{ invalid json");
-            var fallback = new TestPayload { IntValue = 99, StringValue = "fallback" };
-            LogAssert.Expect(LogType.Exception, new Regex("JSON parse error"));
-            var invalidLoaded = this.service.GetJson(invalidKey, fallback);
-
-            Assert.AreSame(fallback, invalidLoaded);
-        }
-
-        [Test]
-        public void Bytes_FlowSetHasGetDelete_Works()
-        {
-            var key = this.NewKey();
-            var bytes = new byte[] { 1, 2, 3, 4 };
-
-            this.service.SetBytes(key, bytes);
-
-            Assert.IsTrue(this.service.HasBytes(key));
-            CollectionAssert.AreEqual(bytes, this.service.GetBytes(key));
-
-            this.service.DeleteBytes(key);
-
-            Assert.IsFalse(this.service.HasBytes(key));
-            Assert.IsNull(this.service.GetBytes(key));
-        }
-
         private string NewKey()
         {
             var key = $"anchor-tests-{Guid.NewGuid():N}";
             this.keysToCleanup.Add(key);
             return key;
-        }
-
-        [Serializable]
-        private class TestPayload
-        {
-            public int IntValue;
-            public string StringValue;
         }
     }
 }

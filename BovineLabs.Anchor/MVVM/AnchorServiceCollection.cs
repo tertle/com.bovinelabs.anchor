@@ -70,6 +70,11 @@ namespace BovineLabs.Anchor.MVVM
             return this.Add(AnchorServiceDescriptor.Alias(serviceType, existingServiceType));
         }
 
+        public AnchorServiceCollection AddAlias<TService, TExistingService>()
+        {
+            return this.AddAlias(typeof(TService), typeof(TExistingService));
+        }
+
         public AnchorServiceProvider BuildServiceProvider()
         {
             return new AnchorServiceProvider(this);

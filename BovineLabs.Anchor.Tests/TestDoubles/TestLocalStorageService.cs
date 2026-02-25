@@ -7,13 +7,10 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
     using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.Services;
-    using UnityEngine;
 
     internal sealed class TestLocalStorageService : ILocalStorageService
     {
         private readonly Dictionary<string, string> values = new(StringComparer.Ordinal);
-        private readonly Dictionary<string, string> jsonValues = new(StringComparer.Ordinal);
-        private readonly Dictionary<string, byte[]> bytes = new(StringComparer.Ordinal);
 
         public int SetStringValueCount { get; private set; }
 
@@ -63,58 +60,6 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
         public void SetValue(string key, bool value)
         {
             this.values[key] = value.ToString();
-        }
-
-        public bool HasJson(string key)
-        {
-            return this.jsonValues.ContainsKey(key);
-        }
-
-        public void DeleteJson(string key)
-        {
-            this.jsonValues.Remove(key);
-        }
-
-        public T GetJson<T>(string key, T defaultValue)
-        {
-            if (!this.jsonValues.TryGetValue(key, out var raw))
-            {
-                return defaultValue;
-            }
-
-            try
-            {
-                return JsonUtility.FromJson<T>(raw);
-            }
-            catch
-            {
-                return defaultValue;
-            }
-        }
-
-        public void SetJson<T>(string key, T value)
-        {
-            this.jsonValues[key] = JsonUtility.ToJson(value);
-        }
-
-        public bool HasBytes(string key)
-        {
-            return this.bytes.ContainsKey(key);
-        }
-
-        public void DeleteBytes(string key)
-        {
-            this.bytes.Remove(key);
-        }
-
-        public byte[] GetBytes(string key)
-        {
-            return this.bytes.TryGetValue(key, out var value) ? value : null;
-        }
-
-        public void SetBytes(string key, byte[] value)
-        {
-            this.bytes[key] = value;
         }
     }
 }
