@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 {
     using System;
     using BovineLabs.Anchor;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
 
     internal sealed class TestAnchorAppScope : IDisposable
     {

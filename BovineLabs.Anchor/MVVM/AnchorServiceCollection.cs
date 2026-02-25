@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.DependencyInjection
+namespace BovineLabs.Anchor.MVVM
 {
     using System;
     using System.Collections;

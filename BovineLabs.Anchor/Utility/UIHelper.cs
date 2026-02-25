@@ -7,7 +7,7 @@ namespace BovineLabs.Anchor
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;

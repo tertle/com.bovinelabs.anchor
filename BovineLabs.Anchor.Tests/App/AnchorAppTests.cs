@@ -7,7 +7,7 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using System.Reflection;
     using BovineLabs.Anchor;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using BovineLabs.Core.Utility;
@@ -58,6 +58,19 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.AreEqual(2, resolved.ConstructorParameterCount);
             Assert.AreSame(provider, resolved.Provider);
             Assert.IsNotNull(resolved.Dependency);
+        }
+
+        [Test]
+        public void ServiceProvider_SelectsFallbackConstructor_WhenNestedDependencyGraphIsUnresolvable()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddTransient(typeof(FallbackConstructorSelectionTarget));
+            services.AddTransient(typeof(UnresolvableNestedDependency));
+
+            using var provider = services.BuildServiceProvider();
+            var resolved = provider.GetRequiredService<FallbackConstructorSelectionTarget>();
+
+            Assert.AreEqual(0, resolved.ConstructorParameterCount);
         }
 
         [Test]
@@ -253,6 +266,32 @@ namespace BovineLabs.Anchor.Tests.App
             public IServiceProvider Provider { get; }
 
             public int ConstructorParameterCount { get; }
+        }
+
+        private sealed class FallbackConstructorSelectionTarget
+        {
+            public FallbackConstructorSelectionTarget()
+            {
+                this.ConstructorParameterCount = 0;
+            }
+
+            public FallbackConstructorSelectionTarget(UnresolvableNestedDependency dependency)
+            {
+                this.ConstructorParameterCount = 1;
+            }
+
+            public int ConstructorParameterCount { get; }
+        }
+
+        private sealed class UnresolvableNestedDependency
+        {
+            public UnresolvableNestedDependency(MissingNestedDependency dependency)
+            {
+            }
+        }
+
+        private sealed class MissingNestedDependency
+        {
         }
 
         private sealed class CircularDependencyA

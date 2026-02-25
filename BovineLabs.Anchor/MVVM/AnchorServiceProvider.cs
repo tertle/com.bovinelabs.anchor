@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.DependencyInjection
+namespace BovineLabs.Anchor.MVVM
 {
     using System;
     using System.Collections.Generic;
@@ -179,13 +179,8 @@ namespace BovineLabs.Anchor.DependencyInjection
                     parameterValue = this.GetService(parameterType);
                 }
 
-                if (parameterValue == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Unable to resolve constructor parameter '{parameters[i].Name}' of type '{parameterType.FullName}' for '{implementationType.FullName}'.");
-                }
-
-                arguments[i] = parameterValue;
+                arguments[i] = parameterValue ?? throw new InvalidOperationException(
+                    $"Unable to resolve constructor parameter '{parameters[i].Name}' of type '{parameterType.FullName}' for '{implementationType.FullName}'.");
             }
 
             return constructor.Invoke(arguments);
@@ -224,6 +219,11 @@ namespace BovineLabs.Anchor.DependencyInjection
 
         private bool CanResolve(ParameterInfo[] parameters)
         {
+            return this.CanResolve(parameters, new HashSet<Type>());
+        }
+
+        private bool CanResolve(ParameterInfo[] parameters, HashSet<Type> resolutionPath)
+        {
             foreach (var parameter in parameters)
             {
                 var parameterType = parameter.ParameterType;
@@ -232,13 +232,68 @@ namespace BovineLabs.Anchor.DependencyInjection
                     continue;
                 }
 
-                if (this.FindDescriptor(parameterType) == null)
+                if (!this.CanResolve(parameterType, resolutionPath))
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private bool CanResolve(Type serviceType, HashSet<Type> resolutionPath)
+        {
+            if (serviceType == typeof(IServiceProvider) || serviceType == typeof(AnchorServiceProvider))
+            {
+                return true;
+            }
+
+            var descriptor = this.FindDescriptor(serviceType);
+            if (descriptor == null)
+            {
+                return false;
+            }
+
+            if (descriptor.IsAlias)
+            {
+                return this.CanResolve(descriptor.AliasType, resolutionPath);
+            }
+
+            if (descriptor.IsInstance)
+            {
+                return true;
+            }
+
+            var implementationType = descriptor.ImplementationType;
+            if (implementationType == null || implementationType.IsAbstract || implementationType.IsInterface)
+            {
+                return false;
+            }
+
+            if (resolutionPath.Contains(serviceType))
+            {
+                return true;
+            }
+
+            resolutionPath.Add(serviceType);
+
+            try
+            {
+                var constructors = implementationType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var constructor in constructors)
+                {
+                    if (this.CanResolve(constructor.GetParameters(), resolutionPath))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            finally
+            {
+                resolutionPath.Remove(serviceType);
+            }
         }
     }
 }

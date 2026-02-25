@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;

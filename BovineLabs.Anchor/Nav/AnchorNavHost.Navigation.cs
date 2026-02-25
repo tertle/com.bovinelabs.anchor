@@ -7,7 +7,7 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
     using UnityEngine.UIElements;

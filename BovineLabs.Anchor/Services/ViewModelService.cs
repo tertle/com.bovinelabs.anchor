@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Services
 {
     using System;
     using System.Collections.Generic;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
 
     internal record ViewModelService : IViewModelService
     {

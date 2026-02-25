@@ -7,7 +7,7 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using System.Linq;
     using System.Reflection;
-    using BovineLabs.Anchor.DependencyInjection;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
