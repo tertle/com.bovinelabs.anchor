@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Tests.App
 {
     using System.Collections.Generic;
-    using BovineLabs.Anchor.Binding;
     using NUnit.Framework;
     using Unity.Collections;
 

@@ -46,4 +46,3 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
     }
 }
-

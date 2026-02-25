@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Debug.Views
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Toolbar;

@@ -5,6 +5,7 @@
 #if UNITY_LOCALIZATION
 namespace BovineLabs.Anchor.Debug.Views
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.UI;

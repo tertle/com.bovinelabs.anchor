@@ -2,13 +2,13 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Toolbar
+namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
-    using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.MVVM;
+    using BovineLabs.Anchor.Services;
     using Unity.Properties;
 
     /// <summary>
@@ -142,4 +142,3 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-

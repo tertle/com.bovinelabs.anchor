@@ -5,6 +5,7 @@
 #if BL_CORE_EXTENSIONS && !BL_DISABLE_PAUSE
 namespace BovineLabs.Anchor.Debug.Systems
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;

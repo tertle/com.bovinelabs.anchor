@@ -2,11 +2,13 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if UNITY_APPUI
 namespace BovineLabs.Anchor.Tests.Toolbar
 {
-    using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using NUnit.Framework;
     using UnityEngine.UIElements;
+    using ToolbarGroupElement = BovineLabs.Anchor.Debug.Toolbar.ToolbarGroupElement;
 
     public class ToolbarMetadataTests
     {
@@ -41,3 +43,4 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
     }
 }
+#endif

@@ -4,13 +4,11 @@
 
 namespace BovineLabs.Anchor.Tests.Nav
 {
-    using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using UnityEngine.UIElements;
 
     public class AnchorNavHostEventTests
     {

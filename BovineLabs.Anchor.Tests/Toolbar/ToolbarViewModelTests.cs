@@ -2,11 +2,12 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
+#if UNITY_APPUI
 namespace BovineLabs.Anchor.Tests.Toolbar
 {
     using System.Linq;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Tests.TestDoubles;
-    using BovineLabs.Anchor.Toolbar;
     using NUnit.Framework;
 
     public class ToolbarViewModelTests
@@ -116,3 +117,4 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
     }
 }
+#endif

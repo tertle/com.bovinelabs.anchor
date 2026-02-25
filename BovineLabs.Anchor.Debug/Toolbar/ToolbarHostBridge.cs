@@ -2,8 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Toolbar
+namespace BovineLabs.Anchor.Debug.Toolbar
 {
+    using BovineLabs.Anchor.Toolbar;
+
     /// <summary>
     /// Global bridge used by toolbar systems/helpers to access the active toolbar host.
     /// </summary>

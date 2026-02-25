@@ -2,14 +2,14 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Toolbar
+namespace BovineLabs.Anchor.Debug.Toolbar
 {
-#if BL_CORE_EXTENSIONS
     using BovineLabs.Core;
+    using Unity.Entities;
+#if BL_CORE_EXTENSIONS
 #else
     using WorldFlag = Unity.Entities.WorldSystemFilterFlags;
 #endif
-    using Unity.Entities;
 
     /// <summary>Group that all Toolbar linked systems should be placed into.</summary>
 #if BL_CORE_EXTENSIONS
@@ -35,4 +35,3 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-

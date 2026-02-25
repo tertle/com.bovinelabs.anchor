@@ -5,6 +5,7 @@
 #if UNITY_PHYSICS && (BL_QUILL || UNITY_EDITOR) // Default physics doesn't support builds
 namespace BovineLabs.Anchor.Debug.Systems
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.Toolbar;

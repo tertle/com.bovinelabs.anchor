@@ -31,6 +31,12 @@
   "defineConstraints": [
     "UNITY_INCLUDE_TESTS"
   ],
-  "versionDefines": [],
+  "versionDefines": [
+    {
+      "name": "com.unity.dt.app-ui",
+      "expression": "",
+      "define": "UNITY_APPUI"
+    }
+  ],
   "noEngineReferences": false
 }
