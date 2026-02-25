@@ -94,7 +94,6 @@ namespace BovineLabs.Anchor
                 this.uiDocument.rootVisualElement?.Clear();
             }
 
-            this.app.Shutdown();
             this.app.Dispose();
             this.serviceProvider?.Dispose();
 

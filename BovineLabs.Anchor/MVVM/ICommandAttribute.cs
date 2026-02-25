@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.MVVM
     /// <summary>
     /// Marks a method for generated relay-command output.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
     public sealed class ICommandAttribute : Attribute
     {
         /// <summary>

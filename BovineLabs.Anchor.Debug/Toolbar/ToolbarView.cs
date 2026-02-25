@@ -122,7 +122,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
-            var serviceTabName = AnchorApp.Current?.ServiceTabName;
+            var serviceTabName = AnchorApp.Current.ServiceTabName;
             if (string.IsNullOrWhiteSpace(serviceTabName))
             {
                 serviceTabName = AnchorApp.DefaultServiceTabName;

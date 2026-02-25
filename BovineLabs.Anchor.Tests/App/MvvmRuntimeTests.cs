@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Tests.App
     using NUnit.Framework;
     using UnityEngine.UIElements;
 
-    public class MvvmRuntimeTests
+    public partial class MvvmRuntimeTests
     {
         [Test]
         public void ObservableObject_SetProperty_RaisesChangingChangedAndBindableEvents()
@@ -95,6 +95,58 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.AreEqual(4, received);
         }
 
+        [Test]
+        public void GeneratedCommand_RespectsCanExecuteMethod()
+        {
+            var viewModel = new GeneratedCanExecuteViewModel();
+            var command = viewModel.IncrementCommand;
+
+            Assert.IsFalse(command.CanExecute(null));
+            command.Execute(null);
+            Assert.AreEqual(0, viewModel.ExecuteCount);
+
+            viewModel.SetAllowExecute(true);
+
+            Assert.IsTrue(command.CanExecute(null));
+            command.Execute(null);
+            Assert.AreEqual(1, viewModel.ExecuteCount);
+        }
+
+        [Test]
+        public void GeneratedCommandWithParameter_RespectsCanExecuteMethod()
+        {
+            var viewModel = new GeneratedCanExecuteWithParameterViewModel();
+            var command = viewModel.SetValueCommand;
+
+            Assert.IsFalse(command.CanExecute(0));
+            command.Execute(0);
+            Assert.AreEqual(0, viewModel.Value);
+
+            Assert.IsTrue(command.CanExecute(7));
+            command.Execute(7);
+            Assert.AreEqual(7, viewModel.Value);
+        }
+
+        [Test]
+        public void GeneratedCommand_WithoutCanExecuteMethod_ExecutesByDefault()
+        {
+            var viewModel = new GeneratedDefaultCanExecuteViewModel();
+            var command = viewModel.IncrementCommand;
+
+            Assert.IsTrue(command.CanExecute(null));
+            command.Execute(null);
+
+            Assert.AreEqual(1, viewModel.ExecuteCount);
+        }
+
+        [Test]
+        public void Generator_IgnoresForeignICommandAttribute()
+        {
+            var generatedProperty = typeof(ForeignICommandViewModel).GetProperty("RunCommand");
+
+            Assert.IsNull(generatedProperty);
+        }
+
         private sealed class TestViewModel : ObservableObject
         {
             private int value;
@@ -110,5 +162,79 @@ namespace BovineLabs.Anchor.Tests.App
                 this.value = value;
             }
         }
+
+        public partial class GeneratedCanExecuteViewModel
+        {
+            private bool allowExecute;
+
+            [ICommand(CanExecuteMethod = nameof(CanExecuteIncrement))]
+            private void Increment()
+            {
+                this.ExecuteCount++;
+            }
+
+            public int ExecuteCount { get; private set; }
+
+            public void SetAllowExecute(bool allowExecute)
+            {
+                this.allowExecute = allowExecute;
+            }
+
+            private bool CanExecuteIncrement()
+            {
+                return this.allowExecute;
+            }
+        }
+
+        public partial class GeneratedCanExecuteWithParameterViewModel
+        {
+            [ICommand(CanExecuteMethod = nameof(CanSetValue))]
+            private void SetValue(int value)
+            {
+                this.Value = value;
+            }
+
+            public int Value { get; private set; }
+
+            private bool CanSetValue(int value)
+            {
+                return value > 0;
+            }
+        }
+
+        public partial class GeneratedDefaultCanExecuteViewModel
+        {
+            [ICommand]
+            private void Increment()
+            {
+                this.ExecuteCount++;
+            }
+
+            public int ExecuteCount { get; private set; }
+        }
+
+        public partial class ForeignICommandViewModel
+        {
+            [global::BovineLabs.Anchor.Tests.App.FakeMvvm.ICommand(CanExecuteMethod = nameof(CanExecuteRun))]
+            private void Run()
+            {
+            }
+
+            private bool CanExecuteRun()
+            {
+                return true;
+            }
+        }
+    }
+}
+
+namespace BovineLabs.Anchor.Tests.App.FakeMvvm
+{
+    using System;
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+    public sealed class ICommandAttribute : Attribute
+    {
+        public string CanExecuteMethod { get; set; }
     }
 }

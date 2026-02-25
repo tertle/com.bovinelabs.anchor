@@ -21,6 +21,9 @@ namespace BovineLabs.SystemPropertyGenerator
         private const string ObservablePropertyAttributeName = "ObservableProperty";
         private const string ICommandAttributeName = "ICommand";
         private const string AlsoNotifyChangeForAttributeName = "AlsoNotifyChangeFor";
+        private const string ObservablePropertyAttributeMetadataName = "BovineLabs.Anchor.MVVM.ObservablePropertyAttribute";
+        private const string ICommandAttributeMetadataName = "BovineLabs.Anchor.MVVM.ICommandAttribute";
+        private const string AlsoNotifyChangeForAttributeMetadataName = "BovineLabs.Anchor.MVVM.AlsoNotifyChangeForAttribute";
         private const string CommandTypeName = "global::System.Windows.Input.ICommand";
         private const string RelayCommandTypeName = "global::BovineLabs.Anchor.MVVM.RelayCommand";
 
@@ -193,7 +196,7 @@ namespace BovineLabs.SystemPropertyGenerator
                         continue;
                     }
 
-                    if (!HasAttribute(fieldSymbol, ObservablePropertyAttributeName))
+                    if (!HasAttribute(fieldSymbol, ObservablePropertyAttributeMetadataName))
                     {
                         continue;
                     }
@@ -231,7 +234,8 @@ namespace BovineLabs.SystemPropertyGenerator
                     continue;
                 }
 
-                if (!HasAttribute(methodSymbol, ICommandAttributeName))
+                var commandAttribute = GetAttribute(methodSymbol, ICommandAttributeMetadataName);
+                if (commandAttribute == null)
                 {
                     continue;
                 }
@@ -252,7 +256,7 @@ namespace BovineLabs.SystemPropertyGenerator
                     continue;
                 }
 
-                var canExecuteName = GetNamedStringArgument(methodSymbol, ICommandAttributeName, "CanExecuteMethod");
+                var canExecuteName = GetNamedStringArgument(commandAttribute, "CanExecuteMethod");
                 IMethodSymbol canExecuteMethod = null;
 
                 if (!string.IsNullOrWhiteSpace(canExecuteName))
@@ -492,24 +496,16 @@ namespace BovineLabs.SystemPropertyGenerator
             return null;
         }
 
-        private static string GetNamedStringArgument(ISymbol symbol, string attributeName, string argumentName)
+        private static string GetNamedStringArgument(AttributeData attribute, string argumentName)
         {
-            foreach (var attribute in symbol.GetAttributes())
+            foreach (var pair in attribute.NamedArguments)
             {
-                if (!MatchesAttributeName(attribute.AttributeClass?.Name, attributeName))
+                if (!string.Equals(pair.Key, argumentName, StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                foreach (var pair in attribute.NamedArguments)
-                {
-                    if (!string.Equals(pair.Key, argumentName, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    return pair.Value.Value as string;
-                }
+                return pair.Value.Value as string;
             }
 
             return null;
@@ -521,7 +517,7 @@ namespace BovineLabs.SystemPropertyGenerator
 
             foreach (var attribute in fieldSymbol.GetAttributes())
             {
-                if (!MatchesAttributeName(attribute.AttributeClass?.Name, AlsoNotifyChangeForAttributeName))
+                if (!MatchesAttributeMetadataName(attribute.AttributeClass, AlsoNotifyChangeForAttributeMetadataName))
                 {
                     continue;
                 }
@@ -548,17 +544,9 @@ namespace BovineLabs.SystemPropertyGenerator
             return names.Distinct(StringComparer.Ordinal).ToImmutableArray();
         }
 
-        private static bool HasAttribute(ISymbol symbol, string attributeName)
+        private static bool HasAttribute(ISymbol symbol, string attributeMetadataName)
         {
-            foreach (var attribute in symbol.GetAttributes())
-            {
-                if (MatchesAttributeName(attribute.AttributeClass?.Name, attributeName))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return GetAttribute(symbol, attributeMetadataName) != null;
         }
 
         private static bool HasAttributeSyntax(SyntaxList<AttributeListSyntax> attributes, string attributeName)
@@ -598,6 +586,36 @@ namespace BovineLabs.SystemPropertyGenerator
             }
 
             return string.Equals(simpleName, attributeName, StringComparison.Ordinal);
+        }
+
+        private static AttributeData GetAttribute(ISymbol symbol, string attributeMetadataName)
+        {
+            foreach (var attribute in symbol.GetAttributes())
+            {
+                if (MatchesAttributeMetadataName(attribute.AttributeClass, attributeMetadataName))
+                {
+                    return attribute;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool MatchesAttributeMetadataName(INamedTypeSymbol attributeClass, string attributeMetadataName)
+        {
+            if (attributeClass == null || string.IsNullOrWhiteSpace(attributeMetadataName))
+            {
+                return false;
+            }
+
+            var fullName = attributeClass.ToDisplayString(QualifiedTypeFormat);
+            const string globalPrefix = "global::";
+            if (fullName.StartsWith(globalPrefix, StringComparison.Ordinal))
+            {
+                fullName = fullName.Substring(globalPrefix.Length);
+            }
+
+            return string.Equals(fullName, attributeMetadataName, StringComparison.Ordinal);
         }
 
         private static bool IsPartial(TypeDeclarationSyntax declaration)

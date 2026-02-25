@@ -9,7 +9,6 @@
 namespace BovineLabs.Anchor
 {
     using System;
-    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
@@ -85,17 +84,14 @@ namespace BovineLabs.Anchor
             this.RootVisualElement = panel.RootVisualElement;
         }
 
-        internal void Shutdown()
-        {
-            ShuttingDown?.Invoke();
-        }
-
         public void Dispose()
         {
             if (this.disposed)
             {
                 return;
             }
+
+            ShuttingDown?.Invoke();
 
             this.PopupContainer = null;
             this.NotificationContainer = null;
@@ -150,12 +146,6 @@ namespace BovineLabs.Anchor
             this.TooltipContainer = this.RootVisualElement.Q<VisualElement>("tooltip-container");
         }
 
-#if CUSTOM_SAFE_AREA
-        private struct SafeAreaType
-        {
-        }
-#endif
-
         private static void SetCurrentApp(AnchorApp app)
         {
             if (app != null && Current != null && !ReferenceEquals(Current, app))
@@ -165,5 +155,11 @@ namespace BovineLabs.Anchor
 
             Current = app;
         }
+
+#if CUSTOM_SAFE_AREA
+        private struct SafeAreaType
+        {
+        }
+#endif
     }
 }

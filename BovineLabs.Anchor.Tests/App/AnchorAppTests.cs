@@ -82,7 +82,7 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void Shutdown_RaisesEvent_AndDisposeClearsCurrent()
+        public void Dispose_RaisesEvent_AndClearsCurrent()
         {
             var shutdownCalls = 0;
 
@@ -98,7 +98,7 @@ namespace BovineLabs.Anchor.Tests.App
                 using var scope = new TestAnchorAppScope();
                 Assert.AreSame(scope.App, AnchorApp.Current);
 
-                scope.App.Shutdown();
+                scope.App.Dispose();
 
                 Assert.AreEqual(1, shutdownCalls);
             }
