@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Tests.Binding
     using System.Collections.Generic;
     using BovineLabs.Anchor.Binding;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
@@ -97,3 +97,4 @@ namespace BovineLabs.Anchor.Tests.Binding
         }
     }
 }
+

@@ -5,26 +5,50 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Toolbar;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
+    using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Profiling;
 
-    [ObservableObject]
-    public partial class MemoryToolbarViewModel
+    public partial class MemoryToolbarViewModel : ObservableObject
     {
         private float timeToTriggerUpdatesPassed;
 
-        [ObservableProperty]
         private int totalAllocatedMemoryMB;
 
-        [ObservableProperty]
         private int totalReservedMemoryMB;
 
-        [ObservableProperty]
         private int monoUsedSizeMB;
 
-        [ObservableProperty]
         private int allocatedMemoryForGraphicsMB;
+
+        [CreateProperty]
+        public int TotalAllocatedMemoryMB
+        {
+            get => this.totalAllocatedMemoryMB;
+            set => this.SetProperty(ref this.totalAllocatedMemoryMB, value);
+        }
+
+        [CreateProperty]
+        public int TotalReservedMemoryMB
+        {
+            get => this.totalReservedMemoryMB;
+            set => this.SetProperty(ref this.totalReservedMemoryMB, value);
+        }
+
+        [CreateProperty]
+        public int MonoUsedSizeMB
+        {
+            get => this.monoUsedSizeMB;
+            set => this.SetProperty(ref this.monoUsedSizeMB, value);
+        }
+
+        [CreateProperty]
+        public int AllocatedMemoryForGraphicsMB
+        {
+            get => this.allocatedMemoryForGraphicsMB;
+            set => this.SetProperty(ref this.allocatedMemoryForGraphicsMB, value);
+        }
 
         public void Update()
         {
@@ -45,3 +69,4 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
     }
 }
+

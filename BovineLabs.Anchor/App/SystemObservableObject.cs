@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor
     using System.ComponentModel;
     using System.Runtime.CompilerServices;
     using BovineLabs.Anchor.Binding;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
     using Unity.AppUI.UI;
     using Unity.Collections;
     using UnityEngine;

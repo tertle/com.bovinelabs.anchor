@@ -7,15 +7,20 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
     using UnityEngine;
 
-    [ObservableObject]
-    public partial class QualityToolbarViewModel
+    public partial class QualityToolbarViewModel : ObservableObject
     {
-        [ObservableProperty]
         private int qualityValue;
+
+        [CreateProperty]
+        public int QualityValue
+        {
+            get => this.qualityValue;
+            set => this.SetProperty(ref this.qualityValue, value);
+        }
 
         public QualityToolbarViewModel()
         {
@@ -41,3 +46,4 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
     }
 }
+

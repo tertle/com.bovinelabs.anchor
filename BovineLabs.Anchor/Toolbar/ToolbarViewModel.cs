@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Toolbar
     using System.ComponentModel;
     using System.Linq;
     using BovineLabs.Anchor.Services;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
 
     /// <summary>
@@ -142,3 +142,4 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
+

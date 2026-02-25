@@ -6,11 +6,12 @@ namespace BovineLabs.Anchor.Tests.App
 {
     using System;
     using BovineLabs.Anchor.Binding;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using BovineLabs.Testing;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
@@ -123,3 +124,4 @@ namespace BovineLabs.Anchor.Tests.App
         }
     }
 }
+

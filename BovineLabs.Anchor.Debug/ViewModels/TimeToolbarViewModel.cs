@@ -4,7 +4,7 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
     using UnityEngine;
 
@@ -69,3 +69,4 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
     }
 }
+

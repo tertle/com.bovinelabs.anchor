@@ -4,9 +4,10 @@
 
 namespace BovineLabs.Anchor.Tests.TestDoubles
 {
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
 
     internal class TestObservableObject : ObservableObject
     {
     }
 }
+
