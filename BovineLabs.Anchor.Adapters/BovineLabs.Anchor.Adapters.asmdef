@@ -12,14 +12,14 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [
-        "BL_HAS_APPUI",
+        "UNITY_APPUI",
         "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
     ],
     "versionDefines": [
         {
             "name": "com.unity.dt.app-ui",
             "expression": "",
-            "define": "BL_HAS_APPUI"
+            "define": "UNITY_APPUI"
         }
     ],
     "noEngineReferences": false

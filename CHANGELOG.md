@@ -1,5 +1,25 @@
 # ChangeLog
 
+## [2.0.0] - 2026-02-25
+
+### Breaking
+* Removed hard package dependency on `com.unity.dt.app-ui`
+* `BovineLabs.Anchor` runtime is now AppUI-free
+* Navigation argument public APIs use `AnchorNavArgument[]` instead of AppUI `Argument[]`
+* App lifecycle APIs standardized on `AnchorApp.Current`, `AnchorApp.Services`, and `AnchorApp.ShuttingDown`
+
+### Added
+* AppUI adapter assembly: `BovineLabs.Anchor.Adapters`
+* Anchor-owned DI stack: `AnchorServiceCollection`, `AnchorServiceProvider`, descriptors/extensions
+* Anchor-owned MVVM runtime and source generation attributes under `BovineLabs.Anchor.MVVM`
+* Core panel abstraction `IAnchorPanel` with optional AppUI-backed `AnchorAppUIPanel` adapter
+
+### Changed
+* Core `AnchorAppBuilder` no longer depends on AppUI builder base types
+* Debug/adapter asmdefs are compile-gated behind `BL_HAS_APPUI`
+* Package docs updated for optional AppUI integrations
+* Added split theme entrypoints: `Anchor UI.tss` (AppUI) and `Anchor No AppUI.tss` (AppUI-free)
+
 ## [1.3.0] - 2025-10-03
 
 ### Breaking
