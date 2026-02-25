@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Nav
 {
     using System;
     using System.Collections.Generic;
-    using Unity.AppUI.Navigation;
     using UnityEngine;
     using UnityEngine.Serialization;
 
@@ -87,7 +86,7 @@ namespace BovineLabs.Anchor.Nav
 
         [SerializeField]
         [Tooltip("Arguments supplied when navigating to the popup base destination.")]
-        private List<Argument> popupBaseArguments = new();
+        private List<AnchorNavArgument> popupBaseArguments = new();
 
         [SerializeField]
         [Tooltip("How to treat any existing popups when this navigation is shown as a popup.")]
@@ -146,10 +145,10 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>
         /// Gets or sets the arguments used when navigating to <see cref="PopupBaseDestination"/>.
         /// </summary>
-        public IList<Argument> PopupBaseArguments
+        public IList<AnchorNavArgument> PopupBaseArguments
         {
             get => this.popupBaseArguments;
-            set => this.popupBaseArguments = new List<Argument>(value);
+            set => this.popupBaseArguments = value != null ? new List<AnchorNavArgument>(value) : new List<AnchorNavArgument>();
         }
 
         /// <summary>
@@ -176,7 +175,7 @@ namespace BovineLabs.Anchor.Nav
                 popupStrategy = this.popupStrategy,
                 popupExistingStrategy = this.popupExistingStrategy,
                 popupBaseDestination = this.popupBaseDestination,
-                popupBaseArguments = this.popupBaseArguments != null ? new List<Argument>(this.popupBaseArguments) : new List<Argument>(),
+                popupBaseArguments = this.popupBaseArguments != null ? new List<AnchorNavArgument>(this.popupBaseArguments) : new List<AnchorNavArgument>(),
             };
         }
     }

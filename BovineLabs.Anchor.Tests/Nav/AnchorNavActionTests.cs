@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Tests.Nav
 {
     using BovineLabs.Anchor.Nav;
     using NUnit.Framework;
-    using Unity.AppUI.Navigation;
 
     public class AnchorNavActionTests
     {
@@ -18,18 +17,18 @@ namespace BovineLabs.Anchor.Tests.Nav
                 new AnchorNavOptions(),
                 new[]
                 {
-                    new Argument("a", "1"),
-                    new Argument("b", "2"),
+                    AnchorNavArgument.String("a", "1"),
+                    AnchorNavArgument.String("b", "2"),
                 });
 
             var merged = action.MergeArguments(
-                new Argument("b", "22"),
-                new Argument("c", "3"));
+                AnchorNavArgument.String("b", "22"),
+                AnchorNavArgument.String("c", "3"));
 
             Assert.AreEqual(3, merged.Length);
-            Assert.AreEqual(new Argument("a", "1"), merged[0]);
-            Assert.AreEqual(new Argument("b", "22"), merged[1]);
-            Assert.AreEqual(new Argument("c", "3"), merged[2]);
+            Assert.AreEqual(AnchorNavArgument.String("a", "1"), merged[0]);
+            Assert.AreEqual(AnchorNavArgument.String("b", "22"), merged[1]);
+            Assert.AreEqual(AnchorNavArgument.String("c", "3"), merged[2]);
         }
 
         [Test]
@@ -40,14 +39,14 @@ namespace BovineLabs.Anchor.Tests.Nav
                 new AnchorNavOptions(),
                 new[]
                 {
-                    new Argument("x", "1"),
+                    AnchorNavArgument.String("x", "1"),
                 });
 
-            var merged = action.MergeArguments(null, new Argument("y", "2"), null);
+            var merged = action.MergeArguments(null, AnchorNavArgument.String("y", "2"), null);
 
             Assert.AreEqual(2, merged.Length);
-            Assert.AreEqual(new Argument("x", "1"), merged[0]);
-            Assert.AreEqual(new Argument("y", "2"), merged[1]);
+            Assert.AreEqual(AnchorNavArgument.String("x", "1"), merged[0]);
+            Assert.AreEqual(AnchorNavArgument.String("y", "2"), merged[1]);
         }
     }
 }

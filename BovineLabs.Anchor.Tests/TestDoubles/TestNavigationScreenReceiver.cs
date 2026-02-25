@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Tests.TestDoubles
 {
     using BovineLabs.Anchor.Nav;
-    using Unity.AppUI.Navigation;
 
     internal sealed class TestNavigationScreenReceiver : IAnchorNavigationScreen
     {
@@ -13,17 +12,17 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public int ExitCount { get; private set; }
 
-        public Argument[] LastEnterArguments { get; private set; }
+        public AnchorNavArgument[] LastEnterArguments { get; private set; }
 
-        public Argument[] LastExitArguments { get; private set; }
+        public AnchorNavArgument[] LastExitArguments { get; private set; }
 
-        public void OnEnter(Argument[] args)
+        public void OnEnter(AnchorNavArgument[] args)
         {
             this.EnterCount++;
             this.LastEnterArguments = args;
         }
 
-        public void OnExit(Argument[] args)
+        public void OnExit(AnchorNavArgument[] args)
         {
             this.ExitCount++;
             this.LastExitArguments = args;

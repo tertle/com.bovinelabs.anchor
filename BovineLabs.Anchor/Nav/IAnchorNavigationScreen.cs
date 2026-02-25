@@ -4,8 +4,6 @@
 
 namespace BovineLabs.Anchor.Nav
 {
-    using Unity.AppUI.Navigation;
-
     /// <summary>
     /// Interface for a navigation screen. A navigation screen is a screen that can be navigated to and from.
     /// </summary>
@@ -16,12 +14,12 @@ namespace BovineLabs.Anchor.Nav
         /// Called when the navigation controller enters a destination.
         /// </summary>
         /// <param name="args"> The arguments passed to the destination.</param>
-        void OnEnter(Argument[] args);
+        void OnEnter(AnchorNavArgument[] args);
 
         /// <summary>
         /// Called when the navigation controller exits a destination.
         /// </summary>
         /// <param name="args"> The arguments passed to the destination.</param>
-        void OnExit(Argument[] args);
+        void OnExit(AnchorNavArgument[] args);
     }
 }

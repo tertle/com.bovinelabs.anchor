@@ -11,7 +11,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
     using Unity.AppUI.MVVM;
-    using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
 
     public class AnchorNavHostEventTests
@@ -82,17 +81,17 @@ namespace BovineLabs.Anchor.Tests.Nav
             var aReceiver = harness.RegisterScreen("A");
             var bReceiver = harness.RegisterScreen("B");
 
-            harness.Host.Navigate("A", new Argument("k", "1"));
-            harness.Host.Navigate("B", new Argument("k", "2"));
+            harness.Host.Navigate("A", AnchorNavArgument.String("k", "1"));
+            harness.Host.Navigate("B", AnchorNavArgument.String("k", "2"));
 
             Assert.AreEqual(1, aReceiver.EnterCount);
             Assert.AreEqual(1, aReceiver.ExitCount);
-            Assert.AreEqual(new Argument("k", "1"), aReceiver.LastEnterArguments[0]);
-            Assert.AreEqual(new Argument("k", "1"), aReceiver.LastExitArguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("k", "1"), aReceiver.LastEnterArguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("k", "1"), aReceiver.LastExitArguments[0]);
 
             Assert.AreEqual(1, bReceiver.EnterCount);
             Assert.AreEqual(0, bReceiver.ExitCount);
-            Assert.AreEqual(new Argument("k", "2"), bReceiver.LastEnterArguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("k", "2"), bReceiver.LastEnterArguments[0]);
         }
 
         [Test]
@@ -107,7 +106,7 @@ namespace BovineLabs.Anchor.Tests.Nav
             var host = new AnchorNavHost();
             scope.App.NavHost = host;
 
-            Assert.DoesNotThrow(() => host.Navigate("no-handler", new Argument("value", "1")));
+            Assert.DoesNotThrow(() => host.Navigate("no-handler", AnchorNavArgument.String("value", "1")));
             Assert.AreEqual("no-handler", host.CurrentDestination);
         }
     }

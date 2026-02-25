@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor.Nav
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
     using Unity.AppUI.MVVM;
-    using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
 
     public partial class AnchorNavHost
@@ -35,7 +34,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="actionOrDestination"> The name of the action. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string actionOrDestination, params Argument[] arguments)
+        public bool Navigate(string actionOrDestination, params AnchorNavArgument[] arguments)
         {
             if (string.IsNullOrWhiteSpace(actionOrDestination))
             {
@@ -58,7 +57,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="options"> The options to use for the navigation. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string destination, AnchorNavOptions options, params Argument[] arguments)
+        public bool Navigate(string destination, AnchorNavOptions options, params AnchorNavArgument[] arguments)
         {
             options ??= new AnchorNavOptions();
 
@@ -67,7 +66,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            arguments ??= Array.Empty<Argument>();
+            arguments ??= Array.Empty<AnchorNavArgument>();
 
             if (options.PopupStrategy != AnchorPopupStrategy.None)
             {
@@ -232,7 +231,7 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        private void NavigateInternal(string destination, AnchorNavOptions options, Argument[] arguments)
+        private void NavigateInternal(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             if (string.IsNullOrWhiteSpace(destination))
             {
@@ -240,7 +239,7 @@ namespace BovineLabs.Anchor.Nav
             }
 
             options ??= new AnchorNavOptions();
-            arguments ??= Array.Empty<Argument>();
+            arguments ??= Array.Empty<AnchorNavArgument>();
 
             if (options.PopupStrategy != AnchorPopupStrategy.None)
             {
@@ -256,14 +255,14 @@ namespace BovineLabs.Anchor.Nav
             this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, snapshot));
         }
 
-        private bool NavigatePopupInternal(string destination, AnchorNavOptions options, Argument[] arguments)
+        private bool NavigatePopupInternal(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             if (string.IsNullOrEmpty(destination))
             {
                 return false;
             }
 
-            arguments ??= Array.Empty<Argument>();
+            arguments ??= Array.Empty<AnchorNavArgument>();
 
             switch (options.PopupStrategy)
             {
@@ -278,7 +277,7 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private bool NavigatePopupEnsureBase(string destination, AnchorNavOptions options, Argument[] arguments)
+        private bool NavigatePopupEnsureBase(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             var baseDestination = options.PopupBaseDestination;
             if (string.IsNullOrWhiteSpace(baseDestination))
@@ -297,7 +296,7 @@ namespace BovineLabs.Anchor.Nav
                 baseOptions.PopupBaseArguments.Clear();
 
                 var baseArgsList = options.PopupBaseArguments;
-                var baseArgs = baseArgsList is { Count: > 0 } ? baseArgsList.ToArray() : Array.Empty<Argument>();
+                var baseArgs = baseArgsList is { Count: > 0 } ? baseArgsList.ToArray() : Array.Empty<AnchorNavArgument>();
 
                 if (!this.Navigate(baseDestination, baseOptions, baseArgs))
                 {
@@ -308,7 +307,7 @@ namespace BovineLabs.Anchor.Nav
             return this.NavigatePopupOnCurrent(destination, options, arguments);
         }
 
-        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, Argument[] arguments)
+        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             if (this.activeStack.Count == 0)
             {
@@ -712,7 +711,7 @@ namespace BovineLabs.Anchor.Nav
             return existing.Destination == target.Destination && existing.IsPopup == target.IsPopup;
         }
 
-        private static bool ArgumentsEqual(Argument[] left, Argument[] right)
+        private static bool ArgumentsEqual(AnchorNavArgument[] left, AnchorNavArgument[] right)
         {
             if (ReferenceEquals(left, right))
             {
@@ -726,7 +725,7 @@ namespace BovineLabs.Anchor.Nav
 
             for (var i = 0; i < left.Length; i++)
             {
-                if (!EqualityComparer<Argument>.Default.Equals(left[i], right[i]))
+                if (!EqualityComparer<AnchorNavArgument>.Default.Equals(left[i], right[i]))
                 {
                     return false;
                 }

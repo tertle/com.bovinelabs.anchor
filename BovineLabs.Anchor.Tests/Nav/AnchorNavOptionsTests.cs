@@ -8,7 +8,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Nav.Animations;
     using NUnit.Framework;
-    using Unity.AppUI.Navigation;
     using UnityEngine;
 
     public class AnchorNavOptionsTests
@@ -23,7 +22,7 @@ namespace BovineLabs.Anchor.Tests.Nav
                 var options = new AnchorNavOptions
                 {
                     PopupBaseDestination = "Base",
-                    PopupBaseArguments = new List<Argument> { new("name", "value") },
+                    PopupBaseArguments = new List<AnchorNavArgument> { AnchorNavArgument.String("name", "value") },
                     Animations = new AnchorAnimations
                     {
                         EnterAnim = enterAnimation,
@@ -54,17 +53,17 @@ namespace BovineLabs.Anchor.Tests.Nav
             {
                 var options = new AnchorNavOptions
                 {
-                    PopupBaseArguments = new List<Argument> { new("a", "1") },
+                    PopupBaseArguments = new List<AnchorNavArgument> { AnchorNavArgument.String("a", "1") },
                     Animations = new AnchorAnimations { EnterAnim = enterAnimation },
                 };
 
                 var clone = options.Clone();
 
-                options.PopupBaseArguments.Add(new Argument("b", "2"));
+                options.PopupBaseArguments.Add(AnchorNavArgument.String("b", "2"));
                 options.Animations.EnterAnim = replacementEnterAnimation;
 
                 Assert.AreEqual(1, clone.PopupBaseArguments.Count);
-                Assert.AreEqual("a", clone.PopupBaseArguments[0].name);
+                Assert.AreEqual("a", clone.PopupBaseArguments[0].Name);
                 Assert.AreSame(enterAnimation, clone.Animations.EnterAnim);
             }
             finally
@@ -77,9 +76,9 @@ namespace BovineLabs.Anchor.Tests.Nav
         [Test]
         public void PopupBaseArguments_SetterCopiesInputCollection()
         {
-            var arguments = new List<Argument>
+            var arguments = new List<AnchorNavArgument>
             {
-                new("x", "1"),
+                AnchorNavArgument.String("x", "1"),
             };
 
             var options = new AnchorNavOptions
@@ -87,10 +86,10 @@ namespace BovineLabs.Anchor.Tests.Nav
                 PopupBaseArguments = arguments,
             };
 
-            arguments.Add(new Argument("y", "2"));
+            arguments.Add(AnchorNavArgument.String("y", "2"));
 
             Assert.AreEqual(1, options.PopupBaseArguments.Count);
-            Assert.AreEqual("x", options.PopupBaseArguments[0].name);
+            Assert.AreEqual("x", options.PopupBaseArguments[0].Name);
         }
     }
 }

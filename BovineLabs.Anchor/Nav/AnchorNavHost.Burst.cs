@@ -137,7 +137,7 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampoline> ReleaseStateFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ReleaseStateType>();
 
-            /// <inheritdoc cref="AnchorNavHost.Navigate(string, Unity.AppUI.Navigation.Argument[])" />
+            /// <inheritdoc cref="AnchorNavHost.Navigate(string, AnchorNavArgument[])" />
             public static void Navigate(in FixedString32Bytes screen)
             {
                 if (NavigateFunc.Data.IsCreated)

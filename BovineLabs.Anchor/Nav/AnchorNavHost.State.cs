@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Unity.AppUI.Navigation;
 
     public partial class AnchorNavHost
     {
@@ -77,7 +76,7 @@ namespace BovineLabs.Anchor.Nav
                     var entry = new AnchorNavBackStackEntry(
                         savedEntry.Destination,
                         savedEntry.Options?.Clone(),
-                        savedEntry.Arguments?.ToArray() ?? Array.Empty<Argument>(),
+                        savedEntry.Arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>(),
                         snapshot);
                     this.backStack.Push(entry);
                 }
@@ -186,7 +185,7 @@ namespace BovineLabs.Anchor.Nav
             }
 
             var options = item.Options?.Clone();
-            var arguments = item.Arguments?.ToArray() ?? Array.Empty<Argument>();
+            var arguments = item.Arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
             return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
         }
     }

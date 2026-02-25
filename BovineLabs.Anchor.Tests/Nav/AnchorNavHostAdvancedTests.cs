@@ -13,7 +13,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
     using Unity.AppUI.MVVM;
-    using Unity.AppUI.Navigation;
     using UnityEngine;
     using UnityEngine.TestTools;
     using UnityEngine.UIElements;
@@ -32,13 +31,13 @@ namespace BovineLabs.Anchor.Tests.Nav
                 SetField(
                     namedAction,
                     "action",
-                    new AnchorNavAction(
+                        new AnchorNavAction(
                         "popup",
                         new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
                         new[]
                         {
-                            new Argument("default", "one"),
-                            new Argument("override", "before"),
+                            AnchorNavArgument.String("default", "one"),
+                            AnchorNavArgument.String("override", "before"),
                         }));
 
                 using var context = new HostContext(new[] { namedAction }, null);
@@ -52,8 +51,8 @@ namespace BovineLabs.Anchor.Tests.Nav
 
                 var navigated = context.Host.Navigate(
                     "go-popup",
-                    new Argument("override", "after"),
-                    new Argument("extra", "two"));
+                    AnchorNavArgument.String("override", "after"),
+                    AnchorNavArgument.String("extra", "two"));
 
                 Assert.IsTrue(navigated);
                 Assert.AreEqual(1, actionTriggered);
@@ -63,9 +62,9 @@ namespace BovineLabs.Anchor.Tests.Nav
                 CollectionAssert.AreEquivalent(
                     new[]
                     {
-                        new Argument("default", "one"),
-                        new Argument("override", "after"),
-                        new Argument("extra", "two"),
+                        AnchorNavArgument.String("default", "one"),
+                        AnchorNavArgument.String("override", "after"),
+                        AnchorNavArgument.String("extra", "two"),
                     },
                     popupReceiver.LastEnterArguments);
             }
@@ -162,9 +161,9 @@ namespace BovineLabs.Anchor.Tests.Nav
                 {
                     PopupStrategy = AnchorPopupStrategy.EnsureBaseAndPopup,
                     PopupBaseDestination = "base-b",
-                    PopupBaseArguments = new[] { new Argument("seed", "1") },
+                    PopupBaseArguments = new[] { AnchorNavArgument.String("seed", "1") },
                 },
-                new Argument("popup", "2"));
+                AnchorNavArgument.String("popup", "2"));
 
             Assert.IsTrue(result);
             Assert.AreEqual("popup", context.Host.CurrentDestination);
@@ -183,15 +182,15 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.Host.Navigate(
                 "popup",
                 new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
-                new Argument("a", "1"));
+                AnchorNavArgument.String("a", "1"));
 
             context.Host.Navigate(
                 "popup",
                 new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
-                new Argument("a", "2"));
+                AnchorNavArgument.String("a", "2"));
 
             Assert.AreEqual(2, popupReceiver.EnterCount);
-            Assert.AreEqual(new Argument("a", "2"), popupReceiver.LastEnterArguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("a", "2"), popupReceiver.LastEnterArguments[0]);
             Assert.IsTrue(context.Host.ClosePopup("popup"));
             Assert.IsFalse(context.Host.ClosePopup("popup"));
             Assert.AreEqual("base", context.Host.CurrentDestination);
@@ -308,12 +307,12 @@ namespace BovineLabs.Anchor.Tests.Nav
             using var context = new HostContext();
             var receiver = context.RegisterScreen("panel");
 
-            context.Host.Navigate("panel", new AnchorNavOptions(), new Argument("x", "1"));
-            context.Host.Navigate("panel", new AnchorNavOptions(), new Argument("x", "2"));
+            context.Host.Navigate("panel", new AnchorNavOptions(), AnchorNavArgument.String("x", "1"));
+            context.Host.Navigate("panel", new AnchorNavOptions(), AnchorNavArgument.String("x", "2"));
 
             Assert.AreEqual(2, receiver.EnterCount);
             Assert.AreEqual(0, receiver.ExitCount);
-            Assert.AreEqual(new Argument("x", "2"), receiver.LastEnterArguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("x", "2"), receiver.LastEnterArguments[0]);
         }
 
         private static void SetField(object instance, string fieldName, object value)

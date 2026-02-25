@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Nav
 {
     using System;
     using System.Collections.Generic;
-    using Unity.AppUI.Navigation;
     using UnityEngine;
 
     /// <summary>
@@ -19,7 +18,7 @@ namespace BovineLabs.Anchor.Nav
         private string destination = string.Empty;
 
         [SerializeField]
-        private List<Argument> defaultArguments = new();
+        private List<AnchorNavArgument> defaultArguments = new();
 
         [SerializeField]
         private AnchorNavOptions options = new();
@@ -37,11 +36,11 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="destination">Destination identifier.</param>
         /// <param name="options">Navigation options.</param>
         /// <param name="defaultArguments">Default arguments to merge when navigating.</param>
-        public AnchorNavAction(string destination, AnchorNavOptions options, IEnumerable<Argument> defaultArguments = null)
+        public AnchorNavAction(string destination, AnchorNavOptions options, IEnumerable<AnchorNavArgument> defaultArguments = null)
         {
             this.destination = destination;
             this.options = options != null ? options.Clone() : new AnchorNavOptions();
-            this.defaultArguments = defaultArguments != null ? new List<Argument>(defaultArguments) : new List<Argument>();
+            this.defaultArguments = defaultArguments != null ? new List<AnchorNavArgument>(defaultArguments) : new List<AnchorNavArgument>();
         }
 
         /// <summary> Gets or sets the destination that should be navigated to when this action is used. </summary>
@@ -59,18 +58,19 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary> Gets the default arguments associated with this action. </summary>
-        public IList<Argument> DefaultArguments
+        public IList<AnchorNavArgument> DefaultArguments
         {
-            get => this.defaultArguments ??= new List<Argument>();
-            set => this.defaultArguments = value != null ? new List<Argument>(value) : new List<Argument>();
+            get => this.defaultArguments ??= new List<AnchorNavArgument>();
+            set => this.defaultArguments = value != null ? new List<AnchorNavArgument>(value) : new List<AnchorNavArgument>();
         }
 
         /// <summary> Merge the default arguments with the provided arguments. </summary>
         /// <param name="arguments"> Arguments to merge with defaults.</param>
         /// <returns> The merged arguments.</returns>
-        public Argument[] MergeArguments(params Argument[] arguments)
+        public AnchorNavArgument[] MergeArguments(params AnchorNavArgument[] arguments)
         {
-            var mergedArguments = new List<Argument>(this.DefaultArguments);
+            arguments ??= Array.Empty<AnchorNavArgument>();
+            var mergedArguments = new List<AnchorNavArgument>(this.DefaultArguments);
 
             foreach (var arg in arguments)
             {
@@ -79,7 +79,7 @@ namespace BovineLabs.Anchor.Nav
                     continue;
                 }
 
-                var existingArgIdx = mergedArguments.FindIndex(a => a.name == arg.name);
+                var existingArgIdx = mergedArguments.FindIndex(a => a.Name == arg.Name);
                 if (existingArgIdx >= 0)
                 {
                     mergedArguments[existingArgIdx] = arg;

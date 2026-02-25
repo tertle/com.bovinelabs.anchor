@@ -71,10 +71,10 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary> Event that is triggered when a new destination is entered. </summary>
-        public event Action<AnchorNavHost, VisualElement, Argument[]> EnteredDestination;
+        public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> EnteredDestination;
 
         /// <summary> Event that is triggered when a destination is exited. </summary>
-        public event Action<AnchorNavHost, VisualElement, Argument[]> ExitedDestination;
+        public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> ExitedDestination;
 
         /// <summary> Event that is invoked when an action is triggered. </summary>
         public event Action<AnchorNavHost, AnchorNavAction> ActionTriggered;

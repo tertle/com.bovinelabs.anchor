@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Tests.Nav
 {
     using BovineLabs.Anchor.Nav;
     using NUnit.Framework;
-    using Unity.AppUI.Navigation;
 
     public class AnchorNavHostSaveStateTests
     {
@@ -16,19 +15,19 @@ namespace BovineLabs.Anchor.Tests.Nav
             var options = new AnchorNavOptions
             {
                 PopupBaseDestination = "baseA",
-                PopupBaseArguments = new[] { new Argument("argA", "1") },
+                PopupBaseArguments = new[] { AnchorNavArgument.String("argA", "1") },
             };
-            var arguments = new[] { new Argument("nameA", "valueA") };
+            var arguments = new[] { AnchorNavArgument.String("nameA", "valueA") };
 
             var item = new AnchorNavHostSaveState.StackItem("dest", options, arguments, true);
 
             options.PopupBaseDestination = "baseB";
-            arguments[0] = new Argument("nameB", "valueB");
+            arguments[0] = AnchorNavArgument.String("nameB", "valueB");
 
             Assert.AreNotSame(options, item.Options);
             Assert.AreNotSame(arguments, item.Arguments);
             Assert.AreEqual("baseA", item.Options.PopupBaseDestination);
-            Assert.AreEqual(new Argument("nameA", "valueA"), item.Arguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("nameA", "valueA"), item.Arguments[0]);
             Assert.IsTrue(item.IsPopup);
         }
 
@@ -38,23 +37,23 @@ namespace BovineLabs.Anchor.Tests.Nav
             var options = new AnchorNavOptions
             {
                 PopupBaseDestination = "baseA",
-                PopupBaseArguments = new[] { new Argument("argA", "1") },
+                PopupBaseArguments = new[] { AnchorNavArgument.String("argA", "1") },
             };
-            var arguments = new[] { new Argument("nameA", "valueA") };
+            var arguments = new[] { AnchorNavArgument.String("nameA", "valueA") };
             var snapshot = new[]
             {
-                new AnchorNavHostSaveState.StackItem("snap", new AnchorNavOptions(), new[] { new Argument("s", "1") }, false),
+                new AnchorNavHostSaveState.StackItem("snap", new AnchorNavOptions(), new[] { AnchorNavArgument.String("s", "1") }, false),
             };
 
             var entry = new AnchorNavHostSaveState.BackStackEntry("dest", options, arguments, snapshot);
 
             options.PopupBaseDestination = "baseB";
-            arguments[0] = new Argument("nameB", "valueB");
+            arguments[0] = AnchorNavArgument.String("nameB", "valueB");
 
             Assert.AreNotSame(options, entry.Options);
             Assert.AreNotSame(arguments, entry.Arguments);
             Assert.AreEqual("baseA", entry.Options.PopupBaseDestination);
-            Assert.AreEqual(new Argument("nameA", "valueA"), entry.Arguments[0]);
+            Assert.AreEqual(AnchorNavArgument.String("nameA", "valueA"), entry.Arguments[0]);
             Assert.AreSame(snapshot, entry.Snapshot);
         }
     }
