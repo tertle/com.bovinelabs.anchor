@@ -34,6 +34,84 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void ServiceProvider_TransientRegistration_ReturnsDistinctInstances()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddTransient(typeof(TransientDependency));
+
+            using var provider = services.BuildServiceProvider();
+            var first = provider.GetRequiredService<TransientDependency>();
+            var second = provider.GetRequiredService<TransientDependency>();
+
+            Assert.AreNotSame(first, second);
+        }
+
+        [Test]
+        public void ServiceProvider_SelectsLongestResolvableConstructor()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddSingleton(typeof(ConstructorDependency));
+            services.AddTransient(typeof(ConstructorSelectionTarget));
+
+            using var provider = services.BuildServiceProvider();
+            var resolved = provider.GetRequiredService<ConstructorSelectionTarget>();
+
+            Assert.AreEqual(2, resolved.ConstructorParameterCount);
+            Assert.AreSame(provider, resolved.Provider);
+            Assert.IsNotNull(resolved.Dependency);
+        }
+
+        [Test]
+        public void ServiceProvider_CircularDependency_Throws()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddTransient(typeof(CircularDependencyA));
+            services.AddTransient(typeof(CircularDependencyB));
+
+            using var provider = services.BuildServiceProvider();
+            var exception = Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<CircularDependencyA>());
+
+            StringAssert.Contains("Circular dependency detected", exception!.Message);
+        }
+
+        [Test]
+        public void ServiceProvider_GetRequiredService_WhenMissing_Throws()
+        {
+            using var provider = new AnchorServiceCollection().BuildServiceProvider();
+
+            Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<IMissingService>());
+        }
+
+        [Test]
+        public void Shutdown_RaisesEvent_AndDisposeClearsCurrent()
+        {
+            var shutdownCalls = 0;
+
+            void OnShuttingDown()
+            {
+                shutdownCalls++;
+            }
+
+            AnchorApp.ShuttingDown += OnShuttingDown;
+
+            try
+            {
+                using var scope = new TestAnchorAppScope();
+                Assert.AreSame(scope.App, AnchorApp.Current);
+
+                scope.App.Shutdown();
+
+                Assert.AreEqual(1, shutdownCalls);
+            }
+            finally
+            {
+                AnchorApp.ShuttingDown -= OnShuttingDown;
+            }
+
+            Assert.IsNull(AnchorApp.Current);
+        }
+
+        [Test]
         public void Initialize_CreatesNavHostAndResolvesContainers()
         {
             using var scope = new TestAnchorAppScope(static services =>
@@ -145,6 +223,53 @@ namespace BovineLabs.Anchor.Tests.App
 
         private sealed class SharedSettings : IFooSettings, IBarSettings
         {
+        }
+
+        private interface IMissingService
+        {
+        }
+
+        private sealed class TransientDependency
+        {
+        }
+
+        private sealed class ConstructorDependency
+        {
+        }
+
+        private sealed class ConstructorSelectionTarget
+        {
+            public ConstructorSelectionTarget()
+            {
+                this.ConstructorParameterCount = 0;
+            }
+
+            public ConstructorSelectionTarget(ConstructorDependency dependency, IServiceProvider provider)
+            {
+                this.Dependency = dependency;
+                this.Provider = provider;
+                this.ConstructorParameterCount = 2;
+            }
+
+            public ConstructorDependency Dependency { get; }
+
+            public IServiceProvider Provider { get; }
+
+            public int ConstructorParameterCount { get; }
+        }
+
+        private sealed class CircularDependencyA
+        {
+            public CircularDependencyA(CircularDependencyB dependency)
+            {
+            }
+        }
+
+        private sealed class CircularDependencyB
+        {
+            public CircularDependencyB(CircularDependencyA dependency)
+            {
+            }
         }
     }
 }

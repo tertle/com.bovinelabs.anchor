@@ -58,6 +58,32 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
+        public void AnchorNavArgument_StringAndFromFactories_Match()
+        {
+            var fromString = AnchorNavArgument.String("name", "value");
+            var fromFactory = AnchorNavArgument.From("name", "value");
+
+            Assert.AreEqual(fromString, fromFactory);
+            Assert.AreEqual("name", fromString.Name);
+            Assert.AreEqual("value", fromString.Value);
+        }
+
+        [Test]
+        public void AnchorNavArgument_Equality_UsesNameAndValue()
+        {
+            var first = new AnchorNavArgument("same", "value");
+            var second = new AnchorNavArgument("same", "value");
+            var differentName = new AnchorNavArgument("other", "value");
+            var differentValue = new AnchorNavArgument("same", "other");
+
+            Assert.IsTrue(first.Equals(second));
+            Assert.AreEqual(first.GetHashCode(), second.GetHashCode());
+            Assert.IsFalse(first.Equals(differentName));
+            Assert.IsFalse(first.Equals(differentValue));
+            Assert.IsFalse(first.Equals(null));
+        }
+
+        [Test]
         public void AnimationDescription_None_UsesExpectedDefaults()
         {
             var none = AnimationDescription.None;
