@@ -7,16 +7,32 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using System.Reflection;
     using BovineLabs.Anchor;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.Utility;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
     using UnityEngine.UIElements;
 
     public class AnchorAppTests
     {
+        [Test]
+        public void ServiceProvider_SingletonInstanceAndAlias_ReturnsSameResolvedInstance()
+        {
+            var shared = new SharedSettings();
+            var services = new AnchorServiceCollection();
+            services.AddSingletonInstance(typeof(SharedSettings), shared);
+            services.AddAlias(typeof(IFooSettings), typeof(SharedSettings));
+            services.AddAlias(typeof(IBarSettings), typeof(SharedSettings));
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.AreSame(shared, provider.GetRequiredService<SharedSettings>());
+            Assert.AreSame(shared, provider.GetRequiredService<IFooSettings>());
+            Assert.AreSame(shared, provider.GetRequiredService<IBarSettings>());
+        }
+
         [Test]
         public void Initialize_CreatesNavHostAndResolvesContainers()
         {
@@ -30,9 +46,9 @@ namespace BovineLabs.Anchor.Tests.App
             var popup = new VisualElement { name = "popup-container" };
             var notifications = new VisualElement { name = "notification-container" };
             var tooltip = new VisualElement { name = "tooltip-container" };
-            app.rootVisualElement.Add(popup);
-            app.rootVisualElement.Add(notifications);
-            app.rootVisualElement.Add(tooltip);
+            app.RootVisualElement.Add(popup);
+            app.RootVisualElement.Add(notifications);
+            app.RootVisualElement.Add(tooltip);
 
             try
             {
@@ -64,8 +80,8 @@ namespace BovineLabs.Anchor.Tests.App
             try
             {
                 SetField(AnchorSettings.I, "startDestination", "start");
-                Assert.AreSame(app, AnchorApp.current);
-                Assert.IsNotNull(app.services.GetService<IUXMLService>());
+                Assert.AreSame(app, AnchorApp.Current);
+                Assert.IsNotNull(app.Services.GetService<IUXMLService>());
                 app.Initialize();
                 Assert.AreEqual("start", app.NavHost.CurrentDestination);
             }
@@ -75,7 +91,7 @@ namespace BovineLabs.Anchor.Tests.App
             }
         }
 
-        private static void RegisterDefaultAnchorServices(ServiceCollection services)
+        private static void RegisterDefaultAnchorServices(AnchorServiceCollection services)
         {
             services.AddSingleton(typeof(TestVisualElementFactory));
             services.AddSingleton(typeof(IUXMLService), typeof(TestUxmlService));
@@ -118,5 +134,18 @@ namespace BovineLabs.Anchor.Tests.App
 
             field.SetValue(instance, value);
         }
+
+        private interface IFooSettings
+        {
+        }
+
+        private interface IBarSettings
+        {
+        }
+
+        private sealed class SharedSettings : IFooSettings, IBarSettings
+        {
+        }
     }
 }
+

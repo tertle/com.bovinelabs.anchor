@@ -1,4 +1,4 @@
-﻿// <copyright file="ToolbarSystemGroup.cs" company="BovineLabs">
+// <copyright file="ToolbarSystemGroup.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -27,7 +27,7 @@ namespace BovineLabs.Anchor.Toolbar
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (ToolbarView.Instance == null || AnchorApp.current == null)
+            if (ToolbarView.Instance == null || AnchorApp.Current == null)
             {
                 return;
             }
@@ -37,3 +37,4 @@ namespace BovineLabs.Anchor.Toolbar
     }
 }
 #endif
+

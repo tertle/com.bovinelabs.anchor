@@ -1,4 +1,4 @@
-﻿// <copyright file="UXMLService.cs" company="BovineLabs">
+// <copyright file="UXMLService.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -41,7 +41,7 @@ namespace BovineLabs.Anchor.Services
             {
                 if (ve.dataSourceType != null)
                 {
-                    ve.dataSource = AnchorApp.current.services.GetService(ve.dataSourceType);
+                    ve.dataSource = AnchorApp.Current.Services.GetService(ve.dataSourceType);
                 }
             }
 
@@ -49,3 +49,4 @@ namespace BovineLabs.Anchor.Services
         }
     }
 }
+

@@ -7,31 +7,31 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using System.Linq;
     using System.Reflection;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
+    using Unity.AppUI.UI;
     using UnityEngine;
-    using UnityEngine.UIElements;
     using Object = UnityEngine.Object;
 
     public class AnchorAppBuilderTests
     {
         [Test]
-        public void OnConfiguringApp_RegistersDefaultServices()
+        public void OnConfigureServices_RegistersDefaultServices()
         {
             var gameObject = new GameObject("builder");
             var builder = gameObject.AddComponent<TestAnchorBuilder>();
+            var services = new AnchorServiceCollection();
 
             try
             {
-                var appBuilder = AppBuilder.InstantiateWith<TestBuilderApp, UIToolkitHost>();
-                builder.InvokeConfigure(appBuilder);
+                builder.InvokeConfigure(services);
 
-                AssertService(appBuilder.services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
-                AssertService(appBuilder.services, typeof(IViewModelService), typeof(ViewModelService));
-                AssertService(appBuilder.services, typeof(IUXMLService), typeof(TestUxmlService));
+                AssertService(services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
+                AssertService(services, typeof(IViewModelService), typeof(ViewModelService));
+                AssertService(services, typeof(IUXMLService), typeof(TestUxmlService));
             }
             finally
             {
@@ -40,19 +40,19 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void OnConfiguringApp_WithNullUxmlService_DoesNotRegisterUxml()
+        public void OnConfigureServices_WithNullUxmlService_DoesNotRegisterUxml()
         {
             var gameObject = new GameObject("builder");
             var builder = gameObject.AddComponent<TestAnchorBuilderWithoutUxml>();
+            var services = new AnchorServiceCollection();
 
             try
             {
-                var appBuilder = AppBuilder.InstantiateWith<TestBuilderApp, UIToolkitHost>();
-                builder.InvokeConfigure(appBuilder);
+                builder.InvokeConfigure(services);
 
-                AssertService(appBuilder.services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
-                AssertService(appBuilder.services, typeof(IViewModelService), typeof(ViewModelService));
-                Assert.IsFalse(appBuilder.services.Any(d => d.serviceType == typeof(IUXMLService)));
+                AssertService(services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
+                AssertService(services, typeof(IViewModelService), typeof(ViewModelService));
+                Assert.IsFalse(services.Any(d => d.ServiceType == typeof(IUXMLService)));
             }
             finally
             {
@@ -66,10 +66,11 @@ namespace BovineLabs.Anchor.Tests.App
             var gameObject = new GameObject("builder");
             var builder = gameObject.AddComponent<TestAnchorBuilder>();
             var app = new TestBuilderApp();
-            app.rootVisualElement = new VisualElement();
+            using var provider = new AnchorServiceProvider(new AnchorServiceCollection());
 
             try
             {
+                app.Initialize(provider, new Panel());
                 SetStateField(
                     builder,
                     new AnchorNavHostSaveState(
@@ -87,6 +88,7 @@ namespace BovineLabs.Anchor.Tests.App
             }
             finally
             {
+                app.Dispose();
                 Object.DestroyImmediate(gameObject);
             }
         }
@@ -97,11 +99,14 @@ namespace BovineLabs.Anchor.Tests.App
             var gameObject = new GameObject("builder");
             var builder = gameObject.AddComponent<TestAnchorBuilder>();
             var app = new TestBuilderApp();
-            app.Initialize();
-            app.NavHost.CurrentDestination = "saved-destination";
+            using var provider = new AnchorServiceProvider(new AnchorServiceCollection());
 
             try
             {
+                app.Initialize(provider, new Panel());
+                app.Initialize();
+                app.NavHost.CurrentDestination = "saved-destination";
+
                 builder.InvokeShuttingDown(app);
                 var state = GetStateField(builder);
 
@@ -110,15 +115,16 @@ namespace BovineLabs.Anchor.Tests.App
             }
             finally
             {
+                app.Dispose();
                 Object.DestroyImmediate(gameObject);
             }
         }
 
-        private static void AssertService(IServiceCollection services, Type serviceType, Type implementationType)
+        private static void AssertService(AnchorServiceCollection services, Type serviceType, Type implementationType)
         {
-            var descriptor = services.FirstOrDefault(d => d.serviceType == serviceType);
+            var descriptor = services.LastOrDefault(d => d.ServiceType == serviceType);
             Assert.IsNotNull(descriptor, $"Expected {serviceType.Name} registration.");
-            Assert.AreEqual(implementationType, descriptor.implementationType);
+            Assert.AreEqual(implementationType, descriptor.ImplementationType);
         }
 
         private static void SetStateField(object instance, AnchorNavHostSaveState state)
@@ -151,9 +157,9 @@ namespace BovineLabs.Anchor.Tests.App
 
             protected override Type UXMLService => typeof(TestUxmlService);
 
-            public void InvokeConfigure(AppBuilder appBuilder)
+            public void InvokeConfigure(AnchorServiceCollection services)
             {
-                this.OnConfiguringApp(appBuilder);
+                this.OnConfigureServices(services);
             }
 
             public void InvokeInitialized(TestBuilderApp app)
@@ -175,9 +181,9 @@ namespace BovineLabs.Anchor.Tests.App
 
             protected override Type UXMLService => null;
 
-            public void InvokeConfigure(AppBuilder appBuilder)
+            public void InvokeConfigure(AnchorServiceCollection services)
             {
-                this.OnConfiguringApp(appBuilder);
+                this.OnConfigureServices(services);
             }
         }
 

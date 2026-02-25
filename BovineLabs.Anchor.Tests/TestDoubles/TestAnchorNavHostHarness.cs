@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
     using System;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
-    using Unity.AppUI.MVVM;
     using UnityEngine.UIElements;
 
     internal sealed class TestAnchorNavHostHarness : IDisposable

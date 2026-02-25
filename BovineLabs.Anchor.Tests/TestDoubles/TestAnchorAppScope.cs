@@ -6,36 +6,38 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 {
     using System;
     using BovineLabs.Anchor;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.DependencyInjection;
+    using Unity.AppUI.UI;
 
     internal sealed class TestAnchorAppScope : IDisposable
     {
         private readonly AnchorApp app;
-        private readonly ServiceProvider serviceProvider;
+        private readonly AnchorServiceProvider serviceProvider;
 
-        public TestAnchorAppScope(Action<ServiceCollection> configureServices = null)
+        public TestAnchorAppScope(Action<AnchorServiceCollection> configureServices = null)
         {
-            if (Unity.AppUI.MVVM.App.current != null)
+            if (AnchorApp.Current != null)
             {
-                throw new InvalidOperationException("App.current must be null before creating a test app scope.");
+                throw new InvalidOperationException("AnchorApp.Current must be null before creating a test app scope.");
             }
 
-            var services = new ServiceCollection();
+            var services = new AnchorServiceCollection();
             configureServices?.Invoke(services);
 
             this.serviceProvider = services.BuildServiceProvider();
             this.app = new AnchorApp();
-            this.app.Initialize(this.serviceProvider);
+            this.app.Initialize(this.serviceProvider, new Panel());
         }
 
-        public ServiceProvider ServiceProvider => this.serviceProvider;
+        public AnchorServiceProvider ServiceProvider => this.serviceProvider;
 
         public AnchorApp App => this.app;
 
         public void Dispose()
         {
-            this.serviceProvider.Dispose();
             this.app.Dispose();
+            this.serviceProvider.Dispose();
         }
     }
 }
+

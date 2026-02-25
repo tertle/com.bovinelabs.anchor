@@ -1,4 +1,4 @@
-﻿// <copyright file="UIHelper.cs" company="BovineLabs">
+// <copyright file="UIHelper.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -7,8 +7,8 @@ namespace BovineLabs.Anchor
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Services;
-    using Unity.AppUI.MVVM;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
@@ -61,7 +61,7 @@ namespace BovineLabs.Anchor
         /// <summary>Loads and pins the view model so the helper can forward changes.</summary>
         public void Bind()
         {
-            var viewModel = App.current.services.GetRequiredService<IViewModelService>().Load<TM>();
+            var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Load<TM>();
             viewModel.Load();
 
             if (viewModel is IInitializable initializable)
@@ -76,7 +76,7 @@ namespace BovineLabs.Anchor
         /// <summary>Unpins and unloads the view model that was previously bound.</summary>
         public void Unbind()
         {
-            var viewModel = App.current.services.GetRequiredService<IViewModelService>().Get<TM>();
+            var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Get<TM>();
 
             if (viewModel is IDisposable disposable)
             {
@@ -88,7 +88,8 @@ namespace BovineLabs.Anchor
             this.handle = default;
             this.data = null;
 
-            App.current.services.GetRequiredService<IViewModelService>().Unload<TM>();
+            AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Unload<TM>();
         }
     }
 }
+

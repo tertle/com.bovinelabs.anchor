@@ -29,74 +29,74 @@ namespace BovineLabs.Anchor.Nav
         private static void NavigateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var screen = ref BurstTrampoline.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
-            AnchorApp.current?.NavHost.Navigate(screen.ToString());
+            AnchorApp.Current?.NavHost.Navigate(screen.ToString());
         }
 
         private static void ClearBackStackForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             _ = argumentsPtr;
             _ = argumentsSize;
-            AnchorApp.current?.NavHost.ClearBackStack();
+            AnchorApp.Current?.NavHost.ClearBackStack();
         }
 
         private static void ClearNavigationForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var exitAnimation = ref BurstTrampoline.ArgumentsFromPtr<int>(argumentsPtr, argumentsSize);
-            AnchorApp.current?.NavHost.ClearNavigation(exitAnimation);
+            AnchorApp.Current?.NavHost.ClearNavigation(exitAnimation);
         }
 
         private static void PopBackStackForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var popped = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
-            popped = AnchorApp.current?.NavHost.PopBackStack() ?? false;
+            popped = AnchorApp.Current?.NavHost.PopBackStack() ?? false;
         }
 
         private static void PopBackStackToPanelForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var popped = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
-            popped = AnchorApp.current?.NavHost.PopBackStackToPanel() ?? false;
+            popped = AnchorApp.Current?.NavHost.PopBackStackToPanel() ?? false;
         }
 
         private static void CloseAllPopupsForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
-            arguments.Second = AnchorApp.current?.NavHost.CloseAllPopups(arguments.First) ?? false;
+            arguments.Second = AnchorApp.Current?.NavHost.CloseAllPopups(arguments.First) ?? false;
         }
 
         private static void ClosePopupForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedTriple<FixedString32Bytes, int, bool>>(argumentsPtr, argumentsSize);
-            arguments.Third = AnchorApp.current?.NavHost.ClosePopup(arguments.First.ToString(), arguments.Second) ?? false;
+            arguments.Third = AnchorApp.Current?.NavHost.ClosePopup(arguments.First.ToString(), arguments.Second) ?? false;
         }
 
         private static void HasActivePopupsForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var hasActivePopups = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
-            hasActivePopups = AnchorApp.current?.NavHost.HasActivePopups ?? false;
+            hasActivePopups = AnchorApp.Current?.NavHost.HasActivePopups ?? false;
         }
 
         private static void CanGoBackForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var canGoBack = ref BurstTrampoline.ArgumentsFromPtr<bool>(argumentsPtr, argumentsSize);
-            canGoBack = AnchorApp.current?.NavHost.CanGoBack ?? false;
+            canGoBack = AnchorApp.Current?.NavHost.CanGoBack ?? false;
         }
 
         private static void CurrentForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var name = ref BurstTrampoline.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
-            name = AnchorApp.current?.NavHost.CurrentDestination ?? default(FixedString32Bytes);
+            name = AnchorApp.Current?.NavHost.CurrentDestination ?? default(FixedString32Bytes);
         }
 
         private static void SaveStateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var handle = ref BurstTrampoline.ArgumentsFromPtr<int>(argumentsPtr, argumentsSize);
-            handle = AnchorApp.current?.NavHost?.SaveStateHandle() ?? 0;
+            handle = AnchorApp.Current?.NavHost?.SaveStateHandle() ?? 0;
         }
 
         private static void ReleaseStateForwardingPacked(void* argumentsPtr, int argumentsSize)
         {
             ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedPair<int, bool>>(argumentsPtr, argumentsSize);
-            AnchorApp.current?.NavHost?.ReleaseStateHandle(arguments.First, arguments.Second);
+            AnchorApp.Current?.NavHost?.ReleaseStateHandle(arguments.First, arguments.Second);
         }
 
         public static class Burst
@@ -292,3 +292,4 @@ namespace BovineLabs.Anchor.Nav
         }
     }
 }
+

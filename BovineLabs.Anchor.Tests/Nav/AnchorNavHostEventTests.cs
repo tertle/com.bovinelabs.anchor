@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
     using UnityEngine.UIElements;
 
     public class AnchorNavHostEventTests

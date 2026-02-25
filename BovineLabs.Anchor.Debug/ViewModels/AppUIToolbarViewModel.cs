@@ -1,4 +1,4 @@
-﻿// <copyright file="AppUIToolbarViewModel.cs" company="BovineLabs">
+// <copyright file="AppUIToolbarViewModel.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -72,11 +72,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             if (theme == "system")
             {
                 Platform.darkModeChanged += this.OnSystemThemeChanged;
-                AnchorApp.current.Panel.theme = Platform.darkMode ? "dark" : "light";
+                AnchorApp.Current.Panel.theme = Platform.darkMode ? "dark" : "light";
             }
             else
             {
-                AnchorApp.current.Panel.theme = theme;
+                AnchorApp.Current.Panel.theme = theme;
             }
 
             this.localStorageService.SetValue(ThemeKey, theme);
@@ -84,13 +84,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void SetScale(string scale)
         {
-            AnchorApp.current.Panel.scale = scale;
+            AnchorApp.Current.Panel.scale = scale;
             this.localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
         {
-            AnchorApp.current.Panel.theme = darkMode ? "dark" : "light";
+            AnchorApp.Current.Panel.theme = darkMode ? "dark" : "light";
         }
 
         private void PopulateTheme()
@@ -136,3 +136,4 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
     }
 }
+

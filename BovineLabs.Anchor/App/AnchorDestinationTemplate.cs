@@ -37,7 +37,7 @@ namespace BovineLabs.Anchor
             }
             else
             {
-                screen = AnchorApp.current.services.GetService(type) as NavigationScreen;
+                screen = AnchorApp.Current.Services.GetService(type) as NavigationScreen;
             }
 
             if (screen == null)
@@ -57,3 +57,4 @@ namespace BovineLabs.Anchor
         }
     }
 }
+

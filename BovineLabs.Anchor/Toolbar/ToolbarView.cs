@@ -1,4 +1,4 @@
-﻿// <copyright file="ToolbarView.cs" company="BovineLabs">
+// <copyright file="ToolbarView.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,6 @@ namespace BovineLabs.Anchor.Toolbar
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Utility;
-    using Unity.AppUI.MVVM;
     using Unity.AppUI.UI;
     using Unity.Burst;
     using Unity.Properties;
@@ -123,7 +122,7 @@ namespace BovineLabs.Anchor.Toolbar
             this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
-            var serviceTabName = AnchorApp.current?.ServiceTabName;
+            var serviceTabName = AnchorApp.Current?.ServiceTabName;
             if (string.IsNullOrWhiteSpace(serviceTabName))
             {
                 serviceTabName = AnchorApp.DefaultServiceTabName;
@@ -144,10 +143,10 @@ namespace BovineLabs.Anchor.Toolbar
                 this.HideToolbar();
             }
 
-            App.current.rootVisualElement.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.OnRootContentChanged(evt.newRect), this);
-            App.current.rootVisualElement.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+            AnchorApp.Current.RootVisualElement.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.OnRootContentChanged(evt.newRect), this);
+            AnchorApp.Current.RootVisualElement.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
 
-            App.shuttingDown += this.AppOnShuttingDown;
+            AnchorApp.ShuttingDown += this.AppOnShuttingDown;
         }
 
         /// <summary>Gets the active toolbar view instance, if any.</summary>
@@ -196,7 +195,7 @@ namespace BovineLabs.Anchor.Toolbar
 
             id = ++this.key;
 
-            view = (VisualElement)App.current.services.GetService(viewType);
+            view = (VisualElement)AnchorApp.Current.Services.GetService(viewType);
 
             if (!this.toolbarTabs.TryGetValue(tabName, out var tab))
             {
@@ -293,12 +292,12 @@ namespace BovineLabs.Anchor.Toolbar
                 // Instance = null;
             }
 
-            if (App.current?.rootVisualElement != null)
+            if (AnchorApp.Current?.RootVisualElement != null)
             {
-                App.current.rootVisualElement.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+                AnchorApp.Current.RootVisualElement.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
             }
 
-            App.shuttingDown -= this.AppOnShuttingDown;
+            AnchorApp.ShuttingDown -= this.AppOnShuttingDown;
         }
 
         private void ShowTab(ToolbarGroup.Tab tab)
@@ -456,7 +455,7 @@ namespace BovineLabs.Anchor.Toolbar
                 return;
             }
 
-            var root = App.current.rootVisualElement;
+            var root = AnchorApp.Current.RootVisualElement;
             var rect = root.contentRect;
             var width = rect.width;
             var height = rect.height;
@@ -664,19 +663,19 @@ namespace BovineLabs.Anchor.Toolbar
 #endif
             }
 
-            // if (AnchorApp.current.PopupContainer != null)
+            // if (AnchorApp.Current.PopupContainer != null)
             // {
-            //     AnchorApp.current.PopupContainer.style.top = uiRect.height;
+            //     AnchorApp.Current.PopupContainer.style.top = uiRect.height;
             // }
             //
-            // if (AnchorApp.current.NotificationContainer != null)
+            // if (AnchorApp.Current.NotificationContainer != null)
             // {
-            //     AnchorApp.current.NotificationContainer.style.top = uiRect.height;
+            //     AnchorApp.Current.NotificationContainer.style.top = uiRect.height;
             // }
             //
-            // if (AnchorApp.current.TooltipContainer != null)
+            // if (AnchorApp.Current.TooltipContainer != null)
             // {
-            //     AnchorApp.current.TooltipContainer.style.top = uiRect.height;
+            //     AnchorApp.Current.TooltipContainer.style.top = uiRect.height;
             // }
         }
 
@@ -745,3 +744,4 @@ namespace BovineLabs.Anchor.Toolbar
     }
 }
 #endif
+

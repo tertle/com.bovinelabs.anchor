@@ -7,9 +7,9 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
-    using Unity.AppUI.MVVM;
     using UnityEngine.UIElements;
 
     public partial class AnchorNavHost
@@ -759,10 +759,11 @@ namespace BovineLabs.Anchor.Nav
 
         private VisualElement CreateItem(string destination)
         {
-            var element = AnchorApp.current.services.GetService<IUXMLService>().Instantiate(destination);
+            var element = AnchorApp.Current.Services.GetService<IUXMLService>().Instantiate(destination);
             element.StretchToParentSize();
             element.pickingMode = PickingMode.Ignore;
             return element;
         }
     }
 }
+

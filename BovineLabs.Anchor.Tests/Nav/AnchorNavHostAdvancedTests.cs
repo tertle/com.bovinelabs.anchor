@@ -8,11 +8,11 @@ namespace BovineLabs.Anchor.Tests.Nav
     using System.Collections.Generic;
     using System.Reflection;
     using System.Text.RegularExpressions;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
     using UnityEngine;
     using UnityEngine.TestTools;
     using UnityEngine.UIElements;

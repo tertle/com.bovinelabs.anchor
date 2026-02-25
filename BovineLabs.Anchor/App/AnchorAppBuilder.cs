@@ -8,10 +8,13 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
+    using BovineLabs.Core;
     using BovineLabs.Core.Utility;
-    using Unity.AppUI.MVVM;
+    using Unity.AppUI.UI;
+    using UnityEngine;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -25,12 +28,17 @@ namespace BovineLabs.Anchor
     /// <para>A MonoBehaviour that can be used to build and host an app in a UIDocument.</para>
     /// <para>This class is intended to be used as a base class for a MonoBehaviour that is attached to a GameObject in a scene.</para>
     /// </summary>
-    /// <typeparam name="T"> The type of the app to build. It is expected that this type is a subclass of <see cref="App"/>. </typeparam>
+    /// <typeparam name="T">The type of the app to build.</typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
-    public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
-        where T : AnchorApp
+    public abstract class AnchorAppBuilder<T> : MonoBehaviour
+        where T : AnchorApp, new()
     {
+        [SerializeField]
+        protected UIDocument uiDocument;
+
         private AnchorNavHostSaveState state;
+        private AnchorServiceProvider serviceProvider;
+        private T app;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
@@ -42,8 +50,51 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
-        /// <inheritdoc/>
-        protected override void OnConfiguringApp(AppBuilder builder)
+        private void OnEnable()
+        {
+            if (this.uiDocument == null)
+            {
+                BLGlobalLogger.LogWarningString($"No {nameof(UIDocument)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
+                return;
+            }
+
+            var services = new AnchorServiceCollection();
+            this.OnConfigureServices(services);
+
+            this.serviceProvider = services.BuildServiceProvider();
+            this.app = new T();
+
+            var root = new Panel();
+            this.uiDocument.rootVisualElement?.Clear();
+            this.uiDocument.rootVisualElement?.Add(root);
+
+            this.app.Initialize(this.serviceProvider, root);
+            this.OnAppInitialized(this.app);
+        }
+
+        private void OnDisable()
+        {
+            if (this.app == null)
+            {
+                return;
+            }
+
+            this.OnAppShuttingDown(this.app);
+
+            if (this.uiDocument != null)
+            {
+                this.uiDocument.rootVisualElement?.Clear();
+            }
+
+            this.app.Shutdown();
+            this.app.Dispose();
+            this.serviceProvider?.Dispose();
+
+            this.app = null;
+            this.serviceProvider = null;
+        }
+
+        protected virtual void OnConfigureServices(AnchorServiceCollection services)
         {
 #if !UNITY_EDITOR && !BL_DEBUG
             if (this.ToolbarOnly)
@@ -51,33 +102,30 @@ namespace BovineLabs.Anchor
                 return;
             }
 #endif
-            builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-            builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
+            services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
+            services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
             if (this.UXMLService != null)
             {
-                builder.services.AddSingleton(typeof(IUXMLService), this.UXMLService);
+                services.AddSingleton(typeof(IUXMLService), this.UXMLService);
             }
 
             // Register all services
-            foreach (var services in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
+            foreach (var service in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
             {
-                if (services.GetCustomAttribute<TransientAttribute>() != null)
+                if (service.GetCustomAttribute<TransientAttribute>() != null)
                 {
-                    builder.services.AddTransient(services);
+                    services.AddTransient(service);
                 }
                 else
                 {
-                    builder.services.AddSingleton(services);
+                    services.AddSingleton(service);
                 }
             }
         }
 
-        /// <inheritdoc/>
-        protected override void OnAppInitialized(T app)
+        protected virtual void OnAppInitialized(T app)
         {
-            base.OnAppInitialized(app);
-
 #if !UNITY_EDITOR && !BL_DEBUG
             if (this.ToolbarOnly)
             {
@@ -88,7 +136,7 @@ namespace BovineLabs.Anchor
 #if UNITY_EDITOR || BL_DEBUG
             foreach (var style in this.DebugStyleSheets)
             {
-                app.rootVisualElement.styleSheets.Add(style);
+                app.RootVisualElement.styleSheets.Add(style);
             }
 #endif
 
@@ -100,11 +148,8 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <inheritdoc/>
-        protected override void OnAppShuttingDown(T app)
+        protected virtual void OnAppShuttingDown(T app)
         {
-            base.OnAppShuttingDown(app);
-
             this.state = app.NavHost.SaveState();
         }
 

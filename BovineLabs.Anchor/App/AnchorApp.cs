@@ -8,14 +8,12 @@
 
 namespace BovineLabs.Anchor
 {
-    using System.Diagnostics.CodeAnalysis;
-    using System.Reflection;
+    using System;
+    using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
     using JetBrains.Annotations;
-    using Unity.AppUI.MVVM;
-    using Unity.AppUI.Navigation;
     using Unity.AppUI.UI;
     using Unity.Burst;
     using UnityEngine;
@@ -26,7 +24,7 @@ namespace BovineLabs.Anchor
     /// </summary>
     [UsedImplicitly]
     [Configurable]
-    public class AnchorApp : App
+    public class AnchorApp : IDisposable
     {
         /// <summary>The default name for the service tab exposed in the toolbar.</summary>
         public const string DefaultServiceTabName = "Service";
@@ -36,15 +34,24 @@ namespace BovineLabs.Anchor
         private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<ToolbarView, SafeAreaType>();
 #endif
 
-        /// <summary>Gets the strongly typed instance of the currently running <see cref="AnchorApp"/>.</summary>
-        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "AppUI standard")]
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "AppUI standard")]
-        public static new AnchorApp current => App.current as AnchorApp;
+        private bool disposed;
+
+        /// <summary>Gets the currently running <see cref="AnchorApp"/>.</summary>
+        public static AnchorApp Current { get; private set; }
+
+        /// <summary>Event called when the app is shutting down.</summary>
+        public static event Action ShuttingDown;
 
         public static Rect SafeArea => GetSafeArea();
 
         /// <summary>Gets the AppUI panel that hosts the Anchor visual tree.</summary>
-        public virtual Panel Panel => (Panel)this.rootVisualElement;
+        public virtual Panel Panel => (Panel)this.RootVisualElement;
+
+        /// <summary>Gets the current app service provider.</summary>
+        public IServiceProvider Services { get; private set; }
+
+        /// <summary>Gets the root visual element hosting the app content.</summary>
+        public VisualElement RootVisualElement { get; private set; }
 
         /// <summary>Gets the name used for the default service tab added to the toolbar.</summary>
         public virtual string ServiceTabName => DefaultServiceTabName;
@@ -60,6 +67,50 @@ namespace BovineLabs.Anchor
 
         /// <summary>Gets the container that manages tooltip content.</summary>
         public VisualElement TooltipContainer { get; private set; }
+
+        internal void Initialize(IServiceProvider provider, VisualElement root)
+        {
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            if (root == null)
+            {
+                throw new ArgumentNullException(nameof(root));
+            }
+
+            SetCurrentApp(this);
+            this.Services = provider;
+            this.RootVisualElement = root;
+        }
+
+        internal void Shutdown()
+        {
+            ShuttingDown?.Invoke();
+        }
+
+        public void Dispose()
+        {
+            if (this.disposed)
+            {
+                return;
+            }
+
+            this.PopupContainer = null;
+            this.NotificationContainer = null;
+            this.TooltipContainer = null;
+            this.NavHost = null;
+            this.RootVisualElement = null;
+            this.Services = null;
+
+            if (ReferenceEquals(Current, this))
+            {
+                SetCurrentApp(null);
+            }
+
+            this.disposed = true;
+        }
 
         private static Rect GetSafeArea()
         {
@@ -81,8 +132,8 @@ namespace BovineLabs.Anchor
             this.Panel.pickingMode = PickingMode.Ignore;
 
 #if BL_DEBUG || UNITY_EDITOR
-            var toolbarView = this.services.GetRequiredService<ToolbarView>();
-            this.rootVisualElement.Add(toolbarView);
+            var toolbarView = this.Services.GetRequiredService<ToolbarView>();
+            this.RootVisualElement.Add(toolbarView);
 #endif
 
             this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
@@ -91,31 +142,11 @@ namespace BovineLabs.Anchor
                 this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());
             }
 
-            this.rootVisualElement.Add(this.NavHost);
+            this.RootVisualElement.Add(this.NavHost);
 
-            this.PopupContainer = this.rootVisualElement.Q<VisualElement>("popup-container");
-            this.NotificationContainer = this.rootVisualElement.Q<VisualElement>("notification-container");
-            this.TooltipContainer = this.rootVisualElement.Q<VisualElement>("tooltip-container");
-        }
-
-        /// <summary> This has been disabled in favor of overriding <see cref="Initialize" />. </summary>
-        public sealed override void InitializeComponent()
-        {
-            base.InitializeComponent();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            // this is a workaround for finalizer bug in AppUI to avoid SetCurrentApp(null)
-            var restore = App.current != this;
-            var previous = App.current;
-
-            base.Dispose(disposing);
-
-            if (restore)
-            {
-                typeof(App).GetMethod("SetCurrentApp", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, new object[] { previous });
-            }
+            this.PopupContainer = this.RootVisualElement.Q<VisualElement>("popup-container");
+            this.NotificationContainer = this.RootVisualElement.Q<VisualElement>("notification-container");
+            this.TooltipContainer = this.RootVisualElement.Q<VisualElement>("tooltip-container");
         }
 
 #if CUSTOM_SAFE_AREA
@@ -123,5 +154,15 @@ namespace BovineLabs.Anchor
         {
         }
 #endif
+
+        private static void SetCurrentApp(AnchorApp app)
+        {
+            if (app != null && Current != null && !ReferenceEquals(Current, app))
+            {
+                throw new InvalidOperationException($"An {nameof(AnchorApp)} has already been initialized.");
+            }
+
+            Current = app;
+        }
     }
 }

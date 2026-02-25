@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using Unity.AppUI.MVVM;
     using Unity.AppUI.Navigation;
 
     public class AnchorDestinationTemplateTests
