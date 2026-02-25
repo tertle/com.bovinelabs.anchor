@@ -4,9 +4,7 @@
 
 namespace BovineLabs.Anchor.Tests.TestDoubles
 {
-    using Unity.AppUI.Navigation;
-
-    internal sealed class TestDestinationScreen : NavigationScreen
+    internal sealed class TestDestinationScreen : AnchorDestinationScreen
     {
     }
 }

@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DEBUG || UNITY_EDITOR
 namespace BovineLabs.Anchor.Toolbar
 {
     using System;
@@ -69,7 +68,13 @@ namespace BovineLabs.Anchor.Toolbar
         /// </summary>
         public void Load()
         {
-            ToolbarView.Instance.AddTab<TV>(this.tabName.ToString(), this.groupName.ToString(), out this.key, out var view);
+            if (!ToolbarHostBridge.IsReady)
+            {
+                throw new InvalidOperationException("Toolbar host is not ready.");
+            }
+
+            ToolbarHostBridge.Host.AddTab(typeof(TV), this.tabName.ToString(), this.groupName.ToString(), out this.key, out var visual);
+            var view = (TV)visual;
 
             view.ViewModel.Load();
 
@@ -93,12 +98,15 @@ namespace BovineLabs.Anchor.Toolbar
         /// </summary>
         public void Unload()
         {
-            var view = ToolbarView.Instance.RemoveTab<TV>(this.key);
+            var view = ToolbarHostBridge.Host?.RemoveTab(this.key) as TV;
 
             if (this.isSerializable)
             {
-                var saveData = JsonUtility.ToJson(view.ViewModel);
-                PlayerPrefs.SetString(this.SaveKey, saveData);
+                if (view != null)
+                {
+                    var saveData = JsonUtility.ToJson(view.ViewModel);
+                    PlayerPrefs.SetString(this.SaveKey, saveData);
+                }
             }
 
             if (view?.ViewModel is IDisposable disposable)
@@ -107,7 +115,11 @@ namespace BovineLabs.Anchor.Toolbar
             }
 
             view?.ViewModel.Unload();
-            this.handle.Free();
+            if (this.handle.IsAllocated)
+            {
+                this.handle.Free();
+            }
+
             this.handle = default;
             this.data = null;
         }
@@ -126,4 +138,3 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-#endif

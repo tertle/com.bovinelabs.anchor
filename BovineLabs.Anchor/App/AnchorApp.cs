@@ -14,7 +14,6 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
     using JetBrains.Annotations;
-    using Unity.AppUI.UI;
     using Unity.Burst;
     using UnityEngine;
     using UnityEngine.UIElements;
@@ -31,21 +30,21 @@ namespace BovineLabs.Anchor
 
 #if CUSTOM_SAFE_AREA
         [ConfigVar("anchor.safe-area", 0, 0, 0, 0, "Custom SafeArea for testing. This is not a rect but instead offsets from each edge so will work on any resolution.")]
-        private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<ToolbarView, SafeAreaType>();
+        private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<AnchorApp, SafeAreaType>();
 #endif
 
         private bool disposed;
 
-        /// <summary>Gets the currently running <see cref="AnchorApp"/>.</summary>
-        public static AnchorApp Current { get; private set; }
-
         /// <summary>Event called when the app is shutting down.</summary>
         public static event Action ShuttingDown;
 
+        /// <summary>Gets the currently running <see cref="AnchorApp"/>.</summary>
+        public static AnchorApp Current { get; private set; }
+
         public static Rect SafeArea => GetSafeArea();
 
-        /// <summary>Gets the AppUI panel that hosts the Anchor visual tree.</summary>
-        public virtual Panel Panel => (Panel)this.RootVisualElement;
+        /// <summary>Gets the app panel host abstraction.</summary>
+        public virtual IAnchorPanel Panel { get; private set; }
 
         /// <summary>Gets the current app service provider.</summary>
         public IServiceProvider Services { get; private set; }
@@ -68,21 +67,22 @@ namespace BovineLabs.Anchor
         /// <summary>Gets the container that manages tooltip content.</summary>
         public VisualElement TooltipContainer { get; private set; }
 
-        internal void Initialize(IServiceProvider provider, VisualElement root)
+        internal void Initialize(IServiceProvider provider, IAnchorPanel panel)
         {
             if (provider == null)
             {
                 throw new ArgumentNullException(nameof(provider));
             }
 
-            if (root == null)
+            if (panel == null)
             {
-                throw new ArgumentNullException(nameof(root));
+                throw new ArgumentNullException(nameof(panel));
             }
 
             SetCurrentApp(this);
             this.Services = provider;
-            this.RootVisualElement = root;
+            this.Panel = panel;
+            this.RootVisualElement = panel.RootVisualElement;
         }
 
         internal void Shutdown()
@@ -101,6 +101,7 @@ namespace BovineLabs.Anchor
             this.NotificationContainer = null;
             this.TooltipContainer = null;
             this.NavHost = null;
+            this.Panel = null;
             this.RootVisualElement = null;
             this.Services = null;
 
@@ -129,12 +130,12 @@ namespace BovineLabs.Anchor
         /// </summary>
         public virtual void Initialize()
         {
-            this.Panel.pickingMode = PickingMode.Ignore;
-
-#if BL_DEBUG || UNITY_EDITOR
-            var toolbarView = this.Services.GetRequiredService<ToolbarView>();
-            this.RootVisualElement.Add(toolbarView);
-#endif
+            this.RootVisualElement.pickingMode = PickingMode.Ignore;
+            if (this.Services.GetService(typeof(IAnchorToolbarHost)) is IAnchorToolbarHost toolbarHost &&
+                toolbarHost.RootVisualElement?.parent == null)
+            {
+                this.RootVisualElement.Add(toolbarHost.RootVisualElement);
+            }
 
             this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
             if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))

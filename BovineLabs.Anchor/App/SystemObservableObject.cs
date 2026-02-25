@@ -7,10 +7,10 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.MVVM;
-    using Unity.AppUI.UI;
     using Unity.Collections;
     using UnityEngine;
 
@@ -43,7 +43,7 @@ namespace BovineLabs.Anchor
         protected bool SetProperty<TV>(ChangedList<TV> oldValue, IEnumerable<TV> newValue, [CallerMemberName] string propertyName = null)
             where TV : unmanaged
         {
-            if (EnumerableExtensions.SequenceEqual(oldValue.Value.AsArray(), newValue))
+            if (newValue != null && oldValue.Value.AsArray().SequenceEqual(newValue))
             {
                 return false;
             }

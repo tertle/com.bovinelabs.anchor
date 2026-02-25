@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Nav
     /// <summary>
     /// Interface for a navigation screen. A navigation screen is a screen that can be navigated to and from.
     /// </summary>
-    /// <seealso cref="NavigationScreen"/>
     public interface IAnchorNavigationScreen
     {
         /// <summary>

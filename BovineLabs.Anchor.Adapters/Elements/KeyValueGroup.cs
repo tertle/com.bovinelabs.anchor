@@ -11,11 +11,13 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.Assertions;
+    using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
 
     /// <summary>
     /// Visual element that lays out a set of key/value text pairs in two aligned columns.
     /// </summary>
+    [MovedFrom(true, "BovineLabs.Anchor.Elements", "BovineLabs.Anchor")]
     [UxmlElement]
     public partial class KeyValueGroup : VisualElement
     {

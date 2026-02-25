@@ -1,0 +1,26 @@
+{
+    "name": "BovineLabs.Anchor.Adapters",
+    "rootNamespace": "",
+    "references": [
+        "BovineLabs.Anchor",
+        "Unity.AppUI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "BL_HAS_APPUI",
+        "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.dt.app-ui",
+            "expression": "",
+            "define": "BL_HAS_APPUI"
+        }
+    ],
+    "noEngineReferences": false
+}

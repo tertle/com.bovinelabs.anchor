@@ -5,7 +5,7 @@
 namespace BovineLabs.Anchor
 {
     using System.Collections.Generic;
-    using Unity.AppUI.UI;
+    using System.Linq;
 
     /// <summary>
     /// Provides cached sequence comparers for common primitive types.
@@ -27,7 +27,7 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         public override bool Equals(IEnumerable<T> x, IEnumerable<T> y)
         {
-            return EnumerableExtensions.SequenceEqual(x, y);
+            return x != null && y != null && x.SequenceEqual(y);
         }
 
         /// <inheritdoc/>
@@ -45,7 +45,7 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         public override bool Equals(List<T> x, List<T> y)
         {
-            return EnumerableExtensions.SequenceEqual(x, y);
+            return x != null && y != null && x.SequenceEqual(y);
         }
 
         /// <inheritdoc/>

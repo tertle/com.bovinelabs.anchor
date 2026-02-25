@@ -2,8 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DEBUG || UNITY_EDITOR
-namespace BovineLabs.Anchor.Toolbar
+namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using System;
     using System.Collections.Generic;
@@ -11,6 +10,7 @@ namespace BovineLabs.Anchor.Toolbar
     using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Services;
+    using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Utility;
     using Unity.AppUI.UI;
@@ -29,10 +29,10 @@ namespace BovineLabs.Anchor.Toolbar
     /// </summary>
     [Configurable]
     [IsService]
-    public class ToolbarView : VisualElement
+    public class ToolbarView : VisualElement, IAnchorToolbarHost
     {
         /// <summary>Default polling interval in seconds for toolbar updates.</summary>
-        public const float DefaultUpdateRate = 1 / 4f;
+        public const float UpdateRateSeconds = 1 / 4f;
 
         /// <summary>
         /// The NavigationScreen main styling class.
@@ -94,6 +94,7 @@ namespace BovineLabs.Anchor.Toolbar
         public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
         {
             Instance = this;
+            ToolbarHostBridge.Register(this);
 
             this.viewModel = viewModel;
             this.storageService = storageService;
@@ -151,6 +152,12 @@ namespace BovineLabs.Anchor.Toolbar
 
         /// <summary>Gets the active toolbar view instance, if any.</summary>
         public static ToolbarView Instance { get; private set; }
+
+        /// <inheritdoc />
+        public bool IsReady => true;
+
+        /// <inheritdoc />
+        public VisualElement RootVisualElement => this;
 
         private bool IsRibbonVisible
         {
@@ -248,6 +255,12 @@ namespace BovineLabs.Anchor.Toolbar
             return (T)group.View;
         }
 
+        /// <inheritdoc />
+        public VisualElement RemoveTab(int id)
+        {
+            return this.RemoveTab<VisualElement>(id);
+        }
+
         /// <summary>Gets the VisualElement backing a registered tab.</summary>
         /// <param name="id">Identifier of the tab that should be queried.</param>
         /// <returns>The view backing the tab, or null when not found.</returns>
@@ -289,8 +302,10 @@ namespace BovineLabs.Anchor.Toolbar
         {
             if (Instance == this)
             {
-                // Instance = null;
+                Instance = null;
             }
+
+            ToolbarHostBridge.Unregister(this);
 
             if (AnchorApp.Current?.RootVisualElement != null)
             {
@@ -366,11 +381,11 @@ namespace BovineLabs.Anchor.Toolbar
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
+            button.size = Size.S;
 
             var icon = button.Q<Icon>(ShowIconTargetClass);
             icon.AddToClassList(ShowIconUssClassName);
             icon.AddToClassList(ShowHiddenUssClassName);
-            button.size = Size.S;
 
             return button;
         }
@@ -743,5 +758,3 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-#endif
-

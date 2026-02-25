@@ -10,7 +10,6 @@ namespace BovineLabs.Anchor.Tests.App
     using BovineLabs.Anchor.DependencyInjection;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
-    using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.Utility;
     using NUnit.Framework;
     using UnityEngine.UIElements;
@@ -175,8 +174,6 @@ namespace BovineLabs.Anchor.Tests.App
             services.AddSingleton(typeof(IUXMLService), typeof(TestUxmlService));
             services.AddSingleton(typeof(ILocalStorageService), typeof(TestLocalStorageService));
             services.AddSingleton(typeof(IViewModelService), typeof(ViewModelService));
-            services.AddSingleton(typeof(ToolbarViewModel));
-            services.AddSingleton(typeof(ToolbarView));
 
             foreach (var serviceType in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
             {

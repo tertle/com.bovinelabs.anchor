@@ -13,7 +13,6 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
     using BovineLabs.Core.Utility;
-    using Unity.AppUI.UI;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -50,6 +49,14 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
+        /// <summary>
+        /// Gets the panel type used for the app root.
+        /// </summary>
+        /// <remarks>
+        /// The type must implement <see cref="IAnchorPanel"/> and provide a public parameterless constructor.
+        /// </remarks>
+        protected virtual Type PanelType { get; } = typeof(AnchorPanel);
+
         private void OnEnable()
         {
             if (this.uiDocument == null)
@@ -64,11 +71,12 @@ namespace BovineLabs.Anchor
             this.serviceProvider = services.BuildServiceProvider();
             this.app = new T();
 
-            var root = new Panel();
+            var panel = this.CreatePanel();
+            var root = panel.RootVisualElement;
             this.uiDocument.rootVisualElement?.Clear();
             this.uiDocument.rootVisualElement?.Add(root);
 
-            this.app.Initialize(this.serviceProvider, root);
+            this.app.Initialize(this.serviceProvider, panel);
             this.OnAppInitialized(this.app);
         }
 
@@ -113,7 +121,8 @@ namespace BovineLabs.Anchor
             // Register all services
             foreach (var service in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
             {
-                if (service.GetCustomAttribute<TransientAttribute>() != null)
+                var isTransient = service.GetCustomAttribute<TransientAttribute>() != null;
+                if (isTransient)
                 {
                     services.AddTransient(service);
                 }
@@ -121,7 +130,34 @@ namespace BovineLabs.Anchor
                 {
                     services.AddSingleton(service);
                 }
+
+                if (!isTransient && typeof(Toolbar.IAnchorToolbarHost).IsAssignableFrom(service))
+                {
+                    services.AddAlias(typeof(Toolbar.IAnchorToolbarHost), service);
+                }
             }
+        }
+
+        /// <summary>
+        /// Creates the panel host for the app root.
+        /// </summary>
+        /// <returns>Panel implementation used by this app instance.</returns>
+        protected virtual IAnchorPanel CreatePanel()
+        {
+            var panelType = this.PanelType ?? typeof(AnchorPanel);
+            if (!typeof(IAnchorPanel).IsAssignableFrom(panelType))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(this.PanelType)} '{panelType.FullName}' must implement {nameof(IAnchorPanel)}.");
+            }
+
+            if (panelType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(this.PanelType)} '{panelType.FullName}' must have a public parameterless constructor.");
+            }
+
+            return (IAnchorPanel)Activator.CreateInstance(panelType);
         }
 
         protected virtual void OnAppInitialized(T app)

@@ -2,10 +2,10 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DEBUG || UNITY_EDITOR
-namespace BovineLabs.Anchor.Toolbar
+namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Toolbar;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
@@ -57,4 +57,3 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-#endif

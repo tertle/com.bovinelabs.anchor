@@ -3,6 +3,8 @@
   "rootNamespace": "",
   "references": [
     "BovineLabs.Anchor",
+    "BovineLabs.Anchor.Debug",
+    "BovineLabs.Anchor.Adapters",
     "BovineLabs.Core",
     "BovineLabs.Core.Extensions",
     "BovineLabs.Testing",

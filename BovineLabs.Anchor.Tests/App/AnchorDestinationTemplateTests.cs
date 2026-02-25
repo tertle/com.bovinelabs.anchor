@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using Unity.AppUI.Navigation;
 
     public class AnchorDestinationTemplateTests
     {
@@ -17,7 +16,7 @@ namespace BovineLabs.Anchor.Tests.App
             var template = new TestableAnchorDestinationTemplate();
             template.SetTemplate("Invalid.Type, MissingAssembly");
 
-            var screen = (NavigationScreen)template.CreateScreen(null);
+            var screen = template.CreateScreen();
 
             Assert.IsFalse(screen.showBottomNavBar);
             Assert.IsFalse(screen.showAppBar);
@@ -32,10 +31,10 @@ namespace BovineLabs.Anchor.Tests.App
             var template = new TestableAnchorDestinationTemplate();
             template.SetTemplate("Invalid.Type, MissingAssembly");
 
-            var screen = template.CreateScreen(null);
+            var screen = template.CreateScreen();
 
             Assert.IsNotNull(screen);
-            Assert.IsInstanceOf<NavigationScreen>(screen);
+            Assert.IsInstanceOf<AnchorDestinationScreen>(screen);
         }
 
         [Test]
@@ -50,7 +49,7 @@ namespace BovineLabs.Anchor.Tests.App
             template.SetTemplate(typeof(TestDestinationScreen).AssemblyQualifiedName);
             template.SetVisibilityFlags(true);
 
-            var screen = (NavigationScreen)template.CreateScreen(null);
+            var screen = template.CreateScreen();
 
             Assert.IsInstanceOf<TestDestinationScreen>(screen);
             Assert.IsTrue(screen.showBottomNavBar);
@@ -68,7 +67,7 @@ namespace BovineLabs.Anchor.Tests.App
             var template = new TestableAnchorDestinationTemplate();
             template.SetTemplate(typeof(TestDestinationScreen).AssemblyQualifiedName);
 
-            Assert.Throws<InvalidOperationException>(() => template.CreateScreen(null));
+            Assert.Throws<InvalidOperationException>(() => template.CreateScreen());
         }
 
         private sealed class TestableAnchorDestinationTemplate : AnchorDestinationTemplate

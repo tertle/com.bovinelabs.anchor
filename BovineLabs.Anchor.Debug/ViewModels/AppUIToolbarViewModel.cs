@@ -71,11 +71,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             if (theme == "system")
             {
                 Platform.darkModeChanged += this.OnSystemThemeChanged;
-                AnchorApp.Current.Panel.theme = Platform.darkMode ? "dark" : "light";
+                AnchorApp.Current.Panel.Theme = Platform.darkMode ? "dark" : "light";
             }
             else
             {
-                AnchorApp.Current.Panel.theme = theme;
+                AnchorApp.Current.Panel.Theme = theme;
             }
 
             this.localStorageService.SetValue(ThemeKey, theme);
@@ -83,13 +83,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void SetScale(string scale)
         {
-            AnchorApp.Current.Panel.scale = scale;
+            AnchorApp.Current.Panel.Scale = scale;
             this.localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
         {
-            AnchorApp.Current.Panel.theme = darkMode ? "dark" : "light";
+            AnchorApp.Current.Panel.Theme = darkMode ? "dark" : "light";
         }
 
         private void PopulateTheme()

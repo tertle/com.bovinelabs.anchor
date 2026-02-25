@@ -12,7 +12,6 @@ namespace BovineLabs.Anchor.Tests.App
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using Unity.AppUI.UI;
     using UnityEngine;
     using Object = UnityEngine.Object;
 
@@ -70,7 +69,7 @@ namespace BovineLabs.Anchor.Tests.App
 
             try
             {
-                app.Initialize(provider, new Panel());
+                app.Initialize(provider, new AnchorPanel());
                 SetStateField(
                     builder,
                     new AnchorNavHostSaveState(
@@ -103,7 +102,7 @@ namespace BovineLabs.Anchor.Tests.App
 
             try
             {
-                app.Initialize(provider, new Panel());
+                app.Initialize(provider, new AnchorPanel());
                 app.Initialize();
                 app.NavHost.CurrentDestination = "saved-destination";
 

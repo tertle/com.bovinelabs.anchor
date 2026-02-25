@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DEBUG || UNITY_EDITOR
 namespace BovineLabs.Anchor.Toolbar
 {
 #if BL_CORE_EXTENSIONS
@@ -27,7 +26,7 @@ namespace BovineLabs.Anchor.Toolbar
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (ToolbarView.Instance == null || AnchorApp.Current == null)
+            if (!ToolbarHostBridge.IsReady || AnchorApp.Current == null)
             {
                 return;
             }
@@ -36,5 +35,4 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-#endif
 

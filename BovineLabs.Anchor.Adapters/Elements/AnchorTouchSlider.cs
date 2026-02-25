@@ -9,12 +9,14 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine;
+    using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
 
     /// <summary>
     /// Touch-first slider base used by Anchor replacements for AppUI touch sliders.
     /// </summary>
     /// <typeparam name="TValue">A comparable value type.</typeparam>
+    [MovedFrom(true, "BovineLabs.Anchor.Elements", "BovineLabs.Anchor")]
     [UxmlElement]
     public abstract partial class AnchorTouchSlider<TValue> : BaseSlider<TValue, TValue>
         where TValue : unmanaged, IComparable, IEquatable<TValue>

@@ -8,11 +8,13 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine;
+    using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
 
     /// <summary>
     /// Alternative to a dropdown that lets users cycle through options with previous/next buttons.
     /// </summary>
+    [MovedFrom(true, "BovineLabs.Anchor.Elements", "BovineLabs.Anchor")]
     [UxmlElement]
     public partial class OptionPager : VisualElement
     {

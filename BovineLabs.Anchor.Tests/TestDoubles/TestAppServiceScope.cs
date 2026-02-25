@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 {
     using System;
     using BovineLabs.Anchor.DependencyInjection;
-    using Unity.AppUI.UI;
 
     internal sealed class TestAppServiceScope : IDisposable
     {
@@ -28,7 +27,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
             this.serviceProvider = services.BuildServiceProvider();
             this.app = new AnchorApp();
-            this.app.Initialize(this.serviceProvider, new Panel());
+            this.app.Initialize(this.serviceProvider, new AnchorPanel());
         }
 
         public void Dispose()

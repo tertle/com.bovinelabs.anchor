@@ -4,10 +4,6 @@
     "references": [
         "BovineLabs.Core",
         "BovineLabs.Core.Extensions",
-        "Unity.AppUI",
-        "Unity.AppUI.MVVM",
-        "Unity.AppUI.Navigation",
-        "Unity.AppUI.Redux",
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities",

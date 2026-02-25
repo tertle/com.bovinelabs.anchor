@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_DEBUG || UNITY_EDITOR
 namespace BovineLabs.Anchor.Toolbar
 {
     using UnityEngine.UIElements;
@@ -43,4 +42,3 @@ namespace BovineLabs.Anchor.Toolbar
         }
     }
 }
-#endif

@@ -4,6 +4,7 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
@@ -55,7 +56,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             var unscaledDeltaTime = Time.unscaledDeltaTime;
             this.timeToTriggerUpdatesPassed += unscaledDeltaTime;
 
-            if (this.timeToTriggerUpdatesPassed < ToolbarView.DefaultUpdateRate)
+            if (this.timeToTriggerUpdatesPassed < ToolbarView.UpdateRateSeconds)
             {
                 return;
             }
@@ -69,4 +70,3 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
     }
 }
-

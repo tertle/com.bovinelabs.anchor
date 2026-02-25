@@ -9,8 +9,6 @@ namespace BovineLabs.Anchor.Nav
     using System.Linq;
     using BovineLabs.Core;
     using BovineLabs.Core.Utility;
-    using Unity.AppUI.Navigation;
-    using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -59,13 +57,11 @@ namespace BovineLabs.Anchor.Nav
 
             this.style.flexGrow = 1;
             this.pickingMode = PickingMode.Ignore;
-            this.container = new ExVisualElement();
+            this.container = new VisualElement();
             this.container.AddToClassList(ContainerUssClassName);
             this.container.pickingMode = PickingMode.Ignore;
             this.container.StretchToParentSize();
             this.hierarchy.Add(this.container);
-
-            this.RegisterCallback<NavigationCancelEvent>(this.OnCancelNavigation);
 
             this.RegisterAllActions();
         }
@@ -243,20 +239,5 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private void OnCancelNavigation(NavigationCancelEvent evt)
-        {
-            if (this.CanGoBack)
-            {
-                evt.StopPropagation();
-                this.PopBackStack();
-                return;
-            }
-
-            if (this.HasActivePopups)
-            {
-                evt.StopPropagation();
-                this.CloseAllPopups();
-            }
-        }
     }
 }
