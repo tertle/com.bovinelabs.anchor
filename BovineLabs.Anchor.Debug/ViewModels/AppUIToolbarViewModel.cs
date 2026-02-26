@@ -5,9 +5,9 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
-    using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
 
     [IsService]

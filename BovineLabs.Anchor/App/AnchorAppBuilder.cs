@@ -33,11 +33,11 @@ namespace BovineLabs.Anchor
         where T : AnchorApp, new()
     {
         [SerializeField]
-        protected UIDocument uiDocument;
+        private UIDocument uiDocument;
 
         private AnchorNavHostSaveState state;
         private AnchorServiceProvider serviceProvider;
-        private T app;
+        private T anchorApp;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
@@ -49,6 +49,8 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
+        protected UIDocument Document => this.uiDocument;
+
         /// <summary>
         /// Gets the panel type used for the app root.
         /// </summary>
@@ -57,7 +59,7 @@ namespace BovineLabs.Anchor
         /// </remarks>
         protected virtual Type PanelType { get; } = typeof(AnchorPanel);
 
-        private void OnEnable()
+        internal void OnEnable()
         {
             if (this.uiDocument == null)
             {
@@ -69,35 +71,35 @@ namespace BovineLabs.Anchor
             this.OnConfigureServices(services);
 
             this.serviceProvider = services.BuildServiceProvider();
-            this.app = new T();
+            this.anchorApp = new T();
 
             var panel = this.CreatePanel();
             var root = panel.RootVisualElement;
             this.uiDocument.rootVisualElement?.Clear();
             this.uiDocument.rootVisualElement?.Add(root);
 
-            this.app.Initialize(this.serviceProvider, panel);
-            this.OnAppInitialized(this.app);
+            this.anchorApp.Initialize(this.serviceProvider, panel);
+            this.OnAppInitialized(this.anchorApp);
         }
 
-        private void OnDisable()
+        internal void OnDisable()
         {
-            if (this.app == null)
+            if (this.anchorApp == null)
             {
                 return;
             }
 
-            this.OnAppShuttingDown(this.app);
+            this.OnAppShuttingDown(this.anchorApp);
 
             if (this.uiDocument != null)
             {
                 this.uiDocument.rootVisualElement?.Clear();
             }
 
-            this.app.Dispose();
+            this.anchorApp.Dispose();
             this.serviceProvider?.Dispose();
 
-            this.app = null;
+            this.anchorApp = null;
             this.serviceProvider = null;
         }
 
@@ -105,7 +107,7 @@ namespace BovineLabs.Anchor
         {
             services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
 
-#if !UNITY_EDITOR && !BL_DEBUG
+#if UNITY_EDITOR || BL_DEBUG
             if (this.ToolbarOnly)
             {
                 return;
@@ -163,9 +165,10 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnAppInitialized(T app)
         {
-#if !UNITY_EDITOR && !BL_DEBUG
+#if UNITY_EDITOR || BL_DEBUG
             if (this.ToolbarOnly)
             {
+                app.InitializeToolbar();
                 return;
             }
 #endif
@@ -178,6 +181,7 @@ namespace BovineLabs.Anchor
 #endif
 
             app.Initialize();
+            app.InitializeToolbar();
 
             if (this.state != null)
             {

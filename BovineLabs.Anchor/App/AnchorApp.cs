@@ -127,11 +127,6 @@ namespace BovineLabs.Anchor
         public virtual void Initialize()
         {
             this.RootVisualElement.pickingMode = PickingMode.Ignore;
-            if (this.Services.GetService(typeof(IAnchorToolbarHost)) is IAnchorToolbarHost toolbarHost &&
-                toolbarHost.RootVisualElement?.parent == null)
-            {
-                this.RootVisualElement.Add(toolbarHost.RootVisualElement);
-            }
 
             this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
             if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
@@ -144,6 +139,14 @@ namespace BovineLabs.Anchor
             this.PopupContainer = this.RootVisualElement.Q<VisualElement>("popup-container");
             this.NotificationContainer = this.RootVisualElement.Q<VisualElement>("notification-container");
             this.TooltipContainer = this.RootVisualElement.Q<VisualElement>("tooltip-container");
+        }
+
+        public void InitializeToolbar()
+        {
+            if (this.Services.GetService(typeof(IAnchorToolbarHost)) is IAnchorToolbarHost toolbarHost)
+            {
+                this.RootVisualElement.Insert(0, toolbarHost.RootVisualElement);
+            }
         }
 
         private static void SetCurrentApp(AnchorApp app)

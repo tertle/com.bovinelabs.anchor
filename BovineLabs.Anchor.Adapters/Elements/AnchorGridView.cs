@@ -4,12 +4,8 @@
 
 namespace BovineLabs.Anchor.Elements
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using Unity.AppUI.UI;
-    using Unity.Properties;
     using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
 
