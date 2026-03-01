@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor.Adapters
     /// <summary>
     /// AppUI-backed panel implementation for Anchor when AppUI is available.
     /// </summary>
-    public sealed class AnchorAppUIPanel : Panel, IAnchorPanel
+    public class AnchorAppUIPanel : Panel, IAnchorPanel
     {
         /// <inheritdoc />
         public VisualElement RootVisualElement => this;
