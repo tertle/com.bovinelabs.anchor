@@ -13,6 +13,7 @@ namespace BovineLabs.Anchor.MVVM
     /// <summary>
     /// Base class for observable models used by Anchor view models.
     /// </summary>
+    [Serializable]
     public abstract class ObservableObject : INotifyPropertyChanged, INotifyPropertyChanging, INotifyBindablePropertyChanged
     {
         /// <inheritdoc/>
