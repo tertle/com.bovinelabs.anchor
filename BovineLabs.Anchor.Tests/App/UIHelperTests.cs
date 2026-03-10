@@ -69,7 +69,7 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.AreEqual(1, TestRequireUpdateSystem.UpdateCount);
         }
 
-        private sealed class TestViewModel : ObservableObject, IBindingObjectNotify<TestData>, IInitializable, IDisposable
+        private sealed class TestViewModel : ObservableObject, IBindingObjectNotify<TestData>, ILoadable
         {
             private TestData data;
 
@@ -79,12 +79,12 @@ namespace BovineLabs.Anchor.Tests.App
 
             public ref TestData Value => ref this.data;
 
-            public void Initialize()
+            public void Load()
             {
                 this.InitializeCount++;
             }
 
-            public void Dispose()
+            public void Unload()
             {
                 this.DisposeCount++;
             }
@@ -123,4 +123,3 @@ namespace BovineLabs.Anchor.Tests.App
         }
     }
 }
-

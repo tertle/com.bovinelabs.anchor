@@ -64,9 +64,9 @@ namespace BovineLabs.Anchor
             var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Load<TM>();
             viewModel.Load();
 
-            if (viewModel is IInitializable initializable)
+            if (viewModel is ILoadable loadable)
             {
-                initializable.Initialize();
+                loadable.Load();
             }
 
             this.handle = GCHandle.Alloc(viewModel.Value, GCHandleType.Pinned);
@@ -78,9 +78,9 @@ namespace BovineLabs.Anchor
         {
             var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Get<TM>();
 
-            if (viewModel is IDisposable disposable)
+            if (viewModel is ILoadable loadable)
             {
-                disposable.Dispose();
+                loadable.Unload();
             }
 
             viewModel?.Unload();
@@ -92,4 +92,3 @@ namespace BovineLabs.Anchor
         }
     }
 }
-

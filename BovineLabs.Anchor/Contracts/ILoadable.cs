@@ -5,11 +5,12 @@
 namespace BovineLabs.Anchor
 {
     /// <summary>
-    /// Contract for services that require an explicit initialization step before use.
+    /// Contract for view models that require an explicit Load and Unload.
     /// </summary>
-    public interface IInitializable
+    public interface ILoadable
     {
-        /// <summary>Performs one-time setup logic.</summary>
-        void Initialize();
+        void Load();
+
+        void Unload();
     }
 }

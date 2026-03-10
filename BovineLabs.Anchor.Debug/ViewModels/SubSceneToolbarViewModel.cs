@@ -12,7 +12,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Entities;
     using Unity.Properties;
 
-    public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, IInitializable, IDisposable
+    public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, ILoadable
     {
         [CreateProperty]
         public UIArray<Data.SubSceneName> SubScenes => this.Value.SubScenes;
@@ -24,12 +24,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(this.Value.SubSceneValues, value);
         }
 
-        public void Initialize()
+        public void Load()
         {
             this.Value.Initialize();
         }
 
-        public void Dispose()
+        public void Unload()
         {
             this.Value.Dispose();
         }

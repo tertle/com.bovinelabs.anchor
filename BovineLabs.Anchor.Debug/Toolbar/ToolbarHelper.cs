@@ -74,9 +74,9 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             view.ViewModel.Load();
 
-            if (view.ViewModel is IInitializable initializable)
+            if (view.ViewModel is ILoadable loadable)
             {
-                initializable.Initialize();
+                loadable.Load();
             }
 
             this.handle = GCHandle.Alloc(view.ViewModel.Value, GCHandleType.Pinned);
@@ -105,9 +105,9 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 }
             }
 
-            if (view?.ViewModel is IDisposable disposable)
+            if (view?.ViewModel is ILoadable loadable)
             {
-                disposable.Dispose();
+                loadable.Unload();
             }
 
             view?.ViewModel.Unload();
