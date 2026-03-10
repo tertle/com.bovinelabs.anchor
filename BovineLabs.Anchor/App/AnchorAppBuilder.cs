@@ -7,10 +7,12 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
+    using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core;
     using BovineLabs.Core.Utility;
     using UnityEngine;
@@ -106,14 +108,6 @@ namespace BovineLabs.Anchor
         protected virtual void OnConfigureServices(AnchorServiceCollection services)
         {
             services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-
-#if UNITY_EDITOR || BL_DEBUG
-            if (this.ToolbarOnly)
-            {
-                return;
-            }
-#endif
-
             services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
             if (this.UXMLService != null)
@@ -134,9 +128,9 @@ namespace BovineLabs.Anchor
                     services.AddSingleton(service);
                 }
 
-                if (!isTransient && typeof(Toolbar.IAnchorToolbarHost).IsAssignableFrom(service))
+                if (!isTransient && typeof(IAnchorToolbarHost).IsAssignableFrom(service))
                 {
-                    services.AddAlias(typeof(Toolbar.IAnchorToolbarHost), service);
+                    services.AddAlias(typeof(IAnchorToolbarHost), service);
                 }
             }
         }
@@ -165,13 +159,11 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnAppInitialized(T app)
         {
-#if UNITY_EDITOR || BL_DEBUG
             if (this.ToolbarOnly)
             {
                 app.InitializeToolbar();
                 return;
             }
-#endif
 
 #if UNITY_EDITOR || BL_DEBUG
             foreach (var style in this.DebugStyleSheets)
@@ -191,7 +183,10 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnAppShuttingDown(T app)
         {
-            this.state = app.NavHost.SaveState();
+            if (!this.ToolbarOnly)
+            {
+                this.state = app.NavHost.SaveState();
+            }
         }
 
         private void Reset()

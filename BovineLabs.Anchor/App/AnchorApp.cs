@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor
     using System;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Core;
     using BovineLabs.Core.ConfigVars;
     using JetBrains.Annotations;
     using Unity.Burst;
@@ -153,7 +154,8 @@ namespace BovineLabs.Anchor
         {
             if (app != null && Current != null && !ReferenceEquals(Current, app))
             {
-                throw new InvalidOperationException($"An {nameof(AnchorApp)} has already been initialized.");
+                BLGlobalLogger.LogError($"An {nameof(AnchorApp)} has already been initialized, replacing it.");
+                Current.Dispose();
             }
 
             Current = app;
