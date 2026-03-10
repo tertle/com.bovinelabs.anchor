@@ -6,8 +6,10 @@ namespace BovineLabs.Anchor.Tests.App
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using BovineLabs.Anchor.MVVM;
     using NUnit.Framework;
+    using Unity.Properties;
     using UnityEngine.UIElements;
 
     public partial class MvvmRuntimeTests
@@ -147,6 +149,63 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.IsNull(generatedProperty);
         }
 
+        [Test]
+        public void GeneratedObservableProperty_HasExpectedAttributesAndAccessors()
+        {
+            var generatedProperty = typeof(GeneratedObservablePropertyViewModel).GetProperty(nameof(GeneratedObservablePropertyViewModel.Test));
+
+            Assert.IsNotNull(generatedProperty);
+            Assert.IsTrue(Attribute.IsDefined(generatedProperty, typeof(CompilerGeneratedAttribute), false));
+            Assert.IsTrue(Attribute.IsDefined(generatedProperty, typeof(CreatePropertyAttribute), false));
+
+            var viewModel = new GeneratedObservablePropertyViewModel();
+            viewModel.Test = 7;
+
+            Assert.AreEqual(7, viewModel.Test);
+        }
+
+        [Test]
+        public void GeneratedObservableProperty_AlsoNotifyChangeFor_RaisesDependentNotificationOnChangeOnly()
+        {
+            var viewModel = new GeneratedAlsoNotifyViewModel();
+            var changedProperties = new List<string>();
+            viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName);
+
+            viewModel.Test = 4;
+            viewModel.Test = 4;
+
+            CollectionAssert.AreEqual(new[] { nameof(GeneratedAlsoNotifyViewModel.Test), nameof(GeneratedAlsoNotifyViewModel.Test2) }, changedProperties);
+        }
+
+        [Test]
+        public void GeneratedObservableProperty_AlsoExecute_RunsOnChangeOnly()
+        {
+            var viewModel = new GeneratedAlsoExecuteViewModel();
+
+            viewModel.Test = 2;
+            viewModel.Test = 2;
+
+            Assert.AreEqual(1, viewModel.ExecuteCount);
+        }
+
+        [Test]
+        public void GeneratedObservableProperty_AlsoNotifyAndExecute_RunInOrder()
+        {
+            var viewModel = new GeneratedNotifyAndExecuteViewModel();
+            viewModel.PropertyChanged += (_, args) => viewModel.Log.Add($"changed:{args.PropertyName}");
+
+            viewModel.Test = 9;
+
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    $"changed:{nameof(GeneratedNotifyAndExecuteViewModel.Test)}",
+                    "execute",
+                    $"changed:{nameof(GeneratedNotifyAndExecuteViewModel.Test2)}",
+                },
+                viewModel.Log);
+        }
+
         private sealed class TestViewModel : ObservableObject
         {
             private int value;
@@ -223,6 +282,52 @@ namespace BovineLabs.Anchor.Tests.App
             private bool CanExecuteRun()
             {
                 return true;
+            }
+        }
+
+        public partial class GeneratedObservablePropertyViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            private int test;
+        }
+
+        public partial class GeneratedAlsoNotifyViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            [AlsoNotifyChangeFor(nameof(Test2))]
+            private int test;
+
+            public int Test2 => this.Test * 2;
+        }
+
+        public partial class GeneratedAlsoExecuteViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            [AlsoExecute(nameof(OnTestChanged))]
+            private int test;
+
+            public int ExecuteCount { get; private set; }
+
+            private void OnTestChanged()
+            {
+                this.ExecuteCount++;
+            }
+        }
+
+        public partial class GeneratedNotifyAndExecuteViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            [AlsoNotifyChangeFor(nameof(Test2))]
+            [AlsoExecute(nameof(OnTestChanged))]
+            private int test;
+
+            public List<string> Log { get; } = new List<string>();
+
+            public int Test2 => this.Test + 1;
+
+            private void OnTestChanged()
+            {
+                this.Log.Add("execute");
             }
         }
     }

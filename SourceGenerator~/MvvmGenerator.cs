@@ -21,9 +21,11 @@ namespace BovineLabs.SystemPropertyGenerator
         private const string ObservablePropertyAttributeName = "ObservableProperty";
         private const string ICommandAttributeName = "ICommand";
         private const string AlsoNotifyChangeForAttributeName = "AlsoNotifyChangeFor";
+        private const string AlsoExecuteAttributeName = "AlsoExecute";
         private const string ObservablePropertyAttributeMetadataName = "BovineLabs.Anchor.MVVM.ObservablePropertyAttribute";
         private const string ICommandAttributeMetadataName = "BovineLabs.Anchor.MVVM.ICommandAttribute";
         private const string AlsoNotifyChangeForAttributeMetadataName = "BovineLabs.Anchor.MVVM.AlsoNotifyChangeForAttribute";
+        private const string AlsoExecuteAttributeMetadataName = "BovineLabs.Anchor.MVVM.AlsoExecuteAttribute";
         private const string CommandTypeName = "global::System.Windows.Input.ICommand";
         private const string RelayCommandTypeName = "global::BovineLabs.Anchor.MVVM.RelayCommand";
 
@@ -54,11 +56,6 @@ namespace BovineLabs.SystemPropertyGenerator
             cancellationToken.ThrowIfCancellationRequested();
 
             if (syntaxNode is not TypeDeclarationSyntax typeDeclaration)
-            {
-                return false;
-            }
-
-            if (!IsPartial(typeDeclaration))
             {
                 return false;
             }
@@ -99,16 +96,24 @@ namespace BovineLabs.SystemPropertyGenerator
 
             var observableProperties = ImmutableArray.CreateBuilder<ObservablePropertyData>();
             var commands = ImmutableArray.CreateBuilder<CommandData>();
+            var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
-            CollectObservableProperties(typeDeclaration, ctx.SemanticModel, observableProperties, cancellationToken);
-            CollectCommands(typeDeclaration, ctx.SemanticModel, commands, cancellationToken);
+            if (!IsPartial(typeDeclaration))
+            {
+                diagnostics.Add(MvvmDiagnostics.MissingPartial(typeSymbol, typeDeclaration.Identifier.GetLocation()));
+                return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable(), diagnostics.ToImmutable());
+            }
 
-            if (observableProperties.Count == 0 && commands.Count == 0)
+            CollectObservableProperties(typeDeclaration, ctx.SemanticModel, observableProperties, diagnostics, cancellationToken);
+            CollectCommands(typeDeclaration, ctx.SemanticModel, commands, diagnostics, cancellationToken);
+            ValidateGeneratedMemberConflicts(typeSymbol, observableProperties, commands, diagnostics);
+
+            if (observableProperties.Count == 0 && commands.Count == 0 && diagnostics.Count == 0)
             {
                 return null;
             }
 
-            return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable());
+            return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable(), diagnostics.ToImmutable());
         }
 
         private static void Execute(SourceProductionContext context, ImmutableArray<PartialTypeModel> candidates)
@@ -119,6 +124,11 @@ namespace BovineLabs.SystemPropertyGenerator
                 foreach (var model in models)
                 {
                     context.CancellationToken.ThrowIfCancellationRequested();
+
+                    foreach (var diagnostic in model.Diagnostics)
+                    {
+                        context.ReportDiagnostic(diagnostic);
+                    }
 
                     var builder = Generate(model);
                     if (builder == null)
@@ -157,6 +167,8 @@ namespace BovineLabs.SystemPropertyGenerator
                     models.Add(candidate.TypeSymbol, model);
                 }
 
+                model.Diagnostics.AddRange(candidate.Diagnostics);
+
                 foreach (var property in candidate.ObservableProperties)
                 {
                     if (!model.ObservableProperties.ContainsKey(property.PropertyName))
@@ -181,6 +193,7 @@ namespace BovineLabs.SystemPropertyGenerator
             TypeDeclarationSyntax typeDeclaration,
             SemanticModel semanticModel,
             ICollection<ObservablePropertyData> properties,
+            ICollection<Diagnostic> diagnostics,
             CancellationToken cancellationToken)
         {
             foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclarationSyntax>())
@@ -203,18 +216,33 @@ namespace BovineLabs.SystemPropertyGenerator
 
                     if (fieldSymbol.IsReadOnly || fieldSymbol.IsConst || fieldSymbol.IsStatic)
                     {
+                        diagnostics.Add(MvvmDiagnostics.InvalidObservableField(fieldSymbol, variable.GetLocation()));
                         continue;
                     }
 
                     var propertyName = FormatPropertyName(fieldSymbol.Name);
-                    if (string.IsNullOrWhiteSpace(propertyName) || properties.Any(p => p.PropertyName == propertyName))
+                    if (string.IsNullOrWhiteSpace(propertyName))
                     {
+                        diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(fieldSymbol.ContainingType, propertyName, variable.GetLocation()));
+                        continue;
+                    }
+
+                    if (properties.Any(p => p.PropertyName == propertyName))
+                    {
+                        diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(fieldSymbol.ContainingType, propertyName, variable.GetLocation()));
+                        continue;
+                    }
+
+                    if (HasExistingMemberConflict(fieldSymbol.ContainingType, propertyName))
+                    {
+                        diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(fieldSymbol.ContainingType, propertyName, variable.GetLocation()));
                         continue;
                     }
 
                     var additionalNotifications = GetAlsoNotifyProperties(fieldSymbol);
+                    var additionalMethods = GetAlsoExecuteMethods(fieldSymbol, diagnostics);
                     var fieldTypeName = fieldSymbol.Type.ToDisplayString(QualifiedTypeFormat);
-                    properties.Add(new ObservablePropertyData(fieldSymbol.Name, fieldTypeName, propertyName, additionalNotifications));
+                    properties.Add(new ObservablePropertyData(fieldSymbol.Name, fieldTypeName, propertyName, additionalNotifications, additionalMethods));
                 }
             }
         }
@@ -223,6 +251,7 @@ namespace BovineLabs.SystemPropertyGenerator
             TypeDeclarationSyntax typeDeclaration,
             SemanticModel semanticModel,
             ICollection<CommandData> commands,
+            ICollection<Diagnostic> diagnostics,
             CancellationToken cancellationToken)
         {
             foreach (var methodDeclaration in typeDeclaration.Members.OfType<MethodDeclarationSyntax>())
@@ -242,17 +271,26 @@ namespace BovineLabs.SystemPropertyGenerator
 
                 if (!methodSymbol.ReturnsVoid || methodSymbol.Parameters.Length > 1)
                 {
+                    diagnostics.Add(MvvmDiagnostics.InvalidCommandMethod(methodSymbol, methodDeclaration.Identifier.GetLocation()));
                     continue;
                 }
 
                 if (methodSymbol.Parameters.Any(static p => p.RefKind != RefKind.None))
                 {
+                    diagnostics.Add(MvvmDiagnostics.InvalidCommandMethod(methodSymbol, methodDeclaration.Identifier.GetLocation()));
                     continue;
                 }
 
                 var propertyName = $"{UppercaseFirst(methodSymbol.Name)}Command";
                 if (commands.Any(c => c.PropertyName == propertyName))
                 {
+                    diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(methodSymbol.ContainingType, propertyName, methodDeclaration.Identifier.GetLocation()));
+                    continue;
+                }
+
+                if (HasExistingMemberConflict(methodSymbol.ContainingType, propertyName))
+                {
+                    diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(methodSymbol.ContainingType, propertyName, methodDeclaration.Identifier.GetLocation()));
                     continue;
                 }
 
@@ -262,14 +300,62 @@ namespace BovineLabs.SystemPropertyGenerator
                 if (!string.IsNullOrWhiteSpace(canExecuteName))
                 {
                     canExecuteMethod = ResolveCanExecuteMethod(methodSymbol.ContainingType, canExecuteName, methodSymbol.Parameters);
+                    if (canExecuteMethod == null)
+                    {
+                        diagnostics.Add(MvvmDiagnostics.InvalidCanExecuteMethod(methodSymbol.ContainingType, canExecuteName, methodDeclaration.Identifier.GetLocation()));
+                        continue;
+                    }
                 }
 
                 commands.Add(new CommandData(methodSymbol, propertyName, canExecuteMethod));
             }
         }
 
+        private static void ValidateGeneratedMemberConflicts(
+            INamedTypeSymbol typeSymbol,
+            IEnumerable<ObservablePropertyData> observableProperties,
+            IEnumerable<CommandData> commands,
+            ICollection<Diagnostic> diagnostics)
+        {
+            var generatedNames = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var property in observableProperties)
+            {
+                if (!generatedNames.Add(property.PropertyName))
+                {
+                    diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(typeSymbol, property.PropertyName, typeSymbol.Locations[0]));
+                }
+            }
+
+            foreach (var command in commands)
+            {
+                if (!generatedNames.Add(command.PropertyName))
+                {
+                    diagnostics.Add(MvvmDiagnostics.GeneratedNameConflict(typeSymbol, command.PropertyName, command.MethodSymbol.Locations[0]));
+                }
+            }
+        }
+
+        private static bool HasExistingMemberConflict(INamedTypeSymbol typeSymbol, string memberName)
+        {
+            foreach (var member in typeSymbol.GetMembers(memberName))
+            {
+                if (!member.IsImplicitlyDeclared)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static CodeBuilder Generate(TypeGenerationModel model)
         {
+            if (model.ObservableProperties.Count == 0 && model.Commands.Count == 0)
+            {
+                return null;
+            }
+
             var namespaceName = model.TypeSymbol.ContainingNamespace.IsGlobalNamespace
                 ? null
                 : model.TypeSymbol.ContainingNamespace.ToDisplayString();
@@ -383,16 +469,29 @@ namespace BovineLabs.SystemPropertyGenerator
             var generatedProperty = classBuilder
                 .AddProperty(property.PropertyName, Accessibility.Public)
                 .SetType(property.FieldTypeName)
+                .AddAttribute("global::System.Runtime.CompilerServices.CompilerGenerated")
                 .AddAttribute("global::Unity.Properties.CreateProperty");
 
             generatedProperty.WithGetterExpression($"this.{property.FieldName}");
+
+            if (property.AdditionalNotifications.Length == 0 && property.AdditionalMethods.Length == 0)
+            {
+                generatedProperty.WithSetterExpression($"this.SetProperty(ref this.{property.FieldName}, value)");
+                return;
+            }
+
             generatedProperty.WithSetter(setterWriter =>
             {
                 setterWriter.If($"this.SetProperty(ref this.{property.FieldName}, value)").WithBody(ifWriter =>
                 {
+                    foreach (var method in property.AdditionalMethods)
+                    {
+                        ifWriter.AppendLine($"{BuildMethodInvocation(method)};");
+                    }
+
                     foreach (var notification in property.AdditionalNotifications)
                     {
-                        ifWriter.AppendLine($"this.OnPropertyChanged(\"{Escape(notification)}\");");
+                        ifWriter.AppendLine($"this.OnPropertyChanged({BuildNameofOrStringLiteral(notification)});");
                     }
                 }).EndIf();
             });
@@ -513,11 +612,39 @@ namespace BovineLabs.SystemPropertyGenerator
 
         private static ImmutableArray<string> GetAlsoNotifyProperties(IFieldSymbol fieldSymbol)
         {
+            return GetStringAttributeArguments(fieldSymbol, AlsoNotifyChangeForAttributeMetadataName);
+        }
+
+        private static ImmutableArray<IMethodSymbol> GetAlsoExecuteMethods(IFieldSymbol fieldSymbol, ICollection<Diagnostic> diagnostics)
+        {
+            var methods = ImmutableArray.CreateBuilder<IMethodSymbol>();
+            var seen = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+
+            foreach (var methodName in GetStringAttributeArguments(fieldSymbol, AlsoExecuteAttributeMetadataName))
+            {
+                var method = ResolveAlsoExecuteMethod(fieldSymbol.ContainingType, methodName);
+                if (method == null)
+                {
+                    diagnostics.Add(MvvmDiagnostics.InvalidAlsoExecuteMethod(fieldSymbol.ContainingType, methodName, fieldSymbol.Locations[0]));
+                    continue;
+                }
+
+                if (seen.Add(method))
+                {
+                    methods.Add(method);
+                }
+            }
+
+            return methods.ToImmutable();
+        }
+
+        private static ImmutableArray<string> GetStringAttributeArguments(IFieldSymbol fieldSymbol, string attributeMetadataName)
+        {
             var names = ImmutableArray.CreateBuilder<string>();
 
             foreach (var attribute in fieldSymbol.GetAttributes())
             {
-                if (!MatchesAttributeMetadataName(attribute.AttributeClass, AlsoNotifyChangeForAttributeMetadataName))
+                if (!MatchesAttributeMetadataName(attribute.AttributeClass, attributeMetadataName))
                 {
                     continue;
                 }
@@ -542,6 +669,71 @@ namespace BovineLabs.SystemPropertyGenerator
             }
 
             return names.Distinct(StringComparer.Ordinal).ToImmutableArray();
+        }
+
+        private static IMethodSymbol ResolveAlsoExecuteMethod(INamedTypeSymbol typeSymbol, string methodName)
+        {
+            foreach (var candidate in typeSymbol.GetMembers(methodName).OfType<IMethodSymbol>())
+            {
+                if (candidate.MethodKind != MethodKind.Ordinary)
+                {
+                    continue;
+                }
+
+                if (candidate.Parameters.Length != 0 || candidate.IsGenericMethod)
+                {
+                    continue;
+                }
+
+                return candidate;
+            }
+
+            return null;
+        }
+
+        private static string BuildMethodInvocation(IMethodSymbol method)
+        {
+            var target = method.IsStatic
+                ? method.ContainingType.ToDisplayString(QualifiedTypeFormat)
+                : "this";
+
+            return $"{target}.{method.Name}()";
+        }
+
+        private static string BuildNameofOrStringLiteral(string memberName)
+        {
+            if (string.IsNullOrWhiteSpace(memberName))
+            {
+                return $"\"{string.Empty}\"";
+            }
+
+            return TryFormatIdentifier(memberName, out var identifier)
+                ? $"nameof({identifier})"
+                : $"\"{Escape(memberName)}\"";
+        }
+
+        private static bool TryFormatIdentifier(string value, out string identifier)
+        {
+            identifier = null;
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            if (!SyntaxFacts.IsValidIdentifier(value))
+            {
+                if (SyntaxFacts.GetKeywordKind(value) == SyntaxKind.None)
+                {
+                    return false;
+                }
+
+                identifier = "@" + value;
+                return true;
+            }
+
+            identifier = value;
+            return true;
         }
 
         private static bool HasAttribute(ISymbol symbol, string attributeMetadataName)
@@ -706,11 +898,13 @@ namespace BovineLabs.SystemPropertyGenerator
             public PartialTypeModel(
                 INamedTypeSymbol typeSymbol,
                 ImmutableArray<ObservablePropertyData> observableProperties,
-                ImmutableArray<CommandData> commands)
+                ImmutableArray<CommandData> commands,
+                ImmutableArray<Diagnostic> diagnostics)
             {
                 this.TypeSymbol = typeSymbol;
                 this.ObservableProperties = observableProperties;
                 this.Commands = commands;
+                this.Diagnostics = diagnostics;
             }
 
             public INamedTypeSymbol TypeSymbol { get; }
@@ -718,6 +912,8 @@ namespace BovineLabs.SystemPropertyGenerator
             public ImmutableArray<ObservablePropertyData> ObservableProperties { get; }
 
             public ImmutableArray<CommandData> Commands { get; }
+
+            public ImmutableArray<Diagnostic> Diagnostics { get; }
         }
 
         private sealed class TypeGenerationModel
@@ -727,6 +923,7 @@ namespace BovineLabs.SystemPropertyGenerator
                 this.TypeSymbol = typeSymbol;
                 this.ObservableProperties = new Dictionary<string, ObservablePropertyData>(StringComparer.Ordinal);
                 this.Commands = new Dictionary<string, CommandData>(StringComparer.Ordinal);
+                this.Diagnostics = new List<Diagnostic>();
             }
 
             public INamedTypeSymbol TypeSymbol { get; }
@@ -734,6 +931,8 @@ namespace BovineLabs.SystemPropertyGenerator
             public Dictionary<string, ObservablePropertyData> ObservableProperties { get; }
 
             public Dictionary<string, CommandData> Commands { get; }
+
+            public List<Diagnostic> Diagnostics { get; }
         }
 
         private sealed class ObservablePropertyData
@@ -742,12 +941,14 @@ namespace BovineLabs.SystemPropertyGenerator
                 string fieldName,
                 string fieldTypeName,
                 string propertyName,
-                ImmutableArray<string> additionalNotifications)
+                ImmutableArray<string> additionalNotifications,
+                ImmutableArray<IMethodSymbol> additionalMethods)
             {
                 this.FieldName = fieldName;
                 this.FieldTypeName = fieldTypeName;
                 this.PropertyName = propertyName;
                 this.AdditionalNotifications = additionalNotifications;
+                this.AdditionalMethods = additionalMethods;
             }
 
             public string FieldName { get; }
@@ -757,6 +958,8 @@ namespace BovineLabs.SystemPropertyGenerator
             public string PropertyName { get; }
 
             public ImmutableArray<string> AdditionalNotifications { get; }
+
+            public ImmutableArray<IMethodSymbol> AdditionalMethods { get; }
         }
 
         private sealed class CommandData

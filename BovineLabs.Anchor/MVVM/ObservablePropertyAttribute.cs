@@ -37,4 +37,28 @@ namespace BovineLabs.Anchor.MVVM
         {
         }
     }
+
+    /// <summary>
+    /// Executes additional methods after a generated observable property changes.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
+    public sealed class AlsoExecuteAttribute : Attribute
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AlsoExecuteAttribute"/> class.
+        /// </summary>
+        /// <param name="methodName">The method to invoke after the property changes.</param>
+        public AlsoExecuteAttribute(string methodName)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AlsoExecuteAttribute"/> class.
+        /// </summary>
+        /// <param name="methodName">The first method to invoke after the property changes.</param>
+        /// <param name="methodNames">Additional method names to invoke after the property changes.</param>
+        public AlsoExecuteAttribute(string methodName, params string[] methodNames)
+        {
+        }
+    }
 }

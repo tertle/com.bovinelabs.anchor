@@ -4,6 +4,7 @@
 
 namespace BovineLabs.SystemPropertyGenerator
 {
+    using System.Collections.Immutable;
     using System;
     using System.Linq;
     using System.Text;
@@ -24,18 +25,33 @@ namespace BovineLabs.SystemPropertyGenerator
                 var contextProvider = context.SyntaxProvider
                     .CreateSyntaxProvider(predicate: IsContextSyntaxTargetForGeneration, transform: GetSemanticTargetForGeneration);
 
-                context.RegisterSourceOutput(contextProvider, (productionContext, fieldData) =>
+                context.RegisterSourceOutput(contextProvider, (productionContext, fieldResult) =>
                 {
                     try
                     {
-                        var builder = ProcessField(fieldData);
+                        if (fieldResult == null)
+                        {
+                            return;
+                        }
+
+                        foreach (var diagnostic in fieldResult.Diagnostics)
+                        {
+                            productionContext.ReportDiagnostic(diagnostic);
+                        }
+
+                        if (fieldResult.FieldData == null)
+                        {
+                            return;
+                        }
+
+                        var builder = ProcessField(fieldResult.FieldData);
                         if (builder == null)
                         {
                             return;
                         }
 
                         var text = Microsoft.CodeAnalysis.Text.SourceText.From(builder.Build(), Encoding.UTF8);
-                        productionContext.AddSource($"{builder.FullyQualifiedName}.{fieldData.PropertyName}.g.cs", text);
+                        productionContext.AddSource($"{builder.FullyQualifiedName}.{fieldResult.FieldData.PropertyName}.g.cs", text);
                     }
                     catch (Exception ex)
                     {
@@ -55,39 +71,12 @@ namespace BovineLabs.SystemPropertyGenerator
 
             try
             {
-                // Is Struct
                 if (syntaxNode is not FieldDeclarationSyntax fieldDeclarationSyntax)
-                    return false;
-
-                if (!fieldDeclarationSyntax.HasAttribute("SystemPropertyAttribute"))
                 {
                     return false;
                 }
 
-                var parent = GetEnclosingStruct(fieldDeclarationSyntax);
-                if (parent == null)
-                {
-                    return false;
-                }
-
-                // Has Partial keyword
-                var hasPartial = false;
-                foreach (var m in parent.Modifiers)
-                {
-                    if (m.IsKind(SyntaxKind.PartialKeyword))
-                    {
-                        hasPartial = true;
-
-                        break;
-                    }
-                }
-
-                if (!hasPartial)
-                {
-                    return false;
-                }
-
-                return true;
+                return fieldDeclarationSyntax.HasAttribute("SystemPropertyAttribute");
             }
             catch (Exception ex)
             {
@@ -96,10 +85,46 @@ namespace BovineLabs.SystemPropertyGenerator
             }
         }
 
-        public static FieldData GetSemanticTargetForGeneration(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
+        public static FieldResult GetSemanticTargetForGeneration(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
         {
             var fieldDeclarationSyntax = (FieldDeclarationSyntax)ctx.Node;
+            var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
+
+            if (fieldDeclarationSyntax.Declaration.Variables.Count != 1)
+            {
+                var firstName = fieldDeclarationSyntax.Declaration.Variables.FirstOrDefault()?.Identifier.ValueText ?? fieldDeclarationSyntax.Declaration.Type.ToString();
+                diagnostics.Add(SystemPropertyDiagnostics.InvalidFieldDeclaration(firstName, fieldDeclarationSyntax.Declaration.GetLocation()));
+                return new FieldResult(null, diagnostics.ToImmutable());
+            }
+
+            var variable = fieldDeclarationSyntax.Declaration.Variables[0];
+            if (ctx.SemanticModel.GetDeclaredSymbol(variable, cancellationToken) is not IFieldSymbol fieldSymbol)
+            {
+                return null;
+            }
+
             StructDeclarationSyntax structDeclarationSyntax = GetEnclosingStruct(fieldDeclarationSyntax);
+            if (structDeclarationSyntax == null)
+            {
+                diagnostics.Add(SystemPropertyDiagnostics.NotInStruct(fieldSymbol, variable.GetLocation()));
+                return new FieldResult(null, diagnostics.ToImmutable());
+            }
+
+            if (!IsPartial(structDeclarationSyntax))
+            {
+                if (ctx.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax, cancellationToken) is INamedTypeSymbol nonPartialType)
+                {
+                    diagnostics.Add(SystemPropertyDiagnostics.MissingPartial(nonPartialType, structDeclarationSyntax.Identifier.GetLocation()));
+                }
+
+                return new FieldResult(null, diagnostics.ToImmutable());
+            }
+
+            if (fieldSymbol.IsStatic || fieldSymbol.IsConst || fieldSymbol.IsReadOnly)
+            {
+                diagnostics.Add(SystemPropertyDiagnostics.InvalidFieldDeclaration(fieldSymbol.Name, variable.GetLocation()));
+                return new FieldResult(null, diagnostics.ToImmutable());
+            }
 
             var namespaces = ctx.SemanticModel.GetAccessibleNamespaces(structDeclarationSyntax);
             INamedTypeSymbol typeSymbol = ctx.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax);
@@ -109,8 +134,7 @@ namespace BovineLabs.SystemPropertyGenerator
                 .Select(classSyntax => ctx.SemanticModel.GetDeclaredSymbol(classSyntax))
                 .Reverse().ToArray();
 
-
-            return new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax);
+            return new FieldResult(new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax), diagnostics.ToImmutable());
         }
 
         public static StructDeclarationSyntax GetEnclosingStruct(FieldDeclarationSyntax fieldDeclaration)
@@ -118,6 +142,19 @@ namespace BovineLabs.SystemPropertyGenerator
             // Get the parent node of the field declaration
             SyntaxNode parent = fieldDeclaration.Parent;
             return parent as StructDeclarationSyntax;
+        }
+
+        private static bool IsPartial(TypeDeclarationSyntax declaration)
+        {
+            foreach (var modifier in declaration.Modifiers)
+            {
+                if (modifier.IsKind(SyntaxKind.PartialKeyword))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static ClassBuilder ProcessField(FieldData fieldData)
@@ -218,6 +255,19 @@ namespace BovineLabs.SystemPropertyGenerator
 
             builder = builder.AddNestedClass(fieldData.TypeSymbol);
             return builder;
+        }
+
+        public sealed class FieldResult
+        {
+            public FieldResult(FieldData fieldData, ImmutableArray<Diagnostic> diagnostics)
+            {
+                this.FieldData = fieldData;
+                this.Diagnostics = diagnostics;
+            }
+
+            public FieldData FieldData { get; }
+
+            public ImmutableArray<Diagnostic> Diagnostics { get; }
         }
     }
 }
