@@ -399,13 +399,13 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void UnregisterPanelRoot()
         {
-            if (this.panelRoot == null)
+            if (this.panelRoot != null)
             {
-                return;
+                this.panelRoot.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
+                this.panelRoot.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
             }
 
-            this.panelRoot.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
-            this.panelRoot.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+            this.ResetCanvasOffsets();
             this.panelRoot = null;
             this.uiSize = Vector2.zero;
         }
@@ -791,39 +791,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                     continue;
                 }
 
-                ToolbarOffset offset = null;
-
-                // Only look in direct children
-                for (var i = 0; i < canvas.transform.childCount; i++)
-                {
-                    offset = canvas.transform.GetChild(i).GetComponent<ToolbarOffset>();
-                    if (offset != null)
-                    {
-                        break;
-                    }
-                }
-
-                if (offset == null)
-                {
-                    // Get children to move
-                    this.transformList.Clear();
-                    for (var i = 0; i < canvas.transform.childCount; i++)
-                    {
-                        this.transformList.Add(canvas.transform.GetChild(i));
-                    }
-
-                    // Create new
-                    var go = new GameObject("ToolbarOffset");
-                    go.transform.SetParent(canvas.transform);
-
-                    offset = go.AddComponent<ToolbarOffset>();
-                    var offsetTr = offset.transform;
-
-                    foreach (var child in this.transformList)
-                    {
-                        child.SetParent(offsetTr, true);
-                    }
-                }
+                var offset = this.GetOrCreateToolbarOffset(canvas);
+                this.MoveCanvasChildrenToOffset(canvas, offset);
 
                 var scaleFactor = canvas.scaleFactor;
                 if (scaleFactor <= 0f)
@@ -835,6 +804,97 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 var offsetHeight = (cameraHeightNormalized - 1f) * (Screen.height / scaleFactor);
                 ((RectTransform)offset.transform).offsetMax = new Vector2(0f, offsetHeight);
             }
+        }
+
+        private ToolbarOffset GetOrCreateToolbarOffset(Canvas canvas)
+        {
+            for (var i = 0; i < canvas.transform.childCount; i++)
+            {
+                var offset = canvas.transform.GetChild(i).GetComponent<ToolbarOffset>();
+                if (offset != null)
+                {
+                    return offset;
+                }
+            }
+
+            var go = new GameObject("ToolbarOffset");
+            go.transform.SetParent(canvas.transform, false);
+            return go.AddComponent<ToolbarOffset>();
+        }
+
+        private void MoveCanvasChildrenToOffset(Canvas canvas, ToolbarOffset offset)
+        {
+            var offsetTransform = offset.transform;
+
+            this.transformList.Clear();
+            for (var i = 0; i < canvas.transform.childCount; i++)
+            {
+                var child = canvas.transform.GetChild(i);
+                if (child != offsetTransform)
+                {
+                    this.transformList.Add(child);
+                }
+            }
+
+            foreach (var child in this.transformList)
+            {
+                child.SetParent(offsetTransform, true);
+            }
+        }
+
+        private void ResetCanvasOffsets()
+        {
+#if UNITY_6000_5_OR_NEWER
+            var canvases = Object.FindObjectsByType<Canvas>();
+#else
+            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+#endif
+            foreach (var canvas in canvases)
+            {
+                if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                {
+                    continue;
+                }
+
+                if (!canvas.isRootCanvas)
+                {
+                    continue;
+                }
+
+                var offset = this.TryGetToolbarOffset(canvas);
+                if (offset == null)
+                {
+                    continue;
+                }
+
+                var offsetTransform = offset.transform;
+                this.transformList.Clear();
+                for (var i = 0; i < offsetTransform.childCount; i++)
+                {
+                    this.transformList.Add(offsetTransform.GetChild(i));
+                }
+
+                foreach (var child in this.transformList)
+                {
+                    child.SetParent(canvas.transform, true);
+                }
+
+                Object.Destroy(offset.gameObject);
+            }
+        }
+
+        private ToolbarOffset TryGetToolbarOffset(Canvas canvas)
+        {
+            for (var i = 0; i < canvas.transform.childCount; i++)
+            {
+                var offset = canvas.transform.GetChild(i).GetComponent<ToolbarOffset>();
+                if (offset != null)
+                {
+                    return offset;
+                }
+            }
+
+            return null;
         }
 
         private void UpdateSafeArea()
