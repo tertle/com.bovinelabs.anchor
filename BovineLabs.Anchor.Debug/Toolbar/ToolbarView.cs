@@ -79,6 +79,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private readonly Button showButton;
 
         private ToolbarGroup activeGroup;
+        private VisualElement panelRoot;
 
         private Vector2 uiSize;
         private int key;
@@ -119,7 +120,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             DisableKeyboardNavigation(menu);
 
-            this.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.ResizeViewRect(evt.newRect), this);
+            this.RegisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged, this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
             var serviceTabName = AnchorApp.Current.ServiceTabName;
@@ -143,8 +144,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 this.HideToolbar();
             }
 
-            AnchorApp.Current.RootVisualElement.RegisterCallback<GeometryChangedEvent, ToolbarView>((evt, tv) => tv.OnRootContentChanged(evt.newRect), this);
-            AnchorApp.Current.RootVisualElement.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+            this.RegisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
+            this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
 
             AnchorApp.ShuttingDown += this.AppOnShuttingDown;
         }
@@ -294,6 +295,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             return 0;
         }
 
+        private static void OnToolbarGeometryChanged(GeometryChangedEvent evt, ToolbarView toolbarView)
+        {
+            toolbarView.ResizeViewRect(evt.newRect);
+        }
+
         private void AppOnShuttingDown()
         {
             if (Instance == this)
@@ -301,12 +307,19 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 Instance = null;
             }
 
-            if (AnchorApp.Current?.RootVisualElement != null)
-            {
-                AnchorApp.Current.RootVisualElement.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
-            }
+            this.UnregisterPanelRoot();
 
             AnchorApp.ShuttingDown -= this.AppOnShuttingDown;
+        }
+
+        private void OnAttachToPanel(AttachToPanelEvent evt)
+        {
+            this.RegisterPanelRoot(evt.destinationPanel?.visualTree);
+        }
+
+        private void OnDetachFromPanel(DetachFromPanelEvent evt)
+        {
+            this.UnregisterPanelRoot();
         }
 
         private void ShowTab(ToolbarGroup.Tab tab)
@@ -357,16 +370,80 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
-        private void OnRootContentChanged(Rect newRect)
+        private void RegisterPanelRoot(VisualElement root)
         {
-            // var height = newRect.height;
-            var newSize = newRect.size;
-
-            if (!this.uiSize.Equals(newSize))
+            if (ReferenceEquals(this.panelRoot, root))
             {
-                this.uiSize = newSize;
-                this.ResizeViewRect(this.contentRect);
+                this.UpdatePanelSize();
+                return;
             }
+
+            this.UnregisterPanelRoot();
+            this.panelRoot = root;
+
+            if (this.panelRoot == null)
+            {
+                this.uiSize = Vector2.zero;
+                return;
+            }
+
+            this.panelRoot.RegisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
+            this.panelRoot.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+
+            this.UpdatePanelSize();
+            this.ResizeViewRect(this.contentRect);
+        }
+
+        private void UnregisterPanelRoot()
+        {
+            if (this.panelRoot == null)
+            {
+                return;
+            }
+
+            this.panelRoot.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
+            this.panelRoot.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+            this.panelRoot = null;
+            this.uiSize = Vector2.zero;
+        }
+
+        private void OnPanelRootGeometryChanged(GeometryChangedEvent evt)
+        {
+            this.OnPanelGeometryChanged();
+        }
+
+        private void OnPanelGeometryChanged()
+        {
+            this.UpdatePanelSize();
+            this.ResizeViewRect(this.contentRect);
+        }
+
+        private void UpdatePanelSize()
+        {
+            this.uiSize = this.GetPanelUiSize();
+        }
+
+        private Vector2 GetPanelUiSize()
+        {
+            if (this.panel == null)
+            {
+                return Vector2.zero;
+            }
+
+            var layoutSize = this.panel.visualTree.layout.size;
+            if (!layoutSize.Equals(Vector2.zero))
+            {
+                return layoutSize;
+            }
+
+            if (Screen.width <= 0 || Screen.height <= 0)
+            {
+                return Vector2.zero;
+            }
+
+            var panelMin = RuntimePanelUtils.ScreenToPanel(this.panel, Vector2.zero);
+            var panelMax = RuntimePanelUtils.ScreenToPanel(this.panel, new Vector2(Screen.width, Screen.height));
+            return new Vector2(Mathf.Abs(panelMax.x - panelMin.x), Mathf.Abs(panelMax.y - panelMin.y));
         }
 
         private Button CreateShowButton()
@@ -464,10 +541,9 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 return;
             }
 
-            var root = AnchorApp.Current.RootVisualElement;
-            var rect = root.contentRect;
-            var width = rect.width;
-            var height = rect.height;
+            var panelSize = this.GetPanelUiSize();
+            var width = panelSize.x;
+            var height = panelSize.y;
 
             var hotspotHeight = Screen.height * RestoreHotspotPercent;
             var hotspotWidth = hotspotHeight;
