@@ -4,17 +4,12 @@
     "references": [
         "BovineLabs.Core",
         "BovineLabs.Core.Extensions",
+        "Unity.AppUI",
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities",
-        "Unity.Entities.Graphics",
-        "Unity.Entities.Hybrid",
-        "Unity.InputSystem",
         "Unity.Mathematics",
-        "Unity.Mathematics.Extensions",
-        "Unity.Physics",
-        "Unity.RenderPipelines.Universal.Runtime",
-        "Unity.Transforms"
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -30,6 +25,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "",
             "define": "UNITY_URP"
+        },
+        {
+            "name": "com.unity.dt.app-ui",
+            "expression": "",
+            "define": "UNITY_APPUI"
         }
     ],
     "noEngineReferences": false
