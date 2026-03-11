@@ -712,7 +712,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void ResizeViewRect(Rect uiRect)
         {
-            if (this.uiSize.Equals(Vector2.zero))
+            if (this.uiSize.Equals(Vector2.zero) || float.IsNaN(uiRect.height))
             {
                 return;
             }
