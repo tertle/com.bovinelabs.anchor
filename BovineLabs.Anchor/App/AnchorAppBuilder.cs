@@ -76,6 +76,7 @@ namespace BovineLabs.Anchor
             this.anchorApp = new T();
 
             var panel = this.CreatePanel();
+            panel.RootVisualElement.pickingMode = PickingMode.Ignore;
             var root = panel.RootVisualElement;
             this.uiDocument.rootVisualElement?.Clear();
             this.uiDocument.rootVisualElement?.Add(root);
