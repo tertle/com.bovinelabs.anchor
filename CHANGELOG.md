@@ -1,24 +1,54 @@
-# ChangeLog
+# Changelog
 
-## [2.0.0] - 2026-02-25
+## [2.0.0] - 2026-03-13
 
 ### Breaking
-* Removed hard package dependency on `com.unity.dt.app-ui`
-* `BovineLabs.Anchor` runtime is now AppUI-free
-* Navigation argument public APIs use `AnchorNavArgument[]` instead of AppUI `Argument[]`
-* App lifecycle APIs standardized on `AnchorApp.Current`, `AnchorApp.Services`, and `AnchorApp.ShuttingDown`
+* Unity 6.3+ only
+* AppUI is now optional instead of a required package dependency
+* BovineLabs.Anchor runtime no longer depends on AppUI app, MVVM, or navigation types
+* AppUI controls moved into BovineLabs.Anchor.Adapters
+* AnchorAppBuilder no longer derives from the AppUI builder stack
+* Navigation APIs now use AnchorNavArgument
+* IInitializable renamed to ILoadable
+* ILocalStorageService now only supports primitive preference values
 
 ### Added
-* AppUI adapter assembly: `BovineLabs.Anchor.Adapters`
-* Anchor-owned DI stack: `AnchorServiceCollection`, `AnchorServiceProvider`, descriptors/extensions
-* Anchor-owned MVVM runtime and source generation attributes under `BovineLabs.Anchor.MVVM`
-* Core panel abstraction `IAnchorPanel` with optional AppUI-backed `AnchorAppUIPanel` adapter
+* BovineLabs.Anchor.Adapters assembly for optional AppUI integrations
+* Anchor-owned dependency injection with AnchorServiceCollection and AnchorServiceProvider
+* Anchor-owned MVVM runtime and generators
+* IAnchorPanel and AnchorPanel
+* AnchorNavAnimation assets with built-in fade and scale fade animations
+* OptionPager
+* AnchorTouchSliderFloat and AnchorTouchSliderInt
+* Extensive automated test coverage across app, binding, navigation, services, toolbar, and utilities
+* Anchor No AppUI.tss
 
 ### Changed
-* Core `AnchorAppBuilder` no longer depends on AppUI builder base types
-* Debug/adapter asmdefs are compile-gated behind `BL_HAS_APPUI`
-* Package docs updated for optional AppUI integrations
-* Added split theme entrypoints: `Anchor UI.tss` (AppUI) and `Anchor No AppUI.tss` (AppUI-free)
+* Core dependency 1.6.0
+* AnchorApp lifecycle standardized around AnchorApp.Current, Services, RootVisualElement, and ShuttingDown
+* AnchorAppBuilder now builds directly from UIDocument and restores navigation state without AppUI builder types
+* Navigation stack reworked with ID based animations, popup base arguments, menu support, and improved saved state handling
+* Toolbar hosting reworked around IAnchorToolbarHost so core systems stay AppUI independent
+* Theme entry points split between AppUI and non AppUI setups
+* Package metadata and docs updated for optional AppUI usage
+
+### Fixed
+* Navigation stack and animation edge cases
+* Toolbar only mode
+* Toolbar canvas offset lifecycle
+* Panel sizing when not stretched full
+* First frame NaN issues
+* Tests without AppUI installed
+* URP support
+* Root picking on the app host
+
+### Removed
+* Hard package dependency on com.unity.dt.app-ui
+* NavigationView
+* AnchorDestinationTemplate
+* Legacy DependencyInjection namespace
+* ToolbarHostBridge
+* JSON and byte storage helpers from ILocalStorageService
 
 ## [1.3.0] - 2025-10-03
 
