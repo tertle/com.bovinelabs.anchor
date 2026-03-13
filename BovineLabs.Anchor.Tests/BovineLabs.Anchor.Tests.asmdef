@@ -1,0 +1,42 @@
+{
+  "name": "BovineLabs.Anchor.Tests",
+  "rootNamespace": "",
+  "references": [
+    "BovineLabs.Anchor",
+    "BovineLabs.Anchor.Debug",
+    "BovineLabs.Anchor.Adapters",
+    "BovineLabs.Core",
+    "BovineLabs.Core.Extensions",
+    "BovineLabs.Testing",
+    "Unity.AppUI",
+    "Unity.AppUI.MVVM",
+    "Unity.AppUI.Navigation",
+    "Unity.Burst",
+    "Unity.Collections",
+    "Unity.Entities",
+    "Unity.Mathematics",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.dt.app-ui",
+      "expression": "",
+      "define": "UNITY_APPUI"
+    }
+  ],
+  "noEngineReferences": false
+}

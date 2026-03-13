@@ -1,0 +1,136 @@
+﻿// <copyright file="ToolbarHelper.cs" company="BovineLabs">
+//     Copyright (c) BovineLabs. All rights reserved.
+// </copyright>
+
+namespace BovineLabs.Anchor.Debug.Toolbar
+{
+    using System;
+    using System.Runtime.InteropServices;
+    using BovineLabs.Anchor.Binding;
+    using Unity.Collections;
+    using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Entities;
+    using UnityEngine;
+
+    /// <summary>
+    /// Utility that manages the lifecycle of a toolbar tab bound to a burst-compatible view model.
+    /// </summary>
+    /// <typeparam name="TV">VisualElement view type instantiated for the tab.</typeparam>
+    /// <typeparam name="TM">Managed view-model type that exposes binding data.</typeparam>
+    /// <typeparam name="TD">Unmanaged data struct pinned for burst access.</typeparam>
+    public unsafe struct ToolbarHelper<TV, TM, TD>
+        where TV : View<TM>
+        where TM : class, IBindingObjectNotify<TD>
+        where TD : unmanaged
+    {
+        private readonly FixedString32Bytes tabName;
+        private readonly FixedString32Bytes groupName;
+        private readonly bool isSerializable;
+
+        private int key;
+
+        private GCHandle handle;
+        private TD* data;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ToolbarHelper{TV, TM, TD}"/> struct.
+        /// </summary>
+        /// <param name="tabName">Name of the toolbar tab.</param>
+        /// <param name="groupName">Name of the group inside the tab.</param>
+        public ToolbarHelper(FixedString32Bytes tabName, FixedString32Bytes groupName)
+        {
+            this.tabName = tabName;
+            this.groupName = groupName;
+            this.handle = default;
+            this.data = null;
+            this.key = 0;
+
+            this.isSerializable = typeof(TM).IsDefined(typeof(SerializableAttribute), false);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ToolbarHelper{TV, TM, TD}"/> struct.
+        /// </summary>
+        /// <param name="state">System state whose world name will become the tab name.</param>
+        /// <param name="groupName">Name of the group inside the tab.</param>
+        public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
+            : this(FormatWorld(state.World), groupName)
+        {
+        }
+
+        /// <summary>Gets access to the unmanaged binding data pinned for burst.</summary>
+        public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
+
+        private string SaveKey => $"bl.toolbar.{this.tabName}.{this.groupName}";
+
+        /// <summary>
+        /// Adds the toolbar tab, loads its view model, and restores serialized state if necessary. Usually called from OnStartRunning.
+        /// </summary>
+        public void Load()
+        {
+            var host = ToolbarView.Instance;
+            host.AddTab(typeof(TV), this.tabName.ToString(), this.groupName.ToString(), out this.key, out var visual);
+            var view = (TV)visual;
+
+            view.ViewModel.Load();
+
+            if (view.ViewModel is ILoadable loadable)
+            {
+                loadable.Load();
+            }
+
+            this.handle = GCHandle.Alloc(view.ViewModel.Value, GCHandleType.Pinned);
+            this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
+
+            if (this.isSerializable)
+            {
+                var json = PlayerPrefs.GetString(this.SaveKey, string.Empty);
+                JsonUtility.FromJsonOverwrite(json, view.ViewModel);
+            }
+        }
+
+        /// <summary>
+        /// Removes the toolbar tab, persists state if required, and disposes the view model.
+        /// </summary>
+        public void Unload()
+        {
+            var view = ToolbarView.Instance?.RemoveTab(this.key) as TV;
+
+            if (this.isSerializable)
+            {
+                if (view != null)
+                {
+                    var saveData = JsonUtility.ToJson(view.ViewModel);
+                    PlayerPrefs.SetString(this.SaveKey, saveData);
+                }
+            }
+
+            if (view?.ViewModel is ILoadable loadable)
+            {
+                loadable.Unload();
+            }
+
+            view?.ViewModel.Unload();
+            if (this.handle.IsAllocated)
+            {
+                this.handle.Free();
+            }
+
+            this.handle = default;
+            this.data = null;
+        }
+
+        /// <summary>Determines whether the helper’s tab is currently selected.</summary>
+        /// <returns><c>true</c> if the helper’s tab is the active tab.</returns>
+        public bool IsVisible()
+        {
+            return ToolbarViewData.ActiveTab.Data == this.tabName;
+        }
+
+        private static string FormatWorld(World world)
+        {
+            var name = world.Name;
+            return name.EndsWith("World") ? name[..name.LastIndexOf("World", StringComparison.Ordinal)] : name;
+        }
+    }
+}

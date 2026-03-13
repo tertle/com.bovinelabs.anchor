@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
-    using Unity.AppUI.Navigation;
 
     /// <summary> Representation of an entry in the back stack of a <see cref="NavController"/>. </summary>
     internal sealed class AnchorNavBackStackEntry
@@ -18,12 +17,12 @@ namespace BovineLabs.Anchor.Nav
         internal AnchorNavBackStackEntry(
             string destination,
             AnchorNavOptions options,
-            Argument[] arguments,
+            AnchorNavArgument[] arguments,
             AnchorNavStackSnapshot snapshot = null)
         {
             this.Destination = destination;
             this.Options = options ?? new AnchorNavOptions();
-            this.Arguments = arguments ?? Array.Empty<Argument>();
+            this.Arguments = arguments ?? Array.Empty<AnchorNavArgument>();
             this.Snapshot = snapshot ?? AnchorNavStackSnapshot.Empty;
         }
 
@@ -34,7 +33,7 @@ namespace BovineLabs.Anchor.Nav
         public AnchorNavOptions Options { get; }
 
         /// <summary> Gets the arguments associated with this entry. </summary>
-        public Argument[] Arguments { get; }
+        public AnchorNavArgument[] Arguments { get; }
 
         /// <summary> Gets the snapshot of the visual stack for this entry. </summary>
         public AnchorNavStackSnapshot Snapshot { get; }

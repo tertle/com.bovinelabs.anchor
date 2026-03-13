@@ -9,8 +9,6 @@ namespace BovineLabs.Anchor.Nav
     using System.Linq;
     using BovineLabs.Core;
     using BovineLabs.Core.Utility;
-    using Unity.AppUI.Navigation;
-    using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -29,47 +27,25 @@ namespace BovineLabs.Anchor.Nav
 
         private readonly Stack<AnchorNavBackStackEntry> backStack = new();
         private readonly Dictionary<string, AnchorNavAction> actions = new();
+        private readonly Dictionary<int, AnchorNavAnimation> animations = new();
         private readonly List<AnchorNavActiveEntry> activeStack = new();
         private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
 
         private string currentDestination;
 
-        private NavigationAnimation currentPopExitAnimation = NavigationAnimation.None;
-        private NavigationAnimation currentPopEnterAnimation = NavigationAnimation.None;
+        private AnchorNavAnimation currentPopExitAnimation;
+        private AnchorNavAnimation currentPopEnterAnimation;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class with a predefined set of actions.
+        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class with predefined actions and animations.
         /// </summary>
         /// <param name="actions">Named actions that can be invoked for navigation.</param>
-        public AnchorNavHost(IEnumerable<AnchorNamedAction> actions)
+        /// <param name="animations">Named animations that can be invoked by key.</param>
+        public AnchorNavHost(IEnumerable<AnchorNamedAction> actions, IEnumerable<AnchorNavAnimation> animations)
             : this()
         {
-            if (actions == null)
-            {
-                return;
-            }
-
-            foreach (var action in actions)
-            {
-                if (action == null)
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(action.ActionName))
-                {
-                    BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
-                    continue;
-                }
-
-                if (this.actions.ContainsKey(action.ActionName))
-                {
-                    BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
-                    continue;
-                }
-
-                this.actions.Add(action.ActionName, action.Action);
-            }
+            this.RegisterActions(actions);
+            this.RegisterAnimations(animations);
         }
 
         /// <summary>
@@ -79,25 +55,22 @@ namespace BovineLabs.Anchor.Nav
         {
             this.AddToClassList(USSClassName);
 
-            this.focusable = true;
             this.style.flexGrow = 1;
             this.pickingMode = PickingMode.Ignore;
-            this.container = new StackView();
+            this.container = new VisualElement();
             this.container.AddToClassList(ContainerUssClassName);
             this.container.pickingMode = PickingMode.Ignore;
             this.container.StretchToParentSize();
             this.hierarchy.Add(this.container);
 
-            this.RegisterCallback<NavigationCancelEvent>(this.OnCancelNavigation);
-
             this.RegisterAllActions();
         }
 
         /// <summary> Event that is triggered when a new destination is entered. </summary>
-        public event Action<AnchorNavHost, VisualElement, Argument[]> EnteredDestination;
+        public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> EnteredDestination;
 
         /// <summary> Event that is triggered when a destination is exited. </summary>
-        public event Action<AnchorNavHost, VisualElement, Argument[]> ExitedDestination;
+        public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> ExitedDestination;
 
         /// <summary> Event that is invoked when an action is triggered. </summary>
         public event Action<AnchorNavHost, AnchorNavAction> ActionTriggered;
@@ -139,6 +112,40 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary> Gets the last entry on the back stack. </summary>
         private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
+
+        /// <summary>
+        /// Try to resolve a registered animation by name.
+        /// </summary>
+        /// <param name="id">The animation id.</param>
+        /// <param name="animation">The animation definition.</param>
+        /// <returns>True if the animation was found.</returns>
+        public bool TryGetAnimation(int id, out AnchorNavAnimation animation)
+        {
+            if (id == 0)
+            {
+                animation = null;
+                return true;
+            }
+
+            return this.animations.TryGetValue(id, out animation);
+        }
+
+        /// <summary>
+        /// Register an animation by name for lookup during navigation.
+        /// </summary>
+        /// <param name="animation">The animation definition.</param>
+        private void RegisterAnimation(AnchorNavAnimation animation)
+        {
+            if (animation == null)
+            {
+                return;
+            }
+
+            if (!this.animations.TryAdd(animation.ID, animation))
+            {
+                BLGlobalLogger.LogError($"AnchorNavAnimation id {animation.ID} on '{animation.name}' is already registered.");
+            }
+        }
 
         private void RegisterAllActions()
         {
@@ -189,13 +196,48 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private void OnCancelNavigation(NavigationCancelEvent evt)
+        private void RegisterActions(IEnumerable<AnchorNamedAction> allActions)
         {
-            if (this.CanGoBack)
+            if (allActions == null)
             {
-                evt.StopPropagation();
-                this.PopBackStack();
+                return;
+            }
+
+            foreach (var action in allActions)
+            {
+                if (action == null)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(action.ActionName))
+                {
+                    BLGlobalLogger.LogError("Encountered AnchorNamedAction with an empty name.");
+                    continue;
+                }
+
+                if (this.actions.ContainsKey(action.ActionName))
+                {
+                    BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
+                    continue;
+                }
+
+                this.actions.Add(action.ActionName, action.Action);
             }
         }
+
+        private void RegisterAnimations(IEnumerable<AnchorNavAnimation> allAnimations)
+        {
+            if (allAnimations == null)
+            {
+                return;
+            }
+
+            foreach (var animation in allAnimations)
+            {
+                this.RegisterAnimation(animation);
+            }
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="ViewModelService.cs" company="BovineLabs">
+// <copyright file="ViewModelService.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Services
 {
     using System;
     using System.Collections.Generic;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.MVVM;
 
     internal record ViewModelService : IViewModelService
     {
@@ -18,7 +18,7 @@ namespace BovineLabs.Anchor.Services
         {
             if (!this.loadedElements.TryGetValue(typeof(T), out var element))
             {
-                element = this.loadedElements[typeof(T)] = App.current.services.GetRequiredService<T>();
+                element = this.loadedElements[typeof(T)] = AnchorApp.Current.Services.GetRequiredService<T>();
             }
 
             return (T)element;
@@ -40,3 +40,4 @@ namespace BovineLabs.Anchor.Services
         }
     }
 }
+

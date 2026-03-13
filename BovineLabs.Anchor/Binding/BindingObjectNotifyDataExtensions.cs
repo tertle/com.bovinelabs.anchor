@@ -97,7 +97,6 @@ namespace BovineLabs.Anchor.Binding
             return true;
         }
 
-        // TODO
         /// <summary>
         /// Synchronizes a <see cref="ChangedList{T}"/> and notifies consumers even when the underlying list instance matches.
         /// </summary>

@@ -1,21 +1,20 @@
-﻿// <copyright file="AppUIToolbarViewModel.cs" company="BovineLabs">
+// <copyright file="AppUIToolbarViewModel.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
-    using Unity.AppUI.MVVM;
     using Unity.Properties;
 
     [IsService]
-    [ObservableObject]
-    public partial class AppUIToolbarViewModel
+    public class AppUIToolbarViewModel : ObservableObject
     {
-        private const string ThemeKey = "bl.ui.theme";
-        private const string ScaleKey = "bl.ui.scale";
+        private const string ThemeKey = "bl.options.ui.theme";
+        private const string ScaleKey = "bl.options.ui-scale";
 
         private readonly ILocalStorageService localStorageService;
 
@@ -72,11 +71,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             if (theme == "system")
             {
                 Platform.darkModeChanged += this.OnSystemThemeChanged;
-                AnchorApp.current.Panel.theme = Platform.darkMode ? "dark" : "light";
+                AnchorApp.Current.Panel.Theme = Platform.darkMode ? "dark" : "light";
             }
             else
             {
-                AnchorApp.current.Panel.theme = theme;
+                AnchorApp.Current.Panel.Theme = theme;
             }
 
             this.localStorageService.SetValue(ThemeKey, theme);
@@ -84,13 +83,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void SetScale(string scale)
         {
-            AnchorApp.current.Panel.scale = scale;
+            AnchorApp.Current.Panel.Scale = scale;
             this.localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
         {
-            AnchorApp.current.Panel.theme = darkMode ? "dark" : "light";
+            AnchorApp.Current.Panel.Theme = darkMode ? "dark" : "light";
         }
 
         private void PopulateTheme()

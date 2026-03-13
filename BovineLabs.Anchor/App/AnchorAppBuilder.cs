@@ -7,11 +7,15 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Reflection;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
+    using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Core;
     using BovineLabs.Core.Utility;
-    using Unity.AppUI.MVVM;
+    using UnityEngine;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -25,12 +29,17 @@ namespace BovineLabs.Anchor
     /// <para>A MonoBehaviour that can be used to build and host an app in a UIDocument.</para>
     /// <para>This class is intended to be used as a base class for a MonoBehaviour that is attached to a GameObject in a scene.</para>
     /// </summary>
-    /// <typeparam name="T"> The type of the app to build. It is expected that this type is a subclass of <see cref="App"/>. </typeparam>
+    /// <typeparam name="T">The type of the app to build.</typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
-    public abstract class AnchorAppBuilder<T> : UIToolkitAppBuilder<T>
-        where T : AnchorApp
+    public abstract class AnchorAppBuilder<T> : MonoBehaviour
+        where T : AnchorApp, new()
     {
+        [SerializeField]
+        private UIDocument uiDocument;
+
         private AnchorNavHostSaveState state;
+        private AnchorServiceProvider serviceProvider;
+        private T anchorApp;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
@@ -42,57 +51,130 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
-        /// <inheritdoc/>
-        protected override void OnConfiguringApp(AppBuilder builder)
+        protected UIDocument Document => this.uiDocument;
+
+        /// <summary>
+        /// Gets the panel type used for the app root.
+        /// </summary>
+        /// <remarks>
+        /// The type must implement <see cref="IAnchorPanel"/> and provide a public parameterless constructor.
+        /// </remarks>
+        protected virtual Type PanelType { get; } = typeof(AnchorPanel);
+
+        internal void OnEnable()
         {
-#if !UNITY_EDITOR && !BL_DEBUG
-            if (this.ToolbarOnly)
+            if (this.uiDocument == null)
+            {
+                BLGlobalLogger.LogWarningString($"No {nameof(UIDocument)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
+                return;
+            }
+
+            var services = new AnchorServiceCollection();
+            this.OnConfigureServices(services);
+
+            this.serviceProvider = services.BuildServiceProvider();
+            this.anchorApp = new T();
+
+            var panel = this.CreatePanel();
+            panel.RootVisualElement.pickingMode = PickingMode.Ignore;
+            var root = panel.RootVisualElement;
+            this.uiDocument.rootVisualElement?.Clear();
+            this.uiDocument.rootVisualElement?.Add(root);
+
+            this.anchorApp.Initialize(this.serviceProvider, panel);
+            this.OnAppInitialized(this.anchorApp);
+        }
+
+        internal void OnDisable()
+        {
+            if (this.anchorApp == null)
             {
                 return;
             }
-#endif
-            builder.services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-            builder.services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
+
+            this.OnAppShuttingDown(this.anchorApp);
+
+            if (this.uiDocument != null)
+            {
+                this.uiDocument.rootVisualElement?.Clear();
+            }
+
+            this.anchorApp.Dispose();
+            this.serviceProvider?.Dispose();
+
+            this.anchorApp = null;
+            this.serviceProvider = null;
+        }
+
+        protected virtual void OnConfigureServices(AnchorServiceCollection services)
+        {
+            services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
+            services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
 
             if (this.UXMLService != null)
             {
-                builder.services.AddSingleton(typeof(IUXMLService), this.UXMLService);
+                services.AddSingleton(typeof(IUXMLService), this.UXMLService);
             }
 
             // Register all services
-            foreach (var services in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
+            foreach (var service in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
             {
-                if (services.GetCustomAttribute<TransientAttribute>() != null)
+                var isTransient = service.GetCustomAttribute<TransientAttribute>() != null;
+                if (isTransient)
                 {
-                    builder.services.AddTransient(services);
+                    services.AddTransient(service);
                 }
                 else
                 {
-                    builder.services.AddSingleton(services);
+                    services.AddSingleton(service);
+                }
+
+                if (!isTransient && typeof(IAnchorToolbarHost).IsAssignableFrom(service))
+                {
+                    services.AddAlias(typeof(IAnchorToolbarHost), service);
                 }
             }
         }
 
-        /// <inheritdoc/>
-        protected override void OnAppInitialized(T app)
+        /// <summary>
+        /// Creates the panel host for the app root.
+        /// </summary>
+        /// <returns>Panel implementation used by this app instance.</returns>
+        protected virtual IAnchorPanel CreatePanel()
         {
-            base.OnAppInitialized(app);
+            var panelType = this.PanelType ?? typeof(AnchorPanel);
+            if (!typeof(IAnchorPanel).IsAssignableFrom(panelType))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(this.PanelType)} '{panelType.FullName}' must implement {nameof(IAnchorPanel)}.");
+            }
 
-#if !UNITY_EDITOR && !BL_DEBUG
+            if (panelType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(this.PanelType)} '{panelType.FullName}' must have a public parameterless constructor.");
+            }
+
+            return (IAnchorPanel)Activator.CreateInstance(panelType);
+        }
+
+        protected virtual void OnAppInitialized(T app)
+        {
             if (this.ToolbarOnly)
             {
+                app.InitializeToolbar();
                 return;
             }
-#endif
 
 #if UNITY_EDITOR || BL_DEBUG
             foreach (var style in this.DebugStyleSheets)
             {
-                app.rootVisualElement.styleSheets.Add(style);
+                app.RootVisualElement.styleSheets.Add(style);
             }
 #endif
 
             app.Initialize();
+            app.InitializeToolbar();
 
             if (this.state != null)
             {
@@ -100,12 +182,12 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <inheritdoc/>
-        protected override void OnAppShuttingDown(T app)
+        protected virtual void OnAppShuttingDown(T app)
         {
-            base.OnAppShuttingDown(app);
-
-            this.state = app.NavHost.SaveState();
+            if (!this.ToolbarOnly)
+            {
+                this.state = app.NavHost.SaveState();
+            }
         }
 
         private void Reset()

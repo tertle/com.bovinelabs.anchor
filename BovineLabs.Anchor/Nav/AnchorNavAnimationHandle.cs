@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
-    using Unity.AppUI.UI;
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
@@ -53,7 +52,7 @@ namespace BovineLabs.Anchor.Nav
 
             this.Handle?.Recycle();
             this.Handle = null;
-            this.description.callback?.Invoke(this.Element, 1f);
+            this.description.Callback?.Invoke(this.Element, 1f);
             this.onCompleted?.Invoke();
         }
     }

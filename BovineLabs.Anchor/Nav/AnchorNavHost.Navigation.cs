@@ -7,10 +7,9 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
-    using Unity.AppUI.MVVM;
-    using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
 
     public partial class AnchorNavHost
@@ -22,12 +21,26 @@ namespace BovineLabs.Anchor.Nav
             this.backStack.Clear();
         }
 
+        /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
+        /// <param name="exitAnimation"> Optional animation to use when removing the last active entry. </param>
+        public void ClearNavigation(int exitAnimation = 0)
+        {
+            var animation = this.ResolveAnimation(exitAnimation);
+            this.backStack.Clear();
+            this.ApplySnapshot(AnchorNavStackSnapshot.Empty, animation, null, new AnchorNavOptions());
+        }
+
         /// <summary> Navigate to the destination with the given name. </summary>
         /// <param name="actionOrDestination"> The name of the action. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string actionOrDestination, params Argument[] arguments)
+        public bool Navigate(string actionOrDestination, params AnchorNavArgument[] arguments)
         {
+            if (string.IsNullOrWhiteSpace(actionOrDestination))
+            {
+                return false;
+            }
+
             if (this.actions.TryGetValue(actionOrDestination, out var action))
             {
                 this.ActionTriggered?.Invoke(this, action);
@@ -44,7 +57,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="options"> The options to use for the navigation. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string destination, AnchorNavOptions options, params Argument[] arguments)
+        public bool Navigate(string destination, AnchorNavOptions options, params AnchorNavArgument[] arguments)
         {
             options ??= new AnchorNavOptions();
 
@@ -53,7 +66,7 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            arguments ??= Array.Empty<Argument>();
+            arguments ??= Array.Empty<AnchorNavArgument>();
 
             if (options.PopupStrategy != AnchorPopupStrategy.None)
             {
@@ -118,10 +131,11 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary> Close all currently-displayed popup overlays. </summary>
-        /// <param name="exitAnimation"> The animation to play when dismissing each popup. </param>
+        /// <param name="exitAnimation"> Optional animation name to play when dismissing each popup. </param>
         /// <returns> True if at least one popup was closed. </returns>
-        public bool CloseAllPopups(NavigationAnimation exitAnimation = NavigationAnimation.None)
+        public bool CloseAllPopups(int exitAnimation = 0)
         {
+            var animation = this.ResolveAnimation(exitAnimation);
             var removed = false;
 
             for (var i = this.activeStack.Count - 1; i >= 0; i--)
@@ -131,7 +145,7 @@ namespace BovineLabs.Anchor.Nav
                     break;
                 }
 
-                this.RemoveActiveEntryAt(i, exitAnimation);
+                this.RemoveActiveEntryAt(i, animation);
                 removed = true;
             }
 
@@ -140,23 +154,27 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
+            this.TrimBackStackToActive();
+
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
             this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
             return true;
         }
 
         /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
         /// <param name="destination"> The destination key of the popup to close. </param>
-        /// <param name="exitAnimation"> Optional animation to play when dismissing the popup. </param>
+        /// <param name="exitAnimation"> Optional animation name to play when dismissing the popup. </param>
         /// <returns> True if the popup was closed; otherwise, false. </returns>
-        public bool ClosePopup(string destination, NavigationAnimation exitAnimation = NavigationAnimation.None)
+        public bool ClosePopup(string destination, int exitAnimation = 0)
         {
             if (string.IsNullOrWhiteSpace(destination) || this.activeStack.Count == 0)
             {
                 return false;
             }
+
+            var animation = this.ResolveAnimation(exitAnimation);
 
             var index = -1;
             for (var i = this.activeStack.Count - 1; i >= 0; i--)
@@ -179,13 +197,13 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            this.RemoveActiveEntryAt(index, exitAnimation);
+            this.RemoveActiveEntryAt(index, animation);
             this.TrimBackStackToActive();
 
             var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
             this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim ?? NavigationAnimation.None;
-            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim ?? NavigationAnimation.None;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
             return true;
         }
 
@@ -213,7 +231,7 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        private void NavigateInternal(string destination, AnchorNavOptions options, Argument[] arguments)
+        private void NavigateInternal(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             if (string.IsNullOrWhiteSpace(destination))
             {
@@ -221,7 +239,7 @@ namespace BovineLabs.Anchor.Nav
             }
 
             options ??= new AnchorNavOptions();
-            arguments ??= Array.Empty<Argument>();
+            arguments ??= Array.Empty<AnchorNavArgument>();
 
             if (options.PopupStrategy != AnchorPopupStrategy.None)
             {
@@ -237,14 +255,14 @@ namespace BovineLabs.Anchor.Nav
             this.HandleNavigate(new AnchorNavBackStackEntry(destination, options, arguments, snapshot));
         }
 
-        private bool NavigatePopupInternal(string destination, AnchorNavOptions options, Argument[] arguments)
+        private bool NavigatePopupInternal(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             if (string.IsNullOrEmpty(destination))
             {
                 return false;
             }
 
-            arguments ??= Array.Empty<Argument>();
+            arguments ??= Array.Empty<AnchorNavArgument>();
 
             switch (options.PopupStrategy)
             {
@@ -259,7 +277,7 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private bool NavigatePopupEnsureBase(string destination, AnchorNavOptions options, Argument[] arguments)
+        private bool NavigatePopupEnsureBase(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             var baseDestination = options.PopupBaseDestination;
             if (string.IsNullOrWhiteSpace(baseDestination))
@@ -278,7 +296,7 @@ namespace BovineLabs.Anchor.Nav
                 baseOptions.PopupBaseArguments.Clear();
 
                 var baseArgsList = options.PopupBaseArguments;
-                var baseArgs = baseArgsList is { Count: > 0 } ? baseArgsList.ToArray() : Array.Empty<Argument>();
+                var baseArgs = baseArgsList is { Count: > 0 } ? baseArgsList.ToArray() : Array.Empty<AnchorNavArgument>();
 
                 if (!this.Navigate(baseDestination, baseOptions, baseArgs))
                 {
@@ -289,11 +307,11 @@ namespace BovineLabs.Anchor.Nav
             return this.NavigatePopupOnCurrent(destination, options, arguments);
         }
 
-        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, Argument[] arguments)
+        private bool NavigatePopupOnCurrent(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments)
         {
             if (this.activeStack.Count == 0)
             {
-                BLGlobalLogger.LogWarning($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
+                BLGlobalLogger.LogWarningString($"Popup navigation to '{destination}' requested without an active base destination. Falling back to normal navigation.");
 
                 var fallbackOptions = options.Clone();
                 fallbackOptions.PopupStrategy = AnchorPopupStrategy.None;
@@ -408,32 +426,52 @@ namespace BovineLabs.Anchor.Nav
             this.CurrentDestination = entry.Destination;
         }
 
+        private AnchorNavAnimation ResolveAnimation(int id)
+        {
+            if (this.TryGetAnimation(id, out var animation))
+            {
+                return animation;
+            }
+
+            BLGlobalLogger.LogWarningString($"AnchorNavHost could not find animation '{id}'.");
+            return null;
+        }
+
         private void ApplySnapshot(
             AnchorNavStackSnapshot snapshot,
-            NavigationAnimation exitAnim,
-            NavigationAnimation enterAnim,
+            AnchorNavAnimation exitAnim,
+            AnchorNavAnimation enterAnim,
             AnchorNavOptions optionsForTop)
         {
+            optionsForTop ??= new AnchorNavOptions();
+
             var targetItems = snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
             var sharedPrefix = this.GetSharedPrefix(targetItems);
 
             for (var i = 0; i < sharedPrefix; i++)
             {
-                this.activeStack[i].Update(targetItems[i]);
+                var entry = this.activeStack[i];
+                var targetItem = targetItems[i];
+                var argumentsChanged = !ArgumentsEqual(entry.Arguments, targetItem.Arguments);
+                entry.Update(targetItem);
+
+                if (argumentsChanged)
+                {
+                    OnEntered(entry);
+                }
             }
 
             this.CancelRunningAnimations();
 
             for (var i = this.activeStack.Count - 1; i >= sharedPrefix; i--)
             {
-                var animation = i == this.activeStack.Count - 1 ? exitAnim : NavigationAnimation.None;
-                this.RemoveActiveEntryAt(i, animation);
+                this.RemoveActiveEntryAt(i, exitAnim);
             }
 
             for (var i = sharedPrefix; i < targetItems.Count; i++)
             {
                 var item = targetItems[i];
-                var animation = i == targetItems.Count - 1 ? enterAnim : NavigationAnimation.None;
+                var animation = i == targetItems.Count - 1 ? enterAnim : null;
                 this.AddActiveEntry(i, item, animation);
             }
 
@@ -485,7 +523,7 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private void AddActiveEntry(int index, AnchorNavStackItem item, NavigationAnimation enterAnim)
+        private void AddActiveEntry(int index, AnchorNavStackItem item, AnchorNavAnimation enterAnim)
         {
             var element = this.CreateItem(item.Destination);
 
@@ -507,7 +545,7 @@ namespace BovineLabs.Anchor.Nav
             this.EnteredDestination?.Invoke(this, element, entry.Arguments);
         }
 
-        private void RemoveActiveEntryAt(int index, NavigationAnimation exitAnim)
+        private void RemoveActiveEntryAt(int index, AnchorNavAnimation exitAnim)
         {
             var entry = this.activeStack[index];
             this.activeStack.RemoveAt(index);
@@ -546,7 +584,7 @@ namespace BovineLabs.Anchor.Nav
 
             if (!handled && entry.Arguments is { Length: > 0 })
             {
-                BLGlobalLogger.LogWarning($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnEnter.");
+                BLGlobalLogger.LogWarningString($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnEnter.");
             }
         }
 
@@ -565,7 +603,72 @@ namespace BovineLabs.Anchor.Nav
 
             if (!handled && entry.Arguments is { Length: > 0 })
             {
-                BLGlobalLogger.LogWarning($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnExit.");
+                BLGlobalLogger.LogWarningString($"AnchorNavHost received navigation arguments for '{entry.Destination}' but no screen handled OnExit.");
+            }
+        }
+
+        private bool TryPlayAnimation(VisualElement element, AnchorNavAnimation animation, Action onCompleted)
+        {
+            var description = GetAnimationDescription(animation);
+            if (description is { DurationMs: <= 0, Callback: null })
+            {
+                onCompleted?.Invoke();
+                return false;
+            }
+
+            var handleInfo = new AnchorNavAnimationHandle(element, description, onCompleted);
+            var handle = element.experimental.animation
+                .Start(0, 1, description.DurationMs, description.Callback)
+                .Ease(description.Easing)
+                .OnCompleted(() =>
+                {
+                    if (!handleInfo.TryFinalizeFromAnimation())
+                    {
+                        return;
+                    }
+
+                    onCompleted?.Invoke();
+                    this.runningAnimations.Remove(handleInfo);
+                })
+                .KeepAlive();
+
+            handleInfo.Handle = handle;
+            this.runningAnimations.Add(handleInfo);
+            return true;
+        }
+
+        private static AnimationDescription GetAnimationDescription(AnchorNavAnimation animation)
+        {
+            return animation != null ? animation.GetDescription() : AnimationDescription.None;
+        }
+
+        private void CancelRunningAnimations()
+        {
+            if (this.runningAnimations.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var animation in this.runningAnimations)
+            {
+                animation.CompleteImmediately();
+            }
+
+            this.runningAnimations.Clear();
+        }
+
+        private void CompleteAnimationsFor(VisualElement element)
+        {
+            for (var i = this.runningAnimations.Count - 1; i >= 0; i--)
+            {
+                var handle = this.runningAnimations[i];
+                if (handle.Element != element)
+                {
+                    continue;
+                }
+
+                handle.CompleteImmediately();
+                this.runningAnimations.RemoveAt(i);
             }
         }
 
@@ -608,6 +711,29 @@ namespace BovineLabs.Anchor.Nav
             return existing.Destination == target.Destination && existing.IsPopup == target.IsPopup;
         }
 
+        private static bool ArgumentsEqual(AnchorNavArgument[] left, AnchorNavArgument[] right)
+        {
+            if (ReferenceEquals(left, right))
+            {
+                return true;
+            }
+
+            if (left == null || right == null || left.Length != right.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < left.Length; i++)
+            {
+                if (!EqualityComparer<AnchorNavArgument>.Default.Equals(left[i], right[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private bool MatchesActiveStack(AnchorNavStackSnapshot snapshot)
         {
             var items = snapshot?.Items ?? Array.Empty<AnchorNavStackItem>();
@@ -633,10 +759,11 @@ namespace BovineLabs.Anchor.Nav
 
         private VisualElement CreateItem(string destination)
         {
-            var element = AnchorApp.current.services.GetService<IUXMLService>().Instantiate(destination);
-            element.StretchToParentSize(); // TODO need to confirm this
+            var element = AnchorApp.Current.Services.GetService<IUXMLService>().Instantiate(destination);
+            element.StretchToParentSize();
             element.pickingMode = PickingMode.Ignore;
             return element;
         }
     }
 }
+

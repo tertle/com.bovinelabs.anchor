@@ -1,4 +1,4 @@
-﻿// <copyright file="UIHelper.cs" company="BovineLabs">
+// <copyright file="UIHelper.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -7,8 +7,8 @@ namespace BovineLabs.Anchor
     using System;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
+    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
-    using Unity.AppUI.MVVM;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
@@ -24,7 +24,7 @@ namespace BovineLabs.Anchor
         private TD* data;
 
         /// <summary>
-        /// Initializes the helper and ensures the owning system requires the specified component.
+        /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
         /// </summary>
         /// <param name="state">System state used to satisfy component requirements.</param>
         /// <param name="requiredComponent">Component type that must exist before the UI helper binds.</param>
@@ -46,7 +46,7 @@ namespace BovineLabs.Anchor
         }
 
         /// <summary>
-        /// Initializes the helper using a navigation state name instead of a component type.
+        /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
         /// </summary>
         /// <param name="state">System state used to satisfy component requirements.</param>
         /// <param name="name">Navigation state that should be resolved to a component requirement.</param>
@@ -61,12 +61,12 @@ namespace BovineLabs.Anchor
         /// <summary>Loads and pins the view model so the helper can forward changes.</summary>
         public void Bind()
         {
-            var viewModel = App.current.services.GetRequiredService<IViewModelService>().Load<TM>();
+            var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Load<TM>();
             viewModel.Load();
 
-            if (viewModel is IInitializable initializable)
+            if (viewModel is ILoadable loadable)
             {
-                initializable.Initialize();
+                loadable.Load();
             }
 
             this.handle = GCHandle.Alloc(viewModel.Value, GCHandleType.Pinned);
@@ -76,11 +76,11 @@ namespace BovineLabs.Anchor
         /// <summary>Unpins and unloads the view model that was previously bound.</summary>
         public void Unbind()
         {
-            var viewModel = App.current.services.GetRequiredService<IViewModelService>().Get<TM>();
+            var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Get<TM>();
 
-            if (viewModel is IDisposable disposable)
+            if (viewModel is ILoadable loadable)
             {
-                disposable.Dispose();
+                loadable.Unload();
             }
 
             viewModel?.Unload();
@@ -88,7 +88,7 @@ namespace BovineLabs.Anchor
             this.handle = default;
             this.data = null;
 
-            App.current.services.GetRequiredService<IViewModelService>().Unload<TM>();
+            AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Unload<TM>();
         }
     }
 }

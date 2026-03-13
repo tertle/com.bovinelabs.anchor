@@ -5,20 +5,19 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
-    using Unity.AppUI.Navigation;
     using UnityEngine.UIElements;
 
     internal sealed class AnchorNavActiveEntry
     {
         public AnchorNavActiveEntry(
             string destination,
-            Argument[] arguments,
+            AnchorNavArgument[] arguments,
             bool isPopup,
             AnchorNavOptions options,
             VisualElement element)
         {
             this.Destination = destination;
-            this.Arguments = arguments ?? Array.Empty<Argument>();
+            this.Arguments = arguments ?? Array.Empty<AnchorNavArgument>();
             this.IsPopup = isPopup;
             this.Options = options ?? new AnchorNavOptions();
             this.Element = element ?? throw new ArgumentNullException(nameof(element));
@@ -30,7 +29,7 @@ namespace BovineLabs.Anchor.Nav
 
         public AnchorNavOptions Options { get; private set; }
 
-        public Argument[] Arguments { get; private set; }
+        public AnchorNavArgument[] Arguments { get; private set; }
 
         public VisualElement Element { get; }
 

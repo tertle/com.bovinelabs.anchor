@@ -1,6 +1,6 @@
 /* App UI */
 @import url("/Packages/com.unity.dt.app-ui/PackageResources/Styles/Themes/App UI.tss");
 
-/* The custom toolbar */
+/* Anchor + toolbar styles */
 @import url("Toolbar.uss");
 @import url("Anchor.uss");

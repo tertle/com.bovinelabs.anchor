@@ -1,0 +1,2 @@
+/* Anchor core styles without AppUI theme import. */
+@import url("Anchor.uss");

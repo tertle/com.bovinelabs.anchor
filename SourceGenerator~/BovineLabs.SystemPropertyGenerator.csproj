@@ -22,9 +22,14 @@
 
     <ItemGroup>
       <Reference Include="CodeGenHelpers">
-        <HintPath>..\..\com.bovinelabs.core\Libraries\CodeGenHelpers\CodeGenHelpers.dll</HintPath>
+        <HintPath>..\..\com.bovinelabs.core\BovineLabs.Core\CodeGenHelpers\CodeGenHelpers.dll</HintPath>
         <Private>false</Private>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+      <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
     </ItemGroup>
 
 </Project>

@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Unity.AppUI.Navigation;
 
     /// <summary>
     /// Serializable snapshot of an <see cref="AnchorNavHost"/> state.
@@ -23,7 +22,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="activeStack">Snapshot of the active visual stack.</param>
         /// <param name="backStack">Snapshot of the back stack entries.</param>
         public AnchorNavHostSaveState(
-            string currentDestination, NavigationAnimation currentPopEnterAnimation, NavigationAnimation currentPopExitAnimation,
+            string currentDestination, AnchorNavAnimation currentPopEnterAnimation, AnchorNavAnimation currentPopExitAnimation,
             IReadOnlyList<StackItem> activeStack, IReadOnlyList<BackStackEntry> backStack)
         {
             this.CurrentDestination = currentDestination;
@@ -37,10 +36,10 @@ namespace BovineLabs.Anchor.Nav
         public string CurrentDestination { get; }
 
         /// <summary> Gets the animation that should play when an entry re-enters the stack after a pop. </summary>
-        public NavigationAnimation CurrentPopEnterAnimation { get; }
+        public AnchorNavAnimation CurrentPopEnterAnimation { get; }
 
         /// <summary> Gets the animation that should play when popping the current destination. </summary>
-        public NavigationAnimation CurrentPopExitAnimation { get; }
+        public AnchorNavAnimation CurrentPopExitAnimation { get; }
 
         /// <summary> Gets the ordered list representing the currently active visual stack. </summary>
         public IReadOnlyList<StackItem> ActiveStack { get; }
@@ -60,11 +59,11 @@ namespace BovineLabs.Anchor.Nav
             /// <param name="options">Navigation options associated with the destination.</param>
             /// <param name="arguments">Arguments supplied when the destination was navigated to.</param>
             /// <param name="isPopup">Whether the destination was displayed as a popup.</param>
-            public StackItem(string destination, AnchorNavOptions options, Argument[] arguments, bool isPopup)
+            public StackItem(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, bool isPopup)
             {
                 this.Destination = destination;
                 this.Options = options?.Clone();
-                this.Arguments = arguments?.ToArray() ?? Array.Empty<Argument>();
+                this.Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
                 this.IsPopup = isPopup;
             }
 
@@ -75,7 +74,7 @@ namespace BovineLabs.Anchor.Nav
             public AnchorNavOptions Options { get; }
 
             /// <summary> Gets the arguments supplied when the destination was navigated to. </summary>
-            public Argument[] Arguments { get; }
+            public AnchorNavArgument[] Arguments { get; }
 
             /// <summary> Gets a value indicating whether the destination was displayed as a popup. </summary>
             public bool IsPopup { get; }
@@ -93,11 +92,11 @@ namespace BovineLabs.Anchor.Nav
             /// <param name="options">Navigation options associated with the entry.</param>
             /// <param name="arguments">Arguments supplied when the entry was created.</param>
             /// <param name="snapshot">Saved snapshot of the visual stack for the entry.</param>
-            public BackStackEntry(string destination, AnchorNavOptions options, Argument[] arguments, IReadOnlyList<StackItem> snapshot)
+            public BackStackEntry(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, IReadOnlyList<StackItem> snapshot)
             {
                 this.Destination = destination;
                 this.Options = options?.Clone();
-                this.Arguments = arguments?.ToArray() ?? Array.Empty<Argument>();
+                this.Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
                 this.Snapshot = snapshot ?? Array.Empty<StackItem>();
             }
 
@@ -108,7 +107,7 @@ namespace BovineLabs.Anchor.Nav
             public AnchorNavOptions Options { get; }
 
             /// <summary> Gets the arguments supplied when the entry was added to the back stack. </summary>
-            public Argument[] Arguments { get; }
+            public AnchorNavArgument[] Arguments { get; }
 
             /// <summary> Gets the snapshot that should be applied when the entry becomes active. </summary>
             public IReadOnlyList<StackItem> Snapshot { get; }

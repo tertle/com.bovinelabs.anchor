@@ -7,12 +7,11 @@ namespace BovineLabs.Anchor.Collections
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
-    using BovineLabs.Anchor.Elements;
     using Unity.Properties;
 
     /// <summary>
     /// An <see cref="ObservableCollection{T}"/> with support for bulk operations.
-    /// This is especially useful for UI elements such as <see cref="AnchorGridView"/> that rely on
+    /// This is especially useful for UI elements such as Anchor grid views that rely on
     /// <see cref="INotifyCollectionChanged"/> but should only update once when multiple items are modified.
     ///
     /// Example usage as an indexed binding:

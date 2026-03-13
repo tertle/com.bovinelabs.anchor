@@ -4,29 +4,23 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
-    using BovineLabs.Anchor.Toolbar;
-    using Unity.AppUI.MVVM;
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.MVVM;
     using Unity.Collections;
     using Unity.Properties;
     using UnityEngine;
 
-    [ObservableObject]
-    public partial class FPSToolbarViewModel
+    public class FPSToolbarViewModel : ObservableObject
     {
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;
 
-        [ObservableProperty]
-        [AlsoNotifyChangeFor(nameof(FrameTime))]
         private int currentFPS;
 
-        [ObservableProperty]
         private int averageFPS;
 
-        [ObservableProperty]
         private int minFPS;
 
-        [ObservableProperty]
         private int maxFPS;
 
         private FPSStatistics fps;
@@ -42,6 +36,40 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty(ReadOnly = true)]
         public float FrameTime => this.currentFPS == 0 ? 0 : 1000f / this.currentFPS;
 
+        [CreateProperty]
+        public int CurrentFPS
+        {
+            get => this.currentFPS;
+            set
+            {
+                if (this.SetProperty(ref this.currentFPS, value))
+                {
+                    this.OnPropertyChanged(nameof(this.FrameTime));
+                }
+            }
+        }
+
+        [CreateProperty]
+        public int AverageFPS
+        {
+            get => this.averageFPS;
+            set => this.SetProperty(ref this.averageFPS, value);
+        }
+
+        [CreateProperty]
+        public int MinFPS
+        {
+            get => this.minFPS;
+            set => this.SetProperty(ref this.minFPS, value);
+        }
+
+        [CreateProperty]
+        public int MaxFPS
+        {
+            get => this.maxFPS;
+            set => this.SetProperty(ref this.maxFPS, value);
+        }
+
         public void Update()
         {
             var unscaledDeltaTime = Time.unscaledDeltaTime;
@@ -49,7 +77,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             this.CalculateStatistics(unscaledDeltaTime);
 
-            if (this.timeToTriggerUpdatesPassed < ToolbarView.DefaultUpdateRate)
+            if (this.timeToTriggerUpdatesPassed < ToolbarView.UpdateRateSeconds)
             {
                 return;
             }

@@ -37,6 +37,11 @@ namespace BovineLabs.Anchor
         [UxmlAttribute("class")]
         public string Class { get; set; }
 
+        // This exists to allow toggling 1 frame after startup to enforce a transition event
+        [CreateProperty]
+        [UxmlAttribute("delay")]
+        public bool Delay { get; set; }
+
         /// <summary>
         /// Gets or sets convenience accessor for setting the data source path using a string value.
         /// </summary>
@@ -59,12 +64,24 @@ namespace BovineLabs.Anchor
 
             if (result.status != BindingStatus.Success)
             {
-                context.targetElement.EnableInClassList(this.Class, false);
+                SetState(context.targetElement, this.Delay, this.Class, false);
                 return result;
             }
 
-            context.targetElement.EnableInClassList(this.Class, enabled);
+            SetState(context.targetElement, this.Delay, this.Class, enabled);
             return result;
+        }
+
+        private static void SetState(VisualElement element, bool delay, string className, bool state)
+        {
+            if (delay)
+            {
+                element.schedule.Execute(() => element.EnableInClassList(className, state));
+            }
+            else
+            {
+                element.EnableInClassList(className, state);
+            }
         }
 
         /// <inheritdoc/>

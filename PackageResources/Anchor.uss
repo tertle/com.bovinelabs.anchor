@@ -18,3 +18,18 @@
 .bl-toolbar__menu-container {
     flex-grow: 1;
 }
+
+/* TouchSlider overflow workaround.
+   Keep AppUI classes/styling and only remove overflow clipping on our replacement controls. */
+.appui-touchslider.bl-touchslider-workaround {
+    overflow: visible;
+}
+
+.bl-option-pager__center {
+    margin-left: var(--appui-alias-control-gap-md, 8px);
+    margin-right: var(--appui-alias-control-gap-md, 8px);
+}
+
+.bl-option-pager__indicator {
+    margin-top: var(--appui-alias-control-gap-sm, 4px);
+}

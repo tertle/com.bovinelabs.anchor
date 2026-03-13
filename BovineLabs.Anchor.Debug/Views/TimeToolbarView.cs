@@ -7,16 +7,13 @@ namespace BovineLabs.Anchor.Debug.Views
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
-    using BovineLabs.Anchor.Toolbar;
     using Unity.AppUI.UI;
-    using Unity.Mathematics;
     using Unity.Properties;
-    using UnityEngine;
     using UnityEngine.UIElements;
     using FloatField = Unity.AppUI.UI.FloatField;
-    using SliderInt = Unity.AppUI.UI.SliderInt;
 
     [AutoToolbar("Time")]
     public class TimeToolbarView : View<TimeToolbarViewModel>

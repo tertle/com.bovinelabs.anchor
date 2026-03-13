@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
-    using Unity.AppUI.Navigation;
     using UnityEngine;
 
     /// <summary>
@@ -16,54 +15,54 @@ namespace BovineLabs.Anchor.Nav
     {
         [SerializeField]
         [Tooltip("Animation used when presenting this destination.")]
-        private NavigationAnimation enterAnim = NavigationAnimation.None;
+        private AnchorNavAnimation enterAnimation;
 
         [SerializeField]
         [Tooltip("Animation used when leaving this destination.")]
-        private NavigationAnimation exitAnim = NavigationAnimation.None;
+        private AnchorNavAnimation exitAnimation;
 
         [SerializeField]
         [Tooltip("Animation played when this destination returns via a pop.")]
-        private NavigationAnimation popEnterAnim = NavigationAnimation.None;
+        private AnchorNavAnimation popEnterAnimation;
 
         [SerializeField]
         [Tooltip("Animation played when this destination is popped off the stack.")]
-        private NavigationAnimation popExitAnim = NavigationAnimation.None;
+        private AnchorNavAnimation popExitAnimation;
 
         /// <summary>
         /// Gets or sets the animation used when navigating to the destination.
         /// </summary>
-        public NavigationAnimation EnterAnim
+        public AnchorNavAnimation EnterAnim
         {
-            get => this.enterAnim;
-            set => this.enterAnim = value;
+            get => this.enterAnimation;
+            set => this.enterAnimation = value;
         }
 
         /// <summary>
         /// Gets or sets the animation used when navigating away from the current destination.
         /// </summary>
-        public NavigationAnimation ExitAnim
+        public AnchorNavAnimation ExitAnim
         {
-            get => this.exitAnim;
-            set => this.exitAnim = value;
+            get => this.exitAnimation;
+            set => this.exitAnimation = value;
         }
 
         /// <summary>
         /// Gets or sets the animation that plays when this destination re-enters the stack after a pop operation.
         /// </summary>
-        public NavigationAnimation PopEnterAnim
+        public AnchorNavAnimation PopEnterAnim
         {
-            get => this.popEnterAnim;
-            set => this.popEnterAnim = value;
+            get => this.popEnterAnimation;
+            set => this.popEnterAnimation = value;
         }
 
         /// <summary>
         /// Gets or sets the animation that plays when this destination is popped from the stack.
         /// </summary>
-        public NavigationAnimation PopExitAnim
+        public AnchorNavAnimation PopExitAnim
         {
-            get => this.popExitAnim;
-            set => this.popExitAnim = value;
+            get => this.popExitAnimation;
+            set => this.popExitAnimation = value;
         }
 
         /// <summary>
@@ -74,10 +73,10 @@ namespace BovineLabs.Anchor.Nav
         {
             return new AnchorAnimations()
             {
-                enterAnim = this.enterAnim,
-                exitAnim = this.exitAnim,
-                popEnterAnim = this.popEnterAnim,
-                popExitAnim = this.popExitAnim,
+                enterAnimation = this.enterAnimation,
+                exitAnimation = this.exitAnimation,
+                popEnterAnimation = this.popEnterAnimation,
+                popExitAnimation = this.popExitAnimation,
             };
         }
     }

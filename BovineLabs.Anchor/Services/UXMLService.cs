@@ -1,11 +1,9 @@
-﻿// <copyright file="UXMLService.cs" company="BovineLabs">
+// <copyright file="UXMLService.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
 namespace BovineLabs.Anchor.Services
 {
-    using System;
-    using System.Linq;
     using BovineLabs.Anchor;
     using BovineLabs.Core;
     using JetBrains.Annotations;
@@ -20,15 +18,16 @@ namespace BovineLabs.Anchor.Services
         /// <inheritdoc/>
         public VisualTreeAsset GetAsset(string assetName)
         {
-            try
+            foreach (var v in AnchorSettings.I.Views)
             {
-                return AnchorSettings.I.Views.First(t => t.Key == assetName).Asset;
+                if (v.Key == assetName)
+                {
+                    return v.Asset;
+                }
             }
-            catch (InvalidOperationException)
-            {
-                BLGlobalLogger.LogError($"VisualTreeAsset for the key {assetName} was not found. Check AnchorSettings.");
-                throw;
-            }
+
+            BLGlobalLogger.LogError($"VisualTreeAsset for the key {assetName} was not found. Check AnchorSettings.");
+            return null;
         }
 
         /// <inheritdoc/>
@@ -42,7 +41,7 @@ namespace BovineLabs.Anchor.Services
             {
                 if (ve.dataSourceType != null)
                 {
-                    ve.dataSource = AnchorApp.current.services.GetService(ve.dataSourceType);
+                    ve.dataSource = AnchorApp.Current.Services.GetService(ve.dataSourceType);
                 }
             }
 
@@ -50,3 +49,4 @@ namespace BovineLabs.Anchor.Services
         }
     }
 }
+
