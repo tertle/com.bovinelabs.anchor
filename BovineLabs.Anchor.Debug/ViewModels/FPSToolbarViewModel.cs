@@ -6,12 +6,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.MVVM;
-    using BovineLabs.Anchor.Toolbar;
     using Unity.Collections;
     using Unity.Properties;
     using UnityEngine;
 
-    public partial class FPSToolbarViewModel : ObservableObject
+    public class FPSToolbarViewModel : ObservableObject
     {
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;

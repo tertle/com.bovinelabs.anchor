@@ -9,23 +9,24 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System.ComponentModel;
     using System.Linq;
     using BovineLabs.Anchor.MVVM;
+    using Unity.Properties;
     using UnityEngine.Localization;
     using UnityEngine.Localization.Settings;
 
-    public partial class LocalizationToolbarViewModel : ObservableObject
+    public class LocalizationToolbarViewModel : ObservableObject
     {
         private int selectedLocale = -1;
 
         private List<string> locales = new();
 
-        [Unity.Properties.CreateProperty]
+        [CreateProperty]
         public int SelectedLocale
         {
             get => this.selectedLocale;
             set => this.SetProperty(ref this.selectedLocale, value);
         }
 
-        [Unity.Properties.CreateProperty]
+        [CreateProperty]
         public List<string> Locales
         {
             get => this.locales;

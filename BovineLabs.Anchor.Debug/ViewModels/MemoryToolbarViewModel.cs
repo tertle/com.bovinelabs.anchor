@@ -6,12 +6,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.MVVM;
-    using BovineLabs.Anchor.Toolbar;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Profiling;
 
-    public partial class MemoryToolbarViewModel : ObservableObject
+    public class MemoryToolbarViewModel : ObservableObject
     {
         private float timeToTriggerUpdatesPassed;
 

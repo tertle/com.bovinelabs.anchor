@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using System.Collections.Generic;
-    using BovineLabs.Anchor.Toolbar;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 

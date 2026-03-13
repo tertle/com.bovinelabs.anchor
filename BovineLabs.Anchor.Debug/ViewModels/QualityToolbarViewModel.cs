@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Properties;
     using UnityEngine;
 
-    public partial class QualityToolbarViewModel : ObservableObject
+    public class QualityToolbarViewModel : ObservableObject
     {
         private int qualityValue;
 

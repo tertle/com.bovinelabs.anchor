@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Properties;
 
     [IsService]
-    public partial class AppUIToolbarViewModel : ObservableObject
+    public class AppUIToolbarViewModel : ObservableObject
     {
         private const string ThemeKey = "bl.options.ui.theme";
         private const string ScaleKey = "bl.options.ui-scale";

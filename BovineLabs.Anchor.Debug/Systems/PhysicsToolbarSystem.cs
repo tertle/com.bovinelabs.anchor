@@ -8,13 +8,14 @@ namespace BovineLabs.Anchor.Debug.Systems
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Debug.Views;
-    using BovineLabs.Anchor.Toolbar;
+    using Unity.Burst;
+    using Unity.Burst.CompilerServices;
+    using Unity.Entities;
+    using Unity.Physics.Authoring;
+    using Unity.Physics.Systems;
 #if BL_QUILL
     using BovineLabs.Quill.Debug.Physics;
 #endif
-    using Unity.Burst;
-    using Unity.Entities;
-    using Unity.Physics.Systems;
 
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct PhysicsToolbarSystem : ISystem, ISystemStartStop
@@ -80,16 +81,16 @@ namespace BovineLabs.Anchor.Debug.Systems
                 rw.DrawTerrainColliderEdges = data.DrawTerrainColliderEdges;
             }
 #else
-            if (Unity.Burst.CompilerServices.Hint.Unlikely(!SystemAPI.HasSingleton<Unity.Physics.Authoring.PhysicsDebugDisplayData>()))
+            if (Hint.Unlikely(!SystemAPI.HasSingleton<PhysicsDebugDisplayData>()))
             {
-                state.EntityManager.CreateSingleton<Unity.Physics.Authoring.PhysicsDebugDisplayData>();
+                state.EntityManager.CreateSingleton<PhysicsDebugDisplayData>();
             }
 
-            var c = SystemAPI.GetSingleton<Unity.Physics.Authoring.PhysicsDebugDisplayData>();
+            var c = SystemAPI.GetSingleton<PhysicsDebugDisplayData>();
             if (c.DrawColliderEdges != (data.DrawColliderEdges ? 1 : 0) || c.DrawColliderAabbs != (data.DrawColliderAabbs ? 1 : 0) ||
                 c.DrawCollisionEvents != (data.DrawCollisionEvents ? 1 : 0) || c.DrawTriggerEvents != (data.DrawTriggerEvents ? 1 : 0))
             {
-                ref var rw = ref SystemAPI.GetSingletonRW<Unity.Physics.Authoring.PhysicsDebugDisplayData>().ValueRW;
+                ref var rw = ref SystemAPI.GetSingletonRW<PhysicsDebugDisplayData>().ValueRW;
                 rw.DrawColliderEdges = data.DrawColliderEdges ? 1 : 0;
                 rw.DrawColliderAabbs = data.DrawColliderAabbs ? 1 : 0;
                 rw.DrawCollisionEvents = data.DrawCollisionEvents ? 1 : 0;
