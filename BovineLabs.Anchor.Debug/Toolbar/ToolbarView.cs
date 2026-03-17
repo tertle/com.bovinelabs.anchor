@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using System.Reflection;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Core.Assertions;
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Utility;
     using Unity.AppUI.UI;
@@ -40,30 +41,19 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// The NavigationScreen main styling class.
         /// </summary>
         private const string UssClassName = "bl-toolbar";
-
         private const string MenuButtonClassName = UssClassName + "__button";
-
-        /// <summary> The Toolbar background styling class. </summary>
         private const string MenuUssClassName = UssClassName + "__menu";
-
-        /// <summary> The Toolbar show button styling class. </summary>
         private const string ShowUssClassName = UssClassName + "__show";
-
-        /// <summary> The Toolbar filter button styling class. </summary>
         private const string FilterUssClassName = UssClassName + "__filter";
-
-        /// <summary> The Toolbar container styling class. </summary>
         private const string MenuContainerUssClassName = UssClassName + "__menu-container";
-
         private const string MenuButtonUssClassName = UssClassName + "__menu-button";
-
         private const string ShowIconUssClassName = ShowUssClassName + "__icon";
-
         private const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
+        private const string ShowIconTargetClassName = "appui-button__trailingicon";
 
-        private const string ShowIconTargetClass = "appui-button__trailingicon";
         private const string ActiveTabKey = "bl.active-tab";
         private const string ShowRibbonKey = "bl.show-ribbon";
+
         private const float RestoreHotspotPercent = 0.04f;
         private const int RestoreClickThreshold = 5;
         private const float RestoreClickResetSeconds = 1f;
@@ -412,11 +402,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void OnPanelRootGeometryChanged(GeometryChangedEvent evt)
         {
-            this.OnPanelGeometryChanged();
-        }
-
-        private void OnPanelGeometryChanged()
-        {
             this.UpdatePanelSize();
             this.ResizeViewRect(this.contentRect);
         }
@@ -428,25 +413,13 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private Vector2 GetPanelUiSize()
         {
-            if (this.panel == null)
-            {
-                return Vector2.zero;
-            }
-
             var layoutSize = this.panel.visualTree.layout.size;
-            if (!layoutSize.Equals(Vector2.zero))
-            {
-                return layoutSize;
-            }
-
-            if (Screen.width <= 0 || Screen.height <= 0)
+            if (float.IsNaN(layoutSize.x) || float.IsNaN(layoutSize.y))
             {
                 return Vector2.zero;
             }
 
-            var panelMin = RuntimePanelUtils.ScreenToPanel(this.panel, Vector2.zero);
-            var panelMax = RuntimePanelUtils.ScreenToPanel(this.panel, new Vector2(Screen.width, Screen.height));
-            return new Vector2(Mathf.Abs(panelMax.x - panelMin.x), Mathf.Abs(panelMax.y - panelMin.y));
+            return layoutSize;
         }
 
         private Button CreateShowButton()
@@ -457,7 +430,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             button.AddToClassList(ShowUssClassName);
             button.size = Size.S;
 
-            var icon = button.Q<Icon>(ShowIconTargetClass);
+            var icon = button.Q<Icon>(ShowIconTargetClassName);
             icon.AddToClassList(ShowIconUssClassName);
             icon.AddToClassList(ShowHiddenUssClassName);
 
@@ -544,9 +517,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 return;
             }
 
-            var panelSize = this.GetPanelUiSize();
-            var width = panelSize.x;
-            var height = panelSize.y;
+            var width = this.uiSize.x;
+            var height = this.uiSize.y;
 
             var hotspotHeight = Screen.height * RestoreHotspotPercent;
             var hotspotWidth = hotspotHeight;
@@ -686,7 +658,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         {
             if (show)
             {
-                this.showButton.Q<Icon>(ShowIconTargetClass).RemoveFromClassList(ShowHiddenUssClassName);
+                this.showButton.Q<Icon>(ShowIconTargetClassName).RemoveFromClassList(ShowHiddenUssClassName);
 
                 if (this.activeGroup != null)
                 {
@@ -701,7 +673,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
             else
             {
-                this.showButton.Q<Icon>(ShowIconTargetClass).AddToClassList(ShowHiddenUssClassName);
+                this.showButton.Q<Icon>(ShowIconTargetClassName).AddToClassList(ShowHiddenUssClassName);
 
                 if (this.activeGroup != null)
                 {
@@ -715,10 +687,12 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void ResizeViewRect(Rect uiRect)
         {
-            if (this.uiSize.Equals(Vector2.zero) || float.IsNaN(uiRect.height))
+            if (this.uiSize.y == 0 || float.IsNaN(uiRect.height))
             {
                 return;
             }
+
+            Check.Assume(!float.IsNaN(this.uiSize.y));
 
             this.UpdateSafeArea();
 
