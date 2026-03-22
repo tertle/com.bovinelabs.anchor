@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.1] - 2026-03-22
+
+### Added
+* AnchorSafeArea with configurable safe-area edges
+* AnchorScreenMetrics and ScreenMetricsChanged for runtime safe-area updates
+
+### Changed
+* Safe-area padding centralized in AnchorSafeAreaUtility
+* Toolbar safe-area handling now uses the shared safe-area utility
+
+### Fixed
+* Toolbar panel sizing NaN handling
+
 ## [2.0.0] - 2026-03-13
 
 ### Breaking

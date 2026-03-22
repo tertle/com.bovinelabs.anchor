@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-namespace BovineLabs.Anchor.Tests.SafeArea
+namespace BovineLabs.Anchor.Tests.Elements
 {
     using BovineLabs.Anchor.Elements;
     using NUnit.Framework;
