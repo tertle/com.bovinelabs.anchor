@@ -4,6 +4,9 @@
 
 namespace BovineLabs.Anchor.Elements
 {
+#if UNITY_APPUI
+    using Unity.AppUI.UI;
+#endif
     using Unity.Properties;
     using UnityEngine.UIElements;
 
@@ -11,15 +14,14 @@ namespace BovineLabs.Anchor.Elements
     /// Safe-area-aware container that applies padding only for the unsafe edges overlapped by its own bounds.
     /// </summary>
     [UxmlElement]
+#if UNITY_APPUI
+    public partial class AnchorSafeArea : VisualElement // ExVisualElement TODO figure out issues with this
+#else
     public partial class AnchorSafeArea : VisualElement
+#endif
     {
         /// <summary>The main styling class for the safe-area wrapper.</summary>
         public const string UssClassName = "bl-anchor-safe-area";
-
-        /// <summary>The styling class applied to the padded inner content container.</summary>
-        public const string ContentUssClassName = UssClassName + "__content";
-
-        private readonly VisualElement content;
 
         private AnchorApp anchorApp;
         private VisualElement panelRoot;
@@ -31,19 +33,6 @@ namespace BovineLabs.Anchor.Elements
         public AnchorSafeArea()
         {
             this.AddToClassList(UssClassName);
-            this.style.flexGrow = 1;
-            this.style.flexShrink = 1;
-            this.style.minWidth = 0;
-            this.style.minHeight = 0;
-
-            this.content = new VisualElement();
-            this.content.AddToClassList(ContentUssClassName);
-            this.content.style.flexGrow = 1;
-            this.content.style.flexShrink = 1;
-            this.content.style.minWidth = 0;
-            this.content.style.minHeight = 0;
-
-            this.hierarchy.Add(this.content);
 
             this.RegisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
             this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
@@ -69,9 +58,6 @@ namespace BovineLabs.Anchor.Elements
                 this.UpdateSafeArea();
             }
         }
-
-        /// <inheritdoc />
-        public override VisualElement contentContainer => this.content.contentContainer;
 
         private void OnAttachToPanel(AttachToPanelEvent evt)
         {
@@ -102,7 +88,7 @@ namespace BovineLabs.Anchor.Elements
             if (this.panelRoot == null)
             {
                 this.anchorApp = null;
-                AnchorSafeAreaUtility.ResetPadding(this.content.style);
+                AnchorSafeAreaUtility.ResetPadding(this.style);
                 return;
             }
 
@@ -128,7 +114,7 @@ namespace BovineLabs.Anchor.Elements
 
             this.anchorApp = null;
             this.panelRoot = null;
-            AnchorSafeAreaUtility.ResetPadding(this.content.style);
+            AnchorSafeAreaUtility.ResetPadding(this.style);
         }
 
         private void OnPanelRootGeometryChanged(GeometryChangedEvent evt)
@@ -143,7 +129,7 @@ namespace BovineLabs.Anchor.Elements
 
         private void UpdateSafeArea()
         {
-            AnchorSafeAreaUtility.ApplyPadding(this, this.content, this.panelRoot, this.safeAreaEdges);
+            AnchorSafeAreaUtility.ApplyPadding(this, this, this.panelRoot, this.safeAreaEdges);
         }
     }
 }

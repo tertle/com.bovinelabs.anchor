@@ -12,7 +12,7 @@ namespace BovineLabs.Anchor.Tests.Elements
     public class AnchorSafeAreaTests
     {
         [Test]
-        public void Constructor_DefaultsToAllEdges_AndUsesInnerContentContainer()
+        public void Constructor_DefaultsToAllEdges_AndUsesSelfAsContentContainer()
         {
             var safeArea = new AnchorSafeArea();
             var child = new VisualElement();
@@ -20,7 +20,7 @@ namespace BovineLabs.Anchor.Tests.Elements
             safeArea.Add(child);
 
             Assert.AreEqual(AnchorSafeAreaEdges.All, safeArea.Edges);
-            Assert.AreNotSame(safeArea, safeArea.contentContainer);
+            Assert.AreSame(safeArea, safeArea.contentContainer);
             Assert.AreSame(child, safeArea.contentContainer[0]);
             Assert.AreEqual(1, safeArea.childCount);
         }
