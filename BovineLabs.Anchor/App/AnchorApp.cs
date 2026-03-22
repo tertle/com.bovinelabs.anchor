@@ -34,9 +34,16 @@ namespace BovineLabs.Anchor
 #endif
 
         private bool disposed;
+        private bool hasScreenMetrics;
+        private AnchorScreenMetrics lastScreenMetrics;
 
         /// <summary>Event called when the app is shutting down.</summary>
         public static event Action ShuttingDown;
+
+        /// <summary>
+        /// Event raised when the app detects screen-space metric changes such as size or safe-area updates.
+        /// </summary>
+        public event Action<AnchorScreenMetrics> ScreenMetricsChanged;
 
         /// <summary>Gets the currently running <see cref="AnchorApp"/>.</summary>
         public static AnchorApp Current { get; private set; }
@@ -83,6 +90,8 @@ namespace BovineLabs.Anchor
             this.Services = provider;
             this.Panel = panel;
             this.RootVisualElement = panel.RootVisualElement;
+            this.lastScreenMetrics = AnchorScreenMetrics.Current();
+            this.hasScreenMetrics = true;
         }
 
         public void Dispose()
@@ -101,6 +110,9 @@ namespace BovineLabs.Anchor
             this.Panel = null;
             this.RootVisualElement = null;
             this.Services = null;
+            this.hasScreenMetrics = false;
+            this.lastScreenMetrics = default;
+            this.ScreenMetricsChanged = null;
 
             if (ReferenceEquals(Current, this))
             {
@@ -148,6 +160,34 @@ namespace BovineLabs.Anchor
             {
                 this.RootVisualElement.Insert(0, toolbarHost.RootVisualElement);
             }
+        }
+
+        internal void Update()
+        {
+            if (this.RootVisualElement == null)
+            {
+                return;
+            }
+
+            this.UpdateScreenMetrics(AnchorScreenMetrics.Current());
+        }
+
+        internal bool UpdateScreenMetrics(AnchorScreenMetrics metrics)
+        {
+            if (this.RootVisualElement == null)
+            {
+                return false;
+            }
+
+            if (this.hasScreenMetrics && this.lastScreenMetrics.Equals(metrics))
+            {
+                return false;
+            }
+
+            this.hasScreenMetrics = true;
+            this.lastScreenMetrics = metrics;
+            this.ScreenMetricsChanged?.Invoke(metrics);
+            return true;
         }
 
         private static void SetCurrentApp(AnchorApp app)

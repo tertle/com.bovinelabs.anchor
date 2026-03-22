@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
@@ -104,6 +103,11 @@ namespace BovineLabs.Anchor
 
             this.anchorApp = null;
             this.serviceProvider = null;
+        }
+
+        internal void Update()
+        {
+            this.anchorApp?.Update();
         }
 
         protected virtual void OnConfigureServices(AnchorServiceCollection services)

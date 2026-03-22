@@ -72,6 +72,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private readonly Button showButton;
 
         private ToolbarGroup activeGroup;
+        private AnchorApp anchorApp;
         private VisualElement panelRoot;
 
         private Vector2 uiSize;
@@ -376,12 +377,18 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             if (this.panelRoot == null)
             {
+                this.anchorApp = null;
                 this.uiSize = Vector2.zero;
                 return;
             }
 
+            this.anchorApp = AnchorApp.Current;
             this.panelRoot.RegisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
             this.panelRoot.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+            if (this.anchorApp != null)
+            {
+                this.anchorApp.ScreenMetricsChanged += this.OnScreenMetricsChanged;
+            }
 
             this.UpdatePanelSize();
             this.ResizeViewRect(this.contentRect);
@@ -389,6 +396,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void UnregisterPanelRoot()
         {
+            if (this.anchorApp != null)
+            {
+                this.anchorApp.ScreenMetricsChanged -= this.OnScreenMetricsChanged;
+            }
+
             if (this.panelRoot != null)
             {
                 this.panelRoot.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
@@ -396,11 +408,19 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             this.ResetCanvasOffsets();
+            AnchorSafeAreaUtility.ResetPadding(this.style);
+            this.anchorApp = null;
             this.panelRoot = null;
             this.uiSize = Vector2.zero;
         }
 
         private void OnPanelRootGeometryChanged(GeometryChangedEvent evt)
+        {
+            this.UpdatePanelSize();
+            this.ResizeViewRect(this.contentRect);
+        }
+
+        private void OnScreenMetricsChanged(AnchorScreenMetrics metrics)
         {
             this.UpdatePanelSize();
             this.ResizeViewRect(this.contentRect);
@@ -694,7 +714,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             Check.Assume(!float.IsNaN(this.uiSize.y));
 
-            this.UpdateSafeArea();
+            AnchorSafeAreaUtility.ApplyPadding(this, this, this.panelRoot, AnchorSafeAreaEdges.Top | AnchorSafeAreaEdges.Left | AnchorSafeAreaEdges.Right);
 
             var cameraHeightNormalized = (this.uiSize.y - uiRect.height) / this.uiSize.y;
             this.ResizeCamera(cameraHeightNormalized);
@@ -869,39 +889,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             return null;
-        }
-
-        private void UpdateSafeArea()
-        {
-            if (this.uiSize.Equals(Vector2.zero))
-            {
-                return;
-            }
-
-            var safeSpace = AnchorApp.SafeArea;
-            var screenWidth = (float)Screen.width;
-            var screenHeight = (float)Screen.height;
-            var uiWidth = this.uiSize.x;
-            var uiHeight = this.uiSize.y;
-
-            if (screenWidth <= 0 || screenHeight <= 0 || uiWidth <= 0 || uiHeight <= 0)
-            {
-                return;
-            }
-
-            var leftInset = safeSpace.x;
-            var rightInset = screenWidth - safeSpace.width - safeSpace.x;
-            var topInset = screenHeight - safeSpace.height - safeSpace.y;
-
-            var leftPercent = (leftInset / screenWidth) * 100f;
-            var rightPercent = (rightInset / screenWidth) * 100f;
-
-            var topInsetUi = (topInset / screenHeight) * uiHeight;
-            var topPercent = (topInsetUi / uiWidth) * 100f;
-
-            this.style.paddingLeft = new StyleLength(Length.Percent(leftPercent));
-            this.style.paddingRight = new StyleLength(Length.Percent(rightPercent));
-            this.style.paddingTop = new StyleLength(Length.Percent(topPercent));
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
