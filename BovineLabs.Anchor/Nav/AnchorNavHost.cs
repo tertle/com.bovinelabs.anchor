@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Nav
     /// VisualElement that manages Anchor navigation by keeping track of the active stack, back stack, and popup overlays.
     /// </summary>
     [UxmlElement]
-    public partial class AnchorNavHost : VisualElement
+    public partial class AnchorNavHost : VisualElement, IAnchorNavHost
     {
         /// <summary> The NavHost main styling class. </summary>
         private const string USSClassName = "appui-navhost";

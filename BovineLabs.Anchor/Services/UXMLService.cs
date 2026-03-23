@@ -35,7 +35,6 @@ namespace BovineLabs.Anchor.Services
         {
             var asset = this.GetAsset(assetName);
             var container = asset.Instantiate();
-            container.pickingMode = PickingMode.Ignore;
 
             foreach (var ve in container.Query().Build())
             {

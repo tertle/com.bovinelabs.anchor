@@ -63,7 +63,7 @@ namespace BovineLabs.Anchor
         public virtual string ServiceTabName => DefaultServiceTabName;
 
         /// <summary>Gets or sets the navigation host that manages screen transitions.</summary>
-        public AnchorNavHost NavHost { get; set; }
+        public IAnchorNavHost NavHost { get; set; }
 
         /// <summary>Gets the container that holds popup visual elements instantiated by the app.</summary>
         public VisualElement PopupContainer { get; private set; }
@@ -141,13 +141,14 @@ namespace BovineLabs.Anchor
         {
             this.RootVisualElement.pickingMode = PickingMode.Ignore;
 
-            this.NavHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
+            var navHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
+            this.NavHost = navHost;
             if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
             {
                 this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());
             }
 
-            this.RootVisualElement.Add(this.NavHost);
+            this.RootVisualElement.Add(navHost);
 
             this.PopupContainer = this.RootVisualElement.Q<VisualElement>("popup-container");
             this.NotificationContainer = this.RootVisualElement.Q<VisualElement>("notification-container");
