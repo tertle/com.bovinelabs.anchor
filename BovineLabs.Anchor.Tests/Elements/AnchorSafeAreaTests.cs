@@ -80,6 +80,42 @@ namespace BovineLabs.Anchor.Tests.Elements
         }
 
         [Test]
+        public void TryCalculatePadding_ToolbarVisibleContentBelowToolbar_DoesNotAddTopInset()
+        {
+            var success = AnchorSafeAreaUtility.TryCalculatePadding(
+                new Rect(0f, 0f, 200f, 100f),
+                new Rect(0f, 12f, 200f, 88f),
+                new Rect(50f, 20f, 900f, 460f),
+                new Vector2(1000f, 500f),
+                AnchorSafeAreaEdges.Top | AnchorSafeAreaEdges.Left | AnchorSafeAreaEdges.Right,
+                out var padding);
+
+            Assert.IsTrue(success);
+            Assert.That(padding.Left, Is.EqualTo(10f).Within(0.0001f));
+            Assert.That(padding.Top, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(padding.Right, Is.EqualTo(10f).Within(0.0001f));
+            Assert.That(padding.Bottom, Is.EqualTo(0f).Within(0.0001f));
+        }
+
+        [Test]
+        public void TryCalculatePadding_ToolbarHiddenContentAtTop_AddsTopInset()
+        {
+            var success = AnchorSafeAreaUtility.TryCalculatePadding(
+                new Rect(0f, 0f, 200f, 100f),
+                new Rect(0f, 0f, 200f, 88f),
+                new Rect(50f, 20f, 900f, 460f),
+                new Vector2(1000f, 500f),
+                AnchorSafeAreaEdges.Top | AnchorSafeAreaEdges.Left | AnchorSafeAreaEdges.Right,
+                out var padding);
+
+            Assert.IsTrue(success);
+            Assert.That(padding.Left, Is.EqualTo(10f).Within(0.0001f));
+            Assert.That(padding.Top, Is.EqualTo(4f).Within(0.0001f));
+            Assert.That(padding.Right, Is.EqualTo(10f).Within(0.0001f));
+            Assert.That(padding.Bottom, Is.EqualTo(0f).Within(0.0001f));
+        }
+
+        [Test]
         public void TryCalculatePadding_PartialOverlap_ClampsToIntersectingUnsafeArea()
         {
             var success = AnchorSafeAreaUtility.TryCalculatePadding(
