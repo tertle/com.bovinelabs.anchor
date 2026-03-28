@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_PHYSICS && (BL_QUILL || UNITY_EDITOR) // Default physics doesn't support builds
+#if UNITY_PHYSICS && !BL_QUILL && UNITY_EDITOR // Default physics doesn't support builds
 namespace BovineLabs.Anchor.Debug.Systems
 {
     using BovineLabs.Anchor.Debug.Toolbar;
@@ -13,9 +13,6 @@ namespace BovineLabs.Anchor.Debug.Systems
     using Unity.Entities;
     using Unity.Physics.Authoring;
     using Unity.Physics.Systems;
-#if BL_QUILL
-    using BovineLabs.Quill.Debug.Physics;
-#endif
 
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct PhysicsToolbarSystem : ISystem, ISystemStartStop
@@ -32,10 +29,6 @@ namespace BovineLabs.Anchor.Debug.Systems
             }
 
             this.toolbar = new ToolbarHelper<PhysicsToolbarView, PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data>(ref state, "Physics");
-
-#if BL_QUILL
-            state.EntityManager.AddComponent<PhysicsDebugDraw>(state.SystemHandle);
-#endif
         }
 
         /// <inheritdoc />
@@ -66,21 +59,6 @@ namespace BovineLabs.Anchor.Debug.Systems
 
         private void UpdateData(ref SystemState state, ref PhysicsToolbarViewModel.Data data)
         {
-#if BL_QUILL
-            var c = SystemAPI.GetSingleton<PhysicsDebugDraw>();
-            if (c.DrawColliderEdges != data.DrawColliderEdges || c.DrawColliderAabbs != data.DrawColliderAabbs ||
-                c.DrawCollisionEvents != data.DrawCollisionEvents || c.DrawTriggerEvents != data.DrawTriggerEvents ||
-                c.DrawMeshColliderEdges != data.DrawMeshColliderEdges || c.DrawTerrainColliderEdges != data.DrawTerrainColliderEdges)
-            {
-                ref var rw = ref SystemAPI.GetSingletonRW<PhysicsDebugDraw>().ValueRW;
-                rw.DrawColliderEdges = data.DrawColliderEdges;
-                rw.DrawColliderAabbs = data.DrawColliderAabbs;
-                rw.DrawCollisionEvents = data.DrawCollisionEvents;
-                rw.DrawTriggerEvents = data.DrawTriggerEvents;
-                rw.DrawMeshColliderEdges = data.DrawMeshColliderEdges;
-                rw.DrawTerrainColliderEdges = data.DrawTerrainColliderEdges;
-            }
-#else
             if (Hint.Unlikely(!SystemAPI.HasSingleton<PhysicsDebugDisplayData>()))
             {
                 state.EntityManager.CreateSingleton<PhysicsDebugDisplayData>();
@@ -96,7 +74,6 @@ namespace BovineLabs.Anchor.Debug.Systems
                 rw.DrawCollisionEvents = data.DrawCollisionEvents ? 1 : 0;
                 rw.DrawTriggerEvents = data.DrawTriggerEvents ? 1 : 0;
             }
-#endif
         }
     }
 }

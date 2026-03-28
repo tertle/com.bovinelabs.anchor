@@ -45,9 +45,9 @@
             "define": "BL_CORE"
         },
         {
-            "name": "com.bovinelabs.core",
-            "expression": "1.3.3",
-            "define": "BL_CORE_1_3_3_OR_NEWER"
+            "name": "com.bovinelabs.quill",
+            "expression": "",
+            "define": "BL_QUILL"
         },
         {
             "name": "com.unity.dt.app-ui",
