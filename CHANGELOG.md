@@ -1,16 +1,18 @@
 # Changelog
 
-## [2.0.1] - 2026-03-22
+## [2.0.1] - 2026-03-28
 
 ### Added
 * AnchorSafeArea with configurable safe-area edges
 * AnchorScreenMetrics and ScreenMetricsChanged for runtime safe-area updates
+* IAnchorNavHost for navigation host abstraction
 
 ### Changed
 * Safe-area padding centralized in AnchorSafeAreaUtility
 * Toolbar safe-area handling now uses the shared safe-area utility
 
 ### Fixed
+* PhysicsToolbarSystem compatibility with Quill
 * Toolbar panel sizing NaN handling
 
 ## [2.0.0] - 2026-03-13
