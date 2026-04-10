@@ -31,16 +31,6 @@ namespace BovineLabs.Anchor.Elements
             this.clickable.clickedWithEventInfo += evt => this.commandWithEventInfo?.Execute(evt);
         }
 
-        /// <summary>
-        /// Clickable Manipulator for this ActionButton.
-        /// </summary>
-        [CreateProperty]
-        public new Pressable clickable
-        {
-            get => base.clickable;
-            set => base.clickable = value;
-        }
-
         /// <summary>Gets or sets the command invoked when the button is clicked with the event payload.</summary>
         [CreateProperty]
         public ICommand commandWithEventInfo
