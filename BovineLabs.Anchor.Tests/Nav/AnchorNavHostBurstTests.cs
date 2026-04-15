@@ -16,6 +16,7 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.DoesNotThrow(() =>
             {
                 AnchorNavHost.Burst.Navigate(default(FixedString32Bytes));
+                AnchorNavHost.Burst.Toggle(default(FixedString32Bytes));
                 AnchorNavHost.Burst.ClearBackStack();
                 AnchorNavHost.Burst.ClearNavigation();
             });
@@ -39,6 +40,12 @@ namespace BovineLabs.Anchor.Tests.Nav
         public void HasActivePopups_NoHost_ReturnsFalse()
         {
             Assert.IsFalse(AnchorNavHost.Burst.HasActivePopups());
+        }
+
+        [Test]
+        public void Toggle_NoHost_ReturnsFalse()
+        {
+            Assert.IsFalse(AnchorNavHost.Burst.Toggle(default(FixedString32Bytes)));
         }
 
         [Test]

@@ -36,20 +36,12 @@ namespace BovineLabs.Anchor.Nav
         /// <returns> True if the navigation was successful. </returns>
         public bool Navigate(string actionOrDestination, params AnchorNavArgument[] arguments)
         {
-            if (string.IsNullOrWhiteSpace(actionOrDestination))
+            if (!this.TryResolveActionOrDestination(actionOrDestination, arguments, out var destination, out var options, out var mergedArguments))
             {
                 return false;
             }
 
-            if (this.actions.TryGetValue(actionOrDestination, out var action))
-            {
-                this.ActionTriggered?.Invoke(this, action);
-                var options = action.Options?.Clone() ?? new AnchorNavOptions();
-                var mergedArguments = action.MergeArguments(arguments);
-                return this.Navigate(action.Destination, options, mergedArguments);
-            }
-
-            return this.Navigate(actionOrDestination, null, arguments);
+            return this.Navigate(destination, options, mergedArguments);
         }
 
         /// <summary> Navigate to the destination with the given name. </summary>
@@ -116,6 +108,27 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
+        /// <summary>
+        /// Toggle a popup destination or action by dismissing the matching popup branch when active, otherwise navigating.
+        /// </summary>
+        /// <param name="actionOrDestination">The action or destination to toggle.</param>
+        /// <param name="arguments">The arguments to pass when navigating.</param>
+        /// <returns>True if the toggle was successful.</returns>
+        public bool Toggle(string actionOrDestination, params AnchorNavArgument[] arguments)
+        {
+            if (!this.TryResolveActionOrDestination(actionOrDestination, arguments, out var destination, out var options, out var mergedArguments))
+            {
+                return false;
+            }
+
+            if (this.TryDismissActivePopupBranch(destination))
+            {
+                return true;
+            }
+
+            return this.Navigate(destination, options, mergedArguments);
+        }
+
         /// <summary> Pop the current destination from the back stack and navigate to the previous destination. </summary>
         /// <returns> True if the back stack was popped, false otherwise. </returns>
         public bool PopBackStack()
@@ -135,31 +148,15 @@ namespace BovineLabs.Anchor.Nav
         /// <returns> True if at least one popup was closed. </returns>
         public bool CloseAllPopups(int exitAnimation = 0)
         {
-            var animation = this.ResolveAnimation(exitAnimation);
-            var removed = false;
-
-            for (var i = this.activeStack.Count - 1; i >= 0; i--)
-            {
-                if (!this.activeStack[i].IsPopup)
-                {
-                    break;
-                }
-
-                this.RemoveActiveEntryAt(i, animation);
-                removed = true;
-            }
-
-            if (!removed)
+            var startIndex = this.FindFirstActivePopupIndex();
+            if (startIndex < 0)
             {
                 return false;
             }
 
-            this.TrimBackStackToActive();
-
-            var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
-            this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
-            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
+            var animation = this.ResolveAnimation(exitAnimation);
+            this.RemoveActiveEntriesFrom(startIndex, animation);
+            this.UpdateCurrentFromActiveStack();
             return true;
         }
 
@@ -174,36 +171,15 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            var animation = this.ResolveAnimation(exitAnimation);
-
-            var index = -1;
-            for (var i = this.activeStack.Count - 1; i >= 0; i--)
-            {
-                var entry = this.activeStack[i];
-                if (!entry.IsPopup)
-                {
-                    break;
-                }
-
-                if (entry.Destination == destination)
-                {
-                    index = i;
-                    break;
-                }
-            }
-
+            var index = this.FindActivePopupIndex(destination);
             if (index < 0)
             {
                 return false;
             }
 
+            var animation = this.ResolveAnimation(exitAnimation);
             this.RemoveActiveEntryAt(index, animation);
-            this.TrimBackStackToActive();
-
-            var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
-            this.CurrentDestination = top?.Destination;
-            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
-            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
+            this.UpdateCurrentFromActiveStack();
             return true;
         }
 
@@ -670,6 +646,103 @@ namespace BovineLabs.Anchor.Nav
                 handle.CompleteImmediately();
                 this.runningAnimations.RemoveAt(i);
             }
+        }
+
+        private bool TryResolveActionOrDestination(
+            string actionOrDestination,
+            AnchorNavArgument[] arguments,
+            out string destination,
+            out AnchorNavOptions options,
+            out AnchorNavArgument[] mergedArguments)
+        {
+            destination = null;
+            options = null;
+            mergedArguments = arguments ?? Array.Empty<AnchorNavArgument>();
+
+            if (string.IsNullOrWhiteSpace(actionOrDestination))
+            {
+                return false;
+            }
+
+            if (!this.actions.TryGetValue(actionOrDestination, out var action))
+            {
+                destination = actionOrDestination;
+                return true;
+            }
+
+            this.ActionTriggered?.Invoke(this, action);
+            destination = action.Destination;
+            options = action.Options?.Clone() ?? new AnchorNavOptions();
+            mergedArguments = action.MergeArguments(arguments);
+            return true;
+        }
+
+        private bool TryDismissActivePopupBranch(string destination)
+        {
+            if (string.IsNullOrWhiteSpace(destination))
+            {
+                return false;
+            }
+
+            var index = this.FindActivePopupIndex(destination);
+            if (index < 0)
+            {
+                return false;
+            }
+
+            this.RemoveActiveEntriesFrom(index, null);
+            this.UpdateCurrentFromActiveStack();
+            return true;
+        }
+
+        private int FindFirstActivePopupIndex()
+        {
+            for (var i = this.activeStack.Count - 1; i >= 0; i--)
+            {
+                if (!this.activeStack[i].IsPopup)
+                {
+                    return i == this.activeStack.Count - 1 ? -1 : i + 1;
+                }
+            }
+
+            return this.activeStack.Count > 0 ? 0 : -1;
+        }
+
+        private int FindActivePopupIndex(string destination)
+        {
+            for (var i = this.activeStack.Count - 1; i >= 0; i--)
+            {
+                var entry = this.activeStack[i];
+                if (!entry.IsPopup)
+                {
+                    break;
+                }
+
+                if (entry.Destination == destination)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private void RemoveActiveEntriesFrom(int index, AnchorNavAnimation exitAnim)
+        {
+            for (var i = this.activeStack.Count - 1; i >= index; i--)
+            {
+                this.RemoveActiveEntryAt(i, exitAnim);
+            }
+        }
+
+        private void UpdateCurrentFromActiveStack()
+        {
+            this.TrimBackStackToActive();
+
+            var top = this.activeStack.Count > 0 ? this.activeStack[^1] : null;
+            this.CurrentDestination = top?.Destination;
+            this.currentPopEnterAnimation = top?.Options.Animations.PopEnterAnim;
+            this.currentPopExitAnimation = top?.Options.Animations.PopExitAnim;
         }
 
         private bool TryGetCurrentBase(out AnchorNavActiveEntry entry)

@@ -59,6 +59,15 @@ namespace BovineLabs.Anchor.Nav
         /// <returns>True if the navigation was successful.</returns>
         bool Navigate(string destination, AnchorNavOptions options, params AnchorNavArgument[] arguments);
 
+        /// <summary>
+        /// Toggle a popup destination or action. If the resolved destination is active in the popup segment, dismiss it and
+        /// any popups above it; otherwise, navigate to it.
+        /// </summary>
+        /// <param name="actionOrDestination">The name of the action or destination.</param>
+        /// <param name="arguments">The arguments to pass when navigating.</param>
+        /// <returns>True if the toggle was successful.</returns>
+        bool Toggle(string actionOrDestination, params AnchorNavArgument[] arguments);
+
         /// <summary>Pop the current destination from the back stack and navigate to the previous destination.</summary>
         /// <returns>True if the back stack was popped; otherwise, false.</returns>
         bool PopBackStack();

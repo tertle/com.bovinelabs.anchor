@@ -144,6 +144,42 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
+        public void Toggle_ActivePopup_RemovesPopupAndRestoresBase()
+        {
+            using var harness = new TestAnchorNavHostHarness();
+            harness.RegisterScreen("base");
+            harness.RegisterScreen("popup");
+
+            harness.Host.Navigate("base");
+            harness.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+
+            var toggled = harness.Host.Toggle("popup");
+
+            Assert.IsTrue(toggled);
+            Assert.IsFalse(harness.Host.HasActivePopups);
+            Assert.AreEqual("base", harness.Host.CurrentDestination);
+        }
+
+        [Test]
+        public void Toggle_LowerPopupInActiveBranch_RemovesMatchAndPopupsAboveIt()
+        {
+            using var harness = new TestAnchorNavHostHarness();
+            harness.RegisterScreen("base");
+            harness.RegisterScreen("popup-a");
+            harness.RegisterScreen("popup-b");
+
+            harness.Host.Navigate("base");
+            harness.Host.Navigate("popup-a", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            harness.Host.Navigate("popup-b", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+
+            var toggled = harness.Host.Toggle("popup-a");
+
+            Assert.IsTrue(toggled);
+            Assert.IsFalse(harness.Host.HasActivePopups);
+            Assert.AreEqual("base", harness.Host.CurrentDestination);
+        }
+
+        [Test]
         public void PopBackStackToPanel_RemovesPopupLayersFromPoppedSnapshot()
         {
             using var harness = new TestAnchorNavHostHarness();

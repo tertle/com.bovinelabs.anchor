@@ -13,6 +13,7 @@ namespace BovineLabs.Anchor.Nav
         static AnchorNavHost()
         {
             Burst.NavigateFunc.Data = new BurstTrampoline(&NavigateForwardingPacked);
+            Burst.ToggleFunc.Data = new BurstTrampoline(&ToggleForwardingPacked);
             Burst.CurrentFunc.Data = new BurstTrampoline(&CurrentForwardingPacked);
             Burst.ClearBackStackFunc.Data = new BurstTrampoline(&ClearBackStackForwardingPacked);
             Burst.ClearNavigationFunc.Data = new BurstTrampoline(&ClearNavigationForwardingPacked);
@@ -30,6 +31,12 @@ namespace BovineLabs.Anchor.Nav
         {
             ref var screen = ref BurstTrampoline.ArgumentsFromPtr<FixedString32Bytes>(argumentsPtr, argumentsSize);
             AnchorApp.Current?.NavHost.Navigate(screen.ToString());
+        }
+
+        private static void ToggleForwardingPacked(void* argumentsPtr, int argumentsSize)
+        {
+            ref var arguments = ref BurstTrampoline.ArgumentsFromPtr<BurstManagedPair<FixedString32Bytes, bool>>(argumentsPtr, argumentsSize);
+            arguments.Second = AnchorApp.Current?.NavHost.Toggle(arguments.First.ToString()) ?? false;
         }
 
         private static void ClearBackStackForwardingPacked(void* argumentsPtr, int argumentsSize)
@@ -104,6 +111,9 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampoline> NavigateFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, NavigateType>();
 
+            internal static readonly SharedStatic<BurstTrampoline> ToggleFunc =
+                SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ToggleType>();
+
             internal static readonly SharedStatic<BurstTrampoline> CurrentFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, CurrentType>();
 
@@ -144,6 +154,18 @@ namespace BovineLabs.Anchor.Nav
                 {
                     NavigateFunc.Data.Invoke(screen);
                 }
+            }
+
+            /// <inheritdoc cref="AnchorNavHost.Toggle(string, AnchorNavArgument[])" />
+            public static bool Toggle(in FixedString32Bytes actionOrDestination)
+            {
+                if (ToggleFunc.Data.IsCreated)
+                {
+                    ToggleFunc.Data.InvokeOut(actionOrDestination, out bool toggled);
+                    return toggled;
+                }
+
+                return false;
             }
 
             /// <inheritdoc cref="AnchorNavHost.CurrentDestination" />
@@ -274,6 +296,7 @@ namespace BovineLabs.Anchor.Nav
 #pragma warning disable SA1515
 // @formatter:off
             public struct NavigateType { }
+            public struct ToggleType { }
             public struct CurrentType { }
             public struct ClearBackStackType { }
             public struct ClearNavigationType { }

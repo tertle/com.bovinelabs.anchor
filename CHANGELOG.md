@@ -1,9 +1,15 @@
 # Changelog
 
-## [2.0.2] - 2026-04-10
+## [2.0.2] - 2026-04-15
+
+### Breaking
+
+### Added
+* `AnchorNavHost.Toggle` and `AnchorNavHost.Burst.Toggle` for action-resolved popup toggles
 
 ### Changed
 * AnchorActionButton updated for 2.2.0-pre.8
+* Popup toggles now dismiss the matched popup and any active popup descendants above it
 
 ## [2.0.1] - 2026-03-28
 

@@ -75,6 +75,100 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
+        public void Toggle_ActionName_NavigatesUsingResolvedAction()
+        {
+            var namedAction = ScriptableObject.CreateInstance<AnchorNamedAction>();
+
+            try
+            {
+                SetField(namedAction, "actionName", "toggle-popup");
+                SetField(
+                    namedAction,
+                    "action",
+                    new AnchorNavAction(
+                        "popup",
+                        new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
+                        new[]
+                        {
+                            AnchorNavArgument.String("default", "one"),
+                            AnchorNavArgument.String("override", "before"),
+                        }));
+
+                using var context = new HostContext(new[] { namedAction }, null);
+                context.RegisterScreen("base");
+                var popupReceiver = context.RegisterScreen("popup");
+
+                context.Host.Navigate("base");
+
+                var actionTriggered = 0;
+                context.Host.ActionTriggered += (_, _) => actionTriggered++;
+
+                var toggled = context.Host.Toggle(
+                    "toggle-popup",
+                    AnchorNavArgument.String("override", "after"),
+                    AnchorNavArgument.String("extra", "two"));
+
+                Assert.IsTrue(toggled);
+                Assert.AreEqual(1, actionTriggered);
+                Assert.AreEqual("popup", context.Host.CurrentDestination);
+                Assert.IsTrue(context.Host.HasActivePopups);
+                Assert.AreEqual(1, popupReceiver.EnterCount);
+                CollectionAssert.AreEquivalent(
+                    new[]
+                    {
+                        AnchorNavArgument.String("default", "one"),
+                        AnchorNavArgument.String("override", "after"),
+                        AnchorNavArgument.String("extra", "two"),
+                    },
+                    popupReceiver.LastEnterArguments);
+            }
+            finally
+            {
+                Object.DestroyImmediate(namedAction);
+            }
+        }
+
+        [Test]
+        public void Toggle_ActionName_WhenResolvedPopupActive_DismissesPopupBranch()
+        {
+            var namedAction = ScriptableObject.CreateInstance<AnchorNamedAction>();
+
+            try
+            {
+                SetField(namedAction, "actionName", "toggle-popup-a");
+                SetField(
+                    namedAction,
+                    "action",
+                    new AnchorNavAction(
+                        "popup-a",
+                        new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent }));
+
+                using var context = new HostContext(new[] { namedAction }, null);
+                context.RegisterScreen("base");
+                context.RegisterScreen("popup-a");
+                context.RegisterScreen("popup-b");
+
+                context.Host.Navigate("base");
+                context.Host.Navigate("popup-a", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+                context.Host.Navigate("popup-b", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+
+                var actionTriggered = 0;
+                context.Host.ActionTriggered += (_, _) => actionTriggered++;
+
+                var toggled = context.Host.Toggle("toggle-popup-a");
+
+                Assert.IsTrue(toggled);
+                Assert.AreEqual(1, actionTriggered);
+                Assert.AreEqual("base", context.Host.CurrentDestination);
+                Assert.IsFalse(context.Host.HasActivePopups);
+            }
+            finally
+            {
+                Object.DestroyImmediate(namedAction);
+            }
+        }
+
+        [Test]
         public void PopupExistingStrategy_CloseOtherPopups_ReplacesPopupLayer()
         {
             using var context = new HostContext();
