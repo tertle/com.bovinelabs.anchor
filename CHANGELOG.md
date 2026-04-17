@@ -10,6 +10,7 @@
 ### Changed
 * AnchorActionButton updated for 2.2.0-pre.8
 * Popup toggles now dismiss the matched popup and any active popup descendants above it
+* AnchorAppBuilder now uses PanelRenderer on Unity 6.5+ while keeping UIDocument support on Unity 6.3 and 6.4
 
 ## [2.0.1] - 2026-03-28
 

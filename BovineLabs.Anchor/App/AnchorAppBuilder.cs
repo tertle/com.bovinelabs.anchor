@@ -25,7 +25,8 @@ namespace BovineLabs.Anchor
     }
 
     /// <summary>
-    /// <para>A MonoBehaviour that can be used to build and host an app in a UIDocument.</para>
+    /// <para>A MonoBehaviour that can be used to build and host an app in a UI Toolkit panel component.</para>
+    /// <para>Use PanelRenderer on Unity 6.5+ and <see cref="UIDocument"/> on earlier Unity 6 releases.</para>
     /// <para>This class is intended to be used as a base class for a MonoBehaviour that is attached to a GameObject in a scene.</para>
     /// </summary>
     /// <typeparam name="T">The type of the app to build.</typeparam>
@@ -33,12 +34,19 @@ namespace BovineLabs.Anchor
     public abstract class AnchorAppBuilder<T> : MonoBehaviour
         where T : AnchorApp, new()
     {
+#if UNITY_6000_5_OR_NEWER
+        [SerializeField]
+        private PanelRenderer panelRenderer;
+#else
         [SerializeField]
         private UIDocument uiDocument;
+#endif
 
         private AnchorNavHostSaveState state;
         private AnchorServiceProvider serviceProvider;
         private T anchorApp;
+        private VisualElement hostRootVisualElement;
+        private VisualElement appRootVisualElement;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
@@ -50,8 +58,6 @@ namespace BovineLabs.Anchor
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
-        protected UIDocument Document => this.uiDocument;
-
         /// <summary>
         /// Gets the panel type used for the app root.
         /// </summary>
@@ -62,9 +68,13 @@ namespace BovineLabs.Anchor
 
         internal void OnEnable()
         {
-            if (this.uiDocument == null)
+            if (!this.TryBindHost())
             {
+#if UNITY_6000_5_OR_NEWER
+                BLGlobalLogger.LogWarningString($"No {nameof(PanelRenderer)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
+#else
                 BLGlobalLogger.LogWarningString($"No {nameof(UIDocument)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
+#endif
                 return;
             }
 
@@ -75,10 +85,9 @@ namespace BovineLabs.Anchor
             this.anchorApp = new T();
 
             var panel = this.CreatePanel();
-            panel.RootVisualElement.pickingMode = PickingMode.Ignore;
-            var root = panel.RootVisualElement;
-            this.uiDocument.rootVisualElement?.Clear();
-            this.uiDocument.rootVisualElement?.Add(root);
+            this.appRootVisualElement = panel.RootVisualElement;
+            this.appRootVisualElement.pickingMode = PickingMode.Ignore;
+            this.AttachAppRootToHost();
 
             this.anchorApp.Initialize(this.serviceProvider, panel);
             this.OnAppInitialized(this.anchorApp);
@@ -86,23 +95,28 @@ namespace BovineLabs.Anchor
 
         internal void OnDisable()
         {
+#if UNITY_6000_5_OR_NEWER
+            this.panelRenderer?.UnregisterUIReloadCallback(this.OnPanelRendererReload);
+#endif
+
             if (this.anchorApp == null)
             {
+                this.hostRootVisualElement = null;
+                this.appRootVisualElement = null;
                 return;
             }
 
             this.OnAppShuttingDown(this.anchorApp);
 
-            if (this.uiDocument != null)
-            {
-                this.uiDocument.rootVisualElement?.Clear();
-            }
+            this.hostRootVisualElement?.Clear();
 
             this.anchorApp.Dispose();
             this.serviceProvider?.Dispose();
 
             this.anchorApp = null;
             this.serviceProvider = null;
+            this.hostRootVisualElement = null;
+            this.appRootVisualElement = null;
         }
 
         internal void Update()
@@ -196,7 +210,52 @@ namespace BovineLabs.Anchor
 
         private void Reset()
         {
+#if UNITY_6000_5_OR_NEWER
+            this.panelRenderer = this.GetComponent<PanelRenderer>();
+#else
             this.uiDocument = this.GetComponent<UIDocument>();
+#endif
         }
+
+        private void AttachAppRootToHost()
+        {
+            if (this.hostRootVisualElement == null || this.appRootVisualElement == null)
+            {
+                return;
+            }
+
+            this.hostRootVisualElement.Clear();
+            this.hostRootVisualElement.Add(this.appRootVisualElement);
+        }
+
+        private bool TryBindHost()
+        {
+            this.hostRootVisualElement = null;
+
+#if UNITY_6000_5_OR_NEWER
+            this.panelRenderer ??= this.GetComponent<PanelRenderer>();
+
+            if (this.panelRenderer != null)
+            {
+                this.panelRenderer.RegisterUIReloadCallback(this.OnPanelRendererReload);
+                ((IPanelComponent)this.panelRenderer).PerformValidation(true);
+                return true;
+            }
+#else
+            this.uiDocument ??= this.GetComponent<UIDocument>();
+            this.hostRootVisualElement = this.uiDocument?.rootVisualElement;
+            return this.uiDocument != null;
+#endif
+
+            return false;
+        }
+
+#if UNITY_6000_5_OR_NEWER
+        private void OnPanelRendererReload(PanelRenderer _, VisualElement rootElement)
+        {
+            this.hostRootVisualElement = rootElement;
+            this.AttachAppRootToHost();
+        }
+#endif
     }
 }

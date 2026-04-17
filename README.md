@@ -60,9 +60,11 @@ AppUI-dependent assemblies are compile-gated with `BL_HAS_APPUI` via asmdef `ver
 
 ## Project Setup
 
-### 1. Add a UIDocument
+### 1. Add a runtime UI host
 
-Add a `UIDocument` to your scene.
+On Unity 6.5 and newer, add a `PanelRenderer` to your scene.
+
+On Unity 6.3 and 6.4, add a `UIDocument` instead.
 
 ### 2. Add an app builder
 
