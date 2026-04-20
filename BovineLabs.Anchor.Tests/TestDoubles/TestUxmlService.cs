@@ -23,9 +23,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public VisualElement Instantiate(string assetName)
         {
-            var element = this.visualElementFactory.Create(assetName);
-            element.pickingMode = PickingMode.Ignore;
-            return element;
+            return this.visualElementFactory.Create(assetName);
         }
     }
 }

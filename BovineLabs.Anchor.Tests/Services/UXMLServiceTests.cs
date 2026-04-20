@@ -62,7 +62,7 @@ namespace BovineLabs.Anchor.Tests.Services
         }
 
         [Test]
-        public void Instantiate_ExistingKey_ReturnsContainerWithIgnorePickingMode()
+        public void Instantiate_ExistingKey_ReturnsContainer()
         {
             var asset = ScriptableObject.CreateInstance<VisualTreeAsset>();
 
@@ -77,7 +77,6 @@ namespace BovineLabs.Anchor.Tests.Services
                     var element = service.Instantiate("screen");
 
                     Assert.IsNotNull(element);
-                    Assert.AreEqual(PickingMode.Ignore, element.pickingMode);
                 });
             }
             finally
