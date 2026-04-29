@@ -33,7 +33,7 @@ namespace BovineLabs.Anchor
         private KeyUXML[] views = Array.Empty<KeyUXML>();
 
         [SerializeField]
-        private List<AnchorNamedAction> actions = new();
+        private List<AnchorAction> actions = new();
 
         [SerializeField]
         private List<AnchorNavAnimation> animations = new();
@@ -52,7 +52,7 @@ namespace BovineLabs.Anchor
         public string StartDestination => this.startDestination;
 
         /// <summary>Gets the collection of named navigation actions that are available globally.</summary>
-        public IReadOnlyList<AnchorNamedAction> Actions => this.actions;
+        public IReadOnlyList<AnchorAction> Actions => this.actions;
 
         /// <summary>Gets the collection of navigation animations that are available globally.</summary>
         public IReadOnlyList<AnchorNavAnimation> Animations => this.animations;

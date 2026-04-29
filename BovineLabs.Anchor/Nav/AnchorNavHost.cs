@@ -41,7 +41,7 @@ namespace BovineLabs.Anchor.Nav
         /// </summary>
         /// <param name="actions">Named actions that can be invoked for navigation.</param>
         /// <param name="animations">Named animations that can be invoked by key.</param>
-        public AnchorNavHost(IEnumerable<AnchorNamedAction> actions, IEnumerable<AnchorNavAnimation> animations)
+        public AnchorNavHost(IEnumerable<AnchorAction> actions, IEnumerable<AnchorNavAnimation> animations)
             : this()
         {
             this.RegisterActions(actions);
@@ -196,7 +196,7 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        private void RegisterActions(IEnumerable<AnchorNamedAction> allActions)
+        private void RegisterActions(IEnumerable<AnchorAction> allActions)
         {
             if (allActions == null)
             {

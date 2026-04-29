@@ -14,11 +14,11 @@ namespace BovineLabs.Anchor.Tests.Nav
         [Test]
         public void AnchorNamedAction_Action_ReturnsDefaultWhenBackingFieldNull()
         {
-            var namedAction = ScriptableObject.CreateInstance<AnchorNamedAction>();
+            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
 
             try
             {
-                var field = typeof(AnchorNamedAction).GetField("action", BindingFlags.Instance | BindingFlags.NonPublic);
+                var field = typeof(AnchorAction).GetField("action", BindingFlags.Instance | BindingFlags.NonPublic);
                 field!.SetValue(namedAction, null);
 
                 var action = namedAction.Action;

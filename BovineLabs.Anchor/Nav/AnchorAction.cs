@@ -1,4 +1,4 @@
-// <copyright file="AnchorNamedAction.cs" company="BovineLabs">
+// <copyright file="AnchorAction.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
@@ -12,8 +12,8 @@ namespace BovineLabs.Anchor.Nav
     /// Serializable pairing of an action name and its definition.
     /// </summary>
     [Serializable]
-    [AutoRef("AnchorSettings", "actions", nameof(AnchorNamedAction), "UI/Actions")]
-    public class AnchorNamedAction : ScriptableObject
+    [AutoRef("AnchorSettings", "actions", nameof(AnchorAction), "UI/Actions")]
+    public class AnchorAction : ScriptableObject
     {
         [SerializeField]
         private string actionName = string.Empty;

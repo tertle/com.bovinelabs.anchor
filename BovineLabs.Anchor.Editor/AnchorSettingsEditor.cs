@@ -18,7 +18,7 @@ namespace BovineLabs.Anchor.Editor
         {
             return property.name switch
             {
-                "actions" => new AssetCreator<AnchorNamedAction>(this.serializedObject, property).Element,
+                "actions" => new AssetCreator<AnchorAction>(this.serializedObject, property).Element,
                 "animations" => new AssetCreator<AnchorNavAnimation>(this.serializedObject, property).Element,
                 _ => CreatePropertyField(property),
             };

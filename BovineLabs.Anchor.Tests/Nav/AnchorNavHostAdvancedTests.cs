@@ -23,7 +23,7 @@ namespace BovineLabs.Anchor.Tests.Nav
         [Test]
         public void Navigate_ActionName_InvokesActionTriggeredAndMergesArguments()
         {
-            var namedAction = ScriptableObject.CreateInstance<AnchorNamedAction>();
+            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
 
             try
             {
@@ -77,7 +77,7 @@ namespace BovineLabs.Anchor.Tests.Nav
         [Test]
         public void Toggle_ActionName_NavigatesUsingResolvedAction()
         {
-            var namedAction = ScriptableObject.CreateInstance<AnchorNamedAction>();
+            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
 
             try
             {
@@ -131,7 +131,7 @@ namespace BovineLabs.Anchor.Tests.Nav
         [Test]
         public void Toggle_ActionName_WhenResolvedPopupActive_DismissesPopupBranch()
         {
-            var namedAction = ScriptableObject.CreateInstance<AnchorNamedAction>();
+            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
 
             try
             {
@@ -431,7 +431,7 @@ namespace BovineLabs.Anchor.Tests.Nav
         {
             private readonly TestAnchorAppScope scope;
 
-            public HostContext(IEnumerable<AnchorNamedAction> actions = null, IEnumerable<AnchorNavAnimation> animations = null)
+            public HostContext(IEnumerable<AnchorAction> actions = null, IEnumerable<AnchorNavAnimation> animations = null)
             {
                 this.scope = new TestAnchorAppScope(static services =>
                 {
