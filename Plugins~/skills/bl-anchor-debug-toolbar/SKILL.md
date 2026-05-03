@@ -15,10 +15,11 @@ Resolve Anchor package paths against `Packages/com.bovinelabs.anchor` or the mat
 3. Put the system in `ToolbarSystemGroup` and implement `ISystem, ISystemStartStop`.
 4. Create a `ToolbarHelper<TView, TViewModel, TData>` field in `OnCreate`, call `Load()` in `OnStartRunning`, and call `Unload()` in `OnStopRunning`.
 5. In `OnUpdate`, return immediately when `!toolbar.IsVisible()`, then write only raw unmanaged state through `ref var data = ref toolbar.Binding`.
-6. Keep formatting, texture lookup, localization, and other managed UI work in the view model or view. Burst/system code should publish data, not build UI strings through managed APIs.
-7. Use AppUI/UI Toolkit bindings in the view. Set `dataSource = this.ViewModel`, then bind with `SetBindingToUI`, `SetBindingFromUI`, `SetBindingTwoWay`, or explicit `DataBinding` when a converter is needed.
-8. Use the MVVM/binding and adapter-elements skills for non-toolbar screen binding or AppUI control details.
-9. Run the affected Unity test assembly when code changes are made; for documentation-only skill edits, validation with `quick_validate.py` is enough.
+6. For generated `NativeList<T>` / `MultiContainer<T>` bindings, build the complete replacement list and assign it through the generated property (`data.Items = nativeList`) so the binding layer handles content diffing and notifications. Do not mutate the backing list and call `Notify` manually.
+7. Keep formatting, texture lookup, localization, and other managed UI work in the view model or view. Burst/system code should publish data, not build UI strings through managed APIs.
+8. Use AppUI/UI Toolkit bindings in the view. Set `dataSource = this.ViewModel`, then bind with `SetBindingToUI`, `SetBindingFromUI`, `SetBindingTwoWay`, or explicit `DataBinding` when a converter is needed.
+9. Use the MVVM/binding and adapter-elements skills for non-toolbar screen binding or AppUI control details.
+10. Run the affected Unity test assembly when code changes are made; for documentation-only skill edits, validation with `quick_validate.py` is enough.
 
 ## ECS Pattern
 
@@ -93,6 +94,8 @@ namespace BovineLabs.Example.Debug
 ```
 
 Use `[SystemProperty]` on private fields in a `partial struct Data` when bindings need generated setters, property-change notifications, or Burst-written values. For persisted debug settings, mark the view model and data `[Serializable]`, and add `[SerializeField]` to the generated fields; `ToolbarHelper` saves serializable view models through `PlayerPrefs`.
+
+For list-backed bindings, `[SystemProperty] private NativeList<T> items;` generates a `MultiContainer<T>` property. Systems should prepare a full `NativeList<T>` snapshot and assign `data.Items = items`; the generated setter copies, diffs, and notifies. Keep `Data` methods minimal and prefer direct generated property writes for toolbar state.
 
 For UI controls that write back to ECS state, expose a normal `[CreateProperty]` setter that updates `Value` with `SetProperty`. For display-only data, expose read-only properties that format raw unmanaged values from `Value`.
 

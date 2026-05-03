@@ -83,7 +83,7 @@ namespace Example.UI
 - `[SystemProperty]` fields must be inside a `partial struct`, must declare exactly one field, and must not be static, const, or readonly.
 - Generated system properties call `SetProperty`, so UI notifications stay centralized.
 - `Changed<T>` fields get a generated `PropertyChanged(out value, resetToDefault)` helper.
-- `NativeList<T>` fields are exposed as `MultiContainer<T>` for UI binding.
+- `NativeList<T>` fields are exposed as generated `MultiContainer<T>` properties for UI binding. Build a complete replacement `NativeList<T>` and assign the generated property (`data.Items = items`) so the binding layer performs content diffing, copies into the owned list, and emits change notifications.
 - Use `UIArray<T>` when a read-only native array needs to be exposed as an `IList`.
 
 ## UIHelper Lifecycle
