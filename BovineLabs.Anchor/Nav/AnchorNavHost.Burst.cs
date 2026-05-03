@@ -10,7 +10,12 @@ namespace BovineLabs.Anchor.Nav
 
     public unsafe partial class AnchorNavHost
     {
-        static AnchorNavHost()
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+#else
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+#endif
+        private static void InitializeTrampolines()
         {
             Burst.NavigateFunc.Data = new BurstTrampoline(&NavigateForwardingPacked);
             Burst.ToggleFunc.Data = new BurstTrampoline(&ToggleForwardingPacked);
