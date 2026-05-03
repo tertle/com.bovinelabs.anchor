@@ -17,7 +17,8 @@ Resolve Anchor package paths against `Packages/com.bovinelabs.anchor` or the mat
 5. In `OnUpdate`, return immediately when `!toolbar.IsVisible()`, then write only raw unmanaged state through `ref var data = ref toolbar.Binding`.
 6. Keep formatting, texture lookup, localization, and other managed UI work in the view model or view. Burst/system code should publish data, not build UI strings through managed APIs.
 7. Use AppUI/UI Toolkit bindings in the view. Set `dataSource = this.ViewModel`, then bind with `SetBindingToUI`, `SetBindingFromUI`, `SetBindingTwoWay`, or explicit `DataBinding` when a converter is needed.
-8. Run the affected Unity test assembly when code changes are made; for documentation-only skill edits, validation with `quick_validate.py` is enough.
+8. Use the MVVM/binding and adapter-elements skills for non-toolbar screen binding or AppUI control details.
+9. Run the affected Unity test assembly when code changes are made; for documentation-only skill edits, validation with `quick_validate.py` is enough.
 
 ## ECS Pattern
 

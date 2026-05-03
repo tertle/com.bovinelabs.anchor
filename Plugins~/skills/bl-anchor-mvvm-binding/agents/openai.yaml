@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anchor MVVM Binding"
+  short_description: "Author Anchor view models and UI bindings."
+  default_prompt: "Use $bl-anchor-mvvm-binding to create an Anchor view model, bindings, or ECS-backed UI state."

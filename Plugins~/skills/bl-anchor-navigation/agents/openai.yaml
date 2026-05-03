@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anchor Navigation"
+  short_description: "Work with Anchor navigation and popups."
+  default_prompt: "Use $bl-anchor-navigation to wire Anchor destinations, actions, popups, and back-stack behavior."
