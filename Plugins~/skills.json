@@ -1,0 +1,7 @@
+[
+    {
+        "id": "bl-anchor-debug-toolbar",
+        "displayName": "Anchor - Debug Toolbar",
+        "description": "Use for debug toolbar elements, including ToolbarHelper systems, SystemObservableObject view models, View-based panels, AutoToolbar managed panels, and asmdef wiring."
+    }
+]
