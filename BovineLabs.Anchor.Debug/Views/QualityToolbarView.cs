@@ -7,8 +7,6 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
-    using Unity.Properties;
-    using UnityEngine.UIElements;
 
     [AutoToolbar("Quality")]
     public class QualityToolbarView : View<QualityToolbarViewModel>
@@ -28,17 +26,8 @@ namespace BovineLabs.Anchor.Debug.Views
                 bindItem = (item, i) => item.label = this.ViewModel.QualityChoices[i],
             };
 
-            dropdownField.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
-            {
-                bindingMode = BindingMode.ToTarget,
-                dataSourcePath = new PropertyPath(nameof(QualityToolbarViewModel.QualityChoices)),
-            });
-
-            dropdownField.SetBinding(nameof(Dropdown.selectedIndex),
-                new DataBinding
-                {
-                    dataSourcePath = new PropertyPath(nameof(QualityToolbarViewModel.QualityValue)),
-                });
+            dropdownField.SetBindingToUI(nameof(Dropdown.sourceItems), nameof(QualityToolbarViewModel.QualityChoices));
+            dropdownField.SetBindingTwoWay(nameof(Dropdown.selectedIndex), nameof(QualityToolbarViewModel.QualityValue));
 
             this.Add(dropdownField);
 
