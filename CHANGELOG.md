@@ -1,16 +1,20 @@
 # Changelog
 
-## [2.0.2] - 2026-04-15
-
-### Breaking
+## [2.0.2] - 2026-05-09
 
 ### Added
 * `AnchorNavHost.Toggle` and `AnchorNavHost.Burst.Toggle` for action-resolved popup toggles
+* Packaged Anchor workflow skills for app hosting, navigation, MVVM binding, adapter elements, and debug toolbar usage
 
 ### Changed
 * AnchorActionButton updated for 2.2.0-pre.8
+* Core dependency updated to 1.6.1
+* AnchorNamedAction renamed to AnchorAction
 * Popup toggles now dismiss the matched popup and any active popup descendants above it
 * AnchorAppBuilder now uses PanelRenderer on Unity 6.5+ while keeping UIDocument support on Unity 6.3 and 6.4
+
+### Fixed
+* Burst navigation trampolines now initialize through editor and runtime load hooks instead of the static constructor
 
 ## [2.0.1] - 2026-03-28
 

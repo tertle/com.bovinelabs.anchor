@@ -20,7 +20,7 @@ Use this skill for `AnchorNavHost` behavior and callers. Resolve Anchor source f
 
 - Destinations are UXML keys registered in `AnchorSettings.Views`.
 - Serializable actions live in `AnchorSettings.Actions` as `AnchorAction` assets.
-- Code actions can be registered with a static method marked `[AnchorNavAction("name")]` that returns `AnchorNavAction`.
+- Code actions can be registered with a static parameterless method marked `[AnchorNavAction("name")]` that returns `AnchorNavAction`.
 - `Navigate(actionOrDestination, args)` first resolves a named action, then falls back to a destination key.
 - `AnchorNavAction.MergeArguments` applies default arguments first and lets explicit arguments replace matching names.
 
