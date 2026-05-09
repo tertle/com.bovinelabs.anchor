@@ -241,13 +241,13 @@ namespace BovineLabs.Anchor
                 ((IPanelComponent)this.panelRenderer).PerformValidation(true);
                 return true;
             }
+
+            return false;
 #else
             this.uiDocument ??= this.GetComponent<UIDocument>();
             this.hostRootVisualElement = this.uiDocument?.rootVisualElement;
             return this.uiDocument != null;
 #endif
-
-            return false;
         }
 
 #if UNITY_6000_5_OR_NEWER
