@@ -6,7 +6,6 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
@@ -23,7 +22,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public int SelectedLocale
         {
             get => this.selectedLocale;
-            set => this.SetProperty(ref this.selectedLocale, value);
+            set
+            {
+                if (this.SetProperty(ref this.selectedLocale, value) && LocalizationSettings.HasSettings)
+                {
+                    LocalizationSettings.SelectedLocale = this.SelectedLocale != -1 ? LocalizationSettings.AvailableLocales.Locales[this.SelectedLocale] : null;
+                }
+            }
         }
 
         [CreateProperty]
@@ -40,8 +45,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 return;
             }
 
-            this.PropertyChanged += this.OnPropertyChanged;
-
             LocalizationSettings.InitializationOperation.Completed += _ =>
             {
                 this.Locales = new List<string>(LocalizationSettings.AvailableLocales.Locales.Select(s => s.ToString()));
@@ -51,14 +54,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
                 LocalizationSettings.SelectedLocaleChanged += this.OnSelectedLocaleChanged;
             };
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(this.SelectedLocale))
-            {
-                LocalizationSettings.SelectedLocale = this.SelectedLocale != -1 ? LocalizationSettings.AvailableLocales.Locales[this.SelectedLocale] : null;
-            }
         }
 
         private void OnSelectedLocaleChanged(Locale obj)

@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
@@ -19,12 +18,17 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public int QualityValue
         {
             get => this.qualityValue;
-            set => this.SetProperty(ref this.qualityValue, value);
+            set
+            {
+                if (this.SetProperty(ref this.qualityValue, value))
+                {
+                    QualitySettings.SetQualityLevel(this.qualityValue);
+                }
+            }
         }
 
         public QualityToolbarViewModel()
         {
-            this.PropertyChanged += this.OnPropertyChanged;
             this.QualityChoices = QualitySettings.names.ToList();
             this.QualityValue = QualitySettings.GetQualityLevel();
         }
@@ -35,14 +39,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public void Update()
         {
             this.QualityValue = QualitySettings.GetQualityLevel();
-        }
-
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(this.QualityValue))
-            {
-                QualitySettings.SetQualityLevel(this.QualityValue);
-            }
         }
     }
 }

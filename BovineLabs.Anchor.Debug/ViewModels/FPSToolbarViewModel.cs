@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Properties;
     using UnityEngine;
 
-    public class FPSToolbarViewModel : ObservableObject
+    public partial class FPSToolbarViewModel : ObservableObject
     {
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;
@@ -34,19 +34,14 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 
         [CreateProperty(ReadOnly = true)]
+        [DependsOn(nameof(CurrentFPS))]
         public float FrameTime => this.currentFPS == 0 ? 0 : 1000f / this.currentFPS;
 
         [CreateProperty]
         public int CurrentFPS
         {
             get => this.currentFPS;
-            set
-            {
-                if (this.SetProperty(ref this.currentFPS, value))
-                {
-                    this.OnPropertyChanged(nameof(this.FrameTime));
-                }
-            }
+            set => this.SetProperty(ref this.currentFPS, value);
         }
 
         [CreateProperty]
