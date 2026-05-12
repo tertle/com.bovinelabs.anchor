@@ -215,7 +215,48 @@ namespace BovineLabs.SystemPropertyGenerator
                 }
             }
 
+            foreach (var model in models.Values)
+            {
+                NormalizePropertyDependencyNames(model);
+            }
+
             return models.Values;
+        }
+
+        private static void NormalizePropertyDependencyNames(TypeGenerationModel model)
+        {
+            if (model.ObservableProperties.Count == 0 || model.PropertyDependencies.Count == 0)
+            {
+                return;
+            }
+
+            var fieldPropertyNames = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var property in model.ObservableProperties.Values)
+            {
+                fieldPropertyNames[property.FieldName] = property.PropertyName;
+            }
+
+            var normalizedDependencies = new Dictionary<string, ImmutableArray<string>.Builder>(StringComparer.Ordinal);
+            foreach (var pair in model.PropertyDependencies)
+            {
+                var dependencies = ImmutableArray.CreateBuilder<string>();
+                foreach (var dependency in pair.Value)
+                {
+                    var normalizedDependency = fieldPropertyNames.TryGetValue(dependency, out var propertyName) ? propertyName : dependency;
+                    if (!dependencies.Contains(normalizedDependency, StringComparer.Ordinal))
+                    {
+                        dependencies.Add(normalizedDependency);
+                    }
+                }
+
+                normalizedDependencies.Add(pair.Key, dependencies);
+            }
+
+            model.PropertyDependencies.Clear();
+            foreach (var pair in normalizedDependencies)
+            {
+                model.PropertyDependencies.Add(pair.Key, pair.Value);
+            }
         }
 
         private static void CollectObservableProperties(

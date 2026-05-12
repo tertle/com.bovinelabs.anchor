@@ -274,6 +274,20 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void GeneratedDependsOn_ObservablePropertyFieldName_RaisesGeneratedPropertyDependency()
+        {
+            var viewModel = new GeneratedFieldDependsOnViewModel();
+            var changedProperties = new List<string>();
+            viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName);
+
+            viewModel.Test = 4;
+
+            CollectionAssert.AreEqual(
+                new[] { nameof(GeneratedFieldDependsOnViewModel.Test), nameof(GeneratedFieldDependsOnViewModel.HasTest) },
+                changedProperties);
+        }
+
+        [Test]
         public void GeneratedCommand_CanExecutePropertyObservesDependentNotifications()
         {
             var viewModel = new GeneratedCommandDependsOnViewModel();
@@ -433,6 +447,16 @@ namespace BovineLabs.Anchor.Tests.App
 
             [DependsOn(nameof(CanLoad))]
             public bool CanContinue => this.CanLoad;
+        }
+
+        public partial class GeneratedFieldDependsOnViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            private int test;
+
+            [CreateProperty]
+            [DependsOn(nameof(test))]
+            public bool HasTest => this.test != 0;
         }
 
         public partial class GeneratedCommandDependsOnViewModel : ObservableObject
