@@ -295,7 +295,16 @@ namespace BovineLabs.SystemPropertyGenerator
                 }
 
                 var canExecuteName = GetNamedStringArgument(commandAttribute, "CanExecuteMethod");
+                var canExecutePropertyName = GetNamedStringArgument(commandAttribute, "CanExecuteProperty");
+
+                if (!string.IsNullOrWhiteSpace(canExecuteName) && !string.IsNullOrWhiteSpace(canExecutePropertyName))
+                {
+                    diagnostics.Add(MvvmDiagnostics.ConflictingCanExecuteMembers(methodSymbol, methodDeclaration.Identifier.GetLocation()));
+                    continue;
+                }
+
                 IMethodSymbol canExecuteMethod = null;
+                IPropertySymbol canExecuteProperty = null;
 
                 if (!string.IsNullOrWhiteSpace(canExecuteName))
                 {
@@ -307,7 +316,17 @@ namespace BovineLabs.SystemPropertyGenerator
                     }
                 }
 
-                commands.Add(new CommandData(methodSymbol, propertyName, canExecuteMethod));
+                if (!string.IsNullOrWhiteSpace(canExecutePropertyName))
+                {
+                    canExecuteProperty = ResolveCanExecuteProperty(methodSymbol.ContainingType, canExecutePropertyName);
+                    if (canExecuteProperty == null)
+                    {
+                        diagnostics.Add(MvvmDiagnostics.InvalidCanExecuteProperty(methodSymbol.ContainingType, canExecutePropertyName, methodDeclaration.Identifier.GetLocation()));
+                        continue;
+                    }
+                }
+
+                commands.Add(new CommandData(methodSymbol, propertyName, canExecuteMethod, canExecuteProperty));
             }
         }
 
@@ -536,14 +555,26 @@ namespace BovineLabs.SystemPropertyGenerator
 
         private static string BuildCanExecuteExpression(CommandData command)
         {
-            if (command.CanExecuteMethod == null)
+            if (command.CanExecuteMethod != null)
+            {
+                return command.CanExecuteMethod.IsStatic
+                    ? $"{command.CanExecuteMethod.ContainingType.ToDisplayString(QualifiedTypeFormat)}.{command.CanExecuteMethod.Name}"
+                    : $"this.{command.CanExecuteMethod.Name}";
+            }
+
+            if (command.CanExecuteProperty == null)
             {
                 return null;
             }
 
-            return command.CanExecuteMethod.IsStatic
-                ? $"{command.CanExecuteMethod.ContainingType.ToDisplayString(QualifiedTypeFormat)}.{command.CanExecuteMethod.Name}"
-                : $"this.{command.CanExecuteMethod.Name}";
+            var propertyTarget = command.CanExecuteProperty.IsStatic
+                ? command.CanExecuteProperty.ContainingType.ToDisplayString(QualifiedTypeFormat)
+                : "this";
+            var propertyAccess = $"{propertyTarget}.{command.CanExecuteProperty.Name}";
+
+            return command.MethodSymbol.Parameters.Length == 0
+                ? $"() => {propertyAccess}"
+                : $"_ => {propertyAccess}";
         }
 
         private static List<INamedTypeSymbol> GetTypeChain(INamedTypeSymbol typeSymbol)
@@ -585,6 +616,26 @@ namespace BovineLabs.SystemPropertyGenerator
 
                 if (candidate.Parameters.Length == 1 &&
                     !SymbolEqualityComparer.Default.Equals(candidate.Parameters[0].Type, commandParameters[0].Type))
+                {
+                    continue;
+                }
+
+                return candidate;
+            }
+
+            return null;
+        }
+
+        private static IPropertySymbol ResolveCanExecuteProperty(INamedTypeSymbol typeSymbol, string propertyName)
+        {
+            foreach (var candidate in typeSymbol.GetMembers(propertyName).OfType<IPropertySymbol>())
+            {
+                if (!candidate.Type.SpecialType.Equals(SpecialType.System_Boolean))
+                {
+                    continue;
+                }
+
+                if (candidate.GetMethod == null || candidate.Parameters.Length != 0)
                 {
                     continue;
                 }
@@ -964,11 +1015,12 @@ namespace BovineLabs.SystemPropertyGenerator
 
         private sealed class CommandData
         {
-            public CommandData(IMethodSymbol methodSymbol, string propertyName, IMethodSymbol canExecuteMethod)
+            public CommandData(IMethodSymbol methodSymbol, string propertyName, IMethodSymbol canExecuteMethod, IPropertySymbol canExecuteProperty)
             {
                 this.MethodSymbol = methodSymbol;
                 this.PropertyName = propertyName;
                 this.CanExecuteMethod = canExecuteMethod;
+                this.CanExecuteProperty = canExecuteProperty;
             }
 
             public IMethodSymbol MethodSymbol { get; }
@@ -976,6 +1028,8 @@ namespace BovineLabs.SystemPropertyGenerator
             public string PropertyName { get; }
 
             public IMethodSymbol CanExecuteMethod { get; }
+
+            public IPropertySymbol CanExecuteProperty { get; }
         }
     }
 }

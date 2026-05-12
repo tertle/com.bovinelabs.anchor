@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.3] - Unreleased
+
+### Added
+* `ICommandAttribute.CanExecuteProperty` for generating command can-execute delegates from bindable bool properties
+
 ## [2.0.2] - 2026-05-09
 
 ### Added

@@ -16,5 +16,10 @@ namespace BovineLabs.Anchor.MVVM
         /// Gets or sets an optional method name that controls command can-execute.
         /// </summary>
         public string CanExecuteMethod { get; set; }
+
+        /// <summary>
+        /// Gets or sets an optional bool property name that controls command can-execute.
+        /// </summary>
+        public string CanExecuteProperty { get; set; }
     }
 }

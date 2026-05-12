@@ -60,6 +60,22 @@ namespace BovineLabs.SystemPropertyGenerator
             DiagnosticSeverity.Error,
             true);
 
+        internal static readonly DiagnosticDescriptor InvalidCanExecutePropertyDescriptor = new DiagnosticDescriptor(
+            "BLMVVM0007",
+            "CanExecute property is invalid",
+            "Property '{0}' on type '{1}' must be a bool property with a getter and no parameters",
+            Category,
+            DiagnosticSeverity.Error,
+            true);
+
+        internal static readonly DiagnosticDescriptor ConflictingCanExecuteDescriptor = new DiagnosticDescriptor(
+            "BLMVVM0008",
+            "ICommand can-execute source is ambiguous",
+            "Method '{0}' must use either CanExecuteMethod or CanExecuteProperty, not both",
+            Category,
+            DiagnosticSeverity.Error,
+            true);
+
         public static Diagnostic MissingPartial(INamedTypeSymbol typeSymbol, Location location)
         {
             return Diagnostic.Create(MissingPartialDescriptor, location ?? typeSymbol.Locations[0], typeSymbol.Name);
@@ -88,6 +104,16 @@ namespace BovineLabs.SystemPropertyGenerator
         public static Diagnostic InvalidCanExecuteMethod(INamedTypeSymbol typeSymbol, string methodName, Location location)
         {
             return Diagnostic.Create(InvalidCanExecuteMethodDescriptor, location ?? typeSymbol.Locations[0], methodName, typeSymbol.Name);
+        }
+
+        public static Diagnostic InvalidCanExecuteProperty(INamedTypeSymbol typeSymbol, string propertyName, Location location)
+        {
+            return Diagnostic.Create(InvalidCanExecutePropertyDescriptor, location ?? typeSymbol.Locations[0], propertyName, typeSymbol.Name);
+        }
+
+        public static Diagnostic ConflictingCanExecuteMembers(IMethodSymbol methodSymbol, Location location)
+        {
+            return Diagnostic.Create(ConflictingCanExecuteDescriptor, location ?? methodSymbol.Locations[0], methodSymbol.Name);
         }
     }
 }

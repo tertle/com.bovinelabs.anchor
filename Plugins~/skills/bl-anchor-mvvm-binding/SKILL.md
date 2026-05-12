@@ -46,6 +46,7 @@ namespace Example.UI
 - `[AlsoExecute]` calls a non-generic parameterless method after the generated property changes.
 - `[ICommand]` methods must return `void` and have at most one non-ref parameter.
 - `[ICommand(CanExecuteMethod = "...")]` must point at a `bool` method with matching parameters.
+- `[ICommand(CanExecuteProperty = "...")]` must point at a `bool` property with a getter; use either `CanExecuteMethod` or `CanExecuteProperty`, not both.
 
 ## Views And UXML
 
