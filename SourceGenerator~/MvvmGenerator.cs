@@ -22,12 +22,15 @@ namespace BovineLabs.SystemPropertyGenerator
         private const string ICommandAttributeName = "ICommand";
         private const string AlsoNotifyChangeForAttributeName = "AlsoNotifyChangeFor";
         private const string AlsoExecuteAttributeName = "AlsoExecute";
+        private const string DependsOnAttributeName = "DependsOn";
         private const string ObservablePropertyAttributeMetadataName = "BovineLabs.Anchor.MVVM.ObservablePropertyAttribute";
         private const string ICommandAttributeMetadataName = "BovineLabs.Anchor.MVVM.ICommandAttribute";
         private const string AlsoNotifyChangeForAttributeMetadataName = "BovineLabs.Anchor.MVVM.AlsoNotifyChangeForAttribute";
         private const string AlsoExecuteAttributeMetadataName = "BovineLabs.Anchor.MVVM.AlsoExecuteAttribute";
+        private const string DependsOnAttributeMetadataName = "BovineLabs.Anchor.MVVM.DependsOnAttribute";
         private const string CommandTypeName = "global::System.Windows.Input.ICommand";
         private const string RelayCommandTypeName = "global::BovineLabs.Anchor.MVVM.RelayCommand";
+        private const string NotifyPropertyChangedMetadataName = "System.ComponentModel.INotifyPropertyChanged";
 
         private static readonly SymbolDisplayFormat QualifiedTypeFormat =
             SymbolDisplayFormat.FullyQualifiedFormat.WithMiscellaneousOptions(
@@ -80,6 +83,13 @@ namespace BovineLabs.SystemPropertyGenerator
                         }
 
                         break;
+                    case PropertyDeclarationSyntax propertyDeclaration:
+                        if (HasAttributeSyntax(propertyDeclaration.AttributeLists, DependsOnAttributeName))
+                        {
+                            return true;
+                        }
+
+                        break;
                 }
             }
 
@@ -96,24 +106,26 @@ namespace BovineLabs.SystemPropertyGenerator
 
             var observableProperties = ImmutableArray.CreateBuilder<ObservablePropertyData>();
             var commands = ImmutableArray.CreateBuilder<CommandData>();
+            var propertyDependencies = ImmutableArray.CreateBuilder<PropertyDependencyData>();
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
             if (!IsPartial(typeDeclaration))
             {
                 diagnostics.Add(MvvmDiagnostics.MissingPartial(typeSymbol, typeDeclaration.Identifier.GetLocation()));
-                return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable(), diagnostics.ToImmutable());
+                return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable(), propertyDependencies.ToImmutable(), diagnostics.ToImmutable());
             }
 
             CollectObservableProperties(typeDeclaration, ctx.SemanticModel, observableProperties, diagnostics, cancellationToken);
             CollectCommands(typeDeclaration, ctx.SemanticModel, commands, diagnostics, cancellationToken);
+            CollectPropertyDependencies(typeDeclaration, ctx.SemanticModel, propertyDependencies, cancellationToken);
             ValidateGeneratedMemberConflicts(typeSymbol, observableProperties, commands, diagnostics);
 
-            if (observableProperties.Count == 0 && commands.Count == 0 && diagnostics.Count == 0)
+            if (observableProperties.Count == 0 && commands.Count == 0 && propertyDependencies.Count == 0 && diagnostics.Count == 0)
             {
                 return null;
             }
 
-            return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable(), diagnostics.ToImmutable());
+            return new PartialTypeModel(typeSymbol, observableProperties.ToImmutable(), commands.ToImmutable(), propertyDependencies.ToImmutable(), diagnostics.ToImmutable());
         }
 
         private static void Execute(SourceProductionContext context, ImmutableArray<PartialTypeModel> candidates)
@@ -182,6 +194,23 @@ namespace BovineLabs.SystemPropertyGenerator
                     if (!model.Commands.ContainsKey(command.PropertyName))
                     {
                         model.Commands.Add(command.PropertyName, command);
+                    }
+                }
+
+                foreach (var propertyDependency in candidate.PropertyDependencies)
+                {
+                    if (!model.PropertyDependencies.TryGetValue(propertyDependency.PropertyName, out var dependencies))
+                    {
+                        dependencies = ImmutableArray.CreateBuilder<string>();
+                        model.PropertyDependencies.Add(propertyDependency.PropertyName, dependencies);
+                    }
+
+                    foreach (var dependency in propertyDependency.Dependencies)
+                    {
+                        if (!dependencies.Contains(dependency, StringComparer.Ordinal))
+                        {
+                            dependencies.Add(dependency);
+                        }
                     }
                 }
             }
@@ -330,6 +359,31 @@ namespace BovineLabs.SystemPropertyGenerator
             }
         }
 
+        private static void CollectPropertyDependencies(
+            TypeDeclarationSyntax typeDeclaration,
+            SemanticModel semanticModel,
+            ICollection<PropertyDependencyData> propertyDependencies,
+            CancellationToken cancellationToken)
+        {
+            foreach (var propertyDeclaration in typeDeclaration.Members.OfType<PropertyDeclarationSyntax>())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (semanticModel.GetDeclaredSymbol(propertyDeclaration, cancellationToken) is not IPropertySymbol propertySymbol)
+                {
+                    continue;
+                }
+
+                var dependencies = GetStringAttributeArguments(propertySymbol, DependsOnAttributeMetadataName);
+                if (dependencies.Length == 0)
+                {
+                    continue;
+                }
+
+                propertyDependencies.Add(new PropertyDependencyData(propertySymbol.Name, dependencies));
+            }
+        }
+
         private static void ValidateGeneratedMemberConflicts(
             INamedTypeSymbol typeSymbol,
             IEnumerable<ObservablePropertyData> observableProperties,
@@ -370,7 +424,7 @@ namespace BovineLabs.SystemPropertyGenerator
 
         private static CodeBuilder Generate(TypeGenerationModel model)
         {
-            if (model.ObservableProperties.Count == 0 && model.Commands.Count == 0)
+            if (model.ObservableProperties.Count == 0 && model.Commands.Count == 0 && model.PropertyDependencies.Count == 0)
             {
                 return null;
             }
@@ -384,6 +438,8 @@ namespace BovineLabs.SystemPropertyGenerator
                 : CodeBuilder.Create(namespaceName);
 
             var typeBuilder = AddTypeChain(builder, model.TypeSymbol);
+
+            EmitPropertyDependencyNotifications(typeBuilder, model);
 
             foreach (var property in model.ObservableProperties.Values.OrderBy(static p => p.PropertyName, StringComparer.Ordinal))
             {
@@ -483,6 +539,99 @@ namespace BovineLabs.SystemPropertyGenerator
             }
         }
 
+        private static void EmitPropertyDependencyNotifications(ClassBuilder classBuilder, TypeGenerationModel model)
+        {
+            var notificationMap = BuildPropertyNotificationMap(model.PropertyDependencies);
+            if (notificationMap.Count == 0)
+            {
+                return;
+            }
+
+            classBuilder.AddMethod("OnPropertyChanged", Accessibility.Protected)
+                .Override()
+                .WithReturnType("void")
+                .AddParameter("global::System.ComponentModel.PropertyChangedEventArgs", "e")
+                .WithBody(writer =>
+                {
+                    writer.AppendLine("base.OnPropertyChanged(e);");
+
+                    var switchBuilder = writer.Switch("e.PropertyName");
+                    foreach (var pair in notificationMap.OrderBy(static p => p.Key, StringComparer.Ordinal))
+                    {
+                        switchBuilder.AddCase(BuildNameofOrStringLiteral(pair.Key)).WithContent(caseWriter =>
+                        {
+                            foreach (var dependentProperty in pair.Value)
+                            {
+                                caseWriter.AppendLine(
+                                    $"base.OnPropertyChanged(new global::System.ComponentModel.PropertyChangedEventArgs({BuildNameofOrStringLiteral(dependentProperty)}));");
+                            }
+                        });
+                    }
+
+                    switchBuilder.Close();
+                });
+        }
+
+        private static Dictionary<string, ImmutableArray<string>> BuildPropertyNotificationMap(
+            Dictionary<string, ImmutableArray<string>.Builder> propertyDependencies)
+        {
+            var directDependents = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+            foreach (var pair in propertyDependencies)
+            {
+                foreach (var dependency in pair.Value)
+                {
+                    if (!directDependents.TryGetValue(dependency, out var dependents))
+                    {
+                        dependents = new List<string>();
+                        directDependents.Add(dependency, dependents);
+                    }
+
+                    if (!dependents.Contains(pair.Key, StringComparer.Ordinal))
+                    {
+                        dependents.Add(pair.Key);
+                    }
+                }
+            }
+
+            var notificationMap = new Dictionary<string, ImmutableArray<string>>(StringComparer.Ordinal);
+            foreach (var sourceProperty in directDependents.Keys)
+            {
+                var notifications = ImmutableArray.CreateBuilder<string>();
+                var visited = new HashSet<string>(StringComparer.Ordinal) { sourceProperty };
+                AddDependents(sourceProperty, directDependents, visited, notifications);
+
+                if (notifications.Count != 0)
+                {
+                    notificationMap.Add(sourceProperty, notifications.ToImmutable());
+                }
+            }
+
+            return notificationMap;
+        }
+
+        private static void AddDependents(
+            string sourceProperty,
+            Dictionary<string, List<string>> directDependents,
+            HashSet<string> visited,
+            ImmutableArray<string>.Builder notifications)
+        {
+            if (!directDependents.TryGetValue(sourceProperty, out var dependents))
+            {
+                return;
+            }
+
+            foreach (var dependentProperty in dependents.OrderBy(static d => d, StringComparer.Ordinal))
+            {
+                if (!visited.Add(dependentProperty))
+                {
+                    continue;
+                }
+
+                notifications.Add(dependentProperty);
+                AddDependents(dependentProperty, directDependents, visited, notifications);
+            }
+        }
+
         private static void EmitObservableProperty(ClassBuilder classBuilder, ObservablePropertyData property)
         {
             var generatedProperty = classBuilder
@@ -539,18 +688,23 @@ namespace BovineLabs.SystemPropertyGenerator
                 : $"this.{method.Name}";
 
             var canExecuteExpression = BuildCanExecuteExpression(command);
+            var observedPropertyExpression = BuildObservedPropertyExpression(command);
 
             if (method.Parameters.Length == 0)
             {
                 return canExecuteExpression == null
                     ? $"new {RelayCommandTypeName}({executeExpression})"
-                    : $"new {RelayCommandTypeName}({executeExpression}, {canExecuteExpression})";
+                    : observedPropertyExpression == null
+                        ? $"new {RelayCommandTypeName}({executeExpression}, {canExecuteExpression})"
+                        : $"new {RelayCommandTypeName}({executeExpression}, {canExecuteExpression}, this, {observedPropertyExpression})";
             }
 
             var parameterTypeName = method.Parameters[0].Type.ToDisplayString(QualifiedTypeFormat);
             return canExecuteExpression == null
                 ? $"new {RelayCommandTypeName}<{parameterTypeName}>({executeExpression})"
-                : $"new {RelayCommandTypeName}<{parameterTypeName}>({executeExpression}, {canExecuteExpression})";
+                : observedPropertyExpression == null
+                    ? $"new {RelayCommandTypeName}<{parameterTypeName}>({executeExpression}, {canExecuteExpression})"
+                    : $"new {RelayCommandTypeName}<{parameterTypeName}>({executeExpression}, {canExecuteExpression}, this, {observedPropertyExpression})";
         }
 
         private static string BuildCanExecuteExpression(CommandData command)
@@ -575,6 +729,36 @@ namespace BovineLabs.SystemPropertyGenerator
             return command.MethodSymbol.Parameters.Length == 0
                 ? $"() => {propertyAccess}"
                 : $"_ => {propertyAccess}";
+        }
+
+        private static string BuildObservedPropertyExpression(CommandData command)
+        {
+            if (command.CanExecuteProperty == null || command.CanExecuteProperty.IsStatic || !ImplementsNotifyPropertyChanged(command.MethodSymbol.ContainingType))
+            {
+                return null;
+            }
+
+            return BuildNameofOrStringLiteral(command.CanExecuteProperty.Name);
+        }
+
+        private static bool ImplementsNotifyPropertyChanged(INamedTypeSymbol typeSymbol)
+        {
+            foreach (var interfaceSymbol in typeSymbol.AllInterfaces)
+            {
+                var fullName = interfaceSymbol.ToDisplayString(QualifiedTypeFormat);
+                const string globalPrefix = "global::";
+                if (fullName.StartsWith(globalPrefix, StringComparison.Ordinal))
+                {
+                    fullName = fullName.Substring(globalPrefix.Length);
+                }
+
+                if (string.Equals(fullName, NotifyPropertyChangedMetadataName, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static List<INamedTypeSymbol> GetTypeChain(INamedTypeSymbol typeSymbol)
@@ -689,11 +873,11 @@ namespace BovineLabs.SystemPropertyGenerator
             return methods.ToImmutable();
         }
 
-        private static ImmutableArray<string> GetStringAttributeArguments(IFieldSymbol fieldSymbol, string attributeMetadataName)
+        private static ImmutableArray<string> GetStringAttributeArguments(ISymbol symbol, string attributeMetadataName)
         {
             var names = ImmutableArray.CreateBuilder<string>();
 
-            foreach (var attribute in fieldSymbol.GetAttributes())
+            foreach (var attribute in symbol.GetAttributes())
             {
                 if (!MatchesAttributeMetadataName(attribute.AttributeClass, attributeMetadataName))
                 {
@@ -950,11 +1134,13 @@ namespace BovineLabs.SystemPropertyGenerator
                 INamedTypeSymbol typeSymbol,
                 ImmutableArray<ObservablePropertyData> observableProperties,
                 ImmutableArray<CommandData> commands,
+                ImmutableArray<PropertyDependencyData> propertyDependencies,
                 ImmutableArray<Diagnostic> diagnostics)
             {
                 this.TypeSymbol = typeSymbol;
                 this.ObservableProperties = observableProperties;
                 this.Commands = commands;
+                this.PropertyDependencies = propertyDependencies;
                 this.Diagnostics = diagnostics;
             }
 
@@ -963,6 +1149,8 @@ namespace BovineLabs.SystemPropertyGenerator
             public ImmutableArray<ObservablePropertyData> ObservableProperties { get; }
 
             public ImmutableArray<CommandData> Commands { get; }
+
+            public ImmutableArray<PropertyDependencyData> PropertyDependencies { get; }
 
             public ImmutableArray<Diagnostic> Diagnostics { get; }
         }
@@ -974,6 +1162,7 @@ namespace BovineLabs.SystemPropertyGenerator
                 this.TypeSymbol = typeSymbol;
                 this.ObservableProperties = new Dictionary<string, ObservablePropertyData>(StringComparer.Ordinal);
                 this.Commands = new Dictionary<string, CommandData>(StringComparer.Ordinal);
+                this.PropertyDependencies = new Dictionary<string, ImmutableArray<string>.Builder>(StringComparer.Ordinal);
                 this.Diagnostics = new List<Diagnostic>();
             }
 
@@ -982,6 +1171,8 @@ namespace BovineLabs.SystemPropertyGenerator
             public Dictionary<string, ObservablePropertyData> ObservableProperties { get; }
 
             public Dictionary<string, CommandData> Commands { get; }
+
+            public Dictionary<string, ImmutableArray<string>.Builder> PropertyDependencies { get; }
 
             public List<Diagnostic> Diagnostics { get; }
         }
@@ -1030,6 +1221,19 @@ namespace BovineLabs.SystemPropertyGenerator
             public IMethodSymbol CanExecuteMethod { get; }
 
             public IPropertySymbol CanExecuteProperty { get; }
+        }
+
+        private sealed class PropertyDependencyData
+        {
+            public PropertyDependencyData(string propertyName, ImmutableArray<string> dependencies)
+            {
+                this.PropertyName = propertyName;
+                this.Dependencies = dependencies;
+            }
+
+            public string PropertyName { get; }
+
+            public ImmutableArray<string> Dependencies { get; }
         }
     }
 }

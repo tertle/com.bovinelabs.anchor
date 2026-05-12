@@ -15,7 +15,7 @@ namespace BovineLabs.SystemPropertyGenerator
         internal static readonly DiagnosticDescriptor MissingPartialDescriptor = new DiagnosticDescriptor(
             "BLMVVM0001",
             "MVVM source generation requires a partial type",
-            "Type '{0}' must be declared partial to use [ObservableProperty] or [ICommand]",
+            "Type '{0}' must be declared partial to use [ObservableProperty], [ICommand], or [DependsOn]",
             Category,
             DiagnosticSeverity.Error,
             true);

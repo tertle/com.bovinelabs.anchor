@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor.MVVM
 {
     using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// Parameterless relay command implementation.
@@ -13,6 +14,7 @@ namespace BovineLabs.Anchor.MVVM
     {
         private readonly Action execute;
         private readonly Func<bool> canExecute;
+        private readonly string[] observedProperties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RelayCommand"/> class.
@@ -29,9 +31,27 @@ namespace BovineLabs.Anchor.MVVM
         /// <param name="execute">Execution callback.</param>
         /// <param name="canExecute">Optional can-execute callback.</param>
         public RelayCommand(Action execute, Func<bool> canExecute)
+            : this(execute, canExecute, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RelayCommand"/> class.
+        /// </summary>
+        /// <param name="execute">Execution callback.</param>
+        /// <param name="canExecute">Optional can-execute callback.</param>
+        /// <param name="propertyChangedSource">Optional property source that invalidates can-execute.</param>
+        /// <param name="observedProperties">Properties that invalidate can-execute when changed.</param>
+        public RelayCommand(Action execute, Func<bool> canExecute, INotifyPropertyChanged propertyChangedSource, params string[] observedProperties)
         {
             this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
             this.canExecute = canExecute;
+            this.observedProperties = observedProperties ?? Array.Empty<string>();
+
+            if (propertyChangedSource != null && this.observedProperties.Length != 0)
+            {
+                propertyChangedSource.PropertyChanged += this.OnPropertyChanged;
+            }
         }
 
         /// <inheritdoc/>
@@ -75,6 +95,14 @@ namespace BovineLabs.Anchor.MVVM
         public void NotifyCanExecuteChanged()
         {
             this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(e.PropertyName) || Array.IndexOf(this.observedProperties, e.PropertyName) >= 0)
+            {
+                this.NotifyCanExecuteChanged();
+            }
         }
     }
 }

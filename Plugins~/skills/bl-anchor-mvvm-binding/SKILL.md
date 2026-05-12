@@ -44,9 +44,11 @@ namespace Example.UI
 - Generated property names strip `_`, `m_`, and `m` prefixes before Pascal-casing.
 - `[AlsoNotifyChangeFor]` raises additional property notifications.
 - `[AlsoExecute]` calls a non-generic parameterless method after the generated property changes.
+- `[DependsOn]` on computed properties raises that property's changed notification when any listed dependency changes; dependencies are expanded transitively by the generator.
 - `[ICommand]` methods must return `void` and have at most one non-ref parameter.
 - `[ICommand(CanExecuteMethod = "...")]` must point at a `bool` method with matching parameters.
-- `[ICommand(CanExecuteProperty = "...")]` must point at a `bool` property with a getter; use either `CanExecuteMethod` or `CanExecuteProperty`, not both.
+- `[ICommand(CanExecuteProperty = "...")]` must point at a `bool` property with a getter; generated commands on `INotifyPropertyChanged` view models observe that property and raise `CanExecuteChanged` when it changes. Use `[DependsOn]` on computed gates instead of manual `NotifyCanExecuteChanged()` calls.
+- Use either `CanExecuteMethod` or `CanExecuteProperty`, not both.
 
 ## Views And UXML
 

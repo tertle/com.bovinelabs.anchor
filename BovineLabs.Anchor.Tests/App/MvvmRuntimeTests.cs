@@ -77,6 +77,20 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void RelayCommand_PropertyChangedSource_RaisesCanExecuteChangedForObservedProperty()
+        {
+            var viewModel = new TestViewModel();
+            var command = new RelayCommand(() => { }, () => true, viewModel, nameof(TestViewModel.Value));
+            var eventCount = 0;
+            command.CanExecuteChanged += (_, _) => eventCount++;
+
+            viewModel.OtherValue = 3;
+            viewModel.Value = 4;
+
+            Assert.AreEqual(1, eventCount);
+        }
+
+        [Test]
         public void RelayCommandOfT_InvalidObjectParameter_Throws()
         {
             var command = new RelayCommand<int>(_ => { });
@@ -240,14 +254,56 @@ namespace BovineLabs.Anchor.Tests.App
                 viewModel.Log);
         }
 
+        [Test]
+        public void GeneratedDependsOn_RaisesDependentNotificationsTransitively()
+        {
+            var viewModel = new GeneratedDependsOnViewModel();
+            var changedProperties = new List<string>();
+            viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName);
+
+            viewModel.HasSave = true;
+
+            CollectionAssert.AreEqual(
+                new[]
+                {
+                    nameof(GeneratedDependsOnViewModel.HasSave),
+                    nameof(GeneratedDependsOnViewModel.CanLoad),
+                    nameof(GeneratedDependsOnViewModel.CanContinue),
+                },
+                changedProperties);
+        }
+
+        [Test]
+        public void GeneratedCommand_CanExecutePropertyObservesDependentNotifications()
+        {
+            var viewModel = new GeneratedCommandDependsOnViewModel();
+            var command = viewModel.ContinueCommand;
+            var eventCount = 0;
+            command.CanExecuteChanged += (_, _) => eventCount++;
+
+            Assert.IsFalse(command.CanExecute(null));
+
+            viewModel.HasSave = true;
+
+            Assert.AreEqual(1, eventCount);
+            Assert.IsTrue(command.CanExecute(null));
+        }
+
         private sealed class TestViewModel : ObservableObject
         {
             private int value;
+            private int otherValue;
 
             public int Value
             {
                 get => this.value;
                 set => this.SetProperty(ref this.value, value);
+            }
+
+            public int OtherValue
+            {
+                get => this.otherValue;
+                set => this.SetProperty(ref this.otherValue, value);
             }
 
             public void SetBackingValue(int value)
@@ -365,6 +421,35 @@ namespace BovineLabs.Anchor.Tests.App
         {
             [ObservableProperty]
             private int test;
+        }
+
+        public partial class GeneratedDependsOnViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            private bool hasSave;
+
+            [DependsOn(nameof(HasSave))]
+            public bool CanLoad => this.HasSave;
+
+            [DependsOn(nameof(CanLoad))]
+            public bool CanContinue => this.CanLoad;
+        }
+
+        public partial class GeneratedCommandDependsOnViewModel : ObservableObject
+        {
+            [ObservableProperty]
+            private bool hasSave;
+
+            [ICommand(CanExecuteProperty = nameof(CanContinue))]
+            private void Continue()
+            {
+                this.ExecuteCount++;
+            }
+
+            [DependsOn(nameof(HasSave))]
+            private bool CanContinue => this.HasSave;
+
+            public int ExecuteCount { get; private set; }
         }
 
         public partial class GeneratedAlsoNotifyViewModel : ObservableObject

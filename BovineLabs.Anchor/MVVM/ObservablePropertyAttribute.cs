@@ -61,4 +61,28 @@ namespace BovineLabs.Anchor.MVVM
         {
         }
     }
+
+    /// <summary>
+    /// Adds changed notifications for this property when other properties change.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
+    public sealed class DependsOnAttribute : Attribute
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependsOnAttribute"/> class.
+        /// </summary>
+        /// <param name="propertyName">The property this property depends on.</param>
+        public DependsOnAttribute(string propertyName)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DependsOnAttribute"/> class.
+        /// </summary>
+        /// <param name="propertyName">The first property this property depends on.</param>
+        /// <param name="propertyNames">Additional properties this property depends on.</param>
+        public DependsOnAttribute(string propertyName, params string[] propertyNames)
+        {
+        }
+    }
 }
