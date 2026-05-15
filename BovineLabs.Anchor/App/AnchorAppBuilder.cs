@@ -251,7 +251,7 @@ namespace BovineLabs.Anchor
         }
 
 #if UNITY_6000_5_OR_NEWER
-        private void OnPanelRendererReload(PanelRenderer _, VisualElement rootElement)
+        private void OnPanelRendererReload(PanelRenderer renderer, VisualElement rootElement, int version)
         {
             this.hostRootVisualElement = rootElement;
             this.AttachAppRootToHost();
