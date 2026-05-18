@@ -202,7 +202,7 @@ namespace BovineLabs.Anchor.Tests.App
                 throw new MissingMethodException(instance.GetType().FullName, "OnPanelRendererReload");
             }
 
-            method.Invoke(instance, new object[] { null, hostRoot });
+            method.Invoke(instance, new object[] { null, hostRoot, 0 });
         }
 #endif
 
