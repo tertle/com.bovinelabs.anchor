@@ -4,6 +4,14 @@
 
 ### Added
 * `ICommandAttribute.CanExecuteProperty` for generating command can-execute delegates from bindable bool properties
+* MVVM dependency notifications for generated observable properties and relay command can-execute updates
+
+### Changed
+* MVVM dependency declarations now support backing field names
+* Debug toolbar view models now use the simplified notification flow
+
+### Fixed
+* Unity 6.5+ PanelRenderer setup no longer emits the obsolete API warning
 
 ## [2.0.2] - 2026-05-09
 
