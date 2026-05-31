@@ -12,6 +12,7 @@
 
 ### Fixed
 * Unity 6.5+ PanelRenderer setup no longer emits the obsolete API warning
+* Anchor panel reload tests now match the current Unity 6.5+ PanelRenderer reload callback signature
 
 ## [2.0.2] - 2026-05-09
 
