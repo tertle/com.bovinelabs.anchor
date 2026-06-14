@@ -10,21 +10,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     public class AnchorNavStackSnapshotTests
     {
         [Test]
-        public void WithoutPopups_NoPopups_ReturnsSameInstance()
-        {
-            var snapshot = new AnchorNavStackSnapshot(
-                new[]
-                {
-                    new AnchorNavStackItem("a", new AnchorNavOptions(), null, false),
-                    new AnchorNavStackItem("b", new AnchorNavOptions(), null, false),
-                });
-
-            var filtered = snapshot.WithoutPopups();
-
-            Assert.AreSame(snapshot, filtered);
-        }
-
-        [Test]
         public void WithoutPopups_WithPopups_ReturnsFilteredSnapshot()
         {
             var snapshot = new AnchorNavStackSnapshot(

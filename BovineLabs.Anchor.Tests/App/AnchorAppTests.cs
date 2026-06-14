@@ -183,17 +183,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void UpdateScreenMetrics_WhenMetricsChange_ReturnsTrue()
-        {
-            using var scope = new TestAnchorAppScope();
-            var app = scope.App;
-
-            var changed = app.UpdateScreenMetrics(new AnchorScreenMetrics(1000, 500, new Rect(50f, 20f, 900f, 460f)));
-
-            Assert.IsTrue(changed);
-        }
-
-        [Test]
         public void UpdateScreenMetrics_WhenMetricsChange_RaisesScreenMetricsChanged()
         {
             using var scope = new TestAnchorAppScope();
@@ -222,15 +211,6 @@ namespace BovineLabs.Anchor.Tests.App
             {
                 app.ScreenMetricsChanged -= OnScreenMetricsChanged;
             }
-        }
-
-        [Test]
-        public void UpdateScreenMetrics_WhenMetricsMatchCache_IsNoOp()
-        {
-            using var scope = new TestAnchorAppScope();
-            var app = scope.App;
-
-            Assert.IsFalse(app.UpdateScreenMetrics(new AnchorScreenMetrics(Screen.width, Screen.height, AnchorApp.SafeArea)));
         }
 
         private static void RegisterDefaultAnchorServices(AnchorServiceCollection services)

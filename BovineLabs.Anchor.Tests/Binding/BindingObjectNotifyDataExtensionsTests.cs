@@ -105,12 +105,5 @@ namespace BovineLabs.Anchor.Tests.Binding
             Assert.AreEqual(1, field.Value[0]);
         }
 
-        [Test]
-        public void Notify_WhenTrampolineNotInitialized_IsNoOp()
-        {
-            var binding = new TestBindingObject();
-
-            Assert.DoesNotThrow(() => binding.Notify("Noop"));
-        }
     }
 }

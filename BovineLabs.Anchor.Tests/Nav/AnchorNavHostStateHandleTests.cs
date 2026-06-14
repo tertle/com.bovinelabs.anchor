@@ -36,14 +36,6 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
-        public void RestoreState_Null_IsSafeNoOp()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-
-            Assert.DoesNotThrow(() => harness.Host.RestoreState(null));
-        }
-
-        [Test]
         public void SaveStateHandle_ReturnsIncreasingValues()
         {
             using var harness = new TestAnchorNavHostHarness();

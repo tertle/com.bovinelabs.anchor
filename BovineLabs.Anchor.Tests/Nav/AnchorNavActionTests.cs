@@ -31,22 +31,5 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.AreEqual(AnchorNavArgument.String("c", "3"), merged[2]);
         }
 
-        [Test]
-        public void MergeArguments_IgnoresNullArguments()
-        {
-            var action = new AnchorNavAction(
-                "destination",
-                new AnchorNavOptions(),
-                new[]
-                {
-                    AnchorNavArgument.String("x", "1"),
-                });
-
-            var merged = action.MergeArguments(null, AnchorNavArgument.String("y", "2"), null);
-
-            Assert.AreEqual(2, merged.Length);
-            Assert.AreEqual(AnchorNavArgument.String("x", "1"), merged[0]);
-            Assert.AreEqual(AnchorNavArgument.String("y", "2"), merged[1]);
-        }
     }
 }

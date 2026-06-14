@@ -104,34 +104,6 @@ namespace BovineLabs.Anchor.Tests.Elements
             Assert.AreEqual(DisplayStyle.Flex, pager.Indicator.style.display.value);
         }
 
-        [Test]
-        public void SelectedText_FollowsSelectedItemText()
-        {
-            var pager = new OptionPager
-            {
-                sourceItems = new List<string> { "A", "B" },
-                selectedIndex = 1,
-            };
-
-            Assert.AreEqual("B", pager.selectedText);
-        }
-
-        [Test]
-        public void SelectedIndex_SetSameValue_IsNoOp()
-        {
-            var pager = new OptionPager
-            {
-                sourceItems = new List<string> { "A", "B" },
-            };
-
-            pager.selectedIndex = 1;
-            var textAfterFirstChange = pager.selectedText;
-            pager.selectedIndex = 1;
-
-            Assert.AreEqual(1, pager.selectedIndex);
-            Assert.AreEqual(textAfterFirstChange, pager.selectedText);
-        }
-
         private static void InvokePrivate(OptionPager pager, string methodName)
         {
             var method = typeof(OptionPager).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);

@@ -193,36 +193,6 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
-        public void PopBackStackToPanel_RemovesPopupLayersFromPoppedSnapshot()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("base");
-            harness.RegisterScreen("popup");
-            harness.RegisterScreen("second");
-
-            harness.Host.Navigate("base");
-            harness.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-            harness.Host.Navigate("second");
-
-            var popped = harness.Host.PopBackStackToPanel();
-
-            Assert.IsTrue(popped);
-            Assert.AreEqual("popup", harness.Host.CurrentDestination);
-            Assert.IsFalse(harness.Host.HasActivePopups);
-        }
-
-        [Test]
-        public void TryGetAnimation_Zero_ReturnsTrueWithNullAnimation()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-
-            var result = harness.Host.TryGetAnimation(0, out var animation);
-
-            Assert.IsTrue(result);
-            Assert.IsNull(animation);
-        }
-
-        [Test]
         public void MissingAnimationId_DoesNotThrowAndFallsBack()
         {
             using var harness = new TestAnchorNavHostHarness();

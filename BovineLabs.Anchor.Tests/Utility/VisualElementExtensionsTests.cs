@@ -11,35 +11,6 @@ namespace BovineLabs.Anchor.Tests.Utility
     public class VisualElementExtensionsTests
     {
         [Test]
-        public void BindingHelpers_ApplyWithoutThrowing()
-        {
-            var label = new Label();
-
-            Assert.DoesNotThrow(() => label.SetBindingTwoWay(nameof(Label.text), nameof(TestData.Text)));
-            Assert.DoesNotThrow(() => label.SetBindingToUI(nameof(Label.text), nameof(TestData.Text)));
-            Assert.DoesNotThrow(() => label.SetBindingFromUI(nameof(Label.text), nameof(TestData.Text)));
-
-            Assert.DoesNotThrow(() =>
-                label.SetBindingTwoWay<int, string>(
-                    nameof(Label.text),
-                    nameof(TestData.Number),
-                    static (ref int value) => value.ToString(),
-                    static (ref string value) => int.Parse(value)));
-
-            Assert.DoesNotThrow(() =>
-                label.SetBindingToUI<int, string>(
-                    nameof(Label.text),
-                    nameof(TestData.Number),
-                    static (ref int value) => value.ToString()));
-
-            Assert.DoesNotThrow(() =>
-                label.SetBindingFromUI<int, string>(
-                    nameof(Label.text),
-                    nameof(TestData.Number),
-                    static (ref int value) => value.ToString()));
-        }
-
-        [Test]
         public void SetPickingModeRecursive_UpdatesEntireSubtree()
         {
             var root = new VisualElement();

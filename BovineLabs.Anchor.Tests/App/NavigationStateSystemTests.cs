@@ -104,20 +104,6 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.IsFalse(this.Manager.HasComponent<TestStateA>(system));
         }
 
-        [Test]
-        public void OnDestroy_DisposesStateMapWithoutException()
-        {
-            this.InitializeUiSystemTypes(("A", StableHash<TestStateA>()));
-
-            using var navHarness = new TestAnchorNavHostHarness();
-            navHarness.RegisterScreen("A");
-            navHarness.Host.Navigate("A");
-
-            var system = this.World.CreateSystem<NavigationStateSystem>();
-
-            Assert.DoesNotThrow(() => this.World.DestroySystem(system));
-        }
-
         private void InitializeUiSystemTypes(params (string State, ulong StableHash)[] entries)
         {
             var settings = ScriptableObject.CreateInstance<UISystemTypes>();

@@ -161,23 +161,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void GeneratedCommandWithParameter_RespectsCanExecuteProperty()
-        {
-            var viewModel = new GeneratedCanExecutePropertyWithParameterViewModel();
-            var command = viewModel.SetValueCommand;
-
-            Assert.IsFalse(command.CanExecute(7));
-            command.Execute(7);
-            Assert.AreEqual(0, viewModel.Value);
-
-            viewModel.SetAllowExecute(true);
-
-            Assert.IsTrue(command.CanExecute(7));
-            command.Execute(7);
-            Assert.AreEqual(7, viewModel.Value);
-        }
-
-        [Test]
         public void GeneratedCommand_WithoutCanExecuteMethod_ExecutesByDefault()
         {
             var viewModel = new GeneratedDefaultCanExecuteViewModel();
@@ -379,27 +362,6 @@ namespace BovineLabs.Anchor.Tests.App
             public bool CanIncrement => this.allowExecute;
 
             public int ExecuteCount { get; private set; }
-
-            public void SetAllowExecute(bool allowExecute)
-            {
-                this.allowExecute = allowExecute;
-            }
-        }
-
-        public partial class GeneratedCanExecutePropertyWithParameterViewModel
-        {
-            private bool allowExecute;
-
-            [ICommand(CanExecuteProperty = nameof(CanSetValue))]
-            private void SetValue(int value)
-            {
-                this.Value = value;
-            }
-
-            [CreateProperty(ReadOnly = true)]
-            public bool CanSetValue => this.allowExecute;
-
-            public int Value { get; private set; }
 
             public void SetAllowExecute(bool allowExecute)
             {

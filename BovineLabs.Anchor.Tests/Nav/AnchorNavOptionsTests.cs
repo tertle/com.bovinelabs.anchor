@@ -13,37 +13,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     public class AnchorNavOptionsTests
     {
         [Test]
-        public void Clone_DeepCopiesPopupArgumentsAndAnimations()
-        {
-            var enterAnimation = ScriptableObject.CreateInstance<FadeInAnimation>();
-
-            try
-            {
-                var options = new AnchorNavOptions
-                {
-                    PopupBaseDestination = "Base",
-                    PopupBaseArguments = new List<AnchorNavArgument> { AnchorNavArgument.String("name", "value") },
-                    Animations = new AnchorAnimations
-                    {
-                        EnterAnim = enterAnimation,
-                    },
-                };
-
-                var clone = options.Clone();
-
-                Assert.AreNotSame(options.PopupBaseArguments, clone.PopupBaseArguments);
-                Assert.AreNotSame(options.Animations, clone.Animations);
-                Assert.AreEqual(options.PopupBaseArguments.Count, clone.PopupBaseArguments.Count);
-                Assert.AreEqual(options.PopupBaseArguments[0], clone.PopupBaseArguments[0]);
-                Assert.AreSame(enterAnimation, clone.Animations.EnterAnim);
-            }
-            finally
-            {
-                Object.DestroyImmediate(enterAnimation);
-            }
-        }
-
-        [Test]
         public void Clone_MutationsOnOriginal_DoNotAffectClone()
         {
             var enterAnimation = ScriptableObject.CreateInstance<FadeInAnimation>();

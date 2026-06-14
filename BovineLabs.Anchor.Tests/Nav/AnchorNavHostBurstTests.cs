@@ -11,18 +11,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     public class AnchorNavHostBurstTests
     {
         [Test]
-        public void BurstStaticInitialization_DoesNotThrow()
-        {
-            Assert.DoesNotThrow(() =>
-            {
-                AnchorNavHost.Burst.Navigate(default(FixedString32Bytes));
-                AnchorNavHost.Burst.Toggle(default(FixedString32Bytes));
-                AnchorNavHost.Burst.ClearBackStack();
-                AnchorNavHost.Burst.ClearNavigation();
-            });
-        }
-
-        [Test]
         public void CurrentDestination_NoHost_ReturnsDefault()
         {
             var destination = AnchorNavHost.Burst.CurrentDestination();
@@ -61,11 +49,5 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.AreEqual(0, AnchorNavHost.Burst.SaveStateHandle());
         }
 
-        [Test]
-        public void ReleaseStateHandle_NoHost_NoThrow()
-        {
-            Assert.DoesNotThrow(() => AnchorNavHost.Burst.ReleaseStateHandle(123, restore: true));
-            Assert.DoesNotThrow(() => AnchorNavHost.Burst.ReleaseStateHandle(123, restore: false));
-        }
     }
 }

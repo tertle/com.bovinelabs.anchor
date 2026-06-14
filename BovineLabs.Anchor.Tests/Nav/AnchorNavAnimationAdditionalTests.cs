@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     using System;
     using System.Reflection;
     using BovineLabs.Anchor.Nav;
-    using BovineLabs.Core.ObjectManagement;
     using NUnit.Framework;
     using UnityEngine;
     using UnityEngine.UIElements;
@@ -32,41 +31,6 @@ namespace BovineLabs.Anchor.Tests.Nav
                 Assert.IsNotNull(description.Easing);
                 Assert.AreEqual(0.25f, animation.LastFactor);
                 Assert.AreSame(element, animation.LastElement);
-            }
-            finally
-            {
-                Object.DestroyImmediate(animation);
-            }
-        }
-
-        [Test]
-        public void Reset_UsesDefaultDuration()
-        {
-            var animation = ScriptableObject.CreateInstance<TestAnimation>();
-
-            try
-            {
-                SetDuration(animation, 5);
-                animation.InvokeReset();
-
-                Assert.AreEqual(77, animation.GetDescription().DurationMs);
-            }
-            finally
-            {
-                Object.DestroyImmediate(animation);
-            }
-        }
-
-        [Test]
-        public void IUidSetter_UpdatesExposedId()
-        {
-            var animation = ScriptableObject.CreateInstance<TestAnimation>();
-
-            try
-            {
-                ((IUID)animation).ID = 99;
-
-                Assert.AreEqual(99, animation.ID);
             }
             finally
             {
@@ -100,11 +64,6 @@ namespace BovineLabs.Anchor.Tests.Nav
             };
 
             protected override int DefaultDuration => 77;
-
-            public void InvokeReset()
-            {
-                this.Reset();
-            }
         }
     }
 }

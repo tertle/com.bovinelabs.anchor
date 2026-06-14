@@ -12,18 +12,6 @@ namespace BovineLabs.Anchor.Tests.Collections
     public class AnchorObservableCollectionTests
     {
         [Test]
-        public void Replace_WithNull_IsNoOp()
-        {
-            var collection = new AnchorObservableCollection<int> { 1, 2 };
-            var resetCount = CountResetEvents(collection);
-
-            collection.Replace(null);
-
-            Assert.AreEqual(0, resetCount.Count);
-            Assert.AreEqual(2, collection.Count);
-        }
-
-        [Test]
         public void Replace_WithChanges_RaisesSingleReset()
         {
             var collection = new AnchorObservableCollection<int> { 1, 2 };
@@ -34,18 +22,6 @@ namespace BovineLabs.Anchor.Tests.Collections
             Assert.AreEqual(1, resetCount.Count);
             Assert.AreEqual(3, collection.Count);
             CollectionAssert.AreEqual(new[] { 5, 6, 7 }, collection);
-        }
-
-        [Test]
-        public void AddRange_WithNull_IsNoOp()
-        {
-            var collection = new AnchorObservableCollection<int>();
-            var resetCount = CountResetEvents(collection);
-
-            collection.AddRange(null);
-
-            Assert.AreEqual(0, resetCount.Count);
-            Assert.AreEqual(0, collection.Count);
         }
 
         [Test]

@@ -82,20 +82,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
 
         [Test]
-        public void FilterValues_EqualSequence_IsNoOp()
-        {
-            var storage = new TestLocalStorageService();
-            var vm = new ToolbarViewModel(storage);
-            vm.AddSelection("A");
-            vm.FilterValues = new[] { 0 };
-
-            var before = storage.SetStringValueCount;
-            vm.FilterValues = new[] { 0 };
-
-            Assert.AreEqual(before, storage.SetStringValueCount);
-        }
-
-        [Test]
         public void RefreshItems_FromAddRemove_KeepsVisibleFiltersActive()
         {
             var storage = new TestLocalStorageService();

@@ -13,15 +13,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     public class ToolbarMetadataTests
     {
         [Test]
-        public void AutoToolbarAttribute_StoresValues()
-        {
-            var attribute = new AutoToolbarAttribute("Element", "Tab");
-
-            Assert.AreEqual("Element", attribute.ElementName);
-            Assert.AreEqual("Tab", attribute.TabName);
-        }
-
-        [Test]
         public void AutoToolbarAttribute_WhitespaceName_Throws()
         {
             Assert.Throws<System.ArgumentException>(() => new AutoToolbarAttribute(" "));

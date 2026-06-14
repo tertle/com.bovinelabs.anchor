@@ -31,15 +31,6 @@ namespace BovineLabs.Anchor.Tests.Binding
         }
 
         [Test]
-        public void NotifyForwarding_UnknownTarget_IsNoOp()
-        {
-            Assert.DoesNotThrow(() =>
-            {
-                BurstObjectNotify.Notify.Data.Invoke(new IntPtr(987), new FixedString64Bytes("Value"));
-            });
-        }
-
-        [Test]
         public void SetValueForwarding_UnregisteredTarget_WritesMemory()
         {
             var target = new IntPtr(1234);

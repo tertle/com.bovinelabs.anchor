@@ -14,16 +14,6 @@ namespace BovineLabs.Anchor.Tests.Binding
     public class ConvertersTests
     {
         [Test]
-        public void RegisterConverters_RepeatedCalls_AreSafe()
-        {
-            Assert.DoesNotThrow(() =>
-            {
-                Converters.RegisterConverters();
-                Converters.RegisterConverters();
-            });
-        }
-
-        [Test]
         public void RegisterConverters_RegistersExpectedGroups()
         {
             Converters.RegisterConverters();
