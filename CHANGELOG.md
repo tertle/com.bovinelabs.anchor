@@ -9,6 +9,7 @@
 ### Changed
 * MVVM dependency declarations now support backing field names
 * Debug toolbar view models now use the simplified notification flow
+* Pruned low-value tests
 
 ### Fixed
 * Unity 6.5+ PanelRenderer setup no longer emits the obsolete API warning
