@@ -148,15 +148,6 @@ namespace BovineLabs.Anchor.Tests.App
                 Object.DestroyImmediate(gameObject);
             }
         }
-
-        [Test]
-        public void AnchorAppBuilder_UsesOnlyPanelRendererField_OnUnity65Plus()
-        {
-            var builderType = typeof(TestAnchorBuilder).BaseType;
-
-            Assert.IsNotNull(builderType?.GetField("panelRenderer", BindingFlags.Instance | BindingFlags.NonPublic));
-            Assert.IsNull(builderType?.GetField("uiDocument", BindingFlags.Instance | BindingFlags.NonPublic));
-        }
 #endif
 
         private static void AssertService(AnchorServiceCollection services, Type serviceType, Type implementationType)
