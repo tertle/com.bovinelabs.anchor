@@ -71,58 +71,17 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void ResolveAudioTarget_RawControlWithAttachedOptionsIsTarget()
-        {
-            var (router, host, _) = this.CreateRouter();
-            var button = new AppUIButton();
-            host.Add(button);
-
-            try
-            {
-                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
-
-                Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
-            }
-            finally
-            {
-                AnchorAudio.ClearOptions(button);
-            }
-        }
-
-        [Test]
-        public void ResolveAudioTarget_ClearingAttachedOptionsRemovesEligibility()
-        {
-            var (router, host, _) = this.CreateRouter();
-            var button = new AppUIButton();
-            host.Add(button);
-
-            AnchorAudio.SetOptions(button, new AnchorAudioOptions());
-            Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
-
-            AnchorAudio.ClearOptions(button);
-            Assert.IsNull(router.ResolveAudioTargetForTesting(button));
-        }
-
-        [Test]
         public void ResolveAudioTarget_NearestExplicitAncestorWins()
         {
             var (router, host, _) = this.CreateRouter();
             var parent = new AnchorButton();
-            var child = new VisualElement();
+            var child = new AnchorButton();
             var leaf = new VisualElement();
-            AnchorAudio.SetOptions(child, new AnchorAudioOptions());
             host.Add(parent);
             parent.Add(child);
             child.Add(leaf);
 
-            try
-            {
-                Assert.AreSame(child, router.ResolveAudioTargetForTesting(leaf));
-            }
-            finally
-            {
-                AnchorAudio.ClearOptions(child);
-            }
+            Assert.AreSame(child, router.ResolveAudioTargetForTesting(leaf));
         }
 
         [Test]
@@ -193,6 +152,19 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
+        public void Hover_RoutesTrackedPointers()
+        {
+            var hover = this.CreateClip("hover");
+            var (router, host, service) = this.CreateRouter(hoverClip: hover);
+            var button = new AnchorButton();
+            host.Add(button);
+
+            router.HandlePointerOverForTesting(PointerId.trackedPointerIdBase, button);
+
+            CollectionAssert.AreEqual(new[] { hover }, service.PlayedClips);
+        }
+
+        [Test]
         public void ClickFallback_IgnoresExplicitAppUiPressableToAvoidDuplicateAudio()
         {
             var activate = this.CreateClip("activate");
@@ -206,25 +178,16 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void ClickFallback_PlaysForExplicitToolkitButton()
+        public void ClickFallback_PlaysForExplicitNonPressableElement()
         {
             var activate = this.CreateClip("activate");
             var (router, host, service) = this.CreateRouter(activateClip: activate);
-            var button = new UIToolkitButton();
-            host.Add(button);
+            var element = new AudioElement();
+            host.Add(element);
 
-            try
-            {
-                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+            router.HandleClickForTesting(element);
 
-                router.HandleClickForTesting(button);
-
-                CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
-            }
-            finally
-            {
-                AnchorAudio.ClearOptions(button);
-            }
+            CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
         }
 
         [Test]
@@ -244,23 +207,14 @@ namespace BovineLabs.Anchor.Tests.Audio
         {
             var hover = this.CreateClip("hover");
             var (router, host, service) = this.CreateRouter(hoverClip: hover);
-            var button = new AppUIButton();
-            host.Add(button);
+            var element = new AudioElement();
+            host.Add(element);
 
-            try
-            {
-                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+            Assert.AreSame(element, router.ResolveAudioTargetForTesting(element));
 
-                Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
+            router.HandlePointerOverForTesting(PointerId.mousePointerId, element);
 
-                router.HandlePointerOverForTesting(PointerId.mousePointerId, button);
-
-                CollectionAssert.AreEqual(new[] { hover }, service.PlayedClips);
-            }
-            finally
-            {
-                AnchorAudio.ClearOptions(button);
-            }
+            CollectionAssert.AreEqual(new[] { hover }, service.PlayedClips);
         }
 
         [Test]
@@ -287,7 +241,7 @@ namespace BovineLabs.Anchor.Tests.Audio
                 {
                     new AnchorAudioProfile
                     {
-                        Key = AnchorAudio.DefaultProfileKey,
+                        Key = AnchorAudioSettings.DefaultProfileKey,
                         HoverClip = hoverClip,
                         ActivateClip = activateClip,
                     },
@@ -299,6 +253,15 @@ namespace BovineLabs.Anchor.Tests.Audio
             var host = new AnchorNavHost();
             router.RegisterScope(host);
             return (router, host, service);
+        }
+
+        private sealed class AudioElement : VisualElement, IAnchorAudioElement
+        {
+            public string AudioProfile { get; set; } = AnchorAudioSettings.DefaultProfileKey;
+
+            public AnchorAudioCueOverride HoverAudio { get; set; } = AnchorAudioCueOverride.Inherit;
+
+            public AnchorAudioCueOverride ActivateAudio { get; set; } = AnchorAudioCueOverride.Inherit;
         }
 
         private AudioClip CreateClip(string name)

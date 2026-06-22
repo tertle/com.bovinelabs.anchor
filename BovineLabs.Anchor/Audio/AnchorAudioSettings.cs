@@ -15,27 +15,26 @@ namespace BovineLabs.Anchor.Audio
     [Serializable]
     public sealed class AnchorAudioSettings
     {
+        /// <summary>The standard Anchor UI audio profile key.</summary>
+        public const string DefaultProfileKey = "default";
+
 #if UNITY_6000_6_OR_NEWER
         [SerializeField]
         private Dictionary<string, AnchorAudioProfile> profiles = new()
         {
-            { AnchorAudio.DefaultProfileKey, new AnchorAudioProfile { Key = AnchorAudio.DefaultProfileKey } },
+            { DefaultProfileKey, new AnchorAudioProfile { Key = DefaultProfileKey } },
         };
 #else
         [SerializeField]
         private List<AnchorAudioProfile> profiles = new()
         {
-            new() { Key = AnchorAudio.DefaultProfileKey },
+            new() { Key = DefaultProfileKey },
         };
 #endif
 
         internal Dictionary<string, AnchorAudioProfile> CreateProfileDictionary()
         {
             var profileDictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
-            if (this.profiles == null)
-            {
-                return profileDictionary;
-            }
 
 #if UNITY_6000_6_OR_NEWER
             foreach (var profile in this.profiles)

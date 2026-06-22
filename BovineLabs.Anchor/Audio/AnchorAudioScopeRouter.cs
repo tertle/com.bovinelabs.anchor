@@ -87,7 +87,7 @@ namespace BovineLabs.Anchor.Audio
 
         private static bool HasExplicitAnchorAudio(VisualElement element)
         {
-            return element is IAnchorAudioElement || AnchorAudio.TryGetOptions(element, out _);
+            return element is IAnchorAudioElement;
         }
 
         private static bool IsHoverPointer(int pointerId)
@@ -97,11 +97,7 @@ namespace BovineLabs.Anchor.Audio
                 return true;
             }
 
-#if UNITY_6000_2_OR_NEWER
             return pointerId >= PointerId.trackedPointerIdBase;
-#else
-            return false;
-#endif
         }
 
         private static bool IsSubmitKey(KeyCode keyCode)

@@ -56,14 +56,6 @@ namespace BovineLabs.Anchor.Audio
             out AnchorAudioCueOverride hoverOverride,
             out AnchorAudioCueOverride activateOverride)
         {
-            if (AnchorAudio.TryGetOptions(element, out var attached))
-            {
-                profileKey = attached.Profile;
-                hoverOverride = attached.Hover;
-                activateOverride = attached.Activate;
-                return true;
-            }
-
             if (element is IAnchorAudioElement audioElement)
             {
                 profileKey = audioElement.AudioProfile;
