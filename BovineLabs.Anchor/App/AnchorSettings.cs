@@ -6,6 +6,7 @@ namespace BovineLabs.Anchor
 {
     using System;
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Core.Settings;
     using UnityEngine;
@@ -38,6 +39,10 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private List<AnchorNavAnimation> animations = new();
 
+        [Header("Audio")]
+        [SerializeField]
+        private AnchorAudioSettings audio = new();
+
 #if APP_UI_EDITOR_ONLY
         public override bool IncludeInBuild => false;
 #endif
@@ -59,6 +64,9 @@ namespace BovineLabs.Anchor
 
         /// <summary>Gets any additional style sheets that should be injected while running in debug contexts.</summary>
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
+
+        /// <summary>Gets UI audio feedback settings.</summary>
+        public AnchorAudioSettings Audio => this.audio;
 
         /// <summary>Maps a unique string key to a visual tree asset.</summary>
         [Serializable]

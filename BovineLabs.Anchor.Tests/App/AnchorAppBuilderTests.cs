@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using System.Linq;
     using System.Reflection;
+    using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
@@ -32,6 +33,10 @@ namespace BovineLabs.Anchor.Tests.App
                 AssertService(services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
                 AssertService(services, typeof(IViewModelService), typeof(ViewModelService));
                 AssertService(services, typeof(IUXMLService), typeof(TestUxmlService));
+                AssertService(services, typeof(IAnchorAudioService), typeof(AnchorAudioService));
+                AssertService(services, typeof(AnchorAudioProfileResolver), typeof(AnchorAudioProfileResolver));
+                AssertService(services, typeof(AnchorAudioFeedback), typeof(AnchorAudioFeedback));
+                AssertService(services, typeof(AnchorAudioScopeRouter), typeof(AnchorAudioScopeRouter));
             }
             finally
             {
@@ -99,7 +104,7 @@ namespace BovineLabs.Anchor.Tests.App
             var gameObject = new GameObject("builder");
             var builder = gameObject.AddComponent<TestAnchorBuilder>();
             var app = new TestBuilderApp();
-            using var provider = new AnchorServiceProvider(new AnchorServiceCollection());
+            using var provider = CreateAudioServiceProvider();
 
             try
             {
@@ -116,6 +121,29 @@ namespace BovineLabs.Anchor.Tests.App
             finally
             {
                 app.Dispose();
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void OnConfigureServices_CustomAudioServiceRegistrationWins()
+        {
+            var gameObject = new GameObject("builder");
+            var builder = gameObject.AddComponent<TestAnchorBuilder>();
+            var services = new AnchorServiceCollection();
+            var audioService = new TestAnchorAudioService();
+
+            try
+            {
+                builder.InvokeConfigure(services);
+                services.AddSingletonInstance(typeof(IAnchorAudioService), audioService);
+
+                using var provider = services.BuildServiceProvider();
+
+                Assert.AreSame(audioService, provider.GetRequiredService<IAnchorAudioService>());
+            }
+            finally
+            {
                 Object.DestroyImmediate(gameObject);
             }
         }
@@ -184,6 +212,16 @@ namespace BovineLabs.Anchor.Tests.App
             return (AnchorNavHostSaveState)field.GetValue(instance);
         }
 
+        private static AnchorServiceProvider CreateAudioServiceProvider()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
+            services.AddSingleton(typeof(AnchorAudioProfileResolver));
+            services.AddSingleton(typeof(AnchorAudioFeedback));
+            services.AddSingleton(typeof(AnchorAudioScopeRouter));
+            return services.BuildServiceProvider();
+        }
+
 #if UNITY_6000_5_OR_NEWER
         private static void InvokePanelRendererReload(object instance, VisualElement hostRoot)
         {
@@ -243,6 +281,13 @@ namespace BovineLabs.Anchor.Tests.App
             {
                 this.InitializeCalls++;
                 this.NavHost ??= new AnchorNavHost();
+            }
+        }
+
+        private sealed class TestAnchorAudioService : IAnchorAudioService
+        {
+            public void PlayOneShot(AudioClip clip)
+            {
             }
         }
     }
