@@ -13,6 +13,9 @@ namespace BovineLabs.Anchor.Audio
     /// </summary>
     public static class AnchorAudio
     {
+        /// <summary>The standard Anchor UI audio profile key.</summary>
+        public const string DefaultProfileKey = "default";
+
         private static readonly ConditionalWeakTable<VisualElement, AnchorAudioOptions> Options = new();
 
         /// <summary>

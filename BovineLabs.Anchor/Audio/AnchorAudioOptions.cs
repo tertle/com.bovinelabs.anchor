@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Audio
     public sealed class AnchorAudioOptions
     {
         /// <summary>Gets or sets the named audio profile key.</summary>
-        public string Profile { get; set; } = string.Empty;
+        public string Profile { get; set; } = AnchorAudio.DefaultProfileKey;
 
         /// <summary>Gets or sets the hover cue override.</summary>
         public AnchorAudioCueOverride Hover { get; set; } = AnchorAudioCueOverride.Inherit;

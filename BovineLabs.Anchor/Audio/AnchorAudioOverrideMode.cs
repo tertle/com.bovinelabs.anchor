@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Audio
     /// </summary>
     public enum AnchorAudioOverrideMode
     {
-        /// <summary>Resolve from the selected profile, type mapping, or default pressable profile.</summary>
+        /// <summary>Resolve from the selected named profile.</summary>
         Inherit,
 
         /// <summary>Suppress audio for this cue.</summary>

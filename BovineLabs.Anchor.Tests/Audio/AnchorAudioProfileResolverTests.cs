@@ -4,15 +4,14 @@
 
 namespace BovineLabs.Anchor.Tests.Audio
 {
-    using System;
     using System.Collections.Generic;
+    using System.Text.RegularExpressions;
     using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.Elements;
     using NUnit.Framework;
     using UnityEngine;
-    using UnityEngine.UIElements;
+    using UnityEngine.TestTools;
     using AppUIButton = Unity.AppUI.UI.Button;
-    using AppUIToggle = Unity.AppUI.UI.Toggle;
     using Object = UnityEngine.Object;
     using UIToolkitButton = UnityEngine.UIElements.Button;
 
@@ -32,72 +31,123 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void ResolveClip_AppUiPressable_UsesDefaultPressableProfile()
+        public void ResolveClip_UnconfiguredAppUiPressable_ReturnsNull()
+        {
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate)));
+
+            Assert.IsNull(resolver.ResolveClip(new AppUIButton(), AnchorAudioCue.Activate));
+        }
+
+        [Test]
+        public void ResolveClip_UnconfiguredToolkitButton_ReturnsNull()
+        {
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate)));
+
+            Assert.IsNull(resolver.ResolveClip(new UIToolkitButton(), AnchorAudioCue.Activate));
+        }
+
+        [Test]
+        public void ResolveClip_AnchorButton_UsesDefaultProfile()
         {
             var hover = this.CreateClip("default-hover");
             var activate = this.CreateClip("default-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(CueProfile(hoverClip: hover, activateClip: activate)));
-            var button = new AppUIButton();
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(hover, activate)));
+            var button = new AnchorButton();
 
             Assert.AreSame(hover, resolver.ResolveClip(button, AnchorAudioCue.Hover));
             Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
         }
 
         [Test]
-        public void ResolveClip_NamedProfile_OverridesDefault()
+        public void ResolveClip_AnchorActionButton_UsesDefaultProfile()
         {
-            var defaultActivate = this.CreateClip("default-activate");
-            var quietActivate = this.CreateClip("quiet-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(
-                CueProfile(activateClip: defaultActivate),
-                Profile("quiet", activateClip: quietActivate)));
-            var button = new AnchorButton { audioProfile = "quiet" };
+            var hover = this.CreateClip("default-hover");
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(hover, activate)));
+            var button = new AnchorActionButton();
 
-            Assert.AreSame(quietActivate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+            Assert.AreSame(hover, resolver.ResolveClip(button, AnchorAudioCue.Hover));
+            Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
         }
 
         [Test]
-        public void ResolveClip_CueOverrides_ResolveIndependently()
+        public void ResolveClip_EmptyProfileWithInheritedCues_ReturnsNull()
         {
-            var defaultHover = this.CreateClip("default-hover");
-            var defaultActivate = this.CreateClip("default-activate");
-            var customHover = this.CreateClip("custom-hover");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(CueProfile(hoverClip: defaultHover, activateClip: defaultActivate)));
-            var button = new AnchorButton
-            {
-                hoverAudioMode = AnchorAudioOverrideMode.Custom,
-                hoverAudioClip = customHover,
-                activateAudioMode = AnchorAudioOverrideMode.Disabled,
-            };
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate)));
+            var button = new AnchorButton { audioProfile = string.Empty };
 
-            Assert.AreSame(customHover, resolver.ResolveClip(button, AnchorAudioCue.Hover));
+            Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Hover));
             Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Activate));
         }
 
         [Test]
-        public void ResolveClip_MissingProfile_FallsBackToDefault()
+        public void ResolveClip_NamedProfile_ResolvesHoverAndActivate()
         {
-            var defaultActivate = this.CreateClip("default-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(CueProfile(activateClip: defaultActivate)));
+            var hover = this.CreateClip("quiet-hover");
+            var activate = this.CreateClip("quiet-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(
+                DefaultProfile(),
+                Profile("quiet", hover, activate)));
+            var button = new AnchorButton { audioProfile = "quiet" };
+
+            Assert.AreSame(hover, resolver.ResolveClip(button, AnchorAudioCue.Hover));
+            Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+        }
+
+#if UNITY_6000_6_OR_NEWER
+        [Test]
+        public void ResolveClip_DictionaryProfile_UsesDictionaryKey()
+        {
+            var activate = this.CreateClip("quiet-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(
+                new[]
+                {
+                    new KeyValuePair<string, AnchorAudioProfile>("quiet", new AnchorAudioProfile { ActivateClip = activate }),
+                }));
+            var button = new AnchorButton { audioProfile = "quiet" };
+
+            Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+        }
+#endif
+
+        [Test]
+        public void ResolveClip_MissingProfile_WarnsOnceAndReturnsNull()
+        {
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate)));
             var button = new AnchorButton { audioProfile = "missing" };
 
-            Assert.AreSame(defaultActivate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+            LogAssert.Expect(
+                LogType.Warning,
+                new Regex("Anchor audio profile 'missing' was not found\\. No audio will play for inherited Anchor audio cues\\."));
+
+            Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Activate));
+            Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Hover));
+            LogAssert.NoUnexpectedReceived();
         }
 
         [Test]
-        public void ResolveClip_AttachedOptions_WorkOnRawAppUiControls()
+        public void ResolveClip_CustomOverrideWithoutProfile_ReturnsCustomClip()
         {
-            var destructiveActivate = this.CreateClip("destructive-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(
-                CueProfile(),
-                Profile("destructive", activateClip: destructiveActivate)));
+            var customActivate = this.CreateClip("custom-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile()));
             var button = new AppUIButton();
 
             try
             {
-                AnchorAudio.SetOptions(button, new AnchorAudioOptions { Profile = "destructive" });
+                AnchorAudio.SetOptions(
+                    button,
+                    new AnchorAudioOptions
+                    {
+                        Profile = string.Empty,
+                        Activate = AnchorAudioCueOverride.Custom(customActivate),
+                    });
 
-                Assert.AreSame(destructiveActivate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+                Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Hover));
+                Assert.AreSame(customActivate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
             }
             finally
             {
@@ -106,55 +156,85 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void ResolveClip_TypeMapping_OverridesDefault()
+        public void ResolveClip_DisabledOverrideSuppressesCueWhileOtherCueInherits()
         {
-            var defaultActivate = this.CreateClip("default-activate");
-            var toggleActivate = this.CreateClip("toggle-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(
-                CueProfile(activateClip: defaultActivate),
-                Profile("toggle", activateClip: toggleActivate)));
-            resolver.RegisterTypeProfile(typeof(AppUIToggle), "toggle");
-
-            Assert.AreSame(toggleActivate, resolver.ResolveClip(new AppUIToggle(), AnchorAudioCue.Activate));
-        }
-
-        [Test]
-        public void ResolveClip_UnsupportedPlainElement_StaysSilent()
-        {
-            var defaultActivate = this.CreateClip("default-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(CueProfile(activateClip: defaultActivate)));
-
-            Assert.IsNull(resolver.ResolveClip(new VisualElement(), AnchorAudioCue.Activate));
-        }
-
-        [Test]
-        public void ResolveClip_StandardToolkitButton_UsesDefaultPressableProfile()
-        {
-            var defaultActivate = this.CreateClip("default-activate");
-            var resolver = new AnchorAudioProfileResolver(CreateSettings(CueProfile(activateClip: defaultActivate)));
-
-            Assert.AreSame(defaultActivate, resolver.ResolveClip(new UIToolkitButton(), AnchorAudioCue.Activate));
-        }
-
-        private static AnchorAudioSettings CreateSettings(AnchorAudioCueProfile defaultProfile, params AnchorAudioProfile[] profiles)
-        {
-            return new AnchorAudioSettings(defaultProfile, profiles ?? Array.Empty<AnchorAudioProfile>());
-        }
-
-        private static AnchorAudioCueProfile CueProfile(AudioClip hoverClip = null, AudioClip activateClip = null)
-        {
-            return new AnchorAudioCueProfile
+            var hover = this.CreateClip("default-hover");
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(hover, activate)));
+            var button = new AnchorButton
             {
-                HoverClip = hoverClip,
-                ActivateClip = activateClip,
+                hoverAudioMode = AnchorAudioOverrideMode.Disabled,
             };
+
+            Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Hover));
+            Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
         }
 
-        private static AnchorAudioProfile Profile(string key = null, AudioClip hoverClip = null, AudioClip activateClip = null)
+        [Test]
+        public void ResolveClip_AttachedDefaultOptions_OptRawAppUiControlIntoDefaultProfile()
+        {
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate)));
+            var button = new AppUIButton();
+
+            try
+            {
+                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+
+                Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+            }
+            finally
+            {
+                AnchorAudio.ClearOptions(button);
+            }
+        }
+
+        [Test]
+        public void ResolveClip_ClearingAttachedOptions_ReturnsRawControlToSilentBehavior()
+        {
+            var activate = this.CreateClip("default-activate");
+            var resolver = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate)));
+            var button = new AppUIButton();
+
+            AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+            Assert.AreSame(activate, resolver.ResolveClip(button, AnchorAudioCue.Activate));
+
+            AnchorAudio.ClearOptions(button);
+            Assert.IsNull(resolver.ResolveClip(button, AnchorAudioCue.Activate));
+        }
+
+#if !UNITY_6000_6_OR_NEWER
+        [Test]
+        public void BuildProfiles_DuplicateProfileKeys_ReportError()
+        {
+            LogAssert.Expect(LogType.Error, new Regex("Anchor audio profile 'default' is already registered\\."));
+
+            _ = new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(), DefaultProfile()));
+
+            LogAssert.NoUnexpectedReceived();
+        }
+#endif
+
+        private static AnchorAudioSettings CreateSettings(params AnchorAudioProfile[] profiles)
+        {
+            return AnchorAudioSettingsTestUtility.CreateSettings(profiles);
+        }
+
+        private static AnchorAudioSettings CreateSettings(params KeyValuePair<string, AnchorAudioProfile>[] profiles)
+        {
+            return AnchorAudioSettingsTestUtility.CreateSettings(profiles);
+        }
+
+        private static AnchorAudioProfile DefaultProfile(AudioClip hoverClip = null, AudioClip activateClip = null)
+        {
+            return Profile(AnchorAudio.DefaultProfileKey, hoverClip, activateClip);
+        }
+
+        private static AnchorAudioProfile Profile(string key, AudioClip hoverClip = null, AudioClip activateClip = null)
         {
             return new AnchorAudioProfile
             {
-                Key = key ?? string.Empty,
+                Key = key,
                 HoverClip = hoverClip,
                 ActivateClip = activateClip,
             };

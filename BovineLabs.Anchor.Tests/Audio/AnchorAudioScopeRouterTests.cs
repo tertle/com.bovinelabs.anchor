@@ -4,13 +4,11 @@
 
 namespace BovineLabs.Anchor.Tests.Audio
 {
-    using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Nav;
     using NUnit.Framework;
-    using Unity.AppUI.UI;
     using UnityEngine;
     using UnityEngine.UIElements;
     using Object = UnityEngine.Object;
@@ -33,37 +31,125 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void ResolveAudioTarget_RequiresRegisteredScopeAncestry()
+        public void ResolveAudioTarget_UnconfiguredAppUiButtonInsideScope_ReturnsNull()
         {
             var (router, host, _) = this.CreateRouter();
-            var inside = new AppUIButton();
-            var outside = new AppUIButton();
-            host.Add(inside);
+            var button = new AppUIButton();
+            host.Add(button);
 
-            Assert.AreSame(inside, router.ResolveAudioTargetForTesting(inside));
-            Assert.IsNull(router.ResolveAudioTargetForTesting(outside));
+            Assert.IsNull(router.ResolveAudioTargetForTesting(button));
         }
 
         [Test]
-        public void ResolveAudioTarget_NearestSupportedAncestorWins()
+        public void ResolveAudioTarget_UnconfiguredToolkitButtonInsideScope_ReturnsNull()
         {
             var (router, host, _) = this.CreateRouter();
-            var parent = new AppUIButton();
-            var child = new AnchorButton();
+            var button = new UIToolkitButton();
+            host.Add(button);
+
+            Assert.IsNull(router.ResolveAudioTargetForTesting(button));
+        }
+
+        [Test]
+        public void ResolveAudioTarget_ScrollViewInternalScroller_ReturnsNull()
+        {
+            var (router, host, _) = this.CreateRouter();
+            var scrollView = new ScrollView();
+            host.Add(scrollView);
+
+            Assert.IsNull(router.ResolveAudioTargetForTesting(scrollView.verticalScroller));
+        }
+
+        [Test]
+        public void ResolveAudioTarget_AnchorButtonIsTarget()
+        {
+            var (router, host, _) = this.CreateRouter();
+            var button = new AnchorButton();
+            host.Add(button);
+
+            Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
+        }
+
+        [Test]
+        public void ResolveAudioTarget_RawControlWithAttachedOptionsIsTarget()
+        {
+            var (router, host, _) = this.CreateRouter();
+            var button = new AppUIButton();
+            host.Add(button);
+
+            try
+            {
+                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+
+                Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
+            }
+            finally
+            {
+                AnchorAudio.ClearOptions(button);
+            }
+        }
+
+        [Test]
+        public void ResolveAudioTarget_ClearingAttachedOptionsRemovesEligibility()
+        {
+            var (router, host, _) = this.CreateRouter();
+            var button = new AppUIButton();
+            host.Add(button);
+
+            AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+            Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
+
+            AnchorAudio.ClearOptions(button);
+            Assert.IsNull(router.ResolveAudioTargetForTesting(button));
+        }
+
+        [Test]
+        public void ResolveAudioTarget_NearestExplicitAncestorWins()
+        {
+            var (router, host, _) = this.CreateRouter();
+            var parent = new AnchorButton();
+            var child = new VisualElement();
+            var leaf = new VisualElement();
+            AnchorAudio.SetOptions(child, new AnchorAudioOptions());
+            host.Add(parent);
+            parent.Add(child);
+            child.Add(leaf);
+
+            try
+            {
+                Assert.AreSame(child, router.ResolveAudioTargetForTesting(leaf));
+            }
+            finally
+            {
+                AnchorAudio.ClearOptions(child);
+            }
+        }
+
+        [Test]
+        public void ResolveAudioTarget_ExplicitSilentChildPreventsAudibleAncestorSelection()
+        {
+            var hover = this.CreateClip("hover");
+            var (router, host, service) = this.CreateRouter(hoverClip: hover);
+            var parent = new AnchorButton();
+            var child = new AnchorButton { audioProfile = string.Empty };
             var leaf = new VisualElement();
             host.Add(parent);
             parent.Add(child);
             child.Add(leaf);
 
             Assert.AreSame(child, router.ResolveAudioTargetForTesting(leaf));
+
+            router.HandlePointerOverForTesting(PointerId.mousePointerId, leaf);
+
+            Assert.IsEmpty(service.PlayedClips);
         }
 
         [Test]
-        public void Hover_RoutesOncePerLogicalTarget()
+        public void Hover_RoutesOncePerExplicitLogicalTarget()
         {
             var hover = this.CreateClip("hover");
             var (router, host, service) = this.CreateRouter(hoverClip: hover);
-            var button = new AppUIButton();
+            var button = new AnchorButton();
             var leaf = new VisualElement();
             button.Add(leaf);
             host.Add(button);
@@ -77,11 +163,28 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
+        public void Hover_MovingFromExplicitTargetToUnconfiguredPressableClearsHoverState()
+        {
+            var hover = this.CreateClip("hover");
+            var (router, host, service) = this.CreateRouter(hoverClip: hover);
+            var anchorButton = new AnchorButton();
+            var appUiButton = new AppUIButton();
+            host.Add(anchorButton);
+            host.Add(appUiButton);
+
+            router.HandlePointerOverForTesting(PointerId.mousePointerId, anchorButton);
+            router.HandlePointerOverForTesting(PointerId.mousePointerId, appUiButton);
+
+            CollectionAssert.AreEqual(new[] { hover }, service.PlayedClips);
+            Assert.AreEqual(0, router.HoverPointerCount);
+        }
+
+        [Test]
         public void Hover_IgnoresTouchPointers()
         {
             var hover = this.CreateClip("hover");
             var (router, host, service) = this.CreateRouter(hoverClip: hover);
-            var button = new AppUIButton();
+            var button = new AnchorButton();
             host.Add(button);
 
             router.HandlePointerOverForTesting(PointerId.touchPointerIdBase, button);
@@ -90,24 +193,11 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void ClickFallback_PlaysForStandardToolkitButton()
+        public void ClickFallback_IgnoresExplicitAppUiPressableToAvoidDuplicateAudio()
         {
             var activate = this.CreateClip("activate");
             var (router, host, service) = this.CreateRouter(activateClip: activate);
-            var button = new UIToolkitButton();
-            host.Add(button);
-
-            router.HandleClickForTesting(button);
-
-            CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
-        }
-
-        [Test]
-        public void ClickFallback_IgnoresAppUiPressableToAvoidDuplicateAudio()
-        {
-            var activate = this.CreateClip("activate");
-            var (router, host, service) = this.CreateRouter(activateClip: activate);
-            var button = new AppUIButton();
+            var button = new AnchorButton();
             host.Add(button);
 
             router.HandleClickForTesting(button);
@@ -116,11 +206,69 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
+        public void ClickFallback_PlaysForExplicitToolkitButton()
+        {
+            var activate = this.CreateClip("activate");
+            var (router, host, service) = this.CreateRouter(activateClip: activate);
+            var button = new UIToolkitButton();
+            host.Add(button);
+
+            try
+            {
+                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+
+                router.HandleClickForTesting(button);
+
+                CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
+            }
+            finally
+            {
+                AnchorAudio.ClearOptions(button);
+            }
+        }
+
+        [Test]
+        public void ResolveAudioTarget_RequiresRegisteredScopeAncestry()
+        {
+            var (router, host, _) = this.CreateRouter();
+            var inside = new AnchorButton();
+            var outside = new AnchorButton();
+            host.Add(inside);
+
+            Assert.AreSame(inside, router.ResolveAudioTargetForTesting(inside));
+            Assert.IsNull(router.ResolveAudioTargetForTesting(outside));
+        }
+
+        [Test]
+        public void DynamicExplicitControl_WorksWithoutRegistrationOrRescan()
+        {
+            var hover = this.CreateClip("hover");
+            var (router, host, service) = this.CreateRouter(hoverClip: hover);
+            var button = new AppUIButton();
+            host.Add(button);
+
+            try
+            {
+                AnchorAudio.SetOptions(button, new AnchorAudioOptions());
+
+                Assert.AreSame(button, router.ResolveAudioTargetForTesting(button));
+
+                router.HandlePointerOverForTesting(PointerId.mousePointerId, button);
+
+                CollectionAssert.AreEqual(new[] { hover }, service.PlayedClips);
+            }
+            finally
+            {
+                AnchorAudio.ClearOptions(button);
+            }
+        }
+
+        [Test]
         public void UnregisterScope_ClearsHoverState()
         {
             var hover = this.CreateClip("hover");
             var (router, host, _) = this.CreateRouter(hoverClip: hover);
-            var button = new AppUIButton();
+            var button = new AnchorButton();
             host.Add(button);
 
             router.HandlePointerOverForTesting(PointerId.mousePointerId, button);
@@ -134,9 +282,16 @@ namespace BovineLabs.Anchor.Tests.Audio
             AudioClip hoverClip = null,
             AudioClip activateClip = null)
         {
-            var settings = new AnchorAudioSettings(
-                new AnchorAudioCueProfile { HoverClip = hoverClip, ActivateClip = activateClip },
-                Array.Empty<AnchorAudioProfile>());
+            var settings = AnchorAudioSettingsTestUtility.CreateSettings(
+                new[]
+                {
+                    new AnchorAudioProfile
+                    {
+                        Key = AnchorAudio.DefaultProfileKey,
+                        HoverClip = hoverClip,
+                        ActivateClip = activateClip,
+                    },
+                });
             var service = new FakeAudioService();
             var resolver = new AnchorAudioProfileResolver(settings);
             var feedback = new AnchorAudioFeedback(resolver, service);

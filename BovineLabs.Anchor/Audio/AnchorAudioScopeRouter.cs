@@ -9,7 +9,6 @@ namespace BovineLabs.Anchor.Audio
     using Unity.AppUI.UI;
     using UnityEngine;
     using UnityEngine.UIElements;
-    using UIToolkitButton = UnityEngine.UIElements.Button;
 
     internal sealed class AnchorAudioScopeRouter : IDisposable
     {
@@ -193,7 +192,7 @@ namespace BovineLabs.Anchor.Audio
                 return;
             }
 
-            if ((target is UIToolkitButton || HasExplicitAnchorAudio(target)) && target.enabledInHierarchy)
+            if (target.enabledInHierarchy)
             {
                 this.feedback.Play(target, AnchorAudioCue.Activate);
             }
@@ -239,7 +238,7 @@ namespace BovineLabs.Anchor.Audio
                     return candidate;
                 }
 
-                if (candidate == null && (HasExplicitAnchorAudio(current) || current is IPressable || current is UIToolkitButton))
+                if (candidate == null && HasExplicitAnchorAudio(current))
                 {
                     candidate = current;
                 }

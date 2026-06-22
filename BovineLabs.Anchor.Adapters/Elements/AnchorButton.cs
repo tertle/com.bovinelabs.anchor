@@ -31,7 +31,7 @@ namespace BovineLabs.Anchor.Elements
         private static readonly BindingId ActivateAudioClipProperty = nameof(activateAudioClip);
 
         private ICommand m_commandWithEventInfo;
-        private string m_audioProfile = string.Empty;
+        private string m_audioProfile = AnchorAudio.DefaultProfileKey;
         private AnchorAudioOverrideMode m_hoverAudioMode;
         private AudioClip m_hoverAudioClip;
         private AnchorAudioOverrideMode m_activateAudioMode;
