@@ -11,7 +11,9 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using Unity.Collections;
     using Unity.Entities;
     using Unity.Properties;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, ILoadable
     {
         [CreateProperty]

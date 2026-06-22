@@ -7,7 +7,9 @@ namespace BovineLabs.Anchor.Services
     using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.MVVM;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     internal record ViewModelService : IViewModelService
     {
         private readonly Dictionary<Type, object> loadedElements = new();

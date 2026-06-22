@@ -10,10 +10,12 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using Unity.Properties;
+    using UnityEngine.Scripting;
 
     /// <summary>
     /// View model that keeps track of toolbar filter selections and persistence.
     /// </summary>
+    [Preserve]
     [IsService]
     public class ToolbarViewModel : ObservableObject
     {
@@ -29,6 +31,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// Initializes a new instance of the <see cref="ToolbarViewModel"/> class.
         /// </summary>
         /// <param name="storageService">Service used to persist filter selections.</param>
+        [Preserve]
         public ToolbarViewModel(ILocalStorageService storageService)
         {
             this.storageService = storageService;

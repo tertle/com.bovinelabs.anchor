@@ -10,13 +10,16 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.Properties;
     using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [Transient]
     [UsedImplicitly]
     public class PhysicsToolbarView : View<PhysicsToolbarViewModel>
     {
         public const string UssClassName = "bl-physics-tab";
 
+        [Preserve]
         public PhysicsToolbarView()
             : base(new PhysicsToolbarViewModel())
         {

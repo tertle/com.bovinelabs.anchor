@@ -7,13 +7,16 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [AutoToolbar("Quality")]
     public class QualityToolbarView : View<QualityToolbarViewModel>
     {
         public const string UssClassName = "bl-quality-tab";
 
         /// <summary> Initializes a new instance of the <see cref="QualityToolbarView" /> class. </summary>
+        [Preserve]
         public QualityToolbarView()
             : base(new QualityToolbarViewModel())
         {

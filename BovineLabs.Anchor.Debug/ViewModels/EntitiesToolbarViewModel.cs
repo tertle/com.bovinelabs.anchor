@@ -5,7 +5,9 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using Unity.Properties;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>
     {
         [CreateProperty(ReadOnly = true)]

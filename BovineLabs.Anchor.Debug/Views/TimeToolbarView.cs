@@ -14,13 +14,16 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.Properties;
     using UnityEngine.UIElements;
     using FloatField = Unity.AppUI.UI.FloatField;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [AutoToolbar("Time")]
     public class TimeToolbarView : View<TimeToolbarViewModel>
     {
         public const string UssClassName = "bl-time-tab";
 
         /// <summary> Initializes a new instance of the <see cref="TimeToolbarView" /> class. </summary>
+        [Preserve]
         public TimeToolbarView()
             : base(new TimeToolbarViewModel())
         {

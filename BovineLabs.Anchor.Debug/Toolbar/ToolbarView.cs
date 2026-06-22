@@ -23,6 +23,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using Button = Unity.AppUI.UI.Button;
     using Canvas = UnityEngine.Canvas;
     using Object = UnityEngine.Object;
+    using UnityEngine.Scripting;
 #if UNITY_URP
     using UnityEngine.Rendering.Universal;
 #endif
@@ -30,6 +31,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     /// <summary>
     /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
     /// </summary>
+    [Preserve]
     [Configurable]
     [IsService]
     public class ToolbarView : VisualElement, IAnchorToolbarHost
@@ -86,6 +88,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// </summary>
         /// <param name="viewModel">Backing view model used to manage selections.</param>
         /// <param name="storageService">Persistence layer for storing toolbar preferences.</param>
+        [Preserve]
         public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
         {
             Instance = this;

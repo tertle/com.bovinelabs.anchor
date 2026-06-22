@@ -9,12 +9,15 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [AutoToolbar("UI")]
     public class AppUIToolbarView : View<AppUIToolbarViewModel>
     {
         public const string UssClassName = "bl-appui-tab";
 
+        [Preserve]
         public AppUIToolbarView(AppUIToolbarViewModel viewModel)
             : base(viewModel)
         {

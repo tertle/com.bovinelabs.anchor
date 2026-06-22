@@ -4,6 +4,7 @@
 
 namespace BovineLabs.Anchor
 {
+    using UnityEngine.Scripting;
 #if UNITY_APPUI
     using Unity.AppUI.UI;
     using UnityEngine.UIElements;
@@ -11,6 +12,7 @@ namespace BovineLabs.Anchor
     /// <summary>
     /// AppUI-backed panel implementation for Anchor when AppUI is available.
     /// </summary>
+    [Preserve]
     public class AnchorPanel : Panel, IAnchorPanel
     {
         /// <inheritdoc />
@@ -36,6 +38,7 @@ namespace BovineLabs.Anchor
     /// <summary>
     /// Root panel element used by Anchor apps.
     /// </summary>
+    [Preserve]
     public sealed class AnchorPanel : VisualElement, IAnchorPanel
     {
         /// <inheritdoc />

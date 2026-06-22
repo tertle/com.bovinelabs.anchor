@@ -6,12 +6,15 @@ namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [Transient]
     public class EntitiesToolbarView : View<EntitiesToolbarViewModel>
     {
         public const string UssClassName = "bl-entities-tab";
 
+        [Preserve]
         public EntitiesToolbarView()
             : base(new EntitiesToolbarViewModel())
         {

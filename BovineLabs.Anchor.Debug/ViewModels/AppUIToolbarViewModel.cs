@@ -9,7 +9,9 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
     using Unity.Properties;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [IsService]
     public class AppUIToolbarViewModel : ObservableObject
     {
@@ -24,6 +26,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private int themeValue = -1;
         private int scaleValue = -1;
 
+        [Preserve]
         public AppUIToolbarViewModel(ILocalStorageService localStorageService)
         {
             this.localStorageService = localStorageService;

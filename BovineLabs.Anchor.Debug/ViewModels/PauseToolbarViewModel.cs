@@ -6,7 +6,9 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using Unity.Properties;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     public class PauseToolbarViewModel : SystemObservableObject<PauseToolbarViewModel.Data>
     {
         [CreateProperty]

@@ -5,7 +5,9 @@
 namespace BovineLabs.Anchor.Services
 {
     using UnityEngine;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     internal record LocalStoragePlayerPrefsService : ILocalStorageService
     {
         /// <inheritdoc />

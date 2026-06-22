@@ -9,7 +9,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using System.ComponentModel;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [Transient]
     public class SubSceneToolbarView : View<SubSceneToolbarViewModel>, IDisposable
     {
@@ -17,6 +19,7 @@ namespace BovineLabs.Anchor.Debug.Views
 
         private readonly Dropdown dropdown;
 
+        [Preserve]
         public SubSceneToolbarView()
             : base(new SubSceneToolbarViewModel())
         {

@@ -8,7 +8,9 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using System;
     using Unity.Properties;
     using UnityEngine;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [Serializable]
     public partial class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
     {

@@ -10,12 +10,15 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Elements;
     using Unity.Properties;
     using UnityEngine.UIElements;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [AutoToolbar("Memory")]
     public class MemoryToolbarView : View<MemoryToolbarViewModel>
     {
         public const string UssClassName = "bl-memory-tab";
 
+        [Preserve]
         public MemoryToolbarView()
             : base(new MemoryToolbarViewModel())
         {

@@ -11,12 +11,15 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.Properties;
     using UnityEngine.Localization.Settings;
     using UnityEngine.UIElements;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [AutoToolbar("Localization")]
     public class LocalizationToolbarView : View<LocalizationToolbarViewModel>
     {
         public const string UssClassName = "bl-localization-tab";
 
+        [Preserve]
         public LocalizationToolbarView()
             : base(new LocalizationToolbarViewModel())
         {

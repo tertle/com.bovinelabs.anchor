@@ -17,10 +17,12 @@ namespace BovineLabs.Anchor
     using Unity.Burst;
     using UnityEngine;
     using UnityEngine.UIElements;
+    using UnityEngine.Scripting;
 
     /// <summary>
     /// Root Anchor application that wires the AppUI navigation stack, toolbar integration, and burst-safe helpers.
     /// </summary>
+    [Preserve]
     [UsedImplicitly]
     [Configurable]
     public class AnchorApp : IDisposable

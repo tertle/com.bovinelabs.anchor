@@ -10,11 +10,14 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.Properties;
     using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [Transient]
     [UsedImplicitly]
     public class PauseToolbarView : View<PauseToolbarViewModel>
     {
+        [Preserve]
         public PauseToolbarView()
             : base(new PauseToolbarViewModel())
         {

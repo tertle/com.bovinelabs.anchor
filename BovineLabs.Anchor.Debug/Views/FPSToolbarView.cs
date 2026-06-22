@@ -10,12 +10,15 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Elements;
     using Unity.Properties;
     using UnityEngine.UIElements;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [AutoToolbar("FPS")]
     public class FPSToolbarView : View<FPSToolbarViewModel>
     {
         public const string UssClassName = "bl-fps-tab";
 
+        [Preserve]
         public FPSToolbarView()
             : base(new FPSToolbarViewModel())
         {
