@@ -151,6 +151,20 @@ namespace BovineLabs.Anchor.Tests.Audio
             Assert.IsNull(service.Source);
         }
 
+        [Test]
+        public void Play_CreatesHiddenHost()
+        {
+            var activate = this.CreateClip("default-activate");
+            using var service = new AudioService(CreateSettings(DefaultProfile(activateClip: activate)));
+
+            service.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Inherit);
+
+            Assert.IsNotNull(service.Source);
+#if UNITY_EDITOR
+            Assert.AreEqual(HideFlags.HideAndDontSave, service.Source.gameObject.hideFlags);
+#endif
+        }
+
 #if !UNITY_6000_6_OR_NEWER
         [Test]
         public void BuildProfiles_DuplicateProfileKeys_ReportError()
