@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Audio
 {
     using System;
     using System.Collections.Generic;
-    using BovineLabs.Core;
     using UnityEngine;
 
     /// <summary>
@@ -39,7 +38,7 @@ namespace BovineLabs.Anchor.Audio
 #if UNITY_6000_6_OR_NEWER
             foreach (var profile in this.profiles)
             {
-                if (profile.Value == null || string.IsNullOrWhiteSpace(profile.Key))
+                if (string.IsNullOrWhiteSpace(profile.Key))
                 {
                     continue;
                 }
@@ -49,14 +48,14 @@ namespace BovineLabs.Anchor.Audio
 #else
             foreach (var profile in this.profiles)
             {
-                if (profile == null || string.IsNullOrWhiteSpace(profile.Key))
+                if (string.IsNullOrWhiteSpace(profile.Key))
                 {
                     continue;
                 }
 
                 if (!profileDictionary.TryAdd(profile.Key, profile))
                 {
-                    BLGlobalLogger.LogError($"Anchor audio profile '{profile.Key}' is already registered.");
+                    Core.BLGlobalLogger.LogError($"Anchor audio profile '{profile.Key}' is already registered.");
                 }
             }
 #endif
