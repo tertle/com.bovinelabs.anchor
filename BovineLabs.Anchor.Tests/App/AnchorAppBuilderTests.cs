@@ -36,7 +36,6 @@ namespace BovineLabs.Anchor.Tests.App
                 AssertService(services, typeof(IAnchorAudioService), typeof(AnchorAudioService));
                 AssertService(services, typeof(AnchorAudioProfileResolver), typeof(AnchorAudioProfileResolver));
                 AssertService(services, typeof(AnchorAudioFeedback), typeof(AnchorAudioFeedback));
-                AssertService(services, typeof(AnchorAudioScopeRouter), typeof(AnchorAudioScopeRouter));
             }
             finally
             {
@@ -218,7 +217,6 @@ namespace BovineLabs.Anchor.Tests.App
             services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
             services.AddSingleton(typeof(AnchorAudioProfileResolver));
             services.AddSingleton(typeof(AnchorAudioFeedback));
-            services.AddSingleton(typeof(AnchorAudioScopeRouter));
             return services.BuildServiceProvider();
         }
 

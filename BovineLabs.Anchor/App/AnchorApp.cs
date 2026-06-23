@@ -9,7 +9,6 @@
 namespace BovineLabs.Anchor
 {
     using System;
-    using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
@@ -40,7 +39,6 @@ namespace BovineLabs.Anchor
         private bool disposed;
         private bool hasScreenMetrics;
         private AnchorScreenMetrics lastScreenMetrics;
-        private AnchorAudioScopeRouter audioScopeRouter;
 
         /// <summary>Event called when the app is shutting down.</summary>
         public static event Action ShuttingDown;
@@ -108,8 +106,6 @@ namespace BovineLabs.Anchor
 
             ShuttingDown?.Invoke();
 
-            this.audioScopeRouter?.UnregisterScope();
-            this.audioScopeRouter = null;
             this.PopupContainer = null;
             this.NotificationContainer = null;
             this.TooltipContainer = null;
@@ -151,8 +147,6 @@ namespace BovineLabs.Anchor
             var navHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
             this.NavHost = navHost;
             this.RootVisualElement.Add(navHost);
-            this.audioScopeRouter = this.Services.GetRequiredService<AnchorAudioScopeRouter>();
-            this.audioScopeRouter.RegisterScope(navHost);
 
             if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
             {

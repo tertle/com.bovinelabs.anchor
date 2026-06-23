@@ -132,7 +132,6 @@ namespace BovineLabs.Anchor
             services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
             services.AddSingleton(typeof(AnchorAudioProfileResolver));
             services.AddSingleton(typeof(AnchorAudioFeedback));
-            services.AddSingleton(typeof(AnchorAudioScopeRouter));
 
             if (this.UXMLService != null)
             {

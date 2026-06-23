@@ -21,7 +21,7 @@ namespace BovineLabs.Anchor.Elements
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "UITK Standard")]
-    public partial class AnchorActionButton : ActionButton, IAnchorAudioElement
+    public partial class AnchorActionButton : ActionButton
     {
         private static readonly BindingId CommandWithEventInfoProperty = nameof(commandWithEventInfo);
         private static readonly BindingId AudioProfileProperty = nameof(audioProfile);
@@ -40,17 +40,10 @@ namespace BovineLabs.Anchor.Elements
         public AnchorActionButton()
             : base(null)
         {
-            this.clickable.clickedWithEventInfo += evt => this.commandWithEventInfo?.Execute(evt);
+            this.clickable.clickedWithEventInfo += this.OnClickedWithEventInfo;
+            this.RegisterCallback<PointerEnterEvent>(this.OnAudioPointerEnter);
+            this.RegisterCallback<ActionTriggeredEvent>(this.OnActionTriggered);
         }
-
-        /// <inheritdoc />
-        string IAnchorAudioElement.AudioProfile => this.m_audioProfile;
-
-        /// <inheritdoc />
-        AnchorAudioCueOverride IAnchorAudioElement.HoverAudio => new(this.m_hoverAudioMode, this.m_hoverAudioClip);
-
-        /// <inheritdoc />
-        AnchorAudioCueOverride IAnchorAudioElement.ActivateAudio => new(this.m_activateAudioMode, this.m_activateAudioClip);
 
         /// <summary>Gets or sets the command invoked when the button is clicked with the event payload.</summary>
         [CreateProperty]
@@ -146,6 +139,37 @@ namespace BovineLabs.Anchor.Elements
                     this.NotifyPropertyChanged(in ActivateAudioClipProperty);
                 }
             }
+        }
+
+        private void OnClickedWithEventInfo(EventBase evt)
+        {
+            this.commandWithEventInfo?.Execute(evt);
+        }
+
+        private void OnAudioPointerEnter(PointerEnterEvent evt)
+        {
+            if (!this.enabledInHierarchy)
+            {
+                return;
+            }
+
+            if (evt.pointerId != PointerId.mousePointerId &&
+                evt.pointerId < PointerId.trackedPointerIdBase)
+            {
+                return;
+            }
+
+            AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Hover, new AnchorAudioCueOverride(this.m_hoverAudioMode, this.m_hoverAudioClip));
+        }
+
+        private void OnActionTriggered(ActionTriggeredEvent evt)
+        {
+            if (!ReferenceEquals(evt.target, this))
+            {
+                return;
+            }
+
+            AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Activate, new AnchorAudioCueOverride(this.m_activateAudioMode, this.m_activateAudioClip));
         }
     }
 }

@@ -153,7 +153,6 @@ namespace BovineLabs.Anchor.Tests.App
             }
 
             Assert.IsNotNull(app.NavHost);
-            Assert.AreSame(app.NavHost, scope.ServiceProvider.GetRequiredService<AnchorAudioScopeRouter>().Scope);
             Assert.AreSame(popup, app.PopupContainer);
             Assert.AreSame(notifications, app.NotificationContainer);
             Assert.AreSame(tooltip, app.TooltipContainer);
@@ -224,7 +223,6 @@ namespace BovineLabs.Anchor.Tests.App
             services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
             services.AddSingleton(typeof(AnchorAudioProfileResolver));
             services.AddSingleton(typeof(AnchorAudioFeedback));
-            services.AddSingleton(typeof(AnchorAudioScopeRouter));
 
             foreach (var serviceType in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
             {

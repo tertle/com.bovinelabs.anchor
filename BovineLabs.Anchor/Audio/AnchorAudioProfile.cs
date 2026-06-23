@@ -48,7 +48,12 @@ namespace BovineLabs.Anchor.Audio
 
         internal AudioClip GetClip(AnchorAudioCue cue)
         {
-            return cue == AnchorAudioCue.Hover ? this.hoverClip : this.activateClip;
+            return cue switch
+            {
+                AnchorAudioCue.Hover => this.hoverClip,
+                AnchorAudioCue.Activate => this.activateClip,
+                _ => null,
+            };
         }
     }
 }
