@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Tests.Audio
     using System.Windows.Input;
     using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.Elements;
-    using BovineLabs.Anchor.MVVM;
+    using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
     using Unity.AppUI.UI;
@@ -135,48 +135,19 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void Feedback_Play_ResolvedClip_SendsClipToAudioService()
-        {
-            var activate = this.CreateClip("activate");
-            var service = new FakeAudioService();
-            var feedback = new AnchorAudioFeedback(
-                new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate))),
-                service);
-
-            feedback.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate);
-
-            CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
-        }
-
-        [Test]
-        public void Feedback_Play_EmptyAndNullClipCases_DoNotCallAudioService()
-        {
-            var service = new FakeAudioService();
-            var feedback = new AnchorAudioFeedback(
-                new AnchorAudioProfileResolver(CreateSettings(DefaultProfile())),
-                service);
-
-            feedback.Play(string.Empty, AnchorAudioCue.Activate);
-            feedback.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate);
-
-            Assert.IsEmpty(service.PlayedClips);
-        }
-
-        [Test]
-        public void Feedback_Play_OverrideModes_AreRespected()
+        public void AudioService_Play_OverrideModes_AreRespected()
         {
             var activate = this.CreateClip("activate");
             var custom = this.CreateClip("custom");
-            var service = new FakeAudioService();
-            var feedback = new AnchorAudioFeedback(
-                new AnchorAudioProfileResolver(CreateSettings(DefaultProfile(activateClip: activate))),
-                service);
+            using var service = new AudioService(CreateSettings(DefaultProfile(activateClip: activate)));
 
-            feedback.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Custom(custom));
-            feedback.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Disabled);
-            feedback.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Inherit);
+            service.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Custom(custom));
+            service.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Disabled);
+            Assert.AreSame(custom, service.Source.clip);
 
-            CollectionAssert.AreEqual(new[] { custom, activate }, service.PlayedClips);
+            service.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Inherit);
+
+            Assert.AreSame(activate, service.Source.clip);
         }
 
         [Test]
@@ -516,9 +487,8 @@ namespace BovineLabs.Anchor.Tests.Audio
         {
             return new TestAnchorAppScope(services =>
             {
-                services.AddSingletonInstance(typeof(IAnchorAudioService), service);
-                services.AddSingletonInstance(typeof(AnchorAudioProfileResolver), new AnchorAudioProfileResolver(CreateSettings(profiles)));
-                services.AddSingleton(typeof(AnchorAudioFeedback));
+                service.SetProfiles(profiles);
+                services.AddSingletonInstance(typeof(IAudioService), service);
             });
         }
 
@@ -557,16 +527,43 @@ namespace BovineLabs.Anchor.Tests.Audio
             return clip;
         }
 
-        private sealed class FakeAudioService : IAnchorAudioService
+        private sealed class FakeAudioService : IAudioService
         {
+            private Dictionary<string, AnchorAudioProfile> profiles = new(StringComparer.Ordinal);
+
             public List<AudioClip> PlayedClips { get; } = new();
 
-            public void PlayOneShot(AudioClip clip)
+            public void SetProfiles(params AnchorAudioProfile[] profiles)
+            {
+                this.profiles = CreateSettings(profiles).CreateProfileDictionary();
+            }
+
+            public void Play(string profileKey, AnchorAudioCue cue, AnchorAudioCueOverride cueOverride)
+            {
+                switch (cueOverride.Mode)
+                {
+                    case AnchorAudioOverrideMode.Disabled:
+                        return;
+                    case AnchorAudioOverrideMode.Custom:
+                        this.PlayOneShot(cueOverride.Clip);
+                        return;
+                    default:
+                        this.PlayOneShot(this.ResolveClip(profileKey, cue));
+                        return;
+                }
+            }
+
+            private void PlayOneShot(AudioClip clip)
             {
                 if (clip != null)
                 {
                     this.PlayedClips.Add(clip);
                 }
+            }
+
+            private AudioClip ResolveClip(string profileKey, AnchorAudioCue cue)
+            {
+                return !string.IsNullOrWhiteSpace(profileKey) && this.profiles.TryGetValue(profileKey, out var profile) ? profile.GetClip(cue) : null;
             }
         }
 

@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Tests.App
     using System;
     using System.Reflection;
     using BovineLabs.Anchor;
-    using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
@@ -220,9 +219,7 @@ namespace BovineLabs.Anchor.Tests.App
             services.AddSingleton(typeof(IUXMLService), typeof(TestUxmlService));
             services.AddSingleton(typeof(ILocalStorageService), typeof(TestLocalStorageService));
             services.AddSingleton(typeof(IViewModelService), typeof(ViewModelService));
-            services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
-            services.AddSingleton(typeof(AnchorAudioProfileResolver));
-            services.AddSingleton(typeof(AnchorAudioFeedback));
+            services.AddSingleton(typeof(IAudioService), typeof(AudioService));
 
             foreach (var serviceType in ReflectionUtility.GetAllWithAttribute<IsServiceAttribute>())
             {

@@ -37,12 +37,10 @@ namespace BovineLabs.Anchor.MVVM
                 return this;
             }
 
-            if (this.resolving.Contains(serviceType))
+            if (!this.resolving.Add(serviceType))
             {
                 throw new InvalidOperationException($"Circular dependency detected while resolving '{serviceType.FullName}'.");
             }
-
-            this.resolving.Add(serviceType);
 
             try
             {

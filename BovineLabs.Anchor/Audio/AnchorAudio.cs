@@ -4,8 +4,9 @@
 
 namespace BovineLabs.Anchor.Audio
 {
-    using System;
     using BovineLabs.Anchor;
+    using BovineLabs.Anchor.MVVM;
+    using BovineLabs.Anchor.Services;
 
     /// <summary>
     /// Public facade for playing Anchor UI audio feedback from controls.
@@ -20,42 +21,23 @@ namespace BovineLabs.Anchor.Audio
         /// <param name="cueOverride">The per-element cue override.</param>
         public static void Play(string profileKey, AnchorAudioCue cue, AnchorAudioCueOverride cueOverride)
         {
-            if (cueOverride.Mode == AnchorAudioOverrideMode.Disabled)
+            if (TryGetAudioService(out var audioService))
             {
-                return;
-            }
-
-            if (cueOverride.Mode == AnchorAudioOverrideMode.Inherit && string.IsNullOrWhiteSpace(profileKey))
-            {
-                return;
-            }
-
-            if (TryGetFeedback(out var feedback))
-            {
-                feedback.Play(profileKey, cue, cueOverride);
+                audioService.Play(profileKey, cue, cueOverride);
             }
         }
 
-        private static bool TryGetFeedback(out AnchorAudioFeedback feedback)
+        private static bool TryGetAudioService(out IAudioService audioService)
         {
             var services = AnchorApp.Current?.Services;
             if (services == null)
             {
-                feedback = null;
+                audioService = null;
                 return false;
             }
 
-            try
-            {
-                feedback = services.GetService(typeof(AnchorAudioFeedback)) as AnchorAudioFeedback;
-            }
-            catch (ObjectDisposedException)
-            {
-                feedback = null;
-                return false;
-            }
-
-            return feedback != null;
+            audioService = services.GetService<IAudioService>();
+            return audioService != null;
         }
     }
 }

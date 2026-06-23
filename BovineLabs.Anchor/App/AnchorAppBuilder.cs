@@ -8,7 +8,6 @@ namespace BovineLabs.Anchor
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
-    using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
@@ -56,6 +55,8 @@ namespace BovineLabs.Anchor
         protected virtual Type LocalStorageService { get; } = typeof(LocalStoragePlayerPrefsService);
 
         protected virtual Type ViewModelService { get; } = typeof(ViewModelService);
+
+        protected virtual Type AudioService { get; } = typeof(AudioService);
 
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
@@ -129,9 +130,7 @@ namespace BovineLabs.Anchor
         {
             services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
             services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
-            services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
-            services.AddSingleton(typeof(AnchorAudioProfileResolver));
-            services.AddSingleton(typeof(AnchorAudioFeedback));
+            services.AddSingleton(typeof(IAudioService), this.AudioService);
 
             if (this.UXMLService != null)
             {

@@ -33,9 +33,7 @@ namespace BovineLabs.Anchor.Tests.App
                 AssertService(services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
                 AssertService(services, typeof(IViewModelService), typeof(ViewModelService));
                 AssertService(services, typeof(IUXMLService), typeof(TestUxmlService));
-                AssertService(services, typeof(IAnchorAudioService), typeof(AnchorAudioService));
-                AssertService(services, typeof(AnchorAudioProfileResolver), typeof(AnchorAudioProfileResolver));
-                AssertService(services, typeof(AnchorAudioFeedback), typeof(AnchorAudioFeedback));
+                AssertService(services, typeof(IAudioService), typeof(AudioService));
             }
             finally
             {
@@ -130,16 +128,16 @@ namespace BovineLabs.Anchor.Tests.App
             var gameObject = new GameObject("builder");
             var builder = gameObject.AddComponent<TestAnchorBuilder>();
             var services = new AnchorServiceCollection();
-            var audioService = new TestAnchorAudioService();
+            var audioService = new TestAudioService();
 
             try
             {
                 builder.InvokeConfigure(services);
-                services.AddSingletonInstance(typeof(IAnchorAudioService), audioService);
+                services.AddSingletonInstance(typeof(IAudioService), audioService);
 
                 using var provider = services.BuildServiceProvider();
 
-                Assert.AreSame(audioService, provider.GetRequiredService<IAnchorAudioService>());
+                Assert.AreSame(audioService, provider.GetRequiredService<IAudioService>());
             }
             finally
             {
@@ -214,9 +212,7 @@ namespace BovineLabs.Anchor.Tests.App
         private static AnchorServiceProvider CreateAudioServiceProvider()
         {
             var services = new AnchorServiceCollection();
-            services.AddSingleton(typeof(IAnchorAudioService), typeof(AnchorAudioService));
-            services.AddSingleton(typeof(AnchorAudioProfileResolver));
-            services.AddSingleton(typeof(AnchorAudioFeedback));
+            services.AddSingleton(typeof(IAudioService), typeof(AudioService));
             return services.BuildServiceProvider();
         }
 
@@ -282,9 +278,9 @@ namespace BovineLabs.Anchor.Tests.App
             }
         }
 
-        private sealed class TestAnchorAudioService : IAnchorAudioService
+        private sealed class TestAudioService : IAudioService
         {
-            public void PlayOneShot(AudioClip clip)
+            public void Play(string profileKey, AnchorAudioCue cue, AnchorAudioCueOverride cueOverride)
             {
             }
         }
