@@ -5,15 +5,23 @@
 ### Added
 * `ICommandAttribute.CanExecuteProperty` for generating command can-execute delegates from bindable bool properties
 * MVVM dependency notifications for generated observable properties and relay command can-execute updates
+* Anchor UI audio feedback for `AnchorButton` and `AnchorActionButton` hover and activation cues
 
 ### Changed
 * MVVM dependency declarations now support backing field names
 * Debug toolbar view models now use the simplified notification flow
 * Pruned low-value tests
+* Anchor audio playback now uses `IAudioService` with opt-in named profiles and per-element cue overrides
+* Packaged Anchor skill definitions were synced with current agent metadata
 
 ### Fixed
 * Unity 6.5+ PanelRenderer setup no longer emits the obsolete API warning
 * Anchor panel reload tests now match the current Unity 6.5+ PanelRenderer reload callback signature
+* Reflection-discovered Anchor app, debug toolbar, service, and view-model types are now preserved for managed stripping
+* Anchor UI audio host objects are hidden in the editor and kept across scene loads during play mode
+
+### Removed
+* Obsolete `IView` app interface
 
 ## [2.0.2] - 2026-05-09
 
