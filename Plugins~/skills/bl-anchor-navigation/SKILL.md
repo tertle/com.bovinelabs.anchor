@@ -1,6 +1,6 @@
 ---
 name: bl-anchor-navigation
-description: "Use when creating, wiring, refactoring, or debugging com.bovinelabs.anchor navigation, including AnchorNavHost, destination and action routing, popup semantics, back-stack behavior, navigation arguments, IAnchorNavigationScreen callbacks, animations, save/restore state, and Burst navigation entry points."
+description: "Use for Anchor destinations, actions, popups, back stack, arguments, screen callbacks, saved state, or Burst navigation entry points."
 ---
 
 # Anchor Navigation

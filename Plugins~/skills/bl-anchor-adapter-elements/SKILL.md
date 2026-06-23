@@ -1,6 +1,6 @@
 ---
 name: bl-anchor-adapter-elements
-description: "Use when creating, wiring, styling, or debugging com.bovinelabs.anchor AppUI adapter elements and UXML controls, including AnchorGridView, AnchorAccordion, AnchorActionButton, AnchorButton, OptionPager, KeyValueGroup, ClassBinding, AnchorSafeArea, Timer, and item-template data-source behavior."
+description: "Use for Anchor AppUI adapter controls, UXML attributes, repeated-item data sources, command buttons, OptionPager, safe areas, or timers."
 ---
 
 # Anchor Adapter Elements

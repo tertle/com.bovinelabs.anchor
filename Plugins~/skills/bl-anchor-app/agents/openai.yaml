@@ -1,4 +1,4 @@
 interface:
   display_name: "Anchor App Hosting"
-  short_description: "Wire Anchor app hosting and services."
-  default_prompt: "Use $bl-anchor-app to wire an Anchor app builder, settings, and services."
+  short_description: "Configure Anchor app hosting and services"
+  default_prompt: "Use $bl-anchor-app to configure this Anchor app host, settings, and services."

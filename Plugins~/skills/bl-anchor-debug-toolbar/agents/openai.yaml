@@ -1,4 +1,4 @@
 interface:
   display_name: "Anchor Debug Toolbar"
-  short_description: "Create ECS-driven Anchor debug toolbar panels."
-  default_prompt: "Use $bl-anchor-debug-toolbar to create an Anchor debug toolbar panel with a ToolbarHelper system, view model, and view."
+  short_description: "Build Anchor ECS debug toolbar panels"
+  default_prompt: "Use $bl-anchor-debug-toolbar to build or review this Anchor debug panel."

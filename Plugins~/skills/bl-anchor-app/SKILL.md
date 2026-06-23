@@ -1,6 +1,6 @@
 ---
 name: bl-anchor-app
-description: "Use when creating, wiring, extending, or debugging com.bovinelabs.anchor app hosting, AnchorAppBuilder lifecycle, AnchorSettings views/actions/animations, dependency injection service registration, panel host setup, UXML service ownership, and AnchorApp.Current access."
+description: "Use for AnchorAppBuilder hosting, AnchorSettings, PanelRenderer or UIDocument setup, services, lifecycle hooks, or UXML service ownership."
 ---
 
 # Anchor App Hosting

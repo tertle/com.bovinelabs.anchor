@@ -1,6 +1,6 @@
 ---
 name: bl-anchor-debug-toolbar
-description: "Use when creating, extending, or reviewing Anchor debug toolbar elements in projects or packages that use Anchor, including ToolbarHelper systems, SystemObservableObject view models, View-based UI panels, AutoToolbar managed panels, and BovineLabs.Anchor.Debug asmdef wiring."
+description: "Use for Anchor debug-toolbar panels backed by ECS systems, ToolbarHelper, SystemObservableObject, managed AutoToolbar panels, or debug asmdefs."
 ---
 
 # Anchor Debug Toolbar

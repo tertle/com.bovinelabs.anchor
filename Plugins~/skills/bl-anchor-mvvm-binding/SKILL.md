@@ -1,6 +1,6 @@
 ---
 name: bl-anchor-mvvm-binding
-description: "Use when authoring, wiring, refactoring, or debugging com.bovinelabs.anchor MVVM and binding code, including View models, View elements, ObservableObject source generation, RelayCommand and generated ICommand properties, UXML data-source-type binding, SystemObservableObject data, UIHelper, SystemProperty fields, and Burst-to-UI change notifications."
+description: "Use for Anchor ObservableObject or SystemObservableObject view models, generated properties and commands, UI Toolkit bindings, or ECS-to-UI state."
 ---
 
 # Anchor MVVM Binding
