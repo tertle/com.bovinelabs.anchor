@@ -5,9 +5,11 @@
 namespace BovineLabs.Anchor.Binding
 {
     using System;
+    using System.Runtime.InteropServices;
     using Unity.Burst;
     using Unity.Collections;
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     internal unsafe delegate void SetValueDelegate(IntPtr target, in FixedString64Bytes property, void* field, void* newValue, int length);
 
     internal unsafe delegate void SetListValueDelegate(
