@@ -19,6 +19,7 @@
 * Anchor panel reload tests now match the current Unity 6.5+ PanelRenderer reload callback signature
 * Reflection-discovered Anchor app, debug toolbar, service, and view-model types are now preserved for managed stripping
 * Anchor UI audio host objects are hidden in the editor and kept across scene loads during play mode
+* Burst object notification delegates now declare the unmanaged calling convention required by Unity 6.6
 
 ### Removed
 * Obsolete `IView` app interface
