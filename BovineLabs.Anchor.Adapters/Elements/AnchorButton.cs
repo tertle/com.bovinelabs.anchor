@@ -153,8 +153,7 @@ namespace BovineLabs.Anchor.Elements
                 return;
             }
 
-            if (evt.pointerId != PointerId.mousePointerId &&
-                evt.pointerId < PointerId.trackedPointerIdBase)
+            if (evt.pointerId != PointerId.mousePointerId && evt.pointerId < PointerId.trackedPointerIdBase)
             {
                 return;
             }
