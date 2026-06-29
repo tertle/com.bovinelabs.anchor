@@ -41,8 +41,8 @@ namespace BovineLabs.Anchor.Elements
             : base(null)
         {
             this.clickable.clickedWithEventInfo += this.OnClickedWithEventInfo;
+            this.clicked += this.OnAudioActivated;
             this.RegisterCallback<PointerEnterEvent>(this.OnAudioPointerEnter);
-            this.RegisterCallback<ActionTriggeredEvent>(this.OnActionTriggered);
         }
 
         /// <summary>Gets or sets the command invoked when the button is clicked with the event payload.</summary>
@@ -153,8 +153,7 @@ namespace BovineLabs.Anchor.Elements
                 return;
             }
 
-            if (evt.pointerId != PointerId.mousePointerId &&
-                evt.pointerId < PointerId.trackedPointerIdBase)
+            if (evt.pointerId != PointerId.mousePointerId && evt.pointerId < PointerId.trackedPointerIdBase)
             {
                 return;
             }
@@ -162,13 +161,8 @@ namespace BovineLabs.Anchor.Elements
             AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Hover, new AnchorAudioCueOverride(this.m_hoverAudioMode, this.m_hoverAudioClip));
         }
 
-        private void OnActionTriggered(ActionTriggeredEvent evt)
+        private void OnAudioActivated()
         {
-            if (!ReferenceEquals(evt.target, this))
-            {
-                return;
-            }
-
             AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Activate, new AnchorAudioCueOverride(this.m_activateAudioMode, this.m_activateAudioClip));
         }
     }
