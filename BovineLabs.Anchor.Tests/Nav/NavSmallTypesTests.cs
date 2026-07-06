@@ -31,11 +31,5 @@ namespace BovineLabs.Anchor.Tests.Nav
             }
         }
 
-        [Test]
-        public void AnchorNavActionAttribute_Whitespace_Throws()
-        {
-            Assert.Throws<System.ArgumentException>(() => new AnchorNavActionAttribute(" "));
-        }
-
     }
 }

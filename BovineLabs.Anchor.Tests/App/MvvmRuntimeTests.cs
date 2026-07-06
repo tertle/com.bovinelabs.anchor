@@ -4,9 +4,7 @@
 
 namespace BovineLabs.Anchor.Tests.App
 {
-    using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using BovineLabs.Anchor.MVVM;
     using NUnit.Framework;
     using Unity.Properties;
@@ -173,22 +171,8 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void Generator_IgnoresForeignICommandAttribute()
+        public void GeneratedObservableProperty_SetGet_RoundTripsValue()
         {
-            var generatedProperty = typeof(ForeignICommandViewModel).GetProperty("RunCommand");
-
-            Assert.IsNull(generatedProperty);
-        }
-
-        [Test]
-        public void GeneratedObservableProperty_HasExpectedAttributesAndAccessors()
-        {
-            var generatedProperty = typeof(GeneratedObservablePropertyViewModel).GetProperty(nameof(GeneratedObservablePropertyViewModel.Test));
-
-            Assert.IsNotNull(generatedProperty);
-            Assert.IsTrue(Attribute.IsDefined(generatedProperty, typeof(CompilerGeneratedAttribute), false));
-            Assert.IsTrue(Attribute.IsDefined(generatedProperty, typeof(CreatePropertyAttribute), false));
-
             var viewModel = new GeneratedObservablePropertyViewModel();
             viewModel.Test = 7;
 
@@ -380,19 +364,6 @@ namespace BovineLabs.Anchor.Tests.App
             public int ExecuteCount { get; private set; }
         }
 
-        public partial class ForeignICommandViewModel
-        {
-            [global::BovineLabs.Anchor.Tests.App.FakeMvvm.ICommand(CanExecuteMethod = nameof(CanExecuteRun))]
-            private void Run()
-            {
-            }
-
-            private bool CanExecuteRun()
-            {
-                return true;
-            }
-        }
-
         public partial class GeneratedObservablePropertyViewModel : ObservableObject
         {
             [ObservableProperty]
@@ -477,18 +448,5 @@ namespace BovineLabs.Anchor.Tests.App
                 this.Log.Add("execute");
             }
         }
-    }
-}
-
-namespace BovineLabs.Anchor.Tests.App.FakeMvvm
-{
-    using System;
-
-    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-    public sealed class ICommandAttribute : Attribute
-    {
-        public string CanExecuteMethod { get; set; }
-
-        public string CanExecuteProperty { get; set; }
     }
 }

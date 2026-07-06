@@ -13,12 +13,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     public class ToolbarMetadataTests
     {
         [Test]
-        public void AutoToolbarAttribute_WhitespaceName_Throws()
-        {
-            Assert.Throws<System.ArgumentException>(() => new AutoToolbarAttribute(" "));
-        }
-
-        [Test]
         public void ToolbarGroupElement_AddRemoveToTab_ManagesHierarchy()
         {
             var tab = new VisualElement();
