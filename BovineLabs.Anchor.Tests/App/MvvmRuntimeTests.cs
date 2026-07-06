@@ -4,6 +4,7 @@
 
 namespace BovineLabs.Anchor.Tests.App
 {
+    using System;
     using System.Collections.Generic;
     using BovineLabs.Anchor.MVVM;
     using NUnit.Framework;
