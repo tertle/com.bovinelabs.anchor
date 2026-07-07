@@ -238,6 +238,5 @@ namespace BovineLabs.Anchor.Nav
                 this.RegisterAnimation(animation);
             }
         }
-
     }
 }

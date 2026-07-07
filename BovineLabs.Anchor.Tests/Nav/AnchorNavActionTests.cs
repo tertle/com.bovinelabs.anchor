@@ -30,6 +30,5 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.AreEqual(AnchorNavArgument.String("b", "22"), merged[1]);
             Assert.AreEqual(AnchorNavArgument.String("c", "3"), merged[2]);
         }
-
     }
 }

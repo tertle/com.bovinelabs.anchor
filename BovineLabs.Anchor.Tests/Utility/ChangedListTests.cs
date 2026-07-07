@@ -30,6 +30,5 @@ namespace BovineLabs.Anchor.Tests.Utility
             Assert.AreEqual(8, afterSet[0]);
             Assert.AreEqual(9, afterSet[1]);
         }
-
     }
 }

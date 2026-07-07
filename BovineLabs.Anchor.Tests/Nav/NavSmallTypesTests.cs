@@ -30,6 +30,5 @@ namespace BovineLabs.Anchor.Tests.Nav
                 Object.DestroyImmediate(namedAction);
             }
         }
-
     }
 }

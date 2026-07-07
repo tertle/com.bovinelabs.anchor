@@ -104,6 +104,5 @@ namespace BovineLabs.Anchor.Tests.Binding
             Assert.AreEqual(1, field.Value.Length);
             Assert.AreEqual(1, field.Value[0]);
         }
-
     }
 }

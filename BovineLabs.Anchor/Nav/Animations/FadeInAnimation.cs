@@ -16,6 +16,5 @@ namespace BovineLabs.Anchor.Nav.Animations
 
         /// <inheritdoc/>
         protected override Action<VisualElement, float> Callback { get; } = (v, f) => v.style.opacity = f;
-
     }
 }

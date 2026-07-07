@@ -48,6 +48,5 @@ namespace BovineLabs.Anchor.Tests.Nav
         {
             Assert.AreEqual(0, AnchorNavHost.Burst.SaveStateHandle());
         }
-
     }
 }
