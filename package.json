@@ -5,7 +5,8 @@
   "unity": "6000.3",
   "displayName": "BovineLabs Anchor",
   "dependencies": {
-    "com.bovinelabs.core": "1.6.1"
+    "com.bovinelabs.core": "1.6.1",
+    "com.bovinelabs.nerve": "2.0.0"
   },
   "keywords": [
     "UI"

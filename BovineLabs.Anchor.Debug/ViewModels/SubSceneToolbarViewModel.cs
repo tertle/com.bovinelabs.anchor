@@ -1,8 +1,8 @@
-﻿// <copyright file="SubSceneToolbarViewModel.cs" company="BovineLabs">
+// <copyright file="SubSceneToolbarViewModel.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
+#if BL_NERVE
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;

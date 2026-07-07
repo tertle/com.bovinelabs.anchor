@@ -331,7 +331,7 @@ namespace BovineLabs.Anchor.Tests.Nav
 
             try
             {
-                ((BovineLabs.Core.ObjectManagement.IUID)animation).ID = 73;
+                ((BovineLabs.Nerve.ObjectManagement.IUID)animation).ID = 73;
 
                 using var context = new HostContext(null, new[] { animation });
                 context.RegisterScreen("base");

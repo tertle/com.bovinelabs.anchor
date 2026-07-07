@@ -1,8 +1,8 @@
-﻿// <copyright file="PauseToolbarView.cs" company="BovineLabs">
+// <copyright file="PauseToolbarView.cs" company="BovineLabs">
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if BL_CORE_EXTENSIONS && !BL_DISABLE_PAUSE
+#if BL_NERVE
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;

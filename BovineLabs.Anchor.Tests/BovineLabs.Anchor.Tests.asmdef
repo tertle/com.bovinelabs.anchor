@@ -6,7 +6,7 @@
     "BovineLabs.Anchor.Debug",
     "BovineLabs.Anchor.Adapters",
     "BovineLabs.Core",
-    "BovineLabs.Core.Extensions",
+    "BovineLabs.Nerve",
     "BovineLabs.Testing",
     "Unity.AppUI",
     "Unity.AppUI.MVVM",

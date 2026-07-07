@@ -1,14 +1,14 @@
-﻿// // <copyright file="SubSceneToolbarSystem.cs" company="BovineLabs">
+// // <copyright file="SubSceneToolbarSystem.cs" company="BovineLabs">
 // //     Copyright (c) BovineLabs. All rights reserved.
 // // </copyright>
 //
-// #if BL_CORE_EXTENSIONS && !BL_DISABLE_SUBSCENE
+// #if BL_NERVE
 // namespace BovineLabs.Anchor.Debug.Systems
 // {
 //     using BovineLabs.Anchor.Debug.ViewModels;
 //     using BovineLabs.Anchor.Debug.Views;
 //     using BovineLabs.Anchor.Toolbar;
-//     using BovineLabs.Core.SubScenes;
+//     using BovineLabs.Nerve.SubScenes;
 //     using BovineLabs.Core.Utility;
 //     using Unity.Burst;
 //     using Unity.Collections;

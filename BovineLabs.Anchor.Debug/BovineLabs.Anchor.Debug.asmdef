@@ -1,84 +1,88 @@
 {
-    "name": "BovineLabs.Anchor.Debug",
-    "rootNamespace": "",
-    "references": [
-        "BovineLabs.Anchor",
-        "BovineLabs.Anchor.Adapters",
-        "BovineLabs.Core",
-        "BovineLabs.Core.Extensions",
-        "Unity.AppUI",
-        "Unity.AppUI.MVVM",
-        "Unity.AppUI.Navigation",
-        "Unity.AppUI.Redux",
-        "Unity.Burst",
-        "Unity.Collections",
-        "Unity.Entities",
-        "Unity.Entities.Graphics",
-        "Unity.Entities.Hybrid",
-        "Unity.InputSystem",
-        "Unity.Localization",
-        "Unity.Mathematics",
-        "Unity.Mathematics.Extensions",
-        "Unity.NetCode",
-        "Unity.Physics",
-        "Unity.Physics.Hybrid",
-        "Unity.RenderPipelines.Universal.Runtime",
-        "Unity.ResourceManager",
-        "Unity.Scenes",
-        "Unity.Transforms"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": true,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_APPUI",
-        "UNITY_EDITOR || BL_DEBUG",
-        "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
-    ],
-    "versionDefines": [
-        {
-            "name": "com.bovinelabs.core",
-            "expression": "",
-            "define": "BL_CORE"
-        },
-        {
-            "name": "com.bovinelabs.quill",
-            "expression": "",
-            "define": "BL_QUILL"
-        },
-        {
-            "name": "com.unity.dt.app-ui",
-            "expression": "",
-            "define": "UNITY_APPUI"
-        },
-        {
-            "name": "com.unity.entities",
-            "expression": "",
-            "define": "UNITY_ENTITIES"
-        },
-        {
-            "name": "com.unity.localization",
-            "expression": "",
-            "define": "UNITY_LOCALIZATION"
-        },
-        {
-            "name": "com.unity.netcode",
-            "expression": "",
-            "define": "UNITY_NETCODE"
-        },
-        {
-            "name": "com.unity.physics",
-            "expression": "",
-            "define": "UNITY_PHYSICS"
-        },
-        {
-            "name": "com.unity.render-pipelines.universal",
-            "expression": "",
-            "define": "UNITY_URP"
-        }
-    ],
-    "noEngineReferences": false
+  "name": "BovineLabs.Anchor.Debug",
+  "rootNamespace": "",
+  "references": [
+    "BovineLabs.Anchor",
+    "BovineLabs.Anchor.Adapters",
+    "BovineLabs.Core",
+    "Unity.AppUI",
+    "Unity.AppUI.MVVM",
+    "Unity.AppUI.Navigation",
+    "Unity.AppUI.Redux",
+    "Unity.Burst",
+    "Unity.Collections",
+    "Unity.Entities",
+    "Unity.Entities.Graphics",
+    "Unity.Entities.Hybrid",
+    "Unity.InputSystem",
+    "Unity.Localization",
+    "Unity.Mathematics",
+    "Unity.Mathematics.Extensions",
+    "Unity.NetCode",
+    "Unity.Physics",
+    "Unity.Physics.Hybrid",
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.ResourceManager",
+    "Unity.Scenes",
+    "Unity.Transforms"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_APPUI",
+    "UNITY_EDITOR || BL_DEBUG",
+    "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.bovinelabs.core",
+      "expression": "",
+      "define": "BL_CORE"
+    },
+    {
+      "name": "com.bovinelabs.quill",
+      "expression": "",
+      "define": "BL_QUILL"
+    },
+    {
+      "name": "com.unity.dt.app-ui",
+      "expression": "",
+      "define": "UNITY_APPUI"
+    },
+    {
+      "name": "com.unity.entities",
+      "expression": "",
+      "define": "UNITY_ENTITIES"
+    },
+    {
+      "name": "com.unity.localization",
+      "expression": "",
+      "define": "UNITY_LOCALIZATION"
+    },
+    {
+      "name": "com.unity.netcode",
+      "expression": "",
+      "define": "UNITY_NETCODE"
+    },
+    {
+      "name": "com.unity.physics",
+      "expression": "",
+      "define": "UNITY_PHYSICS"
+    },
+    {
+      "name": "com.unity.render-pipelines.universal",
+      "expression": "",
+      "define": "UNITY_URP"
+    },
+    {
+      "name": "com.bovinelabs.nerve",
+      "expression": "",
+      "define": "BL_NERVE"
+    }
+  ],
+  "noEngineReferences": false
 }

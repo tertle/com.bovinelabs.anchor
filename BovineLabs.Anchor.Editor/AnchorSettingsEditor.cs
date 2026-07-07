@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Editor
 {
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Core.Editor.Inspectors;
-    using BovineLabs.Core.Editor.ObjectManagement;
+    using BovineLabs.Nerve.Editor.ObjectManagement;
     using UnityEditor;
     using UnityEngine.UIElements;
 

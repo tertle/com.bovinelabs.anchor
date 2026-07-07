@@ -5,7 +5,7 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
-    using BovineLabs.Core.ObjectManagement;
+    using BovineLabs.Nerve.ObjectManagement;
     using BovineLabs.Core.PropertyDrawers;
     using UnityEngine;
     using UnityEngine.UIElements;
