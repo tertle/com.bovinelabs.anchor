@@ -5,8 +5,6 @@
         "BovineLabs.Anchor",
         "BovineLabs.Core",
         "BovineLabs.Core.Editor",
-        "BovineLabs.Nerve",
-        "BovineLabs.Nerve.Editor",
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities",

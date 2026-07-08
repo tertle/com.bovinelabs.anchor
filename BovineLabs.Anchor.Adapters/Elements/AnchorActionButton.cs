@@ -40,8 +40,7 @@ namespace BovineLabs.Anchor.Elements
         public AnchorActionButton()
             : base(null)
         {
-            this.clickable.clickedWithEventInfo += this.OnClickedWithEventInfo;
-            this.clicked += this.OnAudioActivated;
+            this.RegisterCallback<ActionTriggeredEvent>(this.OnActionTriggered);
             this.RegisterCallback<PointerEnterEvent>(this.OnAudioPointerEnter);
         }
 
@@ -141,9 +140,15 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        private void OnClickedWithEventInfo(EventBase evt)
+        private void OnActionTriggered(ActionTriggeredEvent evt)
         {
+            if (evt.target != this)
+            {
+                return;
+            }
+
             this.commandWithEventInfo?.Execute(evt);
+            AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Activate, new AnchorAudioCueOverride(this.m_activateAudioMode, this.m_activateAudioClip));
         }
 
         private void OnAudioPointerEnter(PointerEnterEvent evt)
@@ -159,11 +164,6 @@ namespace BovineLabs.Anchor.Elements
             }
 
             AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Hover, new AnchorAudioCueOverride(this.m_hoverAudioMode, this.m_hoverAudioClip));
-        }
-
-        private void OnAudioActivated()
-        {
-            AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Activate, new AnchorAudioCueOverride(this.m_activateAudioMode, this.m_activateAudioClip));
         }
     }
 }

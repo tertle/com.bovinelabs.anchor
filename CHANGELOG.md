@@ -9,6 +9,7 @@
 * `GroupedMenuBuilder` and `GroupedMenuBuilderOptions` for building sorted, grouped menu trees
 
 ### Changed
+* Anchor navigation assets now use Core `BovineLabs.Core.Asset` and no longer require Nerve
 * MVVM dependency declarations now support backing field names
 * Debug toolbar view models now use the simplified notification flow
 * Pruned low-value tests
