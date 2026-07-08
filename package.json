@@ -1,11 +1,11 @@
 {
   "name": "com.bovinelabs.anchor",
   "description": "UI and toolkit framework with optional AppUI adapters",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "unity": "6000.3",
   "displayName": "BovineLabs Anchor",
   "dependencies": {
-    "com.bovinelabs.core": "1.6.1"
+    "com.bovinelabs.core": "1.6.4"
   },
   "keywords": [
     "UI"
