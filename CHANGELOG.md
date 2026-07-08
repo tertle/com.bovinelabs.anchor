@@ -6,6 +6,7 @@
 * `ICommandAttribute.CanExecuteProperty` for generating command can-execute delegates from bindable bool properties
 * MVVM dependency notifications for generated observable properties and relay command can-execute updates
 * Anchor UI audio feedback for `AnchorButton` and `AnchorActionButton` hover and activation cues
+* `GroupedMenuBuilder` and `GroupedMenuBuilderOptions` for building sorted, grouped menu trees
 
 ### Changed
 * MVVM dependency declarations now support backing field names
