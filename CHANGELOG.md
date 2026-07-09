@@ -4,6 +4,11 @@
 
 ### Changed
 * Updated dependencies
+* Reworked the package README and added task-focused guides for setup, services, navigation, MVVM, adapter elements, the debug toolbar, and troubleshooting
+* Corrected stale navigation and app API documentation
+
+### Fixed
+* Guarded `GroupedMenuBuilder` behind `UNITY_APPUI` so the core runtime continues to compile without App UI installed
 
 ## [2.0.3] - 2026-07-07
 

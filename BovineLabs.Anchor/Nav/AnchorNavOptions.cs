@@ -17,11 +17,11 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>Leave the back stack untouched prior to navigation.</summary>
         None,
 
-        /// <summary>Pop entries until the specified destination is on top, when present.</summary>
+        /// <summary>Pop entries until the specified destination is on top, clearing the stack when it is absent.</summary>
         PopToSpecificDestination,
 
         /// <summary>
-        /// Pop entries until the first destination in the current graph remains.
+        /// Pop entries until the oldest back-stack destination remains.
         /// </summary>
         PopToRoot,
 
@@ -73,7 +73,7 @@ namespace BovineLabs.Anchor.Nav
 
         [SerializeField]
         [FormerlySerializedAs("popUpToDestination")]
-        [Tooltip("Route identifier to pop up to before navigating.")]
+        [Tooltip("Destination key used by PopToSpecificDestination.")]
         private string popupToDestination;
 
         [SerializeField]
@@ -152,8 +152,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary>
-        /// Gets or sets the destination that should be ensured as the base layer before displaying a popup when
-        /// <see cref="PopupStrategy"/> is <see cref="AnchorPopupStrategy.EnsureBaseAndPopup"/>.
+        /// Gets or sets the non-null animation set used to enter, exit, push, and pop this destination.
         /// </summary>
         public AnchorAnimations Animations
         {

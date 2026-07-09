@@ -12,13 +12,14 @@ Use this skill for Anchor-specific UI Toolkit/AppUI controls. Resolve Anchor sou
 1. Check whether the task is about Anchor adapter behavior or generic Unity App UI. Use the App UI skill for generic AppUI element discovery, theming, or context rules.
 2. Confirm the target assembly references `BovineLabs.Anchor.Adapters` and `Unity.AppUI` when using AppUI-backed controls.
 3. For repeated item controls, identify who owns each item's `dataSource` before changing UXML.
-4. Match UXML attribute names to the lower-camel names exposed by the element source.
+4. Match UXML attributes to Unity's kebab-case form of the camel-case `[UxmlAttribute]` member name, for example `itemTemplate` becomes `item-template`.
 5. Keep USS within Unity UI Toolkit-supported properties and verify existing package USS before adding new styling patterns.
 
 ## Repeated Item Controls
 
 - `AnchorGridView` extends AppUI `GridView`, exposes `itemTemplate`, and sets each cloned row element's `dataSource` to `itemsSource[index]`.
 - `AnchorAccordion` clones `itemTemplate` once per item and sets each `AccordionItem.dataSource` from `itemsSource`.
+- `GroupedMenuBuilder` lives in `BovineLabs.Anchor` but is available only when `UNITY_APPUI` is defined.
 - Item templates supplied to `AnchorGridView` or `AnchorAccordion` should bind to row properties directly. Do not put a root `data-source-type` on those item templates unless the row really should ignore the supplied item data.
 - If a row binding cannot find data, check parent control ownership before changing the view model.
 

@@ -21,7 +21,7 @@ namespace BovineLabs.Anchor
     using UnityEngine.Scripting;
 
     /// <summary>
-    /// Root Anchor application that wires the AppUI navigation stack, toolbar integration, and burst-safe helpers.
+    /// Root Anchor application that wires the navigation stack, toolbar integration, and Burst-safe helpers.
     /// </summary>
     [Preserve]
     [UsedImplicitly]

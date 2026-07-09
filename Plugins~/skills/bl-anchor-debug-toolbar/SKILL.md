@@ -19,7 +19,7 @@ Resolve Anchor package paths against `Packages/com.bovinelabs.anchor` or the mat
 7. Keep formatting, texture lookup, localization, and other managed UI work in the view model or view. Burst/system code should publish data, not build UI strings through managed APIs.
 8. Use AppUI/UI Toolkit bindings in the view. Set `dataSource = this.ViewModel`, then bind with `SetBindingToUI`, `SetBindingFromUI`, `SetBindingTwoWay`, or explicit `DataBinding` when a converter is needed.
 9. Use the MVVM/binding and adapter-elements skills for non-toolbar screen binding or AppUI control details.
-10. Run the affected Unity test assembly when code changes are made; for documentation-only skill edits, validation with `quick_validate.py` is enough.
+10. Run the affected Unity test assembly when code changes are made; for documentation-only edits, validate links and examples against the current source.
 
 ## ECS Pattern
 
@@ -97,7 +97,7 @@ Use `[SystemProperty]` on private fields in a `partial struct Data` when binding
 
 For list-backed bindings, `[SystemProperty] private NativeList<T> items;` generates a `MultiContainer<T>` property. Systems should prepare a full `NativeList<T>` snapshot and assign `data.Items = items`; the generated setter copies, diffs, and notifies. Keep `Data` methods minimal and prefer direct generated property writes for toolbar state.
 
-For UI controls that write back to ECS state, expose a normal `[CreateProperty]` setter that updates `Value` with `SetProperty`. For display-only data, expose read-only properties that format raw unmanaged values from `Value`.
+For UI controls that write back to ECS state, expose a normal `[CreateProperty]` setter that assigns through the generated data property, for example `this.Value.Enabled = value`; that generated setter performs `SetProperty`. For display-only data, expose read-only properties that format raw unmanaged values from `Value`.
 
 ## Views
 

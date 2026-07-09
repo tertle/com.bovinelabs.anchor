@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Nav
     using System.Linq;
 
     /// <summary>
-    /// Serializable snapshot of an <see cref="AnchorNavHost"/> state.
+    /// In-memory snapshot of an <see cref="AnchorNavHost"/> state.
     /// </summary>
     public sealed class AnchorNavHostSaveState
     {

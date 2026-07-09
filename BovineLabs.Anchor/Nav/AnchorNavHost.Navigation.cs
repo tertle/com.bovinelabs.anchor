@@ -144,7 +144,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         /// <summary> Close all currently-displayed popup overlays. </summary>
-        /// <param name="exitAnimation"> Optional animation name to play when dismissing each popup. </param>
+        /// <param name="exitAnimation"> Optional animation ID to play when dismissing each popup. </param>
         /// <returns> True if at least one popup was closed. </returns>
         public bool CloseAllPopups(int exitAnimation = 0)
         {
@@ -162,7 +162,7 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
         /// <param name="destination"> The destination key of the popup to close. </param>
-        /// <param name="exitAnimation"> Optional animation name to play when dismissing the popup. </param>
+        /// <param name="exitAnimation"> Optional animation ID to play when dismissing the popup. </param>
         /// <returns> True if the popup was closed; otherwise, false. </returns>
         public bool ClosePopup(string destination, int exitAnimation = 0)
         {

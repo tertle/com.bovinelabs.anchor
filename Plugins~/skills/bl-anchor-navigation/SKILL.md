@@ -36,13 +36,14 @@ Use this skill for `AnchorNavHost` behavior and callers. Resolve Anchor source f
 ## Back Stack And State
 
 - Normal navigation pushes the current snapshot onto the back stack before activating the new panel.
+- `PopToSpecificDestination` pops until `PopupToDestination` is on top and currently clears the back stack when that destination is absent.
 - `ClearBackStack()` leaves the current destination active.
 - `ClearNavigation(exitAnimation)` clears the active stack and back stack.
 - `PopBackStack()` restores the previous snapshot, including popup layers captured with it.
-- `PopBackStackToPanel()` restores the previous snapshot without popup layers.
+- `PopBackStackToPanel()` restores the previous snapshot without popup layers. In the current implementation, `CurrentDestination` can still retain the stored popup destination; use `HasActivePopups` to determine overlay state.
 - `ClosePopup(destination, exitAnimation)` removes a matching active popup and updates the current destination.
 - `CloseAllPopups(exitAnimation)` removes every active popup and restores the base destination.
-- `SaveState()`, `RestoreState(...)`, `SaveStateHandle()`, and `ReleaseStateHandle(...)` are for temporary UI state capture and app shutdown restoration.
+- `SaveState()`, `RestoreState(...)`, `SaveStateHandle()`, and `ReleaseStateHandle(...)` are for temporary in-memory UI state capture and app shutdown restoration, not persistent save-game serialization.
 
 ## Arguments And Screen Callbacks
 

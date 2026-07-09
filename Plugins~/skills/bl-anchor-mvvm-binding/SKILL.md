@@ -40,8 +40,9 @@ namespace Example.UI
 ```
 
 - Types using `[ObservableProperty]` or `[ICommand]` must be `partial`.
+- `ObservableObjectAttribute` is not consumed by the current generator; derive from `ObservableObject` instead.
 - `[ObservableProperty]` fields must be non-static, non-const, and non-readonly.
-- Generated property names strip `_`, `m_`, and `m` prefixes before Pascal-casing.
+- Generated property names strip `_` and `m_` prefixes before Pascal-casing; a bare `m` is stripped only when followed by an uppercase character.
 - `[AlsoNotifyChangeFor]` raises additional property notifications.
 - `[AlsoExecute]` calls a non-generic parameterless method after the generated property changes.
 - `[DependsOn]` on computed properties raises that property's changed notification when any listed dependency changes; dependencies are expanded transitively by the generator.
@@ -85,7 +86,7 @@ namespace Example.UI
 - `TData` must be unmanaged.
 - `[SystemProperty]` fields must be inside a `partial struct`, must declare exactly one field, and must not be static, const, or readonly.
 - Generated system properties call `SetProperty`, so UI notifications stay centralized.
-- `Changed<T>` fields get a generated `PropertyChanged(out value, resetToDefault)` helper.
+- `Changed<T>` fields get a generated `<PropertyName>Changed(out value, resetToDefault)` helper.
 - `NativeList<T>` fields are exposed as generated `MultiContainer<T>` properties for UI binding. Build a complete replacement `NativeList<T>` and assign the generated property (`data.Items = items`) so the binding layer performs content diffing, copies into the owned list, and emits change notifications.
 - Use `UIArray<T>` when a read-only native array needs to be exposed as an `IList`.
 

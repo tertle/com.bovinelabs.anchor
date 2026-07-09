@@ -30,7 +30,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>Gets a value indicating whether there are popup overlays active on top of the base panel.</summary>
         bool HasActivePopups { get; }
 
-        /// <summary>Gets or sets the current destination.</summary>
+        /// <summary>Gets or sets the reported current destination. Setting this value does not navigate or update either stack.</summary>
         string CurrentDestination { get; set; }
 
         /// <summary>Try to resolve a registered animation by id.</summary>

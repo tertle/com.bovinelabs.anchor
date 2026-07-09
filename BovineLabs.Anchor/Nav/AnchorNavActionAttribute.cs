@@ -7,8 +7,8 @@ namespace BovineLabs.Anchor.Nav
     using System;
 
     /// <summary>
-    /// Attribute used to mark members that describe navigation actions which should
-    /// automatically be registered with <see cref="AnchorNavHost"/>.
+    /// Attribute used to mark static parameterless methods that return navigation actions for
+    /// automatic registration with <see cref="AnchorNavHost"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     public sealed class AnchorNavActionAttribute : Attribute
@@ -16,7 +16,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary>
         /// Initializes a new instance of the <see cref="AnchorNavActionAttribute"/> class.
         /// </summary>
-        /// <param name="name">The unique action name. If null, the member name is used.</param>
+        /// <param name="name">The required unique action name.</param>
         public AnchorNavActionAttribute(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
