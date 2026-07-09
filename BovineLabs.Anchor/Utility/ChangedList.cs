@@ -35,7 +35,8 @@ namespace BovineLabs.Anchor
         /// <param name="values">Values that should replace the list contents.</param>
         public void SetValue(IEnumerable<T> values)
         {
-            this.Value.ClearAddRange(values);
+            this.Value.Clear();
+            this.Value.AddRange(values);
             this.changed = true;
         }
 
