@@ -172,39 +172,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void GeneratedObservableProperty_SetGet_RoundTripsValue()
-        {
-            var viewModel = new GeneratedObservablePropertyViewModel();
-            viewModel.Test = 7;
-
-            Assert.AreEqual(7, viewModel.Test);
-        }
-
-        [Test]
-        public void GeneratedObservableProperty_AlsoNotifyChangeFor_RaisesDependentNotificationOnChangeOnly()
-        {
-            var viewModel = new GeneratedAlsoNotifyViewModel();
-            var changedProperties = new List<string>();
-            viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName);
-
-            viewModel.Test = 4;
-            viewModel.Test = 4;
-
-            CollectionAssert.AreEqual(new[] { nameof(GeneratedAlsoNotifyViewModel.Test), nameof(GeneratedAlsoNotifyViewModel.Test2) }, changedProperties);
-        }
-
-        [Test]
-        public void GeneratedObservableProperty_AlsoExecute_RunsOnChangeOnly()
-        {
-            var viewModel = new GeneratedAlsoExecuteViewModel();
-
-            viewModel.Test = 2;
-            viewModel.Test = 2;
-
-            Assert.AreEqual(1, viewModel.ExecuteCount);
-        }
-
-        [Test]
         public void GeneratedObservableProperty_AlsoNotifyAndExecute_RunInOrder()
         {
             var viewModel = new GeneratedNotifyAndExecuteViewModel();

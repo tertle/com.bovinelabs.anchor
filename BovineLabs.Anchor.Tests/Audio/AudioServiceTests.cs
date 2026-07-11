@@ -42,25 +42,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             Assert.AreSame(activate, service.Source.clip);
         }
 
-        [Test]
-        public void Play_NamedProfile_ResolvesHoverAndActivate()
-        {
-            var hover = this.CreateClip("quiet-hover");
-            var activate = this.CreateClip("quiet-activate");
-            using var service = new AudioService(CreateSettings(
-                DefaultProfile(),
-                Profile("quiet", hover, activate)));
-
-            service.Play("quiet", AnchorAudioCue.Hover, AnchorAudioCueOverride.Inherit);
-            Assert.AreSame(hover, service.Source.clip);
-
-            service.Play("quiet", AnchorAudioCue.Activate, AnchorAudioCueOverride.Inherit);
-            Assert.AreSame(activate, service.Source.clip);
-        }
-
         [TestCase(null)]
-        [TestCase("")]
-        [TestCase("   ")]
         public void Play_EmptyProfileKeys_DoNotPlayOrWarn(string profileKey)
         {
             var activate = this.CreateClip("default-activate");

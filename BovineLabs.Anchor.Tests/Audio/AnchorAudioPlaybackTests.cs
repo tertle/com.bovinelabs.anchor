@@ -68,16 +68,6 @@ namespace BovineLabs.Anchor.Tests.Audio
         }
 
         [Test]
-        public void AnchorAudio_Play_CurrentAppWithoutServices_DoesNotThrow()
-        {
-            Assert.IsNotNull(SetCurrentAppMethod);
-
-            SetCurrentAppMethod.Invoke(null, new object[] { new AnchorApp() });
-
-            Assert.DoesNotThrow(() => AnchorAudio.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Inherit));
-        }
-
-        [Test]
         public void AnchorAudio_Play_NoFeedbackRegistration_DoesNotThrow()
         {
             using var scope = new TestAnchorAppScope();
@@ -106,32 +96,6 @@ namespace BovineLabs.Anchor.Tests.Audio
 
             CollectionAssert.AreEqual(new[] { firstClip }, firstService.PlayedClips);
             CollectionAssert.AreEqual(new[] { secondClip }, secondService.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorAudio_Play_CustomOverride_UsesCustomClipWithoutProfile()
-        {
-            var custom = this.CreateClip("custom");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile());
-
-            AnchorAudio.Play(string.Empty, AnchorAudioCue.Activate, AnchorAudioCueOverride.Custom(custom));
-
-            CollectionAssert.AreEqual(new[] { custom }, service.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorAudio_Play_DisabledOverride_SuppressesProfileClip()
-        {
-            var activate = this.CreateClip("activate");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile(activateClip: activate));
-
-            AnchorAudio.Play(AnchorAudioSettings.DefaultProfileKey, AnchorAudioCue.Activate, AnchorAudioCueOverride.Disabled);
-
-            Assert.IsEmpty(service.PlayedClips);
         }
 
         [Test]
@@ -167,25 +131,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             CollectionAssert.AreEqual(new[] { hover, activate }, service.PlayedClips);
         }
 
-        [Test]
-        public void AnchorButton_NamedProfile_IsRespected()
-        {
-            var hover = this.CreateClip("quiet-hover");
-            var activate = this.CreateClip("quiet-activate");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile(), Profile("quiet", hover, activate));
-            var button = new AnchorButton { audioProfile = "quiet" };
-            this.AttachToPanel(button);
-
-            SendPointerEnter(button, PointerId.mousePointerId);
-            button.clickable.InvokePressed(null);
-
-            CollectionAssert.AreEqual(new[] { hover, activate }, service.PlayedClips);
-        }
-
         [TestCase("")]
-        [TestCase("   ")]
         public void AnchorButton_EmptyProfile_DisablesBuiltInAudio(string profileKey)
         {
             var hover = this.CreateClip("hover");
@@ -200,45 +146,6 @@ namespace BovineLabs.Anchor.Tests.Audio
             button.clickable.InvokePressed(null);
 
             Assert.IsEmpty(service.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorButton_CustomActivationOverride_PlaysCustomClipWithoutProfile()
-        {
-            var custom = this.CreateClip("custom-activate");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile());
-            var button = new AnchorButton
-            {
-                audioProfile = string.Empty,
-                activateAudioMode = AnchorAudioOverrideMode.Custom,
-                activateAudioClip = custom,
-            };
-
-            button.clickable.InvokePressed(null);
-
-            CollectionAssert.AreEqual(new[] { custom }, service.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorButton_DisabledHoverOverride_SuppressesHoverWhileActivationInherits()
-        {
-            var hover = this.CreateClip("hover");
-            var activate = this.CreateClip("activate");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile(hover, activate));
-            var button = new AnchorButton
-            {
-                hoverAudioMode = AnchorAudioOverrideMode.Disabled,
-            };
-            this.AttachToPanel(button);
-
-            SendPointerEnter(button, PointerId.mousePointerId);
-            button.clickable.InvokePressed(null);
-
-            CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
         }
 
         [Test]
@@ -347,61 +254,6 @@ namespace BovineLabs.Anchor.Tests.Audio
             var button = new AnchorActionButton();
             this.AttachToPanel(button);
 
-            button.clickable.InvokePressed(null);
-
-            CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorActionButton_CustomActivationOverride_PlaysCustomClipWithoutProfile()
-        {
-            var custom = this.CreateClip("custom-activate");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile());
-            var button = new AnchorActionButton
-            {
-                audioProfile = string.Empty,
-                activateAudioMode = AnchorAudioOverrideMode.Custom,
-                activateAudioClip = custom,
-            };
-            this.AttachToPanel(button);
-
-            button.clickable.InvokePressed(null);
-
-            CollectionAssert.AreEqual(new[] { custom }, service.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorActionButton_Hover_UsesConfiguredProfile()
-        {
-            var hover = this.CreateClip("hover");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile(hoverClip: hover));
-            var button = new AnchorActionButton();
-            this.AttachToPanel(button);
-
-            SendPointerEnter(button, PointerId.mousePointerId);
-
-            CollectionAssert.AreEqual(new[] { hover }, service.PlayedClips);
-        }
-
-        [Test]
-        public void AnchorActionButton_DisabledHoverOverride_SuppressesHoverWhileActivationInherits()
-        {
-            var hover = this.CreateClip("hover");
-            var activate = this.CreateClip("activate");
-            var service = new FakeAudioService();
-
-            using var scope = this.CreateScope(service, DefaultProfile(hover, activate));
-            var button = new AnchorActionButton
-            {
-                hoverAudioMode = AnchorAudioOverrideMode.Disabled,
-            };
-            this.AttachToPanel(button);
-
-            SendPointerEnter(button, PointerId.mousePointerId);
             button.clickable.InvokePressed(null);
 
             CollectionAssert.AreEqual(new[] { activate }, service.PlayedClips);

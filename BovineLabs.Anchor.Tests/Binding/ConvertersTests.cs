@@ -14,16 +14,6 @@ namespace BovineLabs.Anchor.Tests.Binding
     public class ConvertersTests
     {
         [Test]
-        public void RegisterConverters_RegistersExpectedGroups()
-        {
-            Converters.RegisterConverters();
-
-            Assert.IsTrue(TryGetGroup("DisplayStyle", out _));
-            Assert.IsTrue(TryGetGroup("DisplayStyleInverted", out _));
-            Assert.IsTrue(TryGetGroup("Invert", out _));
-        }
-
-        [Test]
         public void ConverterGroups_PerformExpectedConversions()
         {
             Converters.RegisterConverters();

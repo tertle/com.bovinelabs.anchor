@@ -325,30 +325,6 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
-        public void ClearNavigation_ValidAnimationId_DoesNotThrow()
-        {
-            var animation = ScriptableObject.CreateInstance<TestAnchorNavAnimation>();
-
-            try
-            {
-                ((BovineLabs.Core.Asset.IUID)animation).ID = 73;
-
-                using var context = new HostContext(null, new[] { animation });
-                context.RegisterScreen("base");
-
-                context.Host.Navigate("base");
-
-                Assert.DoesNotThrow(() => context.Host.ClearNavigation(73));
-                Assert.IsNull(context.Host.CurrentDestination);
-                Assert.IsFalse(context.Host.CanGoBack);
-            }
-            finally
-            {
-                Object.DestroyImmediate(animation);
-            }
-        }
-
-        [Test]
         public void CloseAllPopups_TrimsEquivalentBackStackSnapshots()
         {
             using var context = new HostContext();

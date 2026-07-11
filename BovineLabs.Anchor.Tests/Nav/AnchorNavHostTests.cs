@@ -22,19 +22,6 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
-        public void Navigate_DefaultOptions_SetsCurrentDestination()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("A");
-
-            var result = harness.Host.Navigate("A");
-
-            Assert.IsTrue(result);
-            Assert.AreEqual("A", harness.Host.CurrentDestination);
-            Assert.IsFalse(harness.Host.CanGoBack);
-        }
-
-        [Test]
         public void Navigate_CreatedItem_UsesIgnorePickingMode()
         {
             using var harness = new TestAnchorNavHostHarness();

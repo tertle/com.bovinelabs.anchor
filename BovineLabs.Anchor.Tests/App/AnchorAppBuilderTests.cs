@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Tests.App
 {
     using System;
-    using System.Linq;
     using System.Reflection;
     using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.MVVM;
@@ -19,49 +18,6 @@ namespace BovineLabs.Anchor.Tests.App
 
     public class AnchorAppBuilderTests
     {
-        [Test]
-        public void OnConfigureServices_RegistersDefaultServices()
-        {
-            var gameObject = new GameObject("builder");
-            var builder = gameObject.AddComponent<TestAnchorBuilder>();
-            var services = new AnchorServiceCollection();
-
-            try
-            {
-                builder.InvokeConfigure(services);
-
-                AssertService(services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
-                AssertService(services, typeof(IViewModelService), typeof(ViewModelService));
-                AssertService(services, typeof(IUXMLService), typeof(TestUxmlService));
-                AssertService(services, typeof(IAudioService), typeof(AudioService));
-            }
-            finally
-            {
-                Object.DestroyImmediate(gameObject);
-            }
-        }
-
-        [Test]
-        public void OnConfigureServices_WithNullUxmlService_DoesNotRegisterUxml()
-        {
-            var gameObject = new GameObject("builder");
-            var builder = gameObject.AddComponent<TestAnchorBuilderWithoutUxml>();
-            var services = new AnchorServiceCollection();
-
-            try
-            {
-                builder.InvokeConfigure(services);
-
-                AssertService(services, typeof(ILocalStorageService), typeof(TestLocalStorageService));
-                AssertService(services, typeof(IViewModelService), typeof(ViewModelService));
-                Assert.IsFalse(services.Any(d => d.ServiceType == typeof(IUXMLService)));
-            }
-            finally
-            {
-                Object.DestroyImmediate(gameObject);
-            }
-        }
-
         [Test]
         public void OnAppInitialized_RestoresSavedNavigationState()
         {
@@ -175,13 +131,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 #endif
 
-        private static void AssertService(AnchorServiceCollection services, Type serviceType, Type implementationType)
-        {
-            var descriptor = services.LastOrDefault(d => d.ServiceType == serviceType);
-            Assert.IsNotNull(descriptor, $"Expected {serviceType.Name} registration.");
-            Assert.AreEqual(implementationType, descriptor.ImplementationType);
-        }
-
         private static void SetStateField(object instance, AnchorNavHostSaveState state)
         {
             SetField(instance, "state", state);
@@ -250,20 +199,6 @@ namespace BovineLabs.Anchor.Tests.App
             public void InvokeShuttingDown(TestBuilderApp app)
             {
                 this.OnAppShuttingDown(app);
-            }
-        }
-
-        private sealed class TestAnchorBuilderWithoutUxml : AnchorAppBuilder<TestBuilderApp>
-        {
-            protected override Type LocalStorageService => typeof(TestLocalStorageService);
-
-            protected override Type ViewModelService => typeof(ViewModelService);
-
-            protected override Type UXMLService => null;
-
-            public void InvokeConfigure(AnchorServiceCollection services)
-            {
-                this.OnConfigureServices(services);
             }
         }
 

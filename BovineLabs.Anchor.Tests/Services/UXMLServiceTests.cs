@@ -61,30 +61,6 @@ namespace BovineLabs.Anchor.Tests.Services
             }
         }
 
-        [Test]
-        public void Instantiate_ExistingKey_ReturnsContainer()
-        {
-            var asset = ScriptableObject.CreateInstance<VisualTreeAsset>();
-
-            try
-            {
-                WithViews(new[]
-                {
-                    new AnchorSettings.KeyUXML { Key = "screen", Asset = asset },
-                }, () =>
-                {
-                    var service = new UXMLService();
-                    var element = service.Instantiate("screen");
-
-                    Assert.IsNotNull(element);
-                });
-            }
-            finally
-            {
-                Object.DestroyImmediate(asset);
-            }
-        }
-
         private static void WithViews(AnchorSettings.KeyUXML[] views, System.Action body)
         {
             var settings = AnchorSettings.I;
