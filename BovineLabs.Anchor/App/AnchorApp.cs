@@ -16,8 +16,8 @@ namespace BovineLabs.Anchor
     using JetBrains.Annotations;
     using Unity.Burst;
     using UnityEngine;
-    using UnityEngine.UIElements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     /// <summary>
     /// Root Anchor application that wires the navigation stack, toolbar integration, and Burst-safe helpers.
