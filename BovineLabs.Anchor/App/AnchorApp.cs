@@ -9,7 +9,6 @@
 namespace BovineLabs.Anchor
 {
     using System;
-    using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core;

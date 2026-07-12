@@ -127,10 +127,7 @@ namespace BovineLabs.Anchor.Tests.App
         [Test]
         public void Initialize_CreatesNavHostAndResolvesContainers()
         {
-            using var scope = new TestAnchorAppScope(static services =>
-            {
-                RegisterDefaultAnchorServices(services);
-            });
+            using var scope = new TestAnchorAppScope(RegisterDefaultAnchorServices);
 
             var app = scope.App;
             var previousStartDestination = GetField<string>(AnchorSettings.I, "startDestination");

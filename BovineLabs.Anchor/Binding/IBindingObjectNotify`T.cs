@@ -17,12 +17,12 @@ namespace BovineLabs.Anchor.Binding
 
         internal static unsafe void Load(IBindingObjectNotify<T> bindingObjectNotify)
         {
-            BurstUIInterop.Changed[(IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value)] = bindingObjectNotify;
+            BurstObjectNotify.Changed[(IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value)] = bindingObjectNotify;
         }
 
         internal static unsafe void Unload(IBindingObjectNotify<T> bindingObjectNotify)
         {
-            BurstUIInterop.Changed.Remove((IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value));
+            BurstObjectNotify.Changed.Remove((IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value));
         }
     }
 

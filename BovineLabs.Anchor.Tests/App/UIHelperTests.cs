@@ -21,7 +21,7 @@ namespace BovineLabs.Anchor.Tests.App
         public override void Setup()
         {
             base.Setup();
-            BurstUIInterop.Changed.Clear();
+            BurstObjectNotify.Changed.Clear();
             TestRequireUpdateSystem.UpdateCount = 0;
         }
 
@@ -46,12 +46,12 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.AreEqual(19, viewModel.Value.Counter);
 
             var key = (IntPtr)UnsafeUtility.AddressOf(ref viewModel.Value);
-            Assert.IsTrue(BurstUIInterop.Changed.ContainsKey(key));
+            Assert.IsTrue(BurstObjectNotify.Changed.ContainsKey(key));
 
             helper.Unbind();
 
             Assert.AreEqual(1, viewModel.DisposeCount);
-            Assert.IsFalse(BurstUIInterop.Changed.ContainsKey(key));
+            Assert.IsFalse(BurstObjectNotify.Changed.ContainsKey(key));
             Assert.IsNull(viewModelService.Get<TestViewModel>());
         }
 
@@ -69,15 +69,11 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.AreEqual(1, TestRequireUpdateSystem.UpdateCount);
         }
 
-        private sealed class TestViewModel : ObservableObject, IBindingObjectNotify<TestData>, ILoadable
+        private sealed class TestViewModel : SystemObservableObject<TestData>, ILoadable
         {
-            private TestData data;
-
             public int InitializeCount { get; private set; }
 
             public int DisposeCount { get; private set; }
-
-            public ref TestData Value => ref this.data;
 
             public void Load()
             {
@@ -87,14 +83,6 @@ namespace BovineLabs.Anchor.Tests.App
             public void Unload()
             {
                 this.DisposeCount++;
-            }
-
-            public void OnPropertyChanging(in FixedString64Bytes property)
-            {
-            }
-
-            public void OnPropertyChanged(in FixedString64Bytes property)
-            {
             }
         }
 

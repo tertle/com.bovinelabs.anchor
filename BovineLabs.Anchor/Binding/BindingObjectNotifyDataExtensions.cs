@@ -6,8 +6,9 @@ namespace BovineLabs.Anchor.Binding
 {
     using System;
     using System.Runtime.CompilerServices;
+    using BovineLabs.Core.Assertions;
+    using BovineLabs.Core.Utility;
     using Unity.Assertions;
-    using Unity.Burst.CompilerServices;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
@@ -142,18 +143,16 @@ namespace BovineLabs.Anchor.Binding
             where T : unmanaged
             where TV : unmanaged
         {
-            if (Hint.Likely(BurstObjectNotify.SetValue.Data.IsCreated))
-            {
-                var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
-                var fieldPtr = UnsafeUtility.AddressOf(ref field);
-                var valuePtr = &newValue;
+            Check.Assume(BurstObjectNotify.Burst.SetValue.Data.IsCreated);
 
-                BurstObjectNotify.SetValue.Data.Invoke(target, propertyName, fieldPtr, valuePtr, sizeof(TV));
-            }
-            else
+            BurstObjectNotify.Burst.SetValue.Data.Invoke(new SetValueParams
             {
-                field = newValue;
-            }
+                Target = (IntPtr)UnsafeUtility.AddressOf(ref binding),
+                Property = propertyName,
+                Field = UnsafeUtility.AddressOf(ref field),
+                NewValue = &newValue,
+                Length = sizeof(TV),
+            });
         }
 
         /// <summary>
@@ -169,22 +168,21 @@ namespace BovineLabs.Anchor.Binding
             where T : unmanaged
             where TV : unmanaged
         {
-            if (Hint.Likely(BurstObjectNotify.SetListValue.Data.IsCreated))
-            {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                Assert.IsTrue(field.GetUnsafePtr() != null); // This is mostly just doing a write safety check
+            Assert.IsTrue(field.GetUnsafePtr() != null); // This is mostly just doing a write safety check
 #endif
 
-                var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
-                var unsafeList = (UntypedUnsafeList*)field.GetUnsafeList();
+            Check.Assume(BurstObjectNotify.Burst.SetListValue.Data.IsCreated);
 
-                BurstObjectNotify.SetListValue.Data.Invoke(target, propertyName, unsafeList, newValue, length, sizeof(TV));
-            }
-            else
+            BurstObjectNotify.Burst.SetListValue.Data.Invoke(new SetListValueParams
             {
-                field.Clear();
-                field.AddRange(newValue, length);
-            }
+                Target = (IntPtr)UnsafeUtility.AddressOf(ref binding),
+                Property = propertyName,
+                Field = (UntypedUnsafeList*)field.GetUnsafeList(),
+                NewValues = newValue,
+                Length = length,
+                ElementSize = sizeof(TV),
+            });
         }
 
         /// <summary>
@@ -195,11 +193,14 @@ namespace BovineLabs.Anchor.Binding
         public static void Notify<T>(this ref T binding, FixedString64Bytes propertyName)
             where T : unmanaged
         {
-            if (BurstObjectNotify.SetValue.Data.IsCreated)
+            Check.Assume(BurstObjectNotify.Burst.Notify.Data.IsCreated);
+
+            var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
+            BurstObjectNotify.Burst.Notify.Data.Invoke(new NotifyParams
             {
-                var target = (IntPtr)UnsafeUtility.AddressOf(ref binding);
-                BurstObjectNotify.Notify.Data.Invoke(target, propertyName);
-            }
+                Target = target,
+                Property = propertyName,
+            });
         }
     }
 }

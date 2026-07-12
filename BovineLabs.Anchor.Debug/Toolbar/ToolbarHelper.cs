@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using System;
-    using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -29,7 +28,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private int key;
 
-        private GCHandle handle;
         private TD* data;
 
         /// <summary>
@@ -41,7 +39,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         {
             this.tabName = tabName;
             this.groupName = groupName;
-            this.handle = default;
             this.data = null;
             this.key = 0;
 
@@ -79,7 +76,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 loadable.Load();
             }
 
-            this.handle = GCHandle.Alloc(view.ViewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
 
             if (this.isSerializable)
@@ -111,12 +107,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             view?.ViewModel.Unload();
-            if (this.handle.IsAllocated)
-            {
-                this.handle.Free();
-            }
 
-            this.handle = default;
             this.data = null;
         }
 

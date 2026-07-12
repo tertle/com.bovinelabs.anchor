@@ -4,8 +4,6 @@
 
 namespace BovineLabs.Anchor
 {
-    using System;
-    using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
@@ -20,7 +18,6 @@ namespace BovineLabs.Anchor
         where TM : class, IBindingObjectNotify<TD>
         where TD : unmanaged
     {
-        private GCHandle handle;
         private TD* data;
 
         /// <summary>
@@ -69,7 +66,6 @@ namespace BovineLabs.Anchor
                 loadable.Load();
             }
 
-            this.handle = GCHandle.Alloc(viewModel.Value, GCHandleType.Pinned);
             this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
         }
 
@@ -84,8 +80,6 @@ namespace BovineLabs.Anchor
             }
 
             viewModel?.Unload();
-            this.handle.Free();
-            this.handle = default;
             this.data = null;
 
             AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Unload<TM>();

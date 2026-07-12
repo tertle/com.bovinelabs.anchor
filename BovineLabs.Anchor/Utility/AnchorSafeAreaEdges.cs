@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor
 {
     using System;
-    using BovineLabs.Anchor.Elements;
 
     /// <summary>
     /// Edge selection used by <see cref="Elements.AnchorSafeArea"/> and related safe-area helpers.

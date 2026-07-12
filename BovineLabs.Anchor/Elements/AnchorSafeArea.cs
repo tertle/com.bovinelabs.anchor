@@ -4,9 +4,6 @@
 
 namespace BovineLabs.Anchor.Elements
 {
-#if UNITY_APPUI
-    using Unity.AppUI.UI;
-#endif
     using Unity.Properties;
     using UnityEngine.UIElements;
 

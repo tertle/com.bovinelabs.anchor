@@ -12,21 +12,30 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.MVVM;
     using Unity.Collections;
-    using UnityEngine;
 
     /// <summary>
     /// Observable object base class that exposes unmanaged data for burst-compatible bindings.
     /// </summary>
     [IsService]
     [Serializable]
-    public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>
+    public abstract unsafe class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>, IDisposable
         where T : unmanaged
     {
-        [SerializeField]
-        private T data;
+        private T* data;
+
+        protected SystemObservableObject()
+        {
+            this.data = AllocatorManager.Allocate<T>(Allocator.Persistent);
+            *this.data = new T();
+        }
 
         /// <summary>Gets the underlying unmanaged value reference that can be mutated from burst.</summary>
-        public ref T Value => ref this.data;
+        public ref T Value => ref *this.data;
+
+        public void Dispose()
+        {
+            AllocatorManager.Free(Allocator.Persistent, this.data);
+        }
 
         /// <inheritdoc/>
         public void OnPropertyChanging(in FixedString64Bytes property)
