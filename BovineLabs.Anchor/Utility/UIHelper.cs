@@ -59,7 +59,7 @@ namespace BovineLabs.Anchor
         public void Bind()
         {
             var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Load<TM>();
-            viewModel.Load();
+            viewModel.PinObject();
 
             if (viewModel is ILoadable loadable)
             {
@@ -79,7 +79,7 @@ namespace BovineLabs.Anchor
                 loadable.Unload();
             }
 
-            viewModel?.Unload();
+            viewModel?.UnpinObject();
             this.data = null;
 
             AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Unload<TM>();

@@ -69,19 +69,17 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             host.AddTab(typeof(TV), this.tabName.ToString(), this.groupName.ToString(), out this.key, out var visual);
             var view = (TV)visual;
 
-            view.ViewModel.Load();
-
-            if (view.ViewModel is ILoadable loadable)
-            {
-                loadable.Load();
-            }
-
-            this.data = (TD*)UnsafeUtility.AddressOf(ref view.ViewModel.Value);
-
             if (this.isSerializable)
             {
                 var json = PlayerPrefs.GetString(this.SaveKey, string.Empty);
                 JsonUtility.FromJsonOverwrite(json, view.ViewModel);
+            }
+
+            this.data = view.ViewModel.PinObject();
+
+            if (view.ViewModel is ILoadable loadable)
+            {
+                loadable.Load();
             }
         }
 
@@ -90,23 +88,20 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// </summary>
         public void Unload()
         {
-            var view = ToolbarView.Instance?.RemoveTab(this.key) as TV;
+            var view = (TV)ToolbarView.Instance.RemoveTab(this.key);
 
             if (this.isSerializable)
             {
-                if (view != null)
-                {
-                    var saveData = JsonUtility.ToJson(view.ViewModel);
-                    PlayerPrefs.SetString(this.SaveKey, saveData);
-                }
+                var saveData = JsonUtility.ToJson(view.ViewModel);
+                PlayerPrefs.SetString(this.SaveKey, saveData);
             }
 
-            if (view?.ViewModel is ILoadable loadable)
+            if (view.ViewModel is ILoadable loadable)
             {
                 loadable.Unload();
             }
 
-            view?.ViewModel.Unload();
+            view.ViewModel.UnpinObject();
 
             this.data = null;
         }

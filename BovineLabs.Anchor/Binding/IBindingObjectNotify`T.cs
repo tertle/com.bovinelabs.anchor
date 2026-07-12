@@ -15,29 +15,26 @@ namespace BovineLabs.Anchor.Binding
         /// <summary>Gets a reference to the unmanaged data backing the binding.</summary>
         ref T Value { get; }
 
-        internal static unsafe void Load(IBindingObjectNotify<T> bindingObjectNotify)
-        {
-            BurstObjectNotify.Changed[(IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value)] = bindingObjectNotify;
-        }
+        void Pin();
 
-        internal static unsafe void Unload(IBindingObjectNotify<T> bindingObjectNotify)
-        {
-            BurstObjectNotify.Changed.Remove((IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value));
-        }
+        void Unpin();
     }
 
-    internal static class IBindingObjectExtensions
+    internal static unsafe class IBindingObjectExtensions
     {
-        public static void Load<T>(this IBindingObjectNotify<T> bindingObjectNotify)
+        public static T* PinObject<T>(this IBindingObjectNotify<T> bindingObjectNotify)
             where T : unmanaged
         {
-            IBindingObjectNotify<T>.Load(bindingObjectNotify);
+            bindingObjectNotify.Pin();
+            BurstObjectNotify.Changed[(IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value)] = bindingObjectNotify;
+            return (T*)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value);
         }
 
-        public static void Unload<T>(this IBindingObjectNotify<T> bindingObjectNotify)
+        public static void UnpinObject<T>(this IBindingObjectNotify<T> bindingObjectNotify)
             where T : unmanaged
         {
-            IBindingObjectNotify<T>.Unload(bindingObjectNotify);
+            BurstObjectNotify.Changed.Remove((IntPtr)UnsafeUtility.AddressOf(ref bindingObjectNotify.Value));
+            bindingObjectNotify.Unpin();
         }
     }
 }

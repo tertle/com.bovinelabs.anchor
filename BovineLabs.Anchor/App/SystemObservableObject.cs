@@ -9,32 +9,42 @@ namespace BovineLabs.Anchor
     using System.ComponentModel;
     using System.Linq;
     using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.MVVM;
+    using BovineLabs.Core.Assertions;
     using Unity.Collections;
+    using UnityEngine;
 
     /// <summary>
     /// Observable object base class that exposes unmanaged data for burst-compatible bindings.
     /// </summary>
+    /// <typeparam name="T"> The unmanaged data. </typeparam>
     [IsService]
     [Serializable]
-    public abstract unsafe class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>, IDisposable
+    public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>
         where T : unmanaged
     {
-        private T* data;
+        [SerializeField]
+        private DataBox data = new();
 
-        protected SystemObservableObject()
+        private GCHandle pin;
+
+        public ref T Value => ref this.data.Value;
+
+        /// <inheritdoc/>
+        void IBindingObjectNotify<T>.Pin()
         {
-            this.data = AllocatorManager.Allocate<T>(Allocator.Persistent);
-            *this.data = new T();
+            Check.Assume(!this.pin.IsAllocated);
+            this.pin = GCHandle.Alloc(this.data, GCHandleType.Pinned);
         }
 
-        /// <summary>Gets the underlying unmanaged value reference that can be mutated from burst.</summary>
-        public ref T Value => ref *this.data;
-
-        public void Dispose()
+        /// <inheritdoc/>
+        void IBindingObjectNotify<T>.Unpin()
         {
-            AllocatorManager.Free(Allocator.Persistent, this.data);
+            Check.Assume(this.pin.IsAllocated);
+            this.pin.Free();
+            this.pin = default;
         }
 
         /// <inheritdoc/>
@@ -61,6 +71,12 @@ namespace BovineLabs.Anchor
             oldValue.SetValue(newValue);
             this.OnPropertyChanged(propertyName);
             return true;
+        }
+
+        [Serializable]
+        private sealed class DataBox
+        {
+            public T Value;
         }
     }
 }

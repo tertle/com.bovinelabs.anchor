@@ -299,11 +299,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void AppOnShuttingDown()
         {
-            if (Instance == this)
-            {
-                Instance = null;
-            }
-
             this.UnregisterPanelRoot();
 
             AnchorApp.ShuttingDown -= this.AppOnShuttingDown;
