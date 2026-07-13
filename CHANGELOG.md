@@ -2,13 +2,19 @@
 
 ## [2.0.4] - Unreleased
 
+### Added
+* `AnchorLinearProgress` for horizontal or vertical App UI progress with optional alpha masking
+* PanelRenderer ViewModel editor toolbar
+
 ### Changed
 * Updated dependencies
+* Core is now a mandatory dependency
 * Reworked the package README and added task-focused guides for setup, services, navigation, MVVM, adapter elements, the debug toolbar, and troubleshooting
 * Corrected stale navigation and app API documentation
 
 ### Fixed
 * Guarded `GroupedMenuBuilder` behind `UNITY_APPUI` so the core runtime continues to compile without App UI installed
+* `SystemObservableObject` pinning now works with serialized data and CoreCLR
 
 ## [2.0.3] - 2026-07-07
 
