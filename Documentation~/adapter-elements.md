@@ -6,6 +6,38 @@ Most AppUI-backed element types compile in `BovineLabs.Anchor.Adapters`. A consu
 
 Unity converts C# camel-case `[UxmlAttribute]` names to kebab case. For example, `itemTemplate` is `item-template` and `showIndicator` is `show-indicator` in UXML.
 
+## Directional and masked progress
+
+`AnchorLinearProgress` preserves AppUI progress properties such as `value`, `buffer-value`, `variant`, `size`, `color-override`, and
+`rounded-progress-corners`, then adds a selectable progress axis and an optional alpha mask. It intentionally does not use AppUI's
+`appui-linear-progress` root class, so the theme does not impose bar dimensions; set both width and height through caller USS or inline UXML styles.
+
+| UXML attribute | Default | Purpose |
+| --- | --- | --- |
+| `direction` | `Horizontal` | `Horizontal` uses normal AppUI directionality; `Vertical` fills bottom-to-top in LTR and top-to-bottom in RTL |
+| `mask-texture` | none | Stretches a `Texture2D` over the element and multiplies the complete progress output by its alpha |
+
+```xml
+<BovineLabs.Anchor.Elements.AnchorLinearProgress
+    direction="Vertical"
+    variant="Determinate"
+    value="0.75"
+    buffer-value="0.75"
+    color-override="#C7191C"
+    rounded-progress-corners="false"
+    mask-texture="project://database/Assets/UI/Masks/GlobeMask.png"
+    style="width: 128px; height: 128px;" />
+```
+
+The mask's RGB channels are ignored, and the texture does not need CPU read/write access. Mask UVs stretch to the element bounds, so preserve the desired
+silhouette through the element's layout. A missing mask behaves like a normal unmasked progress element.
+
+The active AppUI direction context controls the fill origin. Horizontal progress follows AppUI's normal LTR/RTL mirroring. Vertical progress rises in LTR
+and descends in RTL; changing the context at runtime repaints the element.
+
+For a health or mana globe, use `AnchorLinearProgress` as the colored fill layer and place decorative frame, glass, and sheen elements after it as sibling
+overlays. The control provides linear fill through the silhouette; it does not provide radial sweep, liquid imagery, or wave animation.
+
 ## Repeated item controls
 
 ### AnchorGridView
