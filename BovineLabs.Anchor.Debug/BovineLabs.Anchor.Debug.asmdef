@@ -39,11 +39,6 @@
   ],
   "versionDefines": [
     {
-      "name": "com.bovinelabs.core",
-      "expression": "",
-      "define": "BL_CORE"
-    },
-    {
       "name": "com.bovinelabs.quill",
       "expression": "",
       "define": "BL_QUILL"
