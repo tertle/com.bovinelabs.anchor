@@ -1,6 +1,6 @@
 ---
 name: bl-anchor-app
-description: "Use for AnchorAppBuilder hosting, AnchorSettings, PanelRenderer or UIDocument setup, services, lifecycle hooks, or UXML service ownership."
+description: "Use for AnchorAppBuilder hosting, AnchorSettings, PanelRenderer setup, services, lifecycle hooks, or UXML service ownership."
 ---
 
 # Anchor App Hosting
@@ -10,7 +10,7 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 ## Workflow
 
 1. Inspect the target `AnchorAppBuilder` subclass, `AnchorSettings`, and the target assembly references first.
-2. Keep the host split explicit: Unity 6.5+ uses `PanelRenderer`; Unity 6.3/6.4 uses `UIDocument`.
+2. Use `PanelRenderer` as the app host component.
 3. Use `AnchorAppBuilder` directly unless the app needs custom services, a custom `AnchorApp`, or lifecycle hooks.
 4. Override `OnConfigureServices` for app services and call `base.OnConfigureServices(services)` unless intentionally replacing Anchor defaults.
 5. Configure `AnchorSettings` for `Views`, `StartDestination`, `Actions`, `Animations`, `Audio`, `DebugStyleSheets`, and `ToolbarOnly`.
@@ -21,8 +21,7 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 ## Host And Lifecycle
 
 - `AnchorAppBuilder<T>` creates the `AnchorServiceProvider`, creates the panel, initializes `AnchorApp`, attaches the app root to the host element, updates screen metrics, and disposes services on disable.
-- On Unity 6.5+, assign or colocate a `PanelRenderer`. The builder registers a reload callback, calls `IPanelComponent.PerformValidation(true)`, and reattaches the app root when the panel reloads.
-- On Unity 6.3/6.4, assign or colocate a `UIDocument`; the builder hosts Anchor under `rootVisualElement`.
+- Assign or colocate a `PanelRenderer`. The builder registers a reload callback, calls `IPanelComponent.PerformValidation(true)`, and reattaches the app root when the panel reloads.
 - `AnchorPanel` is the default `IAnchorPanel`. It is AppUI-backed when `UNITY_APPUI` is defined and a plain `VisualElement` panel otherwise.
 - `ToolbarOnly` skips normal navigation initialization and initializes only the toolbar.
 - `AnchorApp.Current` is a managed singleton. Do not call it directly from Burst-compiled jobs except behind an established managed trampoline or `[BurstDiscard]` boundary.
@@ -46,7 +45,6 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 ## Guardrails
 
 - Do not invent a parallel service container or app singleton for Anchor screens.
-- Do not collapse the Unity 6.5 `PanelRenderer` path into a `UIDocument`-only implementation.
 - Do not treat README samples as more authoritative than the current package source; check `BovineLabs.Anchor/App` and tests first.
 - Do not add defensive null/service checks when builder or settings invariants already guarantee the service.
 - Do not use `Debug.Log*`; use `BLGlobalLogger` outside ECS systems or the project logging policy inside systems.

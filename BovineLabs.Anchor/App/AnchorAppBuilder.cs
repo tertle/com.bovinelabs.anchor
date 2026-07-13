@@ -26,7 +26,7 @@ namespace BovineLabs.Anchor
 
     /// <summary>
     /// <para>A MonoBehaviour that can be used to build and host an app in a UI Toolkit panel component.</para>
-    /// <para>Use PanelRenderer on Unity 6.5+ and <see cref="UIDocument"/> on earlier Unity 6 releases.</para>
+    /// <para>Uses a <see cref="PanelRenderer"/> to host the app root.</para>
     /// <para>This class is intended to be used as a base class for a MonoBehaviour that is attached to a GameObject in a scene.</para>
     /// </summary>
     /// <typeparam name="T">The type of the app to build.</typeparam>
@@ -34,13 +34,8 @@ namespace BovineLabs.Anchor
     public abstract class AnchorAppBuilder<T> : MonoBehaviour
         where T : AnchorApp, new()
     {
-#if UNITY_6000_5_OR_NEWER
         [SerializeField]
         private PanelRenderer panelRenderer;
-#else
-        [SerializeField]
-        private UIDocument uiDocument;
-#endif
 
         private AnchorNavHostSaveState state;
         private AnchorServiceProvider serviceProvider;
@@ -72,11 +67,7 @@ namespace BovineLabs.Anchor
         {
             if (!this.TryBindHost())
             {
-#if UNITY_6000_5_OR_NEWER
                 BLGlobalLogger.LogWarningString($"No {nameof(PanelRenderer)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
-#else
-                BLGlobalLogger.LogWarningString($"No {nameof(UIDocument)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
-#endif
                 return;
             }
 
@@ -97,9 +88,7 @@ namespace BovineLabs.Anchor
 
         internal void OnDisable()
         {
-#if UNITY_6000_5_OR_NEWER
             this.panelRenderer?.UnregisterUIReloadCallback(this.OnPanelRendererReload);
-#endif
 
             if (this.anchorApp == null)
             {
@@ -213,11 +202,7 @@ namespace BovineLabs.Anchor
 
         private void Reset()
         {
-#if UNITY_6000_5_OR_NEWER
             this.panelRenderer = this.GetComponent<PanelRenderer>();
-#else
-            this.uiDocument = this.GetComponent<UIDocument>();
-#endif
         }
 
         private void AttachAppRootToHost()
@@ -235,7 +220,6 @@ namespace BovineLabs.Anchor
         {
             this.hostRootVisualElement = null;
 
-#if UNITY_6000_5_OR_NEWER
             this.panelRenderer ??= this.GetComponent<PanelRenderer>();
 
             if (this.panelRenderer != null)
@@ -246,19 +230,12 @@ namespace BovineLabs.Anchor
             }
 
             return false;
-#else
-            this.uiDocument ??= this.GetComponent<UIDocument>();
-            this.hostRootVisualElement = this.uiDocument?.rootVisualElement;
-            return this.uiDocument != null;
-#endif
         }
 
-#if UNITY_6000_5_OR_NEWER
         private void OnPanelRendererReload(PanelRenderer renderer, VisualElement rootElement, int version)
         {
             this.hostRootVisualElement = rootElement;
             this.AttachAppRootToHost();
         }
-#endif
     }
 }

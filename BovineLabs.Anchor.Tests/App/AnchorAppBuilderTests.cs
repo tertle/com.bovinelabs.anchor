@@ -101,7 +101,6 @@ namespace BovineLabs.Anchor.Tests.App
             }
         }
 
-#if UNITY_6000_5_OR_NEWER
         [Test]
         public void OnPanelRendererReload_AttachesAppRootToReloadedHost()
         {
@@ -129,7 +128,6 @@ namespace BovineLabs.Anchor.Tests.App
                 Object.DestroyImmediate(gameObject);
             }
         }
-#endif
 
         private static void SetStateField(object instance, AnchorNavHostSaveState state)
         {
@@ -165,7 +163,6 @@ namespace BovineLabs.Anchor.Tests.App
             return services.BuildServiceProvider();
         }
 
-#if UNITY_6000_5_OR_NEWER
         private static void InvokePanelRendererReload(object instance, VisualElement hostRoot)
         {
             var method = instance.GetType().BaseType?.GetMethod("OnPanelRendererReload", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -176,7 +173,6 @@ namespace BovineLabs.Anchor.Tests.App
 
             method.Invoke(instance, new object[] { null, hostRoot, 0 });
         }
-#endif
 
         private sealed class TestAnchorBuilder : AnchorAppBuilder<TestBuilderApp>
         {

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0] - Unreleased
+
+### Breaking
+* Unity 6.7+ only
+* BovineLabs Core 2.0.0 or newer is required
+
 ## [1.5.0] - 2026-07-13
 
 ### Breaking

@@ -33,59 +33,35 @@ namespace BovineLabs.Anchor.Tests.Audio
         private static void SetProfiles(AnchorAudioSettings settings, IEnumerable<AnchorAudioProfile> profiles)
         {
             Assert.IsNotNull(ProfilesField);
-            if (ProfilesField.FieldType == typeof(Dictionary<string, AnchorAudioProfile>))
+            var dictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
+            foreach (var profile in profiles)
             {
-                var dictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
-                foreach (var profile in profiles)
+                if (profile == null || string.IsNullOrWhiteSpace(profile.Key))
                 {
-                    if (profile == null || string.IsNullOrWhiteSpace(profile.Key))
-                    {
-                        continue;
-                    }
-
-                    dictionary.Add(profile.Key, profile);
+                    continue;
                 }
 
-                ProfilesField.SetValue(settings, dictionary);
-                return;
+                dictionary.Add(profile.Key, profile);
             }
 
-            ProfilesField.SetValue(settings, new List<AnchorAudioProfile>(profiles));
+            ProfilesField.SetValue(settings, dictionary);
         }
 
         private static void SetProfiles(AnchorAudioSettings settings, IEnumerable<KeyValuePair<string, AnchorAudioProfile>> profiles)
         {
             Assert.IsNotNull(ProfilesField);
-            if (ProfilesField.FieldType == typeof(Dictionary<string, AnchorAudioProfile>))
-            {
-                var dictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
-                foreach (var profile in profiles)
-                {
-                    if (string.IsNullOrWhiteSpace(profile.Key))
-                    {
-                        continue;
-                    }
-
-                    dictionary.Add(profile.Key, profile.Value);
-                }
-
-                ProfilesField.SetValue(settings, dictionary);
-                return;
-            }
-
-            var list = new List<AnchorAudioProfile>();
+            var dictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
             foreach (var profile in profiles)
             {
-                if (profile.Value == null)
+                if (string.IsNullOrWhiteSpace(profile.Key))
                 {
                     continue;
                 }
 
-                profile.Value.Key = profile.Key;
-                list.Add(profile.Value);
+                dictionary.Add(profile.Key, profile.Value);
             }
 
-            ProfilesField.SetValue(settings, list);
+            ProfilesField.SetValue(settings, dictionary);
         }
     }
 }

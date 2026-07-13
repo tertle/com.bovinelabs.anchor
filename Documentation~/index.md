@@ -4,7 +4,7 @@ Anchor is a UI Toolkit application framework for ECS projects. It keeps managed 
 
 Anchor provides:
 
-- An `AnchorAppBuilder` host for `PanelRenderer` on Unity 6.5+ and `UIDocument` on Unity 6.3 or 6.4.
+- An `AnchorAppBuilder` host for `PanelRenderer`.
 - A lightweight service container with singleton, transient, instance, and alias registrations.
 - Keyed UXML instantiation with automatic view-model assignment.
 - An Anchor-owned navigation stack with destinations, actions, popups, animations, saved state, and Burst trampolines.
@@ -23,7 +23,7 @@ Anchor provides:
 
 ## Requirements and assemblies
 
-Anchor 2.0.4 declares Unity 6000.3 and `com.bovinelabs.core` 1.6.4 in `package.json`.
+Anchor 2.0.0 declares Unity 6000.7 and `com.bovinelabs.core` 2.0.0 in `package.json`.
 
 All Anchor assemblies have `autoReferenced` disabled. Reference only the surfaces the consuming assembly uses:
 
@@ -40,7 +40,7 @@ The app, navigation, DI, and MVVM APIs are Anchor-owned rather than AppUI naviga
 
 `AnchorAppBuilder` owns the application lifetime:
 
-1. It binds to the scene's `PanelRenderer` or `UIDocument`.
+1. It binds to the scene's `PanelRenderer`.
 2. It registers Anchor defaults and app-specific services.
 3. It creates `AnchorPanel`, attaches it to the Unity host, and initializes `AnchorApp.Current`.
 4. `AnchorApp` creates `AnchorNavHost`, opens the configured start destination, and attaches an available toolbar host.

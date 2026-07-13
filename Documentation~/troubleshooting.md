@@ -16,10 +16,7 @@ Anchor asmdefs can list assemblies supplied by optional packages. Their `version
 
 ## The app does not start
 
-Check the host component on the same GameObject as `AnchorAppBuilder`:
-
-- Unity 6.5+: assign or colocate a `PanelRenderer`.
-- Unity 6.3 or 6.4: assign or colocate a `UIDocument`.
+Assign or colocate a `PanelRenderer` on the same GameObject as `AnchorAppBuilder`.
 
 The builder aborts startup when it cannot bind the expected host. Also verify that the scene contains only one enabled Anchor builder; initializing a second app disposes and replaces `AnchorApp.Current`.
 

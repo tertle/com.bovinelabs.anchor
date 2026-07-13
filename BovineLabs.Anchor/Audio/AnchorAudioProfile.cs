@@ -13,9 +13,7 @@ namespace BovineLabs.Anchor.Audio
     [Serializable]
     public sealed class AnchorAudioProfile
     {
-#if UNITY_6000_6_OR_NEWER
         [HideInInspector]
-#endif
         [SerializeField]
         private string key = string.Empty;
 

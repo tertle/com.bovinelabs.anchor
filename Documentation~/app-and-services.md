@@ -4,10 +4,8 @@
 
 ## Hosting model
 
-Anchor separates the Unity component that owns the panel from the visual element used as the app root:
+Anchor separates the `PanelRenderer` component that owns the panel from the visual element used as the app root:
 
-- Unity 6000.5 or newer uses `PanelRenderer`.
-- Unity 6000.3 and 6000.4 use `UIDocument`.
 - `IAnchorPanel` abstracts the app root, theme, and scale.
 - `AnchorPanel` is the default panel implementation. It uses the App UI panel when App UI is available and a plain `VisualElement` otherwise.
 - `AnchorApp` owns the navigation host and exposes the running app through `AnchorApp.Current`.
@@ -23,7 +21,7 @@ The default lifecycle is:
 | `OnEnable` | Binds the host, configures services, builds the provider, creates the app and panel, attaches the app root, then initializes the app. |
 | `Update` | Polls screen and safe-area metrics and raises `AnchorApp.ScreenMetricsChanged` when they change. |
 | `OnDisable` | Calls the shutdown hook, saves navigation state when not toolbar-only, clears the host, disposes the app, then disposes the service provider. |
-| Host reload | On Unity 6000.5 or newer, reattaches the existing app root when `PanelRenderer` reloads its visual tree. |
+| Host reload | Reattaches the existing app root when `PanelRenderer` reloads its visual tree. |
 
 The protected hooks have distinct responsibilities:
 

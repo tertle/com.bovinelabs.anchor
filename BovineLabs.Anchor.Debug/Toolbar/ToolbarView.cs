@@ -766,11 +766,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void ResizeCanvas(float cameraHeightNormalized)
         {
-#if UNITY_6000_5_OR_NEWER
             var canvases = Object.FindObjectsByType<Canvas>();
-#else
-            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-#endif
             foreach (var canvas in canvases)
             {
                 if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
@@ -836,11 +832,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void ResetCanvasOffsets()
         {
-#if UNITY_6000_5_OR_NEWER
             var canvases = Object.FindObjectsByType<Canvas>();
-#else
-            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-#endif
             foreach (var canvas in canvases)
             {
                 if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)

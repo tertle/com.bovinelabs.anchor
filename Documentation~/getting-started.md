@@ -4,7 +4,7 @@ This guide creates the smallest useful Anchor application: one UI Toolkit screen
 
 ## Requirements
 
-The current package metadata targets Unity 6000.3 or newer and declares `com.bovinelabs.core` 1.6.4 as a dependency.
+The current package metadata targets Unity 6000.7 or newer and declares `com.bovinelabs.core` 2.0.0 as a dependency.
 
 Unity App UI (`com.unity.dt.app-ui`) is optional. Install it when using `BovineLabs.Anchor.Adapters`, App UI-backed controls, or the optional debug toolbar. Anchor's core app, navigation, services, and UI Toolkit elements do not require it.
 
@@ -75,9 +75,7 @@ Actions, animations, debug style sheets, and audio profiles are optional for thi
 
 ## Create the UI host
 
-Anchor uses the UI Toolkit panel component supplied by the Unity version.
-
-### Unity 6000.5 or newer
+Anchor uses `PanelRenderer` as its UI Toolkit panel component.
 
 1. Create a GameObject named `UI`.
 2. Add a `PanelRenderer`.
@@ -86,14 +84,6 @@ Anchor uses the UI Toolkit panel component supplied by the Unity version.
 5. Add `GameAppBuilder` to the same GameObject.
 
 Use a dedicated host for Anchor. The builder clears the host root before attaching its app root, including after a `PanelRenderer` reload. Any visual content supplied by a renderer Source Asset would therefore be removed.
-
-### Unity 6000.3 or 6000.4
-
-1. Create a GameObject named `UI`.
-2. Add a `UIDocument`, assign a valid Panel Settings asset, and leave Source Asset empty.
-3. Add `GameAppBuilder` to the same GameObject.
-
-Anchor clears `UIDocument.rootVisualElement` and attaches its app root on these versions. Do not share this document with another UI tree.
 
 The builder auto-finds a colocated host component. Its serialized host field can also be assigned explicitly in the Inspector.
 
@@ -142,7 +132,7 @@ Do not use `AnchorApp.Current` directly inside Burst-compiled code. Anchor expos
 
 **The builder logs that no host is assigned**
 
-Put `PanelRenderer` or `UIDocument` on the same GameObject as the builder, or assign the builder's serialized host field.
+Put `PanelRenderer` on the same GameObject as the builder, or assign the builder's serialized host field.
 
 **The app starts but no screen appears**
 

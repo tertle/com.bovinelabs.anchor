@@ -104,7 +104,6 @@ namespace BovineLabs.Anchor.Tests.Audio
             LogAssert.NoUnexpectedReceived();
         }
 
-#if UNITY_6000_6_OR_NEWER
         [Test]
         public void Play_DictionaryProfile_UsesDictionaryKey()
         {
@@ -119,7 +118,6 @@ namespace BovineLabs.Anchor.Tests.Audio
 
             Assert.AreSame(activate, service.Source.clip);
         }
-#endif
 
         [Test]
         public void Play_UnknownCue_DoesNotPlay()
@@ -146,19 +144,6 @@ namespace BovineLabs.Anchor.Tests.Audio
             Assert.AreEqual(HideFlags.HideAndDontSave, service.Source.gameObject.hideFlags);
 #endif
         }
-
-#if !UNITY_6000_6_OR_NEWER
-        [Test]
-        public void BuildProfiles_DuplicateProfileKeys_ReportError()
-        {
-            LogAssert.Expect(LogType.Error, new Regex("Anchor audio profile 'default' is already registered\\."));
-
-            var service = new AudioService(CreateSettings(DefaultProfile(), DefaultProfile()));
-            service.Dispose();
-
-            LogAssert.NoUnexpectedReceived();
-        }
-#endif
 
         private static AnchorAudioSettings CreateSettings(params AnchorAudioProfile[] profiles)
         {

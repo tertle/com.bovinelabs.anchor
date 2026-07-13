@@ -17,25 +17,16 @@ namespace BovineLabs.Anchor.Audio
         /// <summary>The standard Anchor UI audio profile key.</summary>
         public const string DefaultProfileKey = "default";
 
-#if UNITY_6000_6_OR_NEWER
         [SerializeField]
         private Dictionary<string, AnchorAudioProfile> profiles = new()
         {
             { DefaultProfileKey, new AnchorAudioProfile { Key = DefaultProfileKey } },
         };
-#else
-        [SerializeField]
-        private List<AnchorAudioProfile> profiles = new()
-        {
-            new() { Key = DefaultProfileKey },
-        };
-#endif
 
         internal Dictionary<string, AnchorAudioProfile> CreateProfileDictionary()
         {
             var profileDictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
 
-#if UNITY_6000_6_OR_NEWER
             foreach (var profile in this.profiles)
             {
                 if (string.IsNullOrWhiteSpace(profile.Key))
@@ -45,20 +36,6 @@ namespace BovineLabs.Anchor.Audio
 
                 profileDictionary.Add(profile.Key, profile.Value);
             }
-#else
-            foreach (var profile in this.profiles)
-            {
-                if (string.IsNullOrWhiteSpace(profile.Key))
-                {
-                    continue;
-                }
-
-                if (!profileDictionary.TryAdd(profile.Key, profile))
-                {
-                    Core.BLGlobalLogger.LogError($"Anchor audio profile '{profile.Key}' is already registered.");
-                }
-            }
-#endif
 
             return profileDictionary;
         }
