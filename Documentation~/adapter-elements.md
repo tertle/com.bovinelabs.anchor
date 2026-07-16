@@ -6,15 +6,28 @@ Most AppUI-backed element types compile in `BovineLabs.Anchor.Adapters`. A consu
 
 Unity converts C# camel-case `[UxmlAttribute]` names to kebab case. For example, `itemTemplate` is `item-template` and `showIndicator` is `show-indicator` in UXML.
 
-## Directional and masked progress
+## Directional, textured, and masked progress
 
 `AnchorLinearProgress` preserves AppUI progress properties such as `value`, `buffer-value`, `variant`, `size`, `color-override`, and
-`rounded-progress-corners`, then adds a selectable progress axis and an optional alpha mask. It intentionally does not use AppUI's
+`rounded-progress-corners`, then adds a selectable progress axis, an optional fill texture, and an optional alpha mask. It intentionally does not use AppUI's
 `appui-linear-progress` root class, so the theme does not impose bar dimensions; set both width and height through caller USS or inline UXML styles.
+
+The generated progress mesh renders over `.appui-progress__image`, so a USS `background-image` on that internal element is not value-clipped. Use
+`fill-texture` for imagery that should be revealed by the progress value; keep track/background imagery on the root or a sibling element.
+
+The same texture can be supplied from USS. An explicit `fill-texture` UXML attribute or C# `fillTexture` assignment takes precedence; clear it to fall back
+to the resolved USS value:
+
+```css
+.health-progress {
+    --bl-anchor-linear-progress-fill-texture: url("project://database/Assets/UI/Textures/HealthFill.png");
+}
+```
 
 | UXML attribute | Default | Purpose |
 | --- | --- | --- |
 | `direction` | `Horizontal` | `Horizontal` uses normal AppUI directionality; `Vertical` fills bottom-to-top in LTR and top-to-bottom in RTL |
+| `fill-texture` | none | Stretches a `Texture2D` over the element and reveals it through the progress and buffer values |
 | `mask-texture` | none | Stretches a `Texture2D` over the element and multiplies the complete progress output by its alpha |
 
 ```xml
@@ -23,13 +36,17 @@ Unity converts C# camel-case `[UxmlAttribute]` names to kebab case. For example,
     variant="Determinate"
     value="0.75"
     buffer-value="0.75"
-    color-override="#C7191C"
+    fill-texture="project://database/Assets/UI/Textures/HealthFill.png"
     rounded-progress-corners="false"
     mask-texture="project://database/Assets/UI/Masks/GlobeMask.png"
     style="width: 128px; height: 128px;" />
 ```
 
-The mask's RGB channels are ignored, and the texture does not need CPU read/write access. Mask UVs stretch to the element bounds, so preserve the desired
+The fill texture keeps its alpha and its RGB is tinted by `color-override` or `--progress-color`; use white to preserve the source RGB. Its UVs span the
+complete element, so changing `value` reveals more of a stationary image instead of rescaling it. Without a fill texture, progress uses the normal AppUI
+color behavior.
+
+The mask's RGB channels are ignored, and neither texture needs CPU read/write access. Texture UVs stretch to the element bounds, so preserve the desired
 silhouette through the element's layout. A missing mask behaves like a normal unmasked progress element.
 
 The active AppUI direction context controls the fill origin. Horizontal progress follows AppUI's normal LTR/RTL mirroring. Vertical progress rises in LTR

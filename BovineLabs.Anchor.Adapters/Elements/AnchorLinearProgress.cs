@@ -22,9 +22,15 @@ namespace BovineLabs.Anchor.Elements
         /// <summary>Direction styling class prefix.</summary>
         public const string DirectionUssClassName = UssClassName + "--";
 
+        /// <summary>USS custom property for the fill texture.</summary>
+        public const string FillTextureUssPropertyName = "--bl-anchor-linear-progress-fill-texture";
+
         private const string ShaderResourcePath = "BovineLabs.Anchor/AnchorLinearProgress";
 
+        private static readonly CustomStyleProperty<Texture2D> FillTextureStyleProperty = new(FillTextureUssPropertyName);
+
         private static readonly BindingId DirectionProperty = nameof(direction);
+        private static readonly BindingId FillTextureProperty = nameof(fillTexture);
         private static readonly BindingId MaskTextureProperty = nameof(maskTexture);
 
         private static readonly int StartProperty = Shader.PropertyToID("_Start");
@@ -40,11 +46,15 @@ namespace BovineLabs.Anchor.Elements
         private static readonly int PhaseProperty = Shader.PropertyToID("_Phase");
         private static readonly int VerticalProperty = Shader.PropertyToID("_Vertical");
         private static readonly int ReverseProperty = Shader.PropertyToID("_Reverse");
+        private static readonly int FillTextureShaderProperty = Shader.PropertyToID("_FillTexture");
+        private static readonly int UseFillTextureProperty = Shader.PropertyToID("_UseFillTexture");
         private static readonly int MaskTextureShaderProperty = Shader.PropertyToID("_MaskTexture");
 
         private static Material s_material;
 
         private Direction m_direction;
+        private Texture2D m_fillTexture;
+        private Texture2D m_fillTextureFromStyle;
         private Texture2D m_maskTexture;
 
         /// <summary>Initializes a new instance of the <see cref="AnchorLinearProgress"/> class.</summary>
@@ -53,6 +63,7 @@ namespace BovineLabs.Anchor.Elements
             this.AddToClassList(UssClassName);
             this.AddToClassList(GetDirectionUssClassName(this.m_direction));
             this.RegisterContextChangedCallback<DirContext>(this.OnLayoutDirectionChanged);
+            this.RegisterCallback<CustomStyleResolvedEvent>(this.OnCustomStylesResolved);
         }
 
         /// <summary>Gets or sets the progress axis. Vertical progress follows the active App UI layout direction.</summary>
@@ -73,6 +84,31 @@ namespace BovineLabs.Anchor.Elements
                 this.AddToClassList(GetDirectionUssClassName(this.m_direction));
                 this.m_Image.MarkDirtyRepaint();
                 this.NotifyPropertyChanged(in DirectionProperty);
+            }
+        }
+
+        /// <summary>Gets or sets the texture revealed by the progress and buffer values.</summary>
+        [CreateProperty]
+        [UxmlAttribute]
+        public Texture2D fillTexture
+        {
+            get => this.m_fillTexture ? this.m_fillTexture : this.m_fillTextureFromStyle;
+            set
+            {
+                if (this.m_fillTexture == value)
+                {
+                    return;
+                }
+
+                var previous = this.fillTexture;
+                this.m_fillTexture = value;
+                if (previous == this.fillTexture)
+                {
+                    return;
+                }
+
+                this.m_Image.MarkDirtyRepaint();
+                this.NotifyPropertyChanged(in FillTextureProperty);
             }
         }
 
@@ -147,6 +183,8 @@ namespace BovineLabs.Anchor.Elements
             s_material.SetFloat(PaddingProperty, this.roundedProgressCorners ? crossLength * 0.5f / axisLength : 0);
             s_material.SetInt(VerticalProperty, vertical ? 1 : 0);
             s_material.SetInt(ReverseProperty, reverse ? 1 : 0);
+            s_material.SetTexture(FillTextureShaderProperty, this.fillTexture ? this.fillTexture : Texture2D.whiteTexture);
+            s_material.SetInt(UseFillTextureProperty, this.fillTexture ? 1 : 0);
             s_material.SetTexture(MaskTextureShaderProperty, this.maskTexture ? this.maskTexture : Texture2D.whiteTexture);
 
             if (this.variant == Variant.Indeterminate)
@@ -201,6 +239,25 @@ namespace BovineLabs.Anchor.Elements
             {
                 this.m_Image.MarkDirtyRepaint();
             }
+        }
+
+        private void OnCustomStylesResolved(CustomStyleResolvedEvent evt)
+        {
+            evt.customStyle.TryGetValue(FillTextureStyleProperty, out var texture);
+            if (this.m_fillTextureFromStyle == texture)
+            {
+                return;
+            }
+
+            var previous = this.fillTexture;
+            this.m_fillTextureFromStyle = texture;
+            if (previous == this.fillTexture)
+            {
+                return;
+            }
+
+            this.m_Image.MarkDirtyRepaint();
+            this.NotifyPropertyChanged(in FillTextureProperty);
         }
     }
 }

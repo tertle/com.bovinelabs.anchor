@@ -13,11 +13,13 @@ namespace BovineLabs.Anchor.Tests.Elements
     public class AnchorLinearProgressTests
     {
         [Test]
-        public void Defaults_AreHorizontalAndUnmasked()
+        public void Defaults_AreHorizontalUntexturedAndUnmasked()
         {
             var progress = new AnchorLinearProgress();
 
+            Assert.AreEqual("--bl-anchor-linear-progress-fill-texture", AnchorLinearProgress.FillTextureUssPropertyName);
             Assert.AreEqual(Direction.Horizontal, progress.direction);
+            Assert.IsNull(progress.fillTexture);
             Assert.IsNull(progress.maskTexture);
             Assert.IsFalse(progress.ClassListContains(LinearProgress.ussClassName));
             Assert.IsTrue(progress.ClassListContains(AnchorLinearProgress.DirectionUssClassName + "horizontal"));
@@ -32,6 +34,26 @@ namespace BovineLabs.Anchor.Tests.Elements
 
             Assert.IsFalse(progress.ClassListContains(AnchorLinearProgress.DirectionUssClassName + "horizontal"));
             Assert.IsTrue(progress.ClassListContains(AnchorLinearProgress.DirectionUssClassName + "vertical"));
+        }
+
+        [Test]
+        public void FillTexture_RoundTripsAndClears()
+        {
+            var progress = new AnchorLinearProgress();
+            var fill = new Texture2D(1, 1);
+
+            try
+            {
+                progress.fillTexture = fill;
+                Assert.AreSame(fill, progress.fillTexture);
+
+                progress.fillTexture = null;
+                Assert.IsNull(progress.fillTexture);
+            }
+            finally
+            {
+                Object.DestroyImmediate(fill);
+            }
         }
 
         [Test]

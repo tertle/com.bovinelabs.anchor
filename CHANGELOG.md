@@ -31,7 +31,7 @@
 * AnchorTouchSliderFloat and AnchorTouchSliderInt
 * AnchorSafeArea with configurable safe-area edges
 * AnchorScreenMetrics and ScreenMetricsChanged for runtime safe-area updates
-* `AnchorLinearProgress` for horizontal or vertical App UI progress with optional alpha masking
+* `AnchorLinearProgress` for horizontal or vertical App UI progress with optional fill textures and alpha masking
 * Anchor UI audio feedback for `AnchorButton` and `AnchorActionButton` hover and activation cues through `IAudioService`, with opt-in named profiles and per-element cue overrides
 * `GroupedMenuBuilder` and `GroupedMenuBuilderOptions` for building sorted, grouped menu trees
 * PanelRenderer ViewModel editor toolbar

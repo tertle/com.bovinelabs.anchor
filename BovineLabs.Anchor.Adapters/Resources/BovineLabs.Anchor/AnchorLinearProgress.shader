@@ -15,6 +15,8 @@ Shader "Hidden/BovineLabs/Anchor/LinearProgress"
         _Padding ("Padding", Float) = 0
         _Vertical ("Vertical", Int) = 0
         _Reverse ("Reverse", Int) = 0
+        _FillTexture ("Fill Texture", 2D) = "white" {}
+        _UseFillTexture ("Use Fill Texture", Int) = 0
         _MaskTexture ("Mask Texture", 2D) = "white" {}
     }
 
@@ -74,6 +76,8 @@ Shader "Hidden/BovineLabs/Anchor/LinearProgress"
             half4 _Color;
             float _AA;
             float4 _Phase;
+            sampler2D _FillTexture;
+            int _UseFillTexture;
             sampler2D _MaskTexture;
 
             float Circle(float2 uv, float2 position, float radius)
@@ -99,15 +103,17 @@ Shader "Hidden/BovineLabs/Anchor/LinearProgress"
                 valueMask = max(valueMask, Circle(input.progressUv, float2(_Start, 0), radius) * _Rounded);
                 valueMask = max(valueMask, Circle(input.progressUv, float2(_End, 0), radius) * _Rounded);
 
-                half4 color = half4(_Color.rgb, valueMask);
+                const half4 fillSample = _UseFillTexture ? tex2D(_FillTexture, input.maskUv) : half4(1.0, 1.0, 1.0, 1.0);
+                const half4 fillColor = half4(fillSample.rgb * _Color.rgb, fillSample.a);
+                half4 color = half4(fillColor.rgb, fillColor.a * valueMask);
 
                 #ifndef ANCHOR_PROGRESS_INDETERMINATE
                 float bufferMask = progress >= _BufferStart && progress <= _BufferEnd ? 1.0 : 0.0;
                 bufferMask = max(bufferMask, Circle(input.progressUv, float2(_BufferStart, 0), radius) * _Rounded);
                 bufferMask = max(bufferMask, Circle(input.progressUv, float2(_BufferEnd, 0), radius) * _Rounded);
-                color.a = max(color.a, _BufferEnd > 0 ? _BufferOpacity * bufferMask : _BufferOpacity);
+                color.a = max(color.a, fillColor.a * (_BufferEnd > 0 ? _BufferOpacity * bufferMask : _BufferOpacity));
                 #else
-                color.a = max(color.a, _BufferOpacity);
+                color.a = max(color.a, fillColor.a * _BufferOpacity);
                 #endif
 
                 color.a *= tex2D(_MaskTexture, input.maskUv).a;
