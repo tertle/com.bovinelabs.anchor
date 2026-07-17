@@ -69,11 +69,6 @@
       "define": "UNITY_PHYSICS"
     },
     {
-      "name": "com.unity.render-pipelines.universal",
-      "expression": "",
-      "define": "UNITY_URP"
-    },
-    {
       "name": "com.bovinelabs.nerve",
       "expression": "",
       "define": "BL_NERVE"

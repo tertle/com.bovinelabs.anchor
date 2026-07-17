@@ -33,9 +33,10 @@ The runtime, adapter, debug, and editor assemblies have `autoReferenced` disable
 
 - Unity 6000.7 or newer.
 - `com.bovinelabs.core` 2.0.0 or a compatible newer version.
+- Universal Render Pipeline 17.7.0 or newer.
 - A compatible Unity App UI package only when using `BovineLabs.Anchor.Adapters`, `BovineLabs.Anchor.Debug`, or other AppUI-specific APIs such as `GroupedMenuBuilder`.
 
-Optional package integrations are enabled through asmdef `versionDefines`, including `UNITY_APPUI` and `UNITY_URP`. An optional assembly reference does not make that package a dependency. AppUI is not declared in `package.json`; install it explicitly only before referencing AppUI-backed Anchor APIs. See [Getting started](Documentation~/getting-started.md#requirements) for the current assembly constraints.
+AppUI integration is enabled through the `UNITY_APPUI` asmdef version define. AppUI is not declared in `package.json`; install it explicitly before referencing AppUI-backed Anchor APIs. URP is a direct package dependency. See [Getting started](Documentation~/getting-started.md#requirements) for the current assembly constraints.
 
 ## Installation
 

@@ -24,9 +24,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using Button = Unity.AppUI.UI.Button;
     using Canvas = UnityEngine.Canvas;
     using Object = UnityEngine.Object;
-#if UNITY_URP
     using UnityEngine.Rendering.Universal;
-#endif
 
     /// <summary>
     /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
@@ -746,7 +744,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 rect.height = cameraHeightNormalized;
                 cam.rect = rect;
 
-#if UNITY_URP
                 var additional = cam.GetComponent<UniversalAdditionalCameraData>();
                 if (additional != null && additional.scriptableRenderer.SupportsCameraStackingType(CameraRenderType.Base))
                 {
@@ -763,7 +760,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                         }
                     }
                 }
-#endif
             }
         }
 
