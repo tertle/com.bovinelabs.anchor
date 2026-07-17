@@ -12,7 +12,6 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Toolbar;
-    using BovineLabs.Core;
     using BovineLabs.Core.Utility;
     using UnityEngine;
     using UnityEngine.UIElements;
@@ -31,10 +30,10 @@ namespace BovineLabs.Anchor
     /// </summary>
     /// <typeparam name="T">The type of the app to build.</typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
+    [RequireComponent(typeof(PanelRenderer))]
     public abstract class AnchorAppBuilder<T> : MonoBehaviour
         where T : AnchorApp, new()
     {
-        [SerializeField]
         private PanelRenderer panelRenderer;
 
         private AnchorNavHostSaveState state;
@@ -42,6 +41,7 @@ namespace BovineLabs.Anchor
         private T anchorApp;
         private VisualElement hostRootVisualElement;
         private VisualElement appRootVisualElement;
+        private int lastPanelVersion = -1;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
 
@@ -63,54 +63,28 @@ namespace BovineLabs.Anchor
         /// </remarks>
         protected virtual Type PanelType { get; } = typeof(AnchorPanel);
 
-        internal void OnEnable()
+        private void Awake()
         {
-            if (!this.TryBindHost())
-            {
-                BLGlobalLogger.LogWarningString($"No {nameof(PanelRenderer)} assigned to {nameof(AnchorAppBuilder<T>)}. Aborting app startup.");
-                return;
-            }
-
-            var services = new AnchorServiceCollection();
-            this.OnConfigureServices(services);
-
-            this.serviceProvider = services.BuildServiceProvider();
-            this.anchorApp = new T();
-
-            var panel = this.CreatePanel();
-            this.appRootVisualElement = panel.RootVisualElement;
-            this.appRootVisualElement.pickingMode = PickingMode.Ignore;
-            this.AttachAppRootToHost();
-
-            this.anchorApp.Initialize(this.serviceProvider, panel);
-            this.OnAppInitialized(this.anchorApp);
+            this.panelRenderer = this.GetComponent<PanelRenderer>();
         }
 
-        internal void OnDisable()
+        private void OnEnable()
         {
-            this.panelRenderer?.UnregisterUIReloadCallback(this.OnPanelRendererReload);
-
-            if (this.anchorApp == null)
-            {
-                this.hostRootVisualElement = null;
-                this.appRootVisualElement = null;
-                return;
-            }
-
-            this.OnAppShuttingDown(this.anchorApp);
-
-            this.hostRootVisualElement?.Clear();
-
-            this.anchorApp.Dispose();
-            this.serviceProvider?.Dispose();
-
-            this.anchorApp = null;
-            this.serviceProvider = null;
             this.hostRootVisualElement = null;
-            this.appRootVisualElement = null;
+
+            this.panelRenderer.RegisterUIReloadCallback(this.OnPanelRendererReload);
+            ((IPanelComponent)this.panelRenderer).PerformValidation(true);
         }
 
-        internal void Update()
+        private void OnDisable()
+        {
+            this.panelRenderer.UnregisterUIReloadCallback(this.OnPanelRendererReload);
+            this.lastPanelVersion = -1;
+            this.ShutdownApp(true);
+            this.hostRootVisualElement = null;
+        }
+
+        private void Update()
         {
             this.anchorApp?.Update();
         }
@@ -200,9 +174,42 @@ namespace BovineLabs.Anchor
             }
         }
 
-        private void Reset()
+        private void InitializeApp()
         {
-            this.panelRenderer = this.GetComponent<PanelRenderer>();
+            var services = new AnchorServiceCollection();
+            this.OnConfigureServices(services);
+
+            this.serviceProvider = services.BuildServiceProvider();
+            this.anchorApp = new T();
+
+            var panel = this.CreatePanel();
+            this.appRootVisualElement = panel.RootVisualElement;
+            this.appRootVisualElement.pickingMode = PickingMode.Ignore;
+            this.AttachAppRootToHost();
+
+            this.anchorApp.Initialize(this.serviceProvider, panel);
+            this.OnAppInitialized(this.anchorApp);
+        }
+
+        private void ShutdownApp(bool detachAppRoot)
+        {
+            if (this.anchorApp != null)
+            {
+                this.OnAppShuttingDown(this.anchorApp);
+
+                if (detachAppRoot)
+                {
+                    this.appRootVisualElement?.RemoveFromHierarchy();
+                }
+
+                this.anchorApp.Dispose();
+            }
+
+            this.serviceProvider?.Dispose();
+
+            this.anchorApp = null;
+            this.serviceProvider = null;
+            this.appRootVisualElement = null;
         }
 
         private void AttachAppRootToHost()
@@ -216,26 +223,17 @@ namespace BovineLabs.Anchor
             this.hostRootVisualElement.Add(this.appRootVisualElement);
         }
 
-        private bool TryBindHost()
-        {
-            this.hostRootVisualElement = null;
-
-            this.panelRenderer ??= this.GetComponent<PanelRenderer>();
-
-            if (this.panelRenderer != null)
-            {
-                this.panelRenderer.RegisterUIReloadCallback(this.OnPanelRendererReload);
-                ((IPanelComponent)this.panelRenderer).PerformValidation(true);
-                return true;
-            }
-
-            return false;
-        }
-
         private void OnPanelRendererReload(PanelRenderer renderer, VisualElement rootElement, int version)
         {
+            if (version == this.lastPanelVersion)
+            {
+                return;
+            }
+
+            this.lastPanelVersion = version;
+            this.ShutdownApp(false);
             this.hostRootVisualElement = rootElement;
-            this.AttachAppRootToHost();
+            this.InitializeApp();
         }
     }
 }

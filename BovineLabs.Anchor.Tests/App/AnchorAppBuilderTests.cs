@@ -102,29 +102,46 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void OnPanelRendererReload_AttachesAppRootToReloadedHost()
+        public void PanelRendererReload_RebuildsAppAfterReleasedVisualTree()
         {
             var gameObject = new GameObject("builder");
-            var builder = gameObject.AddComponent<TestAnchorBuilder>();
-            var hostRoot = new VisualElement();
-            hostRoot.Add(new Label("stale"));
-            var app = new TestBuilderApp();
-            using var provider = new AnchorServiceProvider(new AnchorServiceCollection());
+            gameObject.SetActive(false);
+            gameObject.AddComponent<PanelRenderer>();
+            var builder = gameObject.AddComponent<LifecycleTestAnchorBuilder>();
+            InvokeLifecycleMethod(builder, "Awake");
+            var firstHostRoot = new VisualElement();
+            var reloadedHostRoot = new VisualElement();
 
             try
             {
-                app.Initialize(provider, new AnchorPanel());
-                SetField(builder, "anchorApp", app);
-                SetField(builder, "appRootVisualElement", app.RootVisualElement);
+                InvokePanelRendererReload(builder, firstHostRoot, 1);
 
-                InvokePanelRendererReload(builder, hostRoot);
+                var firstApp = AnchorApp.Current as LifecycleTestAnchorApp;
+                Assert.IsNotNull(firstApp);
 
-                Assert.AreEqual(1, hostRoot.childCount);
-                Assert.AreSame(app.RootVisualElement, hostRoot[0]);
+                var firstAppRoot = firstApp.RootVisualElement;
+                Assert.AreEqual(1, firstHostRoot.childCount);
+                Assert.AreSame(firstHostRoot, firstAppRoot.parent);
+
+                ReleaseVisualTreeResources(firstAppRoot);
+                Assert.IsTrue(firstAppRoot.resourcesReleased);
+
+                Assert.DoesNotThrow(() => InvokePanelRendererReload(builder, reloadedHostRoot, 2));
+
+                var reloadedApp = AnchorApp.Current as LifecycleTestAnchorApp;
+                Assert.IsNotNull(reloadedApp);
+                Assert.AreNotSame(firstApp, reloadedApp);
+                Assert.IsNull(firstApp.RootVisualElement);
+                Assert.AreNotSame(firstAppRoot, reloadedApp.RootVisualElement);
+                Assert.AreEqual(1, reloadedHostRoot.childCount);
+                Assert.AreSame(reloadedHostRoot, reloadedApp.RootVisualElement.parent);
+
+                InvokePanelRendererReload(builder, reloadedHostRoot, 2);
+                Assert.AreSame(reloadedApp, AnchorApp.Current);
             }
             finally
             {
-                app.Dispose();
+                InvokeLifecycleMethod(builder, "OnDisable");
                 Object.DestroyImmediate(gameObject);
             }
         }
@@ -163,7 +180,7 @@ namespace BovineLabs.Anchor.Tests.App
             return services.BuildServiceProvider();
         }
 
-        private static void InvokePanelRendererReload(object instance, VisualElement hostRoot)
+        private static void InvokePanelRendererReload(object instance, VisualElement hostRoot, int version)
         {
             var method = instance.GetType().BaseType?.GetMethod("OnPanelRendererReload", BindingFlags.Instance | BindingFlags.NonPublic);
             if (method == null)
@@ -171,7 +188,30 @@ namespace BovineLabs.Anchor.Tests.App
                 throw new MissingMethodException(instance.GetType().FullName, "OnPanelRendererReload");
             }
 
-            method.Invoke(instance, new object[] { null, hostRoot, 0 });
+            method.Invoke(instance, new object[] { null, hostRoot, version });
+        }
+
+        private static void InvokeLifecycleMethod(object instance, string methodName)
+        {
+            var method = instance.GetType().BaseType?.GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            if (method == null)
+            {
+                throw new MissingMethodException(instance.GetType().FullName, methodName);
+            }
+
+            method.Invoke(instance, null);
+        }
+
+        private static void ReleaseVisualTreeResources(VisualElement root)
+        {
+            root.RemoveFromHierarchy();
+
+            while (root.hierarchy.childCount > 0)
+            {
+                ReleaseVisualTreeResources(root.hierarchy[0]);
+            }
+
+            root.ReleaseResources();
         }
 
         private sealed class TestAnchorBuilder : AnchorAppBuilder<TestBuilderApp>
@@ -207,6 +247,25 @@ namespace BovineLabs.Anchor.Tests.App
                 this.InitializeCalls++;
                 this.NavHost ??= new AnchorNavHost();
             }
+        }
+
+        private sealed class LifecycleTestAnchorBuilder : AnchorAppBuilder<LifecycleTestAnchorApp>
+        {
+            protected override void OnConfigureServices(AnchorServiceCollection services)
+            {
+            }
+
+            protected override void OnAppInitialized(LifecycleTestAnchorApp app)
+            {
+            }
+
+            protected override void OnAppShuttingDown(LifecycleTestAnchorApp app)
+            {
+            }
+        }
+
+        private sealed class LifecycleTestAnchorApp : AnchorApp
+        {
         }
 
         private sealed class TestAudioService : IAudioService

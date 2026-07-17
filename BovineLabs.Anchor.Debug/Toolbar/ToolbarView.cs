@@ -19,11 +19,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
+    using UnityEngine.Scripting;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
     using Canvas = UnityEngine.Canvas;
     using Object = UnityEngine.Object;
-    using UnityEngine.Scripting;
 #if UNITY_URP
     using UnityEngine.Rendering.Universal;
 #endif
@@ -261,6 +261,40 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         public VisualElement GetPanel(int id)
         {
             return this.toolbarGroups.TryGetValue(id, out var group) ? group.View : null;
+        }
+
+        /// <summary>Shows or hides the active ribbon group.</summary>
+        /// <param name="show">Whether the active ribbon group should be shown.</param>
+        public void ShowRibbon(bool show)
+        {
+            if (show)
+            {
+                this.showButton.Q<Icon>(ShowIconTargetClassName).RemoveFromClassList(ShowHiddenUssClassName);
+
+                if (this.activeGroup != null)
+                {
+                    if (this.activeGroup.Parent.parent == null)
+                    {
+                        this.activeGroup.Parent.AddToTab(this);
+                    }
+                    else
+                    {
+                        Assert.IsTrue(this == this.activeGroup.Parent.parent);
+                    }
+                }
+            }
+            else
+            {
+                this.showButton.Q<Icon>(ShowIconTargetClassName).AddToClassList(ShowHiddenUssClassName);
+
+                if (this.activeGroup?.Parent.parent != null)
+                {
+                    Assert.IsTrue(this.activeGroup.Parent.parent == this);
+                    this.activeGroup.Parent.RemoveFromTab();
+                }
+            }
+
+            this.IsRibbonVisible = show;
         }
 
         private static void DisableKeyboardNavigation(VisualElement root)
@@ -670,37 +704,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             var firstButton = (Button)this.menuContainer.contentContainer.Children().First();
             var group = this.toolbarTabs.First(g => g.Value.Button == firstButton);
             this.SetToolbarActive(group.Value);
-        }
-
-        private void ShowRibbon(bool show)
-        {
-            if (show)
-            {
-                this.showButton.Q<Icon>(ShowIconTargetClassName).RemoveFromClassList(ShowHiddenUssClassName);
-
-                if (this.activeGroup != null)
-                {
-                    if (this.activeGroup.Parent.parent != null)
-                    {
-                        Assert.IsTrue(this == this.activeGroup.Parent.parent);
-                        return;
-                    }
-
-                    this.activeGroup.Parent.AddToTab(this);
-                }
-            }
-            else
-            {
-                this.showButton.Q<Icon>(ShowIconTargetClassName).AddToClassList(ShowHiddenUssClassName);
-
-                if (this.activeGroup != null)
-                {
-                    Assert.IsTrue(this.activeGroup.Parent.parent == this);
-                    this.activeGroup.Parent.RemoveFromTab();
-                }
-            }
-
-            this.IsRibbonVisible = show;
         }
 
         private void ResizeViewRect(Rect uiRect)
