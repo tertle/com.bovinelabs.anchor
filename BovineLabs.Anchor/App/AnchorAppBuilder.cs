@@ -68,20 +68,16 @@ namespace BovineLabs.Anchor
             this.panelRenderer = this.GetComponent<PanelRenderer>();
         }
 
-        private void OnEnable()
+        private void Start()
         {
-            this.hostRootVisualElement = null;
-
             this.panelRenderer.RegisterUIReloadCallback(this.OnPanelRendererReload);
             ((IPanelComponent)this.panelRenderer).PerformValidation(true);
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             this.panelRenderer.UnregisterUIReloadCallback(this.OnPanelRendererReload);
-            this.lastPanelVersion = -1;
             this.ShutdownApp(true);
-            this.hostRootVisualElement = null;
         }
 
         private void Update()

@@ -16,8 +16,6 @@ namespace BovineLabs.Anchor.Tests.Binding
         [Test]
         public void ConverterGroups_PerformExpectedConversions()
         {
-            Converters.RegisterConverters();
-
             Assert.IsTrue(TryGetGroup("DisplayStyle", out var displayGroup));
             Assert.IsTrue(TryConvert(displayGroup, true, out StyleEnum<DisplayStyle> style));
             Assert.AreEqual(DisplayStyle.Flex, style.value);

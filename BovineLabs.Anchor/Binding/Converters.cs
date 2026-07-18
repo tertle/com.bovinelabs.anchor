@@ -4,23 +4,15 @@
 
 namespace BovineLabs.Anchor.Binding
 {
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine.UIElements;
-#if UNITY_EDITOR
-    using UnityEditor;
-#else
-    using UnityEngine;
-#endif
 
     /// <summary>Utility class that registers converter groups needed by Anchor bindings.</summary>
-    public static class Converters
+    public static partial class Converters
     {
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-#else
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-#endif
-        /// <summary>Registers the converter groups used to bridge booleans and display styles.</summary>
-        public static void RegisterConverters()
+        /// <summary> Registers the converter groups used to bridge booleans and display styles. </summary>
+        [OnCodeInitializing]
+        private static void RegisterConverters()
         {
             {
                 var group = new ConverterGroup("DisplayStyle");

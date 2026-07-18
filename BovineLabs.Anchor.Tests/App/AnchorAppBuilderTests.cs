@@ -102,7 +102,7 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void PanelRendererReload_RebuildsAppAfterReleasedVisualTree()
+        public void PanelRendererReload_RebuildsAppAndRestoresNavigationStateAfterReleasedVisualTree()
         {
             var gameObject = new GameObject("builder");
             gameObject.SetActive(false);
@@ -118,6 +118,7 @@ namespace BovineLabs.Anchor.Tests.App
 
                 var firstApp = AnchorApp.Current as LifecycleTestAnchorApp;
                 Assert.IsNotNull(firstApp);
+                firstApp.NavHost.CurrentDestination = "preserved-destination";
 
                 var firstAppRoot = firstApp.RootVisualElement;
                 Assert.AreEqual(1, firstHostRoot.childCount);
@@ -135,13 +136,14 @@ namespace BovineLabs.Anchor.Tests.App
                 Assert.AreNotSame(firstAppRoot, reloadedApp.RootVisualElement);
                 Assert.AreEqual(1, reloadedHostRoot.childCount);
                 Assert.AreSame(reloadedHostRoot, reloadedApp.RootVisualElement.parent);
+                Assert.AreEqual("preserved-destination", reloadedApp.NavHost.CurrentDestination);
 
                 InvokePanelRendererReload(builder, reloadedHostRoot, 2);
                 Assert.AreSame(reloadedApp, AnchorApp.Current);
             }
             finally
             {
-                InvokeLifecycleMethod(builder, "OnDisable");
+                InvokeLifecycleMethod(builder, "OnDestroy");
                 Object.DestroyImmediate(gameObject);
             }
         }
@@ -254,18 +256,16 @@ namespace BovineLabs.Anchor.Tests.App
             protected override void OnConfigureServices(AnchorServiceCollection services)
             {
             }
-
-            protected override void OnAppInitialized(LifecycleTestAnchorApp app)
-            {
-            }
-
-            protected override void OnAppShuttingDown(LifecycleTestAnchorApp app)
-            {
-            }
         }
 
         private sealed class LifecycleTestAnchorApp : AnchorApp
         {
+            public override void Initialize()
+            {
+                var navHost = new AnchorNavHost();
+                this.NavHost = navHost;
+                this.RootVisualElement.Add(navHost);
+            }
         }
 
         private sealed class TestAudioService : IAudioService

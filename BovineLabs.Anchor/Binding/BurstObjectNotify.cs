@@ -11,6 +11,7 @@ namespace BovineLabs.Anchor.Binding
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Scripting.LifecycleManagement;
 
     internal unsafe struct SetValueParams
     {
@@ -37,15 +38,11 @@ namespace BovineLabs.Anchor.Binding
         public FixedString64Bytes Property;
     }
 
-    internal static unsafe class BurstObjectNotify
+    internal static unsafe partial class BurstObjectNotify
     {
         internal static readonly Dictionary<IntPtr, IBindingObjectNotify> Changed = new();
 
-#if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-#else
-        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
-#endif
+        [OnCodeInitializing]
         private static void InitializeTrampolines()
         {
             Burst.SetValue.Data = new BurstTrampoline(&SetValueForwarding);
