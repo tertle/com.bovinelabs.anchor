@@ -8,18 +8,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Linq;
-    using System.Reflection;
-    using BovineLabs.Anchor.Services;
-    using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core.Assertions;
-    using BovineLabs.Core.ConfigVars;
-    using BovineLabs.Core.Utility;
     using Unity.AppUI.UI;
-    using Unity.Burst;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
-    using UnityEngine.Scripting;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
     using Canvas = UnityEngine.Canvas;
@@ -29,14 +22,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     /// <summary>
     /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
     /// </summary>
-    [Preserve]
-    [Configurable]
-    [IsService]
-    public class ToolbarView : VisualElement, IAnchorToolbarHost
+    public class ToolbarView : VisualElement, IDisposable
     {
-        /// <summary>Default polling interval in seconds for toolbar updates.</summary>
-        public const float UpdateRateSeconds = 1 / 4f;
-
         /// <summary>
         /// The NavigationScreen main styling class.
         /// </summary>
@@ -51,21 +38,15 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private const string ShowHiddenUssClassName = ShowIconUssClassName + "-hidden";
         private const string ShowIconTargetClassName = "appui-button__trailingicon";
 
-        private const string ActiveTabKey = "bl.active-tab";
-        private const string ShowRibbonKey = "bl.show-ribbon";
-
         private const float RestoreHotspotPercent = 0.04f;
         private const int RestoreClickThreshold = 5;
         private const float RestoreClickResetSeconds = 1f;
 
-        [ConfigVar("anchor.toolbar", true, "Should the toolbar be shown", true)]
-        private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<ToolbarView, EnabledVar>();
-
         private readonly List<Transform> transformList = new();
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
+        private readonly Toolbar toolbar;
         private readonly ToolbarViewModel viewModel;
-        private readonly ILocalStorageService storageService;
 
         private readonly VisualElement menuContainer;
         private readonly Dropdown filterButton;
@@ -76,23 +57,22 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private VisualElement panelRoot;
 
         private Vector2 uiSize;
-        private int key;
         private bool toolbarHidden;
+        private bool compositionCompleted;
+        private bool disposed;
         private int restoreClickCount;
         private float lastRestoreClickTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ToolbarView"/> class.
         /// </summary>
+        /// <param name="toolbar">Durable toolbar service that owns state and registrations.</param>
         /// <param name="viewModel">Backing view model used to manage selections.</param>
-        /// <param name="storageService">Persistence layer for storing toolbar preferences.</param>
-        [Preserve]
-        public ToolbarView(ToolbarViewModel viewModel, ILocalStorageService storageService)
+        internal ToolbarView(Toolbar toolbar, ToolbarViewModel viewModel)
         {
-            Instance = this;
-
+            this.toolbar = toolbar;
             this.viewModel = viewModel;
-            this.storageService = storageService;
+            this.dataSource = viewModel;
 
             this.AddToClassList(UssClassName);
 
@@ -118,83 +98,37 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.RegisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged, this);
             this.viewModel.PropertyChanged += this.OnPropertyChanged;
 
-            var serviceTabName = AnchorApp.Current.ServiceTabName;
-            if (string.IsNullOrWhiteSpace(serviceTabName))
-            {
-                serviceTabName = AnchorApp.DefaultServiceTabName;
-            }
-
-            foreach (var t in ReflectionUtility.GetAllWithAttribute<AutoToolbarAttribute>())
-            {
-                var attr = t.GetCustomAttribute<AutoToolbarAttribute>();
-                var tabName = attr.TabName ?? serviceTabName;
-
-                this.AddTab(t, tabName, attr.ElementName, out _, out _);
-            }
-
-            this.SetDefaultGroup();
-
-            if (!Show.Data)
+            if (this.toolbar.IsToolbarHidden)
             {
                 this.HideToolbar();
             }
 
             this.RegisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
             this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
-
-            AnchorApp.ShuttingDown += this.AppOnShuttingDown;
         }
-
-        /// <summary>Gets the active toolbar view instance, if any.</summary>
-        public static ToolbarView Instance { get; private set; }
-
-        /// <inheritdoc />
-        public VisualElement RootVisualElement => this;
 
         private bool IsRibbonVisible
         {
-            get => bool.TryParse(this.storageService.GetValue(ShowRibbonKey), out var value) && value;
-            set => this.storageService.SetValue(ShowRibbonKey, value.ToString());
+            get => this.toolbar.IsRibbonVisible;
+            set => this.toolbar.SetRibbonVisible(value);
         }
 
-        /// <summary>
-        /// Adds a VisualElement service as a toolbar tab entry.
-        /// </summary>
-        /// <typeparam name="T">Type of view to resolve from the service container.</typeparam>
-        /// <param name="tabName">Name shown on the toolbar tab.</param>
-        /// <param name="elementName">Name of the service element registered in UXML.</param>
-        /// <param name="id">Outputs the assigned unique tab identifier.</param>
-        /// <param name="view">Outputs the instantiated view.</param>
-        public void AddTab<T>(string tabName, string elementName, out int id, out T view)
-            where T : VisualElement
+        internal void AddRegistration(int id, string tabName, string elementName, VisualElement element)
         {
-            this.AddTab(typeof(T), tabName, elementName, out id, out var visualElement);
-            view = (T)visualElement;
-        }
-
-        /// <summary>
-        /// Adds a VisualElement service as a toolbar tab entry.
-        /// </summary>
-        /// <param name="viewType">Concrete view type that will be resolved from services.</param>
-        /// <param name="tabName">Name shown on the toolbar tab.</param>
-        /// <param name="elementName">Name of the service element registered in UXML.</param>
-        /// <param name="id">Outputs the assigned unique tab identifier.</param>
-        /// <param name="view">Outputs the instantiated view.</param>
-        public void AddTab(Type viewType, string tabName, string elementName, out int id, out VisualElement view)
-        {
-            if (!typeof(VisualElement).IsAssignableFrom(viewType))
+            if (this.disposed)
             {
-                throw new ArgumentException($"{viewType} is not a {nameof(VisualElement)}", nameof(viewType));
+                throw new ObjectDisposedException(nameof(ToolbarView));
             }
 
-            if (!viewType.IsDefined(typeof(IsServiceAttribute)))
+            if (element == null)
             {
-                throw new ArgumentException($"{viewType} is not defined as a service", nameof(viewType));
+                throw new ArgumentNullException(nameof(element));
             }
 
-            id = ++this.key;
-
-            view = (VisualElement)AnchorApp.Current.Services.GetService(viewType);
+            if (element.parent != null)
+            {
+                throw new ArgumentException("Toolbar elements must be unattached when registered.", nameof(element));
+            }
 
             if (!this.toolbarTabs.TryGetValue(tabName, out var tab))
             {
@@ -202,63 +136,83 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             var container = new ToolbarTabElement(elementName);
-            container.Add(view);
+            container.Add(element);
 
-            var group = new ToolbarGroup.Tab(id, elementName, container, tab, view);
+            var group = new ToolbarGroup.Tab(id, elementName, container, tab, element);
             this.toolbarGroups.Add(id, group);
 
             tab.Groups.Add(group);
-            tab.Groups.Sort((t1, t2) => string.Compare(t1.Name, t2.Name, StringComparison.Ordinal));
-
-            this.viewModel.AddSelection(group.Name);
+            tab.Groups.Sort(static (t1, t2) =>
+            {
+                var nameComparison = string.Compare(t1.Name, t2.Name, StringComparison.Ordinal);
+                return nameComparison != 0 ? nameComparison : t1.ID.CompareTo(t2.ID);
+            });
 
             if (!this.viewModel.SelectionsHidden.Contains(group.Name))
             {
                 this.ShowTab(group);
             }
 
-            DisableKeyboardNavigation(view);
+            DisableKeyboardNavigation(element);
+
+            if (this.compositionCompleted)
+            {
+                this.EnsureActiveGroup();
+            }
         }
 
-        /// <summary>
-        /// Removes a previously registered tab by id.
-        /// </summary>
-        /// <param name="id">Identifier of the tab that should be removed.</param>
-        /// <typeparam name="T">Expected type of the view backing the tab.</typeparam>
-        /// <returns>The removed view, or null if the id was not found.</returns>
-        public T RemoveTab<T>(int id)
-            where T : VisualElement
+        internal void RemoveRegistration(int id)
         {
             if (!this.toolbarGroups.Remove(id, out var group))
             {
-                return null;
+                return;
             }
-
-            this.viewModel.RemoveSelection(group.Name);
 
             this.HideTab(group);
             group.Group.Groups.Remove(group);
+            ReleaseVisualElement(group.View);
 
-            if (group.View is IDisposable disposable)
+            if (this.compositionCompleted)
             {
-                disposable.Dispose();
+                this.EnsureActiveGroup();
             }
+        }
 
-            return (T)group.View;
+        internal void CompleteComposition()
+        {
+            this.compositionCompleted = true;
+            this.EnsureActiveGroup();
         }
 
         /// <inheritdoc />
-        public VisualElement RemoveTab(int id)
+        public void Dispose()
         {
-            return this.RemoveTab<VisualElement>(id);
-        }
+            if (this.disposed)
+            {
+                return;
+            }
 
-        /// <summary>Gets the VisualElement backing a registered tab.</summary>
-        /// <param name="id">Identifier of the tab that should be queried.</param>
-        /// <returns>The view backing the tab, or null when not found.</returns>
-        public VisualElement GetPanel(int id)
-        {
-            return this.toolbarGroups.TryGetValue(id, out var group) ? group.View : null;
+            this.disposed = true;
+            this.compositionCompleted = false;
+
+            this.viewModel.PropertyChanged -= this.OnPropertyChanged;
+            this.UnregisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged);
+            this.UnregisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
+            this.UnregisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
+            this.UnregisterPanelRoot();
+
+            foreach (var group in this.toolbarGroups.Values)
+            {
+                ReleaseVisualElement(group.View);
+            }
+
+            this.toolbarGroups.Clear();
+            this.toolbarTabs.Clear();
+            this.activeGroup = null;
+
+            this.RemoveFromHierarchy();
+            ClearBindingsAndDataSources(this);
+            this.Clear();
         }
 
         /// <summary>Shows or hides the active ribbon group.</summary>
@@ -329,11 +283,31 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             toolbarView.ResizeViewRect(evt.newRect);
         }
 
-        private void AppOnShuttingDown()
+        private static void ReleaseVisualElement(VisualElement element)
         {
-            this.UnregisterPanelRoot();
+            try
+            {
+                if (element is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+            finally
+            {
+                element.RemoveFromHierarchy();
+                ClearBindingsAndDataSources(element);
+            }
+        }
 
-            AnchorApp.ShuttingDown -= this.AppOnShuttingDown;
+        private static void ClearBindingsAndDataSources(VisualElement element)
+        {
+            for (var i = 0; i < element.hierarchy.childCount; i++)
+            {
+                ClearBindingsAndDataSources(element.hierarchy[i]);
+            }
+
+            element.ClearBindings();
+            element.dataSource = null;
         }
 
         private void OnAttachToPanel(AttachToPanelEvent evt)
@@ -364,12 +338,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             {
                 this.menuContainer.Add(group.Button);
             }
-
-            // If the first toolbar group loads after the toolbar we want to set it as default
-            if (this.activeGroup == null)
-            {
-                this.SetToolbarActive(group);
-            }
         }
 
         private void HideTab(ToolbarGroup.Tab tab)
@@ -389,7 +357,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
                 if (this.activeGroup == group)
                 {
-                    this.SetDefaultGroup();
+                    this.SetToolbarActive(null);
                 }
             }
         }
@@ -534,6 +502,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             this.style.display = DisplayStyle.None;
             this.toolbarHidden = true;
+            this.toolbar.SetToolbarHidden(true);
             this.ResetRestoreClickState();
         }
 
@@ -546,6 +515,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             this.style.display = DisplayStyle.Flex;
             this.toolbarHidden = false;
+            this.toolbar.SetToolbarHidden(false);
             this.ResetRestoreClickState();
         }
 
@@ -631,7 +601,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             button.clicked += () =>
             {
-                this.storageService.SetValue(ActiveTabKey, tabName);
                 this.SetToolbarActive(toolbarTab);
 
                 if (!this.IsRibbonVisible)
@@ -640,18 +609,18 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 }
             };
 
-            if (this.storageService.GetValue(ActiveTabKey) == tabName)
-            {
-                this.SetToolbarActive(toolbarTab);
-            }
-
             return toolbarTab;
         }
 
-        private void SetToolbarActive(ToolbarGroup group)
+        private void SetToolbarActive(ToolbarGroup group, bool updateState = true)
         {
             if (group == this.activeGroup)
             {
+                if (updateState)
+                {
+                    this.toolbar.SetActiveTab(group?.Name);
+                }
+
                 if (this.IsRibbonVisible)
                 {
                     this.ShowRibbon(true);
@@ -671,17 +640,25 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 }
 
                 this.activeGroup = null;
-                ToolbarViewData.ActiveTab.Data = string.Empty;
             }
 
             if (group == null)
             {
+                if (updateState)
+                {
+                    this.toolbar.SetActiveTab(string.Empty);
+                }
+
                 return;
             }
 
             this.activeGroup = group;
-            ToolbarViewData.ActiveTab.Data = group.Name;
             group.Button.variant = ButtonVariant.Accent;
+
+            if (updateState)
+            {
+                this.toolbar.SetActiveTab(group.Name);
+            }
 
             if (this.IsRibbonVisible)
             {
@@ -689,13 +666,29 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
+        private void EnsureActiveGroup()
+        {
+            if (this.activeGroup?.Button.parent != null)
+            {
+                return;
+            }
+
+            if (this.toolbarTabs.TryGetValue(this.toolbar.ActiveTabName, out var storedGroup) && storedGroup.Button.parent != null)
+            {
+                this.SetToolbarActive(storedGroup, false);
+                return;
+            }
+
+            this.SetDefaultGroup();
+        }
+
         private void SetDefaultGroup()
         {
-            this.SetToolbarActive(null);
+            this.SetToolbarActive(null, false);
 
-            // First is always the toggle button
             if (this.menuContainer.childCount == 0)
             {
+                this.toolbar.SetActiveTab(string.Empty);
                 return;
             }
 
@@ -903,11 +896,12 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                         }
                     }
                 }
-            }
-        }
 
-        private struct EnabledVar
-        {
+                if (this.compositionCompleted)
+                {
+                    this.EnsureActiveGroup();
+                }
+            }
         }
     }
 }

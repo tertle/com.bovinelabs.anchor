@@ -121,13 +121,12 @@ Calling `VisualTreeAsset.Instantiate` directly does not run Anchor's service-res
 
 ## Bind from C#
 
-`View<TViewModel>` stores a strongly typed `ViewModel`; it does not assign a data source automatically. Set the data source on the view or on each bound element:
+Plain C# views should accept their model explicitly and assign it as the hierarchical data source. You can set the data source on the view or on each bound element:
 
 ```csharp
-var title = new Label
-{
-    dataSource = viewModel,
-};
+this.dataSource = viewModel;
+
+var title = new Label();
 
 title.SetBindingToUI(nameof(Label.text), nameof(MenuViewModel.Title));
 ```

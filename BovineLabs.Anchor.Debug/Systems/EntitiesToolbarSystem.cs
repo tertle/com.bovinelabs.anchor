@@ -15,12 +15,12 @@ namespace BovineLabs.Anchor.Debug.Systems
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     internal partial struct EntitiesToolbarSystem : ISystem, ISystemStartStop
     {
-        private ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> toolbar;
+        private ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> toolbar;
 
         /// <inheritdoc />
         public void OnCreate(ref SystemState state)
         {
-            this.toolbar = new ToolbarHelper<EntitiesToolbarView, EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
+            this.toolbar = new ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
         }
 
         /// <inheritdoc />

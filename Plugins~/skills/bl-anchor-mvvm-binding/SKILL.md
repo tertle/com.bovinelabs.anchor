@@ -53,10 +53,10 @@ namespace Example.UI
 
 ## Views And UXML
 
-- `View<TViewModel>` is a `VisualElement` with a strongly typed `ViewModel`.
-- Mark service-backed views or view models with `[IsService]`; add `[Transient]` when every resolution should create a new instance.
+- Plain C# views should derive from `VisualElement`, accept their model explicitly when needed, and set `dataSource` on the view or bound children.
+- Mark service-backed views or view models with `[IsService]`; add `[Transient]` when every service resolution should create a new instance.
 - `UXMLService.Instantiate` sets `dataSource` to `AnchorApp.Current.Services.GetService(dataSourceType)` for elements with `data-source-type`.
-- In C# views, set `dataSource = this.ViewModel` and bind with UI Toolkit `DataBinding`, `SetBindingToUI`, `SetBindingFromUI`, or `SetBindingTwoWay`.
+- In C# views, set `dataSource = viewModel` and bind with UI Toolkit `DataBinding`, `SetBindingToUI`, `SetBindingFromUI`, or `SetBindingTwoWay`.
 - Use `Converters.RegisterConverters` groups by name when binding bools to `DisplayStyle`, inverted `DisplayStyle`, or inverted booleans.
 
 ## ECS-Backed Binding

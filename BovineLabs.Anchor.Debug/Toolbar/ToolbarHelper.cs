@@ -9,29 +9,25 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
-    using UnityEngine;
 
     /// <summary>
     /// Utility that manages the lifecycle of a toolbar tab bound to a burst-compatible view model.
     /// </summary>
-    /// <typeparam name="TV">VisualElement view type instantiated for the tab.</typeparam>
     /// <typeparam name="TM">Managed view-model type that exposes binding data.</typeparam>
     /// <typeparam name="TD">Unmanaged data struct pinned for burst access.</typeparam>
-    public unsafe struct ToolbarHelper<TV, TM, TD>
-        where TV : View<TM>
-        where TM : class, IBindingObjectNotify<TD>
+    public unsafe struct ToolbarHelper<TM, TD>
+        where TM : class, IToolbarElement, IBindingObjectNotify<TD>, new()
         where TD : unmanaged
     {
         private readonly FixedString32Bytes tabName;
         private readonly FixedString32Bytes groupName;
-        private readonly bool isSerializable;
 
-        private int key;
+        private ToolbarRegistrationHandle handle;
 
         private TD* data;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ToolbarHelper{TV, TM, TD}"/> struct.
+        /// Initializes a new instance of the <see cref="ToolbarHelper{TM, TD}"/> struct.
         /// </summary>
         /// <param name="tabName">Name of the toolbar tab.</param>
         /// <param name="groupName">Name of the group inside the tab.</param>
@@ -40,13 +36,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.tabName = tabName;
             this.groupName = groupName;
             this.data = null;
-            this.key = 0;
-
-            this.isSerializable = typeof(TM).IsDefined(typeof(SerializableAttribute), false);
+            this.handle = default;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ToolbarHelper{TV, TM, TD}"/> struct.
+        /// Initializes a new instance of the <see cref="ToolbarHelper{TM, TD}"/> struct.
         /// </summary>
         /// <param name="state">System state whose world name will become the tab name.</param>
         /// <param name="groupName">Name of the group inside the tab.</param>
@@ -58,52 +52,31 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <summary>Gets access to the unmanaged binding data pinned for burst.</summary>
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
-        private string SaveKey => $"bl.toolbar.{this.tabName}.{this.groupName}";
-
         /// <summary>
-        /// Adds the toolbar tab, loads its view model, and restores serialized state if necessary. Usually called from OnStartRunning.
+        /// Registers the toolbar model and obtains its pinned binding data. Usually called from OnStartRunning.
         /// </summary>
         public void Load()
         {
-            var host = ToolbarView.Instance;
-            host.AddTab(typeof(TV), this.tabName.ToString(), this.groupName.ToString(), out this.key, out var visual);
-            var view = (TV)visual;
-
-            if (this.isSerializable)
-            {
-                var json = PlayerPrefs.GetString(this.SaveKey, string.Empty);
-                JsonUtility.FromJsonOverwrite(json, view.ViewModel);
-            }
-
-            this.data = view.ViewModel.PinObject();
-
-            if (view.ViewModel is ILoadable loadable)
-            {
-                loadable.Load();
-            }
+            this.handle = Toolbar.GetRequired().Register<TM, TD>(
+                this.tabName.ToString(),
+                this.groupName.ToString(),
+                out this.data);
         }
 
         /// <summary>
-        /// Removes the toolbar tab, persists state if required, and disposes the view model.
+        /// Removes the toolbar registration and releases its managed and pinned state.
         /// </summary>
         public void Unload()
         {
-            var view = (TV)ToolbarView.Instance.RemoveTab(this.key);
-
-            if (this.isSerializable)
+            try
             {
-                var saveData = JsonUtility.ToJson(view.ViewModel);
-                PlayerPrefs.SetString(this.SaveKey, saveData);
+                Toolbar.Current?.Remove(this.handle);
             }
-
-            if (view.ViewModel is ILoadable loadable)
+            finally
             {
-                loadable.Unload();
+                this.handle = default;
+                this.data = null;
             }
-
-            view.ViewModel.UnpinObject();
-
-            this.data = null;
         }
 
         /// <summary>Determines whether the helper’s tab is currently selected.</summary>

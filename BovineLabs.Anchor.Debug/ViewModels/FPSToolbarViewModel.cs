@@ -5,12 +5,18 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using Unity.Collections;
     using Unity.Properties;
     using UnityEngine;
+    using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    public partial class FPSToolbarViewModel : ObservableObject
+    [Preserve]
+    [IsService]
+    [AutoToolbar("FPS")]
+    public partial class FPSToolbarViewModel : ObservableObject, IToolbarElement
     {
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;
@@ -65,6 +71,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.maxFPS, value);
         }
 
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new FPSToolbarView(this);
+        }
+
         public void Update()
         {
             var unscaledDeltaTime = Time.unscaledDeltaTime;
@@ -72,7 +84,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             this.CalculateStatistics(unscaledDeltaTime);
 
-            if (this.timeToTriggerUpdatesPassed < ToolbarView.UpdateRateSeconds)
+            if (this.timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
             {
                 return;
             }

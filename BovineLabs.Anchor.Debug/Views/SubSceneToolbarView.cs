@@ -10,52 +10,53 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    [Transient]
-    public class SubSceneToolbarView : View<SubSceneToolbarViewModel>, IDisposable
+    public class SubSceneToolbarView : VisualElement, IDisposable
     {
         public const string UssClassName = "bl-subscene-tab";
 
         private readonly Dropdown dropdown;
 
         [Preserve]
-        public SubSceneToolbarView()
-            : base(new SubSceneToolbarViewModel())
+        public SubSceneToolbarView(SubSceneToolbarViewModel viewModel)
         {
+            this.dataSource = viewModel;
             this.AddToClassList(UssClassName);
 
             this.dropdown = new Dropdown
             {
-                dataSource = this.ViewModel,
                 selectionType = PickerSelectionType.Multiple,
                 closeOnSelection = false,
                 defaultMessage = "SubScenes",
                 bindTitle = (item, _) => item.labelElement.text = "SubScenes",
-                bindItem = this.ViewModel.BindItem,
+                bindItem = (item, index) => this.Model.BindItem(item, index),
             };
 
             this.dropdown.SetBindingTwoWay(nameof(Dropdown.value), nameof(SubSceneToolbarViewModel.SubSceneValues));
 
             this.Add(this.dropdown);
 
-            this.ViewModel.PropertyChanged += this.OnPropertyChanged;
+            viewModel.PropertyChanged += this.OnPropertyChanged;
         }
 
         public void Dispose()
         {
-            this.ViewModel.PropertyChanged -= this.OnPropertyChanged;
+            this.Model.PropertyChanged -= this.OnPropertyChanged;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SubSceneToolbarViewModel.SubScenes))
             {
-                this.dropdown.sourceItems = this.ViewModel.SubScenes;
-                this.dropdown.value = this.ViewModel.SubSceneValues; // Can't rely on binding to have updated in time
+                this.dropdown.sourceItems = this.Model.SubScenes;
+                this.dropdown.value = this.Model.SubSceneValues; // Can't rely on binding to have updated in time
                 this.dropdown.Refresh();
             }
         }
+
+        private SubSceneToolbarViewModel Model => (SubSceneToolbarViewModel)this.dataSource;
     }
 }
 #endif

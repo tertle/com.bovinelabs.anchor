@@ -70,7 +70,7 @@ Confirm all of the following:
 
 - The project has AppUI and the consuming asmdef references `BovineLabs.Anchor.Debug`.
 - A player build defines `BL_DEBUG`; the toolbar assembly is always available in the Editor.
-- The toolbar host is registered as a non-transient service implementing `IAnchorToolbarHost`.
+- The durable `Toolbar` host is registered as a non-transient service implementing `IAnchorToolbarHost`.
 - An ECS toolbar system calls `Load` and `Unload` from `ISystemStartStop`.
 - A custom `AnchorAppBuilder.OnAppInitialized` calls the base implementation so `InitializeToolbar` runs.
 

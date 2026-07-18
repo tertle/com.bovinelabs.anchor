@@ -7,14 +7,17 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using Unity.AppUI.UI;
     using Unity.Collections;
     using Unity.Entities;
     using Unity.Properties;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, ILoadable
+    public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, ILoadable, IToolbarElement
     {
         [CreateProperty]
         public UIArray<Data.SubSceneName> SubScenes => this.Value.SubScenes;
@@ -34,6 +37,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public void Unload()
         {
             this.Value.Dispose();
+        }
+
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new SubSceneToolbarView(this);
         }
 
         public void BindItem(DropdownItem item, int index)

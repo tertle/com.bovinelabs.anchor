@@ -5,7 +5,6 @@
 #if UNITY_LOCALIZATION
 namespace BovineLabs.Anchor.Debug.Views
 {
-    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using Unity.Properties;
@@ -14,15 +13,14 @@ namespace BovineLabs.Anchor.Debug.Views
     using UnityEngine.Scripting;
 
     [Preserve]
-    [AutoToolbar("Localization")]
-    public class LocalizationToolbarView : View<LocalizationToolbarViewModel>
+    public class LocalizationToolbarView : VisualElement
     {
         public const string UssClassName = "bl-localization-tab";
 
         [Preserve]
-        public LocalizationToolbarView()
-            : base(new LocalizationToolbarViewModel())
+        public LocalizationToolbarView(LocalizationToolbarViewModel viewModel)
         {
+            this.dataSource = viewModel;
             this.AddToClassList(UssClassName);
 
             if (!LocalizationSettings.HasSettings)
@@ -33,9 +31,8 @@ namespace BovineLabs.Anchor.Debug.Views
 
             var dropdownField = new Dropdown
             {
-                dataSource = this.ViewModel,
                 defaultMessage = string.Empty,
-                bindItem = (item, i) => item.label = this.ViewModel.Locales[i],
+                bindItem = (item, i) => item.label = this.Model.Locales[i],
             };
 
             dropdownField.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -49,6 +46,8 @@ namespace BovineLabs.Anchor.Debug.Views
 
             this.Add(dropdownField);
         }
+
+        private LocalizationToolbarViewModel Model => (LocalizationToolbarViewModel)this.dataSource;
     }
 }
 #endif

@@ -5,15 +5,19 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using Unity.AppUI.Core;
     using Unity.Properties;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
     [IsService]
-    public class AppUIToolbarViewModel : ObservableObject
+    [AutoToolbar("UI")]
+    public class AppUIToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
         private const string ThemeKey = "bl.options.ui.theme";
         private const string ScaleKey = "bl.options.ui-scale";
@@ -23,6 +27,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private readonly List<string> themes = new();
         private readonly List<string> scales = new();
 
+        private bool loaded;
         private int themeValue = -1;
         private int scaleValue = -1;
 
@@ -68,12 +73,41 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
         }
 
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new AppUIToolbarView(this);
+        }
+
+        /// <inheritdoc />
+        public void Load()
+        {
+            if (this.loaded)
+            {
+                return;
+            }
+
+            this.loaded = true;
+            this.RefreshSystemThemeSubscription();
+        }
+
+        /// <inheritdoc />
+        public void Unload()
+        {
+            this.loaded = false;
+            Platform.darkModeChanged -= this.OnSystemThemeChanged;
+        }
+
         private void SetTheme(string theme)
         {
             Platform.darkModeChanged -= this.OnSystemThemeChanged;
             if (theme == "system")
             {
-                Platform.darkModeChanged += this.OnSystemThemeChanged;
+                if (this.loaded)
+                {
+                    Platform.darkModeChanged += this.OnSystemThemeChanged;
+                }
+
                 AnchorApp.Current.Panel.Theme = Platform.darkMode ? "dark" : "light";
             }
             else
@@ -82,6 +116,15 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
 
             this.localStorageService.SetValue(ThemeKey, theme);
+        }
+
+        private void RefreshSystemThemeSubscription()
+        {
+            Platform.darkModeChanged -= this.OnSystemThemeChanged;
+            if (this.themeValue != -1 && this.themes[this.themeValue] == "system")
+            {
+                Platform.darkModeChanged += this.OnSystemThemeChanged;
+            }
         }
 
         private void SetScale(string scale)

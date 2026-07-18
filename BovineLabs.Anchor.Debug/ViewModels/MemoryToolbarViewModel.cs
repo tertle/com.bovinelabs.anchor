@@ -5,12 +5,18 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Profiling;
+    using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    public class MemoryToolbarViewModel : ObservableObject
+    [Preserve]
+    [IsService]
+    [AutoToolbar("Memory")]
+    public class MemoryToolbarViewModel : ObservableObject, IToolbarElement
     {
         private float timeToTriggerUpdatesPassed;
 
@@ -50,12 +56,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.allocatedMemoryForGraphicsMB, value);
         }
 
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new MemoryToolbarView(this);
+        }
+
         public void Update()
         {
             var unscaledDeltaTime = Time.unscaledDeltaTime;
             this.timeToTriggerUpdatesPassed += unscaledDeltaTime;
 
-            if (this.timeToTriggerUpdatesPassed < ToolbarView.UpdateRateSeconds)
+            if (this.timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
             {
                 return;
             }

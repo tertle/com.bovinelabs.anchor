@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using JetBrains.Annotations;
 
     /// <summary>
-    /// Marks a VisualElement service so it can automatically be added to the Anchor toolbar.
+    /// Marks an <see cref="IToolbarElement"/> service so it can automatically register with the Anchor toolbar.
     /// </summary>
     [MeansImplicitUse]
     public class AutoToolbarAttribute : Attribute

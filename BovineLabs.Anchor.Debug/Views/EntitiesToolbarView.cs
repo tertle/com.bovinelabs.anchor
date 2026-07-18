@@ -7,20 +7,20 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    [Transient]
-    public class EntitiesToolbarView : View<EntitiesToolbarViewModel>
+    public class EntitiesToolbarView : VisualElement
     {
         public const string UssClassName = "bl-entities-tab";
 
         [Preserve]
-        public EntitiesToolbarView()
-            : base(new EntitiesToolbarViewModel())
+        public EntitiesToolbarView(EntitiesToolbarViewModel viewModel)
         {
+            this.dataSource = viewModel;
             this.AddToClassList(UssClassName);
 
-            this.Add(KeyValueGroup.Create(this.ViewModel,
+            this.Add(KeyValueGroup.Create(viewModel,
                 new[]
                 {
                     ("Entities", nameof(EntitiesToolbarViewModel.Entities)),

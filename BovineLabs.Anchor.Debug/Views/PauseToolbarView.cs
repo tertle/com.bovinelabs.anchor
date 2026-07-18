@@ -8,23 +8,22 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using JetBrains.Annotations;
     using Unity.Properties;
-    using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    [Transient]
     [UsedImplicitly]
-    public class PauseToolbarView : View<PauseToolbarViewModel>
+    public class PauseToolbarView : VisualElement
     {
         [Preserve]
-        public PauseToolbarView()
-            : base(new PauseToolbarViewModel())
+        public PauseToolbarView(PauseToolbarViewModel viewModel)
         {
+            this.dataSource = viewModel;
+
             var pauseToggle = new Toggle
             {
                 label = "Pause",
-                dataSource = this.ViewModel,
             };
 
             pauseToggle.SetBinding(nameof(Toggle.value), new DataBinding

@@ -12,20 +12,20 @@ The toolbar is an AppUI feature. Its package asmdef requires:
 
 `BovineLabs.Anchor.Debug` is not auto-referenced. Put custom panels in a debug asmdef that explicitly references `BovineLabs.Anchor`, `BovineLabs.Anchor.Debug`, `Unity.AppUI`, `Unity.Entities` for ECS panels, and any feature assemblies whose data the panel reads. Mirror the `UNITY_EDITOR || BL_DEBUG` constraint so debug code does not leak into normal player builds.
 
-Anchor's default app builder discovers the non-transient `ToolbarView` service as `IAnchorToolbarHost` and calls `AnchorApp.InitializeToolbar()`. Use the `Anchor UI.tss` theme entry point so the AppUI and toolbar style sheets are present. See [Getting started](getting-started.md) for host and theme setup.
+Anchor's default app builder discovers the non-transient `Toolbar` service as `IAnchorToolbarHost` and calls `AnchorApp.InitializeToolbar()`. The service owns registrations, models, persistence, and filter state; each host initialization asks it for a replaceable visual root. Use the `Anchor UI.tss` theme entry point so the AppUI and toolbar style sheets are present. See [Getting started](getting-started.md) for host and theme setup.
 
 ## Choose a panel pattern
 
 | Panel state | Pattern |
 | --- | --- |
-| Managed Unity API, service state, or static commands | A `View<TViewModel>` marked `[AutoToolbar]` |
-| ECS world data or controls consumed by an ECS system | `ToolbarHelper<TView, TViewModel, TData>` in an `ISystem, ISystemStartStop` |
+| Managed Unity API, service state, or static commands | An `[IsService]`, `[AutoToolbar]` model implementing `IToolbarElement` |
+| ECS world data or controls consumed by an ECS system | `ToolbarHelper<TModel, TData>` in an `ISystem, ISystemStartStop` |
 
 Do not introduce an ECS system solely to host a managed panel. Conversely, do not poll ECS state from a visual element when a toolbar system can publish an unmanaged snapshot.
 
 ## Managed panels with AutoToolbar
 
-`[AutoToolbar(elementName, tabName)]` is discovered when `ToolbarView` is constructed. `elementName` is the heading and filter name. When `tabName` is omitted, the panel uses `AnchorApp.ServiceTabName`, which defaults to `Service`.
+`[AutoToolbar(elementName, tabName)]` is discovered once when the durable `Toolbar` service is constructed. Put the attribute on an `[IsService]` model that implements `IToolbarElement`. `elementName` is the heading and filter name. When `tabName` is omitted, the panel uses `AnchorApp.ServiceTabName`, which defaults to `Service`.
 
 ```csharp
 namespace Example.Debug
@@ -36,10 +36,19 @@ namespace Example.Debug
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    public sealed class BuildInfoViewModel : ObservableObject
+    [Preserve]
+    [IsService]
+    [AutoToolbar("Build", "Diagnostics")]
+    public sealed class BuildInfoViewModel : ObservableObject, IToolbarElement
     {
         private string version;
+
+        [Preserve]
+        public BuildInfoViewModel()
+        {
+        }
 
         [CreateProperty(ReadOnly = true)]
         public string Version
@@ -47,29 +56,32 @@ namespace Example.Debug
             get => this.version;
             set => this.SetProperty(ref this.version, value);
         }
+
+        public VisualElement CreateElement()
+        {
+            return new BuildInfoView(this);
+        }
     }
 
-    [Preserve]
-    [AutoToolbar("Build", "Diagnostics")]
-    public sealed class BuildInfoView : View<BuildInfoViewModel>
+    public sealed class BuildInfoView : VisualElement
     {
-        [Preserve]
-        public BuildInfoView()
-            : base(new BuildInfoViewModel())
+        public BuildInfoView(BuildInfoViewModel model)
         {
-            var version = new Text { dataSource = this.ViewModel };
+            this.dataSource = model;
+
+            var version = new Text();
             version.SetBindingToUI(nameof(Text.text), nameof(BuildInfoViewModel.Version));
             this.Add(version);
 
-            this.schedule.Execute(() => this.ViewModel.Version = UnityEngine.Application.version).Every(250);
+            this.schedule.Execute(() => model.Version = UnityEngine.Application.version).Every(250);
         }
     }
 }
 ```
 
-`View<T>` inherits `[IsService]`, which satisfies `ToolbarView.AddTab`. Add `[IsService]` yourself if an auto panel derives directly from `VisualElement`. Auto panels are normally resolved once with the toolbar, so `[Transient]` is unnecessary unless another caller also creates them and needs independent instances. Keep `[Preserve]` on attribute-discovered panels and their reflected constructors for stripped player builds.
+`IToolbarElement.CreateElement()` must return a fresh, unattached visual element every time. Toolbar root recreation retains the model and calls the factory again; it does not rediscover or reload the panel. Keep registration state, subscriptions, and resources on the model. Implement `ILoadable` when that state needs explicit setup and teardown: `Load()` runs once at registration and `Unload()` runs once at true service shutdown. Keep `[Preserve]` on attribute-discovered models and their reflected constructors for stripped player builds.
 
-Managed polling should be modest. `ToolbarView.UpdateRateSeconds` is `0.25` seconds and is a useful default for counters that do not need per-frame refresh.
+Managed polling should be modest. `Toolbar.UpdateRateSeconds` is `0.25` seconds and is a useful default for counters that do not need per-frame refresh.
 
 ## ECS-backed panels
 
@@ -91,17 +103,11 @@ namespace Example.Debug
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct EntityCountToolbarSystem : ISystem, ISystemStartStop
     {
-        private ToolbarHelper<
-            EntityCountToolbarView,
-            EntityCountToolbarViewModel,
-            EntityCountToolbarViewModel.Data> toolbar;
+        private ToolbarHelper<EntityCountToolbarViewModel, EntityCountToolbarViewModel.Data> toolbar;
 
         public void OnCreate(ref SystemState state)
         {
-            this.toolbar = new ToolbarHelper<
-                EntityCountToolbarView,
-                EntityCountToolbarViewModel,
-                EntityCountToolbarViewModel.Data>(ref state, "Entities");
+            this.toolbar = new ToolbarHelper<EntityCountToolbarViewModel, EntityCountToolbarViewModel.Data>(ref state, "Entities");
         }
 
         public void OnStartRunning(ref SystemState state)
@@ -129,7 +135,7 @@ namespace Example.Debug
 }
 ```
 
-`ToolbarSystemGroup` runs inside Core's `DebugSystemGroup` for default and service worlds. It skips child updates until both `ToolbarView.Instance` and `AnchorApp.Current` exist.
+`ToolbarSystemGroup` runs inside Core's `DebugSystemGroup` for default and service worlds. It skips child updates until both the durable `Toolbar` service and `AnchorApp.Current` exist.
 
 The `ref state` constructor uses the system world's name as the toolbar tab and the second argument as the group heading and filter name. A world name ending in `World` has that suffix removed. Use the `(FixedString32Bytes tabName, FixedString32Bytes groupName)` constructor when the tab should not be world-scoped.
 
@@ -141,10 +147,12 @@ The `ref state` constructor uses the system world's name as the toolbar tab and 
 namespace Example.Debug
 {
     using BovineLabs.Anchor;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using Unity.Properties;
+    using UnityEngine.UIElements;
 
     public partial class EntityCountToolbarViewModel :
-        SystemObservableObject<EntityCountToolbarViewModel.Data>
+        SystemObservableObject<EntityCountToolbarViewModel.Data>, IToolbarElement
     {
         [CreateProperty(ReadOnly = true)]
         public int EntityCount => this.Value.EntityCount;
@@ -153,6 +161,11 @@ namespace Example.Debug
         {
             [SystemProperty]
             private int entityCount;
+        }
+
+        public VisualElement CreateElement()
+        {
+            return new EntityCountToolbarView(this);
         }
     }
 }
@@ -180,17 +193,15 @@ namespace Example.Debug
 {
     using BovineLabs.Anchor;
     using Unity.AppUI.UI;
-    using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    [Preserve]
-    [Transient]
-    public sealed class EntityCountToolbarView : View<EntityCountToolbarViewModel>
+    public sealed class EntityCountToolbarView : VisualElement
     {
-        [Preserve]
-        public EntityCountToolbarView()
-            : base(new EntityCountToolbarViewModel())
+        public EntityCountToolbarView(EntityCountToolbarViewModel model)
         {
-            var count = new Text { dataSource = this.ViewModel };
+            this.dataSource = model;
+
+            var count = new Text();
             count.SetBindingToUI(nameof(Text.text), nameof(EntityCountToolbarViewModel.EntityCount));
             this.Add(count);
         }
@@ -198,7 +209,7 @@ namespace Example.Debug
 }
 ```
 
-Mark ECS-backed views `[Transient]`. Each world creates its own helper and must receive an independent view and view model; a singleton visual element cannot belong to multiple toolbar containers.
+Each helper registration creates an independent model and pinned data instance, even when several worlds use the same model type. The model creates a fresh visual projection for the current toolbar root. Do not mark the view as a service or cache it on the model.
 
 Keep panels compact. Prefer AppUI `Text` for values, `Toggle` for booleans, `ActionButton` for commands, and short row or column layouts. `KeyValueGroup.Create` is useful for a few aligned readouts; see [Adapter elements](adapter-elements.md).
 
@@ -206,15 +217,15 @@ Keep panels compact. Prefer AppUI `Text` for values, `Toggle` for booleans, `Act
 
 `Load()` performs these operations:
 
-1. Adds the view service to `ToolbarView` and records the returned tab id.
-2. Registers the view model's unmanaged value with the Burst notification bridge.
-3. Calls `ILoadable.Load()` on the view model when implemented.
-4. Pins the unmanaged value for direct access through `Binding`.
-5. Restores serializable panel state when enabled.
+1. Creates a new model for this registration.
+2. Restores serializable model state when enabled.
+3. Pins and registers the model's unmanaged value for direct access through `Binding`.
+4. Calls `ILoadable.Load()` on the model when implemented.
+5. Adds the durable registration and materializes a fresh visual element when a toolbar root exists.
 
-`Unload()` removes the tab, persists state, calls `ILoadable.Unload()`, unregisters the binding bridge, and releases the pin. Pair `Load()` and `Unload()` in `OnStartRunning` and `OnStopRunning`; never use `Binding` before load or after unload.
+`Unload()` removes only that registration, disposes its current visual element, persists state, calls `ILoadable.Unload()`, unregisters the binding bridge, and releases the pin. Pair `Load()` and `Unload()` in `OnStartRunning` and `OnStopRunning`; never use `Binding` before load or after unload. Duplicate registrations of the same model type are independent, and stale or repeated removal handles cannot remove a newer registration.
 
-Removing a tab also calls `Dispose()` when the view implements `IDisposable`. Use that to unsubscribe view-owned managed events.
+Recreating the toolbar root disposes the old visual generation and calls each model's factory again without loading, unloading, repinning, or replacing the model. A visual element that owns callbacks, popups, or other visual resources should implement `IDisposable`; use model `ILoadable` for registration-lifetime resources.
 
 ## Persist panel settings
 
@@ -323,8 +334,9 @@ The toolbar also persists its active tab and ribbon visibility. The `anchor.tool
 ## Troubleshooting
 
 - **The toolbar is absent:** verify AppUI, the debug compile constraints, the `BovineLabs.Anchor.Debug` asmdef reference, Anchor app initialization, and the Anchor UI theme.
-- **`AddTab` says the view is not a service:** derive from `View<T>` or add `[IsService]` to a direct `VisualElement` subclass.
-- **Two worlds show the same view:** mark the ECS-backed view `[Transient]`.
+- **Auto-toolbar discovery rejects a type:** put `[AutoToolbar]` and `[IsService]` on a model that implements `IToolbarElement`.
+- **A panel disappears after the toolbar root is rebuilt:** make `CreateElement()` return a new, unattached element instead of caching a view.
+- **Two worlds show the same data:** give each ECS system its own `ToolbarHelper<TModel, TData>` lifecycle; do not share the helper or its `Binding` pointer.
 - **The system runs expensive queries while hidden:** guard the work with `toolbar.IsVisible()` before collecting data.
 - **A restored setting is missing:** mark the class and nested data `[Serializable]`, and serialize the private field with `[SerializeField]`.
 - **A native list never updates:** allocate the destination list in `ILoadable.Load()` and assign a separate snapshot through the generated property.

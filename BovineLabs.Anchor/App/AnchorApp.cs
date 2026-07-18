@@ -161,7 +161,7 @@ namespace BovineLabs.Anchor
         {
             if (this.Services.GetService(typeof(IAnchorToolbarHost)) is IAnchorToolbarHost toolbarHost)
             {
-                this.RootVisualElement.Insert(0, toolbarHost.RootVisualElement);
+                this.RootVisualElement.Insert(0, toolbarHost.CreateRootVisualElement());
             }
         }
 

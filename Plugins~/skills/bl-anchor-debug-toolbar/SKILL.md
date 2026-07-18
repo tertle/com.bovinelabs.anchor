@@ -5,19 +5,19 @@ description: "Use for Anchor debug-toolbar panels backed by ECS systems, Toolbar
 
 # Anchor Debug Toolbar
 
-Use this skill for debug panels hosted by `BovineLabs.Anchor.Debug.Toolbar.ToolbarView`.
+Use this skill for debug panels registered with the durable `BovineLabs.Anchor.Debug.Toolbar.Toolbar` service.
 Resolve Anchor package paths against `Packages/com.bovinelabs.anchor` or the matching `Library/PackageCache/com.bovinelabs.anchor@*`, and prefer the current Anchor Debug examples over unfinished feature-specific toolbar code.
 
 ## Workflow
 
 1. Inspect the target debug assembly and its `.asmdef` first. It usually needs `BovineLabs.Anchor`, `BovineLabs.Anchor.Debug`, `Unity.AppUI`, `Unity.Entities`, and any package-specific runtime/data assemblies it reads.
-2. Use the three-file ECS pattern for world-backed panels: `*ToolbarSystem`, `*ToolbarViewModel`, and `*ToolbarView`.
+2. Use the three-file ECS pattern for world-backed panels: `*ToolbarSystem`, a model that implements `IToolbarElement`, and a plain `VisualElement` projection.
 3. Put the system in `ToolbarSystemGroup` and implement `ISystem, ISystemStartStop`.
-4. Create a `ToolbarHelper<TView, TViewModel, TData>` field in `OnCreate`, call `Load()` in `OnStartRunning`, and call `Unload()` in `OnStopRunning`.
+4. Create a `ToolbarHelper<TModel, TData>` field in `OnCreate`, call `Load()` in `OnStartRunning`, and call `Unload()` in `OnStopRunning`.
 5. In `OnUpdate`, return immediately when `!toolbar.IsVisible()`, then write only raw unmanaged state through `ref var data = ref toolbar.Binding`.
 6. For generated `NativeList<T>` / `MultiContainer<T>` bindings, build the complete replacement list and assign it through the generated property (`data.Items = nativeList`) so the binding layer handles content diffing and notifications. Do not mutate the backing list and call `Notify` manually.
 7. Keep formatting, texture lookup, localization, and other managed UI work in the view model or view. Burst/system code should publish data, not build UI strings through managed APIs.
-8. Use AppUI/UI Toolkit bindings in the view. Set `dataSource = this.ViewModel`, then bind with `SetBindingToUI`, `SetBindingFromUI`, `SetBindingTwoWay`, or explicit `DataBinding` when a converter is needed.
+8. Have `IToolbarElement.CreateElement()` return a fresh view on every call. Pass the model into the view constructor, set the view's `dataSource`, then bind with `SetBindingToUI`, `SetBindingFromUI`, `SetBindingTwoWay`, or explicit `DataBinding`.
 9. Use the MVVM/binding and adapter-elements skills for non-toolbar screen binding or AppUI control details.
 10. Run the affected Unity test assembly when code changes are made; for documentation-only edits, validate links and examples against the current source.
 
@@ -35,11 +35,11 @@ namespace BovineLabs.Example.Debug
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct ExampleToolbarSystem : ISystem, ISystemStartStop
     {
-        private ToolbarHelper<ExampleToolbarView, ExampleToolbarViewModel, ExampleToolbarViewModel.Data> toolbar;
+        private ToolbarHelper<ExampleToolbarViewModel, ExampleToolbarViewModel.Data> toolbar;
 
         public void OnCreate(ref SystemState state)
         {
-            this.toolbar = new ToolbarHelper<ExampleToolbarView, ExampleToolbarViewModel, ExampleToolbarViewModel.Data>(ref state, "Example");
+            this.toolbar = new ToolbarHelper<ExampleToolbarViewModel, ExampleToolbarViewModel.Data>(ref state, "Example");
         }
 
         public void OnStartRunning(ref SystemState state)
@@ -77,9 +77,11 @@ Use `SystemObservableObject<TData>` when an ECS system needs pinned unmanaged bi
 namespace BovineLabs.Example.Debug
 {
     using BovineLabs.Anchor;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using Unity.Properties;
+    using UnityEngine.UIElements;
 
-    public partial class ExampleToolbarViewModel : SystemObservableObject<ExampleToolbarViewModel.Data>
+    public partial class ExampleToolbarViewModel : SystemObservableObject<ExampleToolbarViewModel.Data>, IToolbarElement
     {
         [CreateProperty(ReadOnly = true)]
         public int EntityCount => this.Value.EntityCount;
@@ -88,6 +90,11 @@ namespace BovineLabs.Example.Debug
         {
             [SystemProperty]
             private int entityCount;
+        }
+
+        public VisualElement CreateElement()
+        {
+            return new ExampleToolbarView(this);
         }
     }
 }
@@ -101,20 +108,22 @@ For UI controls that write back to ECS state, expose a normal `[CreateProperty]`
 
 ## Views
 
-Derive from `View<TViewModel>` and construct the view model inline. `View<T>` is already an Anchor service; add `[Transient]` when the panel should be resolved as a fresh transient instance like the built-in debug views.
+Toolbar views are replaceable projections, not services or state owners. Derive from `VisualElement`, accept the durable model in the constructor, and set the root `dataSource`. The toolbar may call `CreateElement()` again when its root is rebuilt, so never return a cached or previously attached element.
 
 ```csharp
 namespace BovineLabs.Example.Debug
 {
     using BovineLabs.Anchor;
     using Unity.AppUI.UI;
+    using UnityEngine.UIElements;
 
-    public class ExampleToolbarView : View<ExampleToolbarViewModel>
+    public class ExampleToolbarView : VisualElement
     {
-        public ExampleToolbarView()
-            : base(new ExampleToolbarViewModel())
+        public ExampleToolbarView(ExampleToolbarViewModel model)
         {
-            var count = new Text { dataSource = this.ViewModel };
+            this.dataSource = model;
+
+            var count = new Text();
             count.SetBindingToUI(nameof(Text.text), nameof(ExampleToolbarViewModel.EntityCount));
             this.Add(count);
         }
@@ -124,13 +133,19 @@ namespace BovineLabs.Example.Debug
 
 Prefer AppUI elements for controls: `Text` for compact values, `Toggle` for booleans, `ActionButton` for commands, and small row/column `VisualElement` layouts for grouping. Keep toolbar panels compact; they live in a ribbon, not a full screen.
 
+If a view directly subscribes to managed events, opens popups, or owns other disposable visual resources, implement `IDisposable`. The toolbar disposes every materialized element when that visual generation is replaced or the registration is removed. Keep model lifecycle work out of the view.
+
 ## Managed-Only Panels
 
-Use `[AutoToolbar("Panel Name")]` on a `View<TViewModel>` when the panel is purely managed and does not need an ECS system. This is the pattern for panels that poll Unity managed APIs through `schedule.Execute(...)` or show service/editor state. Do not add `ToolbarHelper` just to host a static or managed-only panel.
+Put `[IsService]` and `[AutoToolbar("Panel Name")]` on the model when a panel is purely managed and does not need an ECS system. The model must implement `IToolbarElement`; `CreateElement()` returns a fresh plain view. Add `ILoadable` when the model owns subscriptions or resources that should exist for the registration lifetime. `Load()` runs once when the durable toolbar discovers the model, `Unload()` runs once at true toolbar shutdown, and visual recreation does not repeat either call.
+
+Do not add `ToolbarHelper` just to host a static or managed-only panel. Keep `[Preserve]` on attribute-discovered models and constructors that are reached only through reflection in stripped builds.
 
 ## Guardrails
 
 - Do not create a new toolbar host, nav path, popup, or custom debug UI framework for panels that fit Anchor Debug.
+- Do not put `[AutoToolbar]`, `[IsService]`, or `[Transient]` on the visual projection; the model owns registration identity and state.
+- Do not cache or reuse toolbar visual elements. `IToolbarElement.CreateElement()` must create a fresh element for each toolbar root generation.
 - Do not use unfinished feature-specific toolbar implementations as templates. Start from Anchor Debug built-ins or stable package debug panels.
 - Do not put managed strings, UnityEngine object lookups, localization resolution, or texture polling in Burst paths. Publish unmanaged data from systems and resolve managed presentation in view models/views.
 - Do not add `RequireForUpdate` by default. Use it only when the debug system genuinely has an optional runtime dependency.

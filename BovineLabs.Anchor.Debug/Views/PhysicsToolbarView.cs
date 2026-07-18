@@ -8,21 +8,20 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using JetBrains.Annotations;
     using Unity.Properties;
-    using UnityEngine.UIElements;
     using Toggle = Unity.AppUI.UI.Toggle;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    [Transient]
     [UsedImplicitly]
-    public class PhysicsToolbarView : View<PhysicsToolbarViewModel>
+    public class PhysicsToolbarView : VisualElement
     {
         public const string UssClassName = "bl-physics-tab";
 
         [Preserve]
-        public PhysicsToolbarView()
-            : base(new PhysicsToolbarViewModel())
+        public PhysicsToolbarView(PhysicsToolbarViewModel viewModel)
         {
+            this.dataSource = viewModel;
             this.AddToClassList(UssClassName);
 
             this.style.flexDirection = FlexDirection.Row;
@@ -35,7 +34,6 @@ namespace BovineLabs.Anchor.Debug.Views
             var colliders = new Toggle
             {
                 label = "Colliders",
-                dataSource = this.ViewModel,
             };
 
             colliders.SetBinding(nameof(Toggle.value), new DataBinding
@@ -49,7 +47,6 @@ namespace BovineLabs.Anchor.Debug.Views
             var aabbs = new Toggle
             {
                 label = "AABBs",
-                dataSource = this.ViewModel,
             };
 
             aabbs.SetBinding(nameof(Toggle.value), new DataBinding
@@ -64,7 +61,6 @@ namespace BovineLabs.Anchor.Debug.Views
             var terrain = new Toggle
             {
                 label = "Terrain",
-                dataSource = this.ViewModel,
             };
 
             terrain.SetBinding(nameof(Toggle.value), new DataBinding
@@ -78,7 +74,6 @@ namespace BovineLabs.Anchor.Debug.Views
             var mesh = new Toggle
             {
                 label = "Mesh",
-                dataSource = this.ViewModel,
             };
 
             mesh.SetBinding(nameof(Toggle.value), new DataBinding
@@ -93,7 +88,6 @@ namespace BovineLabs.Anchor.Debug.Views
             var collisions = new Toggle
             {
                 label = "Collisions",
-                dataSource = this.ViewModel,
             };
 
             collisions.SetBinding(nameof(Toggle.value), new DataBinding
@@ -107,7 +101,6 @@ namespace BovineLabs.Anchor.Debug.Views
             var triggers = new Toggle
             {
                 label = "Triggers",
-                dataSource = this.ViewModel,
             };
 
             triggers.SetBinding(nameof(Toggle.value), new DataBinding

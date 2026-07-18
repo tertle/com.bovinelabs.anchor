@@ -4,30 +4,27 @@
 
 namespace BovineLabs.Anchor.Debug.Views
 {
-    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using Unity.Properties;
-    using UnityEngine.UIElements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    [AutoToolbar("UI")]
-    public class AppUIToolbarView : View<AppUIToolbarViewModel>
+    public class AppUIToolbarView : VisualElement
     {
         public const string UssClassName = "bl-appui-tab";
 
         [Preserve]
         public AppUIToolbarView(AppUIToolbarViewModel viewModel)
-            : base(viewModel)
         {
+            this.dataSource = viewModel;
             this.AddToClassList(UssClassName);
 
             var theme = new Dropdown
             {
-                dataSource = viewModel,
                 defaultMessage = "Theme",
-                bindItem = (item, i) => item.label = viewModel.Themes[i].ToString(),
+                bindItem = (item, i) => item.label = this.Model.Themes[i].ToString(),
             };
 
             theme.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -40,9 +37,8 @@ namespace BovineLabs.Anchor.Debug.Views
 
             var scale = new Dropdown
             {
-                dataSource = viewModel,
                 defaultMessage = "Scale",
-                bindItem = (item, i) => item.label = viewModel.Scales[i].ToString(),
+                bindItem = (item, i) => item.label = this.Model.Scales[i].ToString(),
             };
 
             scale.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -58,5 +54,7 @@ namespace BovineLabs.Anchor.Debug.Views
             this.Add(new Text("Scale"));
             this.Add(scale);
         }
+
+        private AppUIToolbarViewModel Model => (AppUIToolbarViewModel)this.dataSource;
     }
 }

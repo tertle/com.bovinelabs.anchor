@@ -4,11 +4,14 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using Unity.Properties;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
-    public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>
+    public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>, IToolbarElement
     {
         [CreateProperty(ReadOnly = true)]
         public int Entities => this.Value.Entities;
@@ -18,6 +21,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         [CreateProperty(ReadOnly = true)]
         public int Chunks => this.Value.Chunks;
+
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new EntitiesToolbarView(this);
+        }
 
         public partial struct Data
         {

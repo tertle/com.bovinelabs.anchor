@@ -6,11 +6,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
     using UnityEngine;
+    using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    public class QualityToolbarViewModel : ObservableObject
+    [Preserve]
+    [IsService]
+    [AutoToolbar("Quality")]
+    public class QualityToolbarViewModel : ObservableObject, IToolbarElement
     {
         private int qualityValue;
 
@@ -35,6 +42,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         [CreateProperty(ReadOnly = true)]
         public List<string> QualityChoices { get; }
+
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new QualityToolbarView(this);
+        }
 
         public void Update()
         {

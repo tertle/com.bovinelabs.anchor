@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (ToolbarView.Instance == null || AnchorApp.Current == null)
+            if (!Toolbar.IsAvailable || AnchorApp.Current == null)
             {
                 return;
             }

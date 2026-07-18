@@ -7,16 +7,26 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
     using UnityEngine.Localization;
     using UnityEngine.Localization.Settings;
+    using UnityEngine.ResourceManagement.AsyncOperations;
+    using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    public class LocalizationToolbarViewModel : ObservableObject
+    [Preserve]
+    [IsService]
+    [AutoToolbar("Localization")]
+    public class LocalizationToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
         private int selectedLocale = -1;
 
         private List<string> locales = new();
+
+        private bool loaded;
 
         [CreateProperty]
         public int SelectedLocale
@@ -38,27 +48,56 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.locales, value);
         }
 
-        public LocalizationToolbarViewModel()
+        /// <inheritdoc />
+        public VisualElement CreateElement()
         {
-            if (!LocalizationSettings.HasSettings)
+            return new LocalizationToolbarView(this);
+        }
+
+        /// <inheritdoc />
+        public void Load()
+        {
+            if (this.loaded || !LocalizationSettings.HasSettings)
             {
                 return;
             }
 
-            LocalizationSettings.InitializationOperation.Completed += _ =>
-            {
-                this.Locales = new List<string>(LocalizationSettings.AvailableLocales.Locales.Select(s => s.ToString()));
-
-                var locale = LocalizationSettings.SelectedLocale;
-                this.SelectedLocale = locale != null ? this.Locales.IndexOf(locale.ToString()) : -1;
-
-                LocalizationSettings.SelectedLocaleChanged += this.OnSelectedLocaleChanged;
-            };
+            this.loaded = true;
+            LocalizationSettings.InitializationOperation.Completed += this.OnInitializationCompleted;
         }
 
-        private void OnSelectedLocaleChanged(Locale obj)
+        /// <inheritdoc />
+        public void Unload()
         {
-            this.SelectedLocale = this.Locales.IndexOf(LocalizationSettings.SelectedLocale.ToString());
+            if (!this.loaded)
+            {
+                return;
+            }
+
+            this.loaded = false;
+            LocalizationSettings.InitializationOperation.Completed -= this.OnInitializationCompleted;
+            LocalizationSettings.SelectedLocaleChanged -= this.OnSelectedLocaleChanged;
+        }
+
+        private void OnInitializationCompleted(AsyncOperationHandle<LocalizationSettings> operation)
+        {
+            if (!this.loaded)
+            {
+                return;
+            }
+
+            this.Locales = new List<string>(LocalizationSettings.AvailableLocales.Locales.Select(s => s.ToString()));
+
+            var locale = LocalizationSettings.SelectedLocale;
+            this.SelectedLocale = locale != null ? this.Locales.IndexOf(locale.ToString()) : -1;
+
+            LocalizationSettings.SelectedLocaleChanged -= this.OnSelectedLocaleChanged;
+            LocalizationSettings.SelectedLocaleChanged += this.OnSelectedLocaleChanged;
+        }
+
+        private void OnSelectedLocaleChanged(Locale locale)
+        {
+            this.SelectedLocale = locale != null ? this.Locales.IndexOf(locale.ToString()) : -1;
         }
     }
 }

@@ -4,11 +4,18 @@
 
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
     using UnityEngine;
+    using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
-    public class TimeToolbarViewModel : ObservableObject
+    [Preserve]
+    [IsService]
+    [AutoToolbar("Time")]
+    public class TimeToolbarViewModel : ObservableObject, IToolbarElement
     {
         private float timescale;
         private long unscaledSeconds;
@@ -40,6 +47,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         {
             get => this.seconds;
             set => this.SetProperty(ref this.seconds, value);
+        }
+
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new TimeToolbarView(this);
         }
 
         public void Update()

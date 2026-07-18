@@ -6,13 +6,16 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;
+    using BovineLabs.Anchor.Debug.Toolbar;
+    using BovineLabs.Anchor.Debug.Views;
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
     [Serializable]
-    public partial class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>
+    public partial class PhysicsToolbarViewModel : SystemObservableObject<PhysicsToolbarViewModel.Data>, IToolbarElement
     {
         [CreateProperty]
         public bool DrawColliderEdges
@@ -54,6 +57,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         {
             get => this.Value.DrawTerrainColliderEdges;
             set => this.Value.DrawTerrainColliderEdges = value;
+        }
+
+        /// <inheritdoc />
+        public VisualElement CreateElement()
+        {
+            return new PhysicsToolbarView(this);
         }
 
         [Serializable]
