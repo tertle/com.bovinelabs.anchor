@@ -12,6 +12,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Tests.TestDoubles;
+    using BovineLabs.Core.Utility;
     using NUnit.Framework;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -142,11 +143,11 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         {
             var storage = CreateVisibleStorage();
             var viewModel = new ToolbarViewModel(storage);
-            var autoModel = new TestAutoToolbarModel { State = 41 };
+            var autoModel = new TestAutoToolbarModel<int> { State = 41 };
             var serviceProvider = new TestServiceProvider();
             serviceProvider.Add(autoModel);
 
-            var toolbar = new ToolbarService(serviceProvider, viewModel, storage, new[] { typeof(TestAutoToolbarModel) });
+            var toolbar = new ToolbarService(serviceProvider, viewModel, storage, new[] { typeof(TestAutoToolbarModel<int>) });
 
             try
             {
@@ -155,9 +156,9 @@ namespace BovineLabs.Anchor.Tests.Toolbar
                 CollectionAssert.AreEqual(new[] { "Auto" }, viewModel.FilterItems);
 
                 var firstRoot = (ToolbarView)toolbar.CreateRootVisualElement();
-                var firstElement = firstRoot.Q<TestScheduledToolbarElement>();
+                var firstElement = firstRoot.Q<TestScheduledToolbarElement<int>>();
                 var secondRoot = (ToolbarView)toolbar.CreateRootVisualElement();
-                var secondElement = secondRoot.Q<TestScheduledToolbarElement>();
+                var secondElement = secondRoot.Q<TestScheduledToolbarElement<int>>();
 
                 Assert.AreNotSame(firstRoot, secondRoot);
                 Assert.AreNotSame(firstElement, secondElement);
@@ -177,6 +178,14 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
             Assert.AreEqual(1, autoModel.UnloadCalls);
             Assert.AreEqual(0, viewModel.FilterItems.Count);
+        }
+
+        [Test]
+        public void ProductionAutoToolbarDiscovery_DoesNotIncludeTestFixture()
+        {
+            var discoveredTypes = ReflectionUtility.GetAllWithAttribute<AutoToolbarAttribute>();
+
+            CollectionAssert.DoesNotContain(discoveredTypes, typeof(TestAutoToolbarModel<>));
         }
 
         private static TestLocalStorageService CreateVisibleStorage()
@@ -313,7 +322,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
         [IsService]
         [AutoToolbar("Auto", "Managed")]
-        public sealed class TestAutoToolbarModel : IToolbarElement, ILoadable
+        public sealed class TestAutoToolbarModel<T> : IToolbarElement, ILoadable
         {
             public int State { get; set; }
 
@@ -329,7 +338,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
             {
                 this.ElementCreateCalls++;
                 this.SchedulesCreated++;
-                return new TestScheduledToolbarElement();
+                return new TestScheduledToolbarElement<T>();
             }
 
             public void Load()
@@ -343,7 +352,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
             }
         }
 
-        private sealed class TestScheduledToolbarElement : VisualElement, IDisposable
+        private sealed class TestScheduledToolbarElement<T> : VisualElement, IDisposable
         {
             private readonly IVisualElementScheduledItem scheduledItem;
 
@@ -359,7 +368,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
             private void UpdateModel()
             {
-                _ = ((TestAutoToolbarModel)this.dataSource).State;
+                _ = ((TestAutoToolbarModel<T>)this.dataSource).State;
             }
         }
 
