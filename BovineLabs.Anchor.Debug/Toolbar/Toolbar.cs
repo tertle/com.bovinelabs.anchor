@@ -8,7 +8,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.ExceptionServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Toolbar;
@@ -94,7 +93,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         internal static Toolbar Current { get; private set; }
 
-        internal static bool IsAvailable => Current is { disposed: false };
+        internal static bool IsAvailable => Current != null;
 
         internal string ActiveTabName => this.activeTabName;
 
@@ -200,22 +199,18 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <summary>Removes a durable toolbar registration.</summary>
         /// <param name="handle">Handle returned when the registration was created.</param>
         /// <returns><c>true</c> when a live registration was removed; otherwise <c>false</c>.</returns>
-        public bool Remove(ToolbarRegistrationHandle handle)
+        internal bool Remove(ToolbarRegistrationHandle handle)
         {
-            if (this.disposed || !this.registrations.TryGetValue(handle.RegistrationId, out var registration))
+            if (!this.registrations.TryGetValue(handle.RegistrationId, out var registration))
             {
                 return false;
             }
 
             this.registrations.Remove(handle.RegistrationId);
 
-            ExceptionDispatchInfo exception = null;
-
-            CaptureException(() => this.currentView?.RemoveRegistration(handle.RegistrationId), ref exception);
-            CaptureException(() => this.viewModel.RemoveSelection(registration.ElementName), ref exception);
-            CaptureException(registration.Release, ref exception);
-
-            exception?.Throw();
+            this.currentView?.RemoveRegistration(handle.RegistrationId);
+            this.viewModel.RemoveSelection(registration.ElementName);
+            registration.Release();
             return true;
         }
 
@@ -228,29 +223,21 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             this.disposed = true;
-
-            if (ReferenceEquals(Current, this))
-            {
-                Current = null;
-                ToolbarViewData.ActiveTab.Data = default;
-            }
+            Current = null;
+            ToolbarViewData.ActiveTab.Data = default;
 
             var view = this.currentView;
             this.currentView = null;
             var registrations = this.registrations.Values.ToArray();
             this.registrations.Clear();
 
-            ExceptionDispatchInfo exception = null;
-
-            CaptureException(() => view?.Dispose(), ref exception);
+            view?.Dispose();
 
             foreach (var registration in registrations)
             {
-                CaptureException(() => this.viewModel.RemoveSelection(registration.ElementName), ref exception);
-                CaptureException(registration.Release, ref exception);
+                this.viewModel.RemoveSelection(registration.ElementName);
+                registration.Release();
             }
-
-            exception?.Throw();
         }
 
         internal static Toolbar GetRequired()
@@ -294,42 +281,22 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             return $"bl.toolbar.{tabName}.{elementName}";
         }
 
-        private static void CaptureException(Action action, ref ExceptionDispatchInfo exception)
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                exception ??= ExceptionDispatchInfo.Capture(ex);
-            }
-        }
-
         private static void ReleaseDynamicModel<TModel, TData>(TModel model, bool isSerializable, string saveKey)
             where TModel : class, IBindingObjectNotify<TData>
             where TData : unmanaged
         {
-            ExceptionDispatchInfo exception = null;
-
             if (isSerializable)
             {
-                CaptureException(
-                    () =>
-                    {
-                        var saveData = JsonUtility.ToJson(model);
-                        PlayerPrefs.SetString(saveKey, saveData);
-                    },
-                    ref exception);
+                var saveData = JsonUtility.ToJson(model);
+                PlayerPrefs.SetString(saveKey, saveData);
             }
 
             if (model is ILoadable loadable)
             {
-                CaptureException(loadable.Unload, ref exception);
+                loadable.Unload();
             }
 
-            CaptureException(model.UnpinObject, ref exception);
-            exception?.Throw();
+            model.UnpinObject();
         }
 
         private void RegisterAutoToolbars(IEnumerable<Type> autoToolbarTypes)
