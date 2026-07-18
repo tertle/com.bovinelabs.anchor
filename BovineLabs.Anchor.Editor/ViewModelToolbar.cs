@@ -11,12 +11,13 @@ namespace BovineLabs.Anchor.Editor
     using BovineLabs.Core.Editor.UI;
     using JetBrains.Annotations;
     using UnityEditor;
+    using UnityEditor.Scripting.LifecycleManagement;
     using UnityEditor.Toolbars;
     using UnityEngine;
     using UnityEngine.UIElements;
     using Object = UnityEngine.Object;
 
-    public static class ViewModelToolbar
+    public static partial class ViewModelToolbar
     {
         private const string StartupPath = "BovineLabs/View Model";
 
@@ -24,20 +25,6 @@ namespace BovineLabs.Anchor.Editor
             "rootVisualElement", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private static HashSet<object> viewModels = new();
-
-        static ViewModelToolbar()
-        {
-            EditorApplication.playModeStateChanged += change =>
-            {
-                switch (change)
-                {
-                    case PlayModeStateChange.EnteredPlayMode:
-                    case PlayModeStateChange.EnteredEditMode:
-                        MainToolbar.Refresh(StartupPath);
-                        break;
-                }
-            };
-        }
 
         [UsedImplicitly]
         [MainToolbarElement(StartupPath, defaultDockPosition = MainToolbarDockPosition.Right)]
@@ -101,6 +88,13 @@ namespace BovineLabs.Anchor.Editor
         private static VisualElement GetRootVisualElement(PanelRenderer panelRenderer)
         {
             return RootVisualElementProperty?.GetValue(panelRenderer) as VisualElement;
+        }
+
+        [OnEnteringPlayMode]
+        [OnEnteringEditMode]
+        private static void OnPlayModeStateChanged()
+        {
+            MainToolbar.Refresh(StartupPath);
         }
 
         private static string GetFriendlyName(Type type)
