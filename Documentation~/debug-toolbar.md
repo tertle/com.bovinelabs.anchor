@@ -223,7 +223,7 @@ Keep panels compact. Prefer AppUI `Text` for values, `Toggle` for booleans, `Act
 4. Calls `ILoadable.Load()` on the model when implemented.
 5. Adds the durable registration and materializes a fresh visual element when a toolbar root exists.
 
-`Unload()` removes only that registration, disposes its current visual element, persists state, calls `ILoadable.Unload()`, unregisters the binding bridge, and releases the pin. Pair `Load()` and `Unload()` in `OnStartRunning` and `OnStopRunning`; never use `Binding` before load or after unload. Duplicate registrations of the same model type are independent, and stale or repeated removal handles cannot remove a newer registration.
+`Unload()` removes only that registration, disposes its current visual element, persists state, calls `ILoadable.Unload()`, unregisters the binding bridge, and releases the pin. Pair `Load()` and `Unload()` in `OnStartRunning` and `OnStopRunning`; never use `Binding` before load or after unload. Duplicate registrations of the same model type are independent, repeated removal is harmless, and registration IDs are not reused during the toolbar service lifetime.
 
 Recreating the toolbar root disposes the old visual generation and calls each model's factory again without loading, unloading, repinning, or replacing the model. A visual element that owns callbacks, popups, or other visual resources should implement `IDisposable`; use model `ILoadable` for registration-lifetime resources.
 

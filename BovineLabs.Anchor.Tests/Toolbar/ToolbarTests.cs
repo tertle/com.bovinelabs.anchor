@@ -94,47 +94,47 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
 
         [Test]
-        public void DuplicateRegistrationsAndStaleHandles_AreIndependent()
+        public void DuplicateRegistrations_AreIndependent()
         {
-            var firstStorage = CreateVisibleStorage();
-            var firstViewModel = new ToolbarViewModel(firstStorage);
-            using var firstToolbar = new ToolbarService(new TestServiceProvider(), firstViewModel, firstStorage, Array.Empty<Type>());
+            var storage = CreateVisibleStorage();
+            var viewModel = new ToolbarViewModel(storage);
+            using var toolbar = new ToolbarService(new TestServiceProvider(), viewModel, storage, Array.Empty<Type>());
 
-            var firstHandle = firstToolbar.Register<TestBindingModel, TestBindingModel.Data>("World", "First", out var firstData);
-            var secondHandle = firstToolbar.Register<TestBindingModel, TestBindingModel.Data>("World", "Second", out var secondData);
-            var firstRoot = (ToolbarView)firstToolbar.CreateRootVisualElement();
-            var models = firstRoot.Query<TestToolbarElement>().ToList().Select(element => (TestBindingModel)element.dataSource).ToArray();
+            var firstHandle = toolbar.Register<TestBindingModel, TestBindingModel.Data>("World", "First", out var firstData);
+            toolbar.Register<TestBindingModel, TestBindingModel.Data>("World", "Second", out var secondData);
+            var root = (ToolbarView)toolbar.CreateRootVisualElement();
+            var models = root.Query<TestToolbarElement>().ToList().Select(element => (TestBindingModel)element.dataSource).ToArray();
             var firstModel = models.Single(model => GetAddress(model) == (IntPtr)firstData);
             var secondModel = models.Single(model => GetAddress(model) == (IntPtr)secondData);
 
             Assert.AreNotSame(firstModel, secondModel);
             Assert.AreNotEqual((IntPtr)firstData, (IntPtr)secondData);
 
-            Assert.IsTrue(firstToolbar.Remove(firstHandle));
-            Assert.IsFalse(firstToolbar.Remove(firstHandle));
+            Assert.IsTrue(toolbar.Remove(firstHandle));
+            Assert.IsFalse(toolbar.Remove(firstHandle));
             Assert.AreEqual(1, firstModel.UnloadCalls);
             Assert.AreEqual(1, firstModel.UnpinCalls);
             Assert.AreEqual(0, secondModel.UnloadCalls);
             Assert.AreEqual(0, secondModel.UnpinCalls);
+            Assert.AreSame(secondModel, root.Q<TestToolbarElement>().dataSource);
 
-            firstToolbar.Dispose();
+            toolbar.Dispose();
             Assert.AreEqual(1, secondModel.UnloadCalls);
             Assert.AreEqual(1, secondModel.UnpinCalls);
+        }
+
+        [Test]
+        public void CreatingSecondToolbarWhileFirstIsActive_Throws()
+        {
+            var firstStorage = CreateVisibleStorage();
+            var firstViewModel = new ToolbarViewModel(firstStorage);
+            using var toolbar = new ToolbarService(new TestServiceProvider(), firstViewModel, firstStorage, Array.Empty<Type>());
 
             var secondStorage = CreateVisibleStorage();
             var secondViewModel = new ToolbarViewModel(secondStorage);
-            using var secondToolbar = new ToolbarService(new TestServiceProvider(), secondViewModel, secondStorage, Array.Empty<Type>());
-            var currentHandle = secondToolbar.Register<TestBindingModel, TestBindingModel.Data>("World", "Current", out _);
-            var currentRoot = (ToolbarView)secondToolbar.CreateRootVisualElement();
-            var currentModel = (TestBindingModel)currentRoot.Q<TestToolbarElement>().dataSource;
 
-            Assert.IsFalse(secondToolbar.Remove(secondHandle));
-            Assert.AreEqual(0, currentModel.UnloadCalls);
-            Assert.IsNotNull(currentRoot.Q<TestToolbarElement>());
-
-            Assert.IsTrue(secondToolbar.Remove(currentHandle));
-            Assert.AreEqual(1, currentModel.UnloadCalls);
-            Assert.AreEqual(1, currentModel.UnpinCalls);
+            Assert.Throws<InvalidOperationException>(
+                () => new ToolbarService(new TestServiceProvider(), secondViewModel, secondStorage, Array.Empty<Type>()));
         }
 
         [Test]

@@ -9,7 +9,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using System.Linq;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
-    using System.Threading;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Toolbar;
@@ -34,8 +33,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private const string ActiveTabKey = "bl.active-tab";
         private const string ShowRibbonKey = "bl.show-ribbon";
 
-        private static long nextServiceId;
-
         [ConfigVar("anchor.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<Toolbar, EnabledVar>();
 
@@ -43,7 +40,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private readonly IServiceProvider serviceProvider;
         private readonly ToolbarViewModel viewModel;
         private readonly ILocalStorageService storageService;
-        private readonly long serviceId;
 
         private ToolbarView currentView;
         private string activeTabName;
@@ -70,10 +66,14 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             ILocalStorageService storageService,
             IEnumerable<Type> autoToolbarTypes)
         {
+            if (Current != null)
+            {
+                throw new InvalidOperationException("Only one Anchor toolbar service can be active.");
+            }
+
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
-            this.serviceId = Interlocked.Increment(ref nextServiceId);
             this.activeTabName = storageService.GetValue(ActiveTabKey, string.Empty);
             this.isRibbonVisible = storageService.GetValue(ShowRibbonKey, false);
             this.isToolbarHidden = !Show.Data;
@@ -202,8 +202,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <returns><c>true</c> when a live registration was removed; otherwise <c>false</c>.</returns>
         public bool Remove(ToolbarRegistrationHandle handle)
         {
-            if (this.disposed || handle.ServiceId != this.serviceId ||
-                !this.registrations.TryGetValue(handle.RegistrationId, out var registration))
+            if (this.disposed || !this.registrations.TryGetValue(handle.RegistrationId, out var registration))
             {
                 return false;
             }
@@ -404,7 +403,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private ToolbarRegistrationHandle AddRegistration(string tabName, string elementName, IToolbarElement model, Action release)
         {
             var registrationId = ++this.nextRegistrationId;
-            var handle = new ToolbarRegistrationHandle(this.serviceId, registrationId);
+            var handle = new ToolbarRegistrationHandle(registrationId);
             var registration = new Registration(handle, tabName, elementName, model, release);
 
             this.registrations.Add(registrationId, registration);

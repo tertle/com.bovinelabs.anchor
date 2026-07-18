@@ -11,26 +11,22 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     /// </summary>
     public readonly struct ToolbarRegistrationHandle : IEquatable<ToolbarRegistrationHandle>
     {
-        private readonly long serviceId;
         private readonly int registrationId;
 
-        internal ToolbarRegistrationHandle(long serviceId, int registrationId)
+        internal ToolbarRegistrationHandle(int registrationId)
         {
-            this.serviceId = serviceId;
             this.registrationId = registrationId;
         }
-
-        internal long ServiceId => this.serviceId;
 
         internal int RegistrationId => this.registrationId;
 
         /// <summary>Gets a value indicating whether this handle identifies a registration.</summary>
-        public bool IsValid => this.serviceId != 0 && this.registrationId != 0;
+        public bool IsValid => this.registrationId != 0;
 
         /// <inheritdoc />
         public bool Equals(ToolbarRegistrationHandle other)
         {
-            return this.serviceId == other.serviceId && this.registrationId == other.registrationId;
+            return this.registrationId == other.registrationId;
         }
 
         /// <inheritdoc />
@@ -42,10 +38,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return (this.serviceId.GetHashCode() * 397) ^ this.registrationId;
-            }
+            return this.registrationId;
         }
 
         public static bool operator ==(ToolbarRegistrationHandle left, ToolbarRegistrationHandle right)
