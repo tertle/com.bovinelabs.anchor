@@ -48,7 +48,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private bool disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Toolbar"/> service.
+        /// Initializes a new instance of the <see cref="Toolbar"/> class.
         /// </summary>
         /// <param name="serviceProvider">Anchor service provider used to resolve managed auto-toolbar models.</param>
         /// <param name="viewModel">Durable toolbar filter model.</param>
@@ -59,11 +59,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         {
         }
 
-        internal Toolbar(
-            IServiceProvider serviceProvider,
-            ToolbarViewModel viewModel,
-            ILocalStorageService storageService,
-            IEnumerable<Type> autoToolbarTypes)
+        internal Toolbar(IServiceProvider serviceProvider, ToolbarViewModel viewModel, ILocalStorageService storageService, IEnumerable<Type> autoToolbarTypes)
         {
             if (Current != null)
             {
@@ -129,6 +125,32 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (this.disposed)
+            {
+                return;
+            }
+
+            this.disposed = true;
+            Current = null;
+            ToolbarViewData.ActiveTab.Data = default;
+
+            var view = this.currentView;
+            this.currentView = null;
+            var regArray = this.registrations.Values.ToArray();
+            this.registrations.Clear();
+
+            view?.Dispose();
+
+            foreach (var registration in regArray)
+            {
+                this.viewModel.RemoveSelection(registration.ElementName);
+                registration.Release();
+            }
+        }
+
         /// <summary>
         /// Registers a new ECS-backed toolbar model and returns its pinned data pointer.
         /// </summary>
@@ -173,11 +195,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                     loaded = true;
                 }
 
-                return this.AddRegistration(
-                    tabName,
-                    elementName,
-                    model,
-                    () => ReleaseDynamicModel<TModel, TData>(model, isSerializable, saveKey));
+                return this.AddRegistration(tabName, elementName, model, () => ReleaseDynamicModel<TModel, TData>(model, isSerializable, saveKey));
             }
             catch
             {
@@ -201,43 +219,15 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <returns><c>true</c> when a live registration was removed; otherwise <c>false</c>.</returns>
         internal bool Remove(ToolbarRegistrationHandle handle)
         {
-            if (!this.registrations.TryGetValue(handle.RegistrationId, out var registration))
+            if (!this.registrations.Remove(handle.RegistrationId, out var registration))
             {
                 return false;
             }
-
-            this.registrations.Remove(handle.RegistrationId);
 
             this.currentView?.RemoveRegistration(handle.RegistrationId);
             this.viewModel.RemoveSelection(registration.ElementName);
             registration.Release();
             return true;
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (this.disposed)
-            {
-                return;
-            }
-
-            this.disposed = true;
-            Current = null;
-            ToolbarViewData.ActiveTab.Data = default;
-
-            var view = this.currentView;
-            this.currentView = null;
-            var registrations = this.registrations.Values.ToArray();
-            this.registrations.Clear();
-
-            view?.Dispose();
-
-            foreach (var registration in registrations)
-            {
-                this.viewModel.RemoveSelection(registration.ElementName);
-                registration.Release();
-            }
         }
 
         internal static Toolbar GetRequired()
@@ -307,7 +297,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 serviceTabName = AnchorApp.DefaultServiceTabName;
             }
 
-            var registrations = autoToolbarTypes
+            var types = autoToolbarTypes
                 .Distinct()
                 .Select(type => (Type: type, Attribute: type.GetCustomAttribute<AutoToolbarAttribute>()))
                 .Where(entry => entry.Attribute != null)
@@ -315,7 +305,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 .ThenBy(entry => entry.Attribute.ElementName, StringComparer.Ordinal)
                 .ThenBy(entry => entry.Type.FullName, StringComparer.Ordinal);
 
-            foreach (var entry in registrations)
+            foreach (var entry in types)
             {
                 if (!typeof(IToolbarElement).IsAssignableFrom(entry.Type))
                 {
@@ -343,17 +333,13 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                         loaded = true;
                     }
 
-                    this.AddRegistration(
-                        tabName,
-                        entry.Attribute.ElementName,
-                        model,
-                        () =>
+                    this.AddRegistration(tabName, entry.Attribute.ElementName, model, () =>
+                    {
+                        if (model is ILoadable registeredLoadable)
                         {
-                            if (model is ILoadable registeredLoadable)
-                            {
-                                registeredLoadable.Unload();
-                            }
-                        });
+                            registeredLoadable.Unload();
+                        }
+                    });
                 }
                 catch
                 {
@@ -401,11 +387,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 throw new InvalidOperationException($"{registration.Model.GetType()} returned a null toolbar element.");
 
             element.dataSource = registration.Model;
-            view.AddRegistration(
-                registration.Handle.RegistrationId,
-                registration.TabName,
-                registration.ElementName,
-                element);
+            view.AddRegistration(registration.Handle.RegistrationId, registration.TabName, registration.ElementName, element);
         }
 
         private void ThrowIfDisposed()
@@ -418,12 +400,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private sealed class Registration
         {
-            public Registration(
-                ToolbarRegistrationHandle handle,
-                string tabName,
-                string elementName,
-                IToolbarElement model,
-                Action release)
+            public Registration(ToolbarRegistrationHandle handle, string tabName, string elementName, IToolbarElement model, Action release)
             {
                 this.Handle = handle;
                 this.TabName = tabName;
