@@ -104,5 +104,13 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="restore">Should the UI state also be restored to the saved snapshot.</param>
         /// <returns>True if the handle existed.</returns>
         bool ReleaseStateHandle(int handle, bool restore = true);
+
+        /// <summary>Captures all navigation state required to replace this host during a visual reload.</summary>
+        /// <returns>An opaque state owned by this host implementation.</returns>
+        IAnchorNavHostReloadState CaptureReloadState();
+
+        /// <summary>Restores state captured from the previous instance of this host implementation.</summary>
+        /// <param name="state">State returned by <see cref="CaptureReloadState"/>.</param>
+        void RestoreReloadState(IAnchorNavHostReloadState state);
     }
 }

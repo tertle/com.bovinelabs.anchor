@@ -12,6 +12,7 @@ namespace BovineLabs.Anchor
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Toolbar;
+    using BovineLabs.Core;
     using BovineLabs.Core.Utility;
     using UnityEngine;
     using UnityEngine.UIElements;
@@ -36,11 +37,12 @@ namespace BovineLabs.Anchor
     {
         private PanelRenderer panelRenderer;
 
-        private AnchorNavHostSaveState state;
         private AnchorServiceProvider serviceProvider;
         private T anchorApp;
         private VisualElement hostRootVisualElement;
         private VisualElement appRootVisualElement;
+        private IAnchorNavHostReloadState pendingNavigationState;
+        private bool visualGenerationActive;
         private int lastPanelVersion = -1;
 
         protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
@@ -68,16 +70,32 @@ namespace BovineLabs.Anchor
             this.panelRenderer = this.GetComponent<PanelRenderer>();
         }
 
-        private void Start()
+        private void OnEnable()
         {
+            this.hostRootVisualElement = null;
             this.panelRenderer.RegisterUIReloadCallback(this.OnPanelRendererReload);
             ((IPanelComponent)this.panelRenderer).PerformValidation(true);
+        }
+
+        private void OnDisable()
+        {
+            this.panelRenderer.UnregisterUIReloadCallback(this.OnPanelRendererReload);
+            this.lastPanelVersion = -1;
+
+            try
+            {
+                this.ReleaseCurrentVisualGeneration();
+            }
+            finally
+            {
+                this.hostRootVisualElement = null;
+            }
         }
 
         private void OnDestroy()
         {
             this.panelRenderer.UnregisterUIReloadCallback(this.OnPanelRendererReload);
-            this.ShutdownApp(true);
+            this.ShutdownApp();
         }
 
         private void Update()
@@ -140,6 +158,10 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnAppInitialized(T app)
         {
+        }
+
+        protected virtual void OnVisualGenerationInitialized(T app)
+        {
             if (this.ToolbarOnly)
             {
                 app.InitializeToolbar();
@@ -155,19 +177,14 @@ namespace BovineLabs.Anchor
 
             app.Initialize();
             app.InitializeToolbar();
+        }
 
-            if (this.state != null)
-            {
-                app.NavHost.RestoreState(this.state);
-            }
+        protected virtual void OnVisualGenerationShuttingDown(T app)
+        {
         }
 
         protected virtual void OnAppShuttingDown(T app)
         {
-            if (!this.ToolbarOnly)
-            {
-                this.state = app.NavHost.SaveState();
-            }
         }
 
         private void InitializeApp()
@@ -178,34 +195,146 @@ namespace BovineLabs.Anchor
             this.serviceProvider = services.BuildServiceProvider();
             this.anchorApp = new T();
 
-            var panel = this.CreatePanel();
-            this.appRootVisualElement = panel.RootVisualElement;
-            this.appRootVisualElement.pickingMode = PickingMode.Ignore;
-            this.AttachAppRootToHost();
-
-            this.anchorApp.Initialize(this.serviceProvider, panel);
-            this.OnAppInitialized(this.anchorApp);
+            try
+            {
+                this.anchorApp.Initialize(this.serviceProvider);
+                this.OnAppInitialized(this.anchorApp);
+            }
+            catch
+            {
+                this.anchorApp.Dispose();
+                this.serviceProvider.Dispose();
+                this.anchorApp = null;
+                this.serviceProvider = null;
+                throw;
+            }
         }
 
-        private void ShutdownApp(bool detachAppRoot)
+        private void InitializeVisualGeneration(IAnchorNavHostReloadState navigationState)
         {
-            if (this.anchorApp != null)
-            {
-                this.OnAppShuttingDown(this.anchorApp);
+            var panel = this.CreatePanel();
+            var root = panel.RootVisualElement ??
+                throw new InvalidOperationException($"{panel.GetType().FullName} returned a null root visual element.");
 
-                if (detachAppRoot)
+            this.appRootVisualElement = root;
+
+            try
+            {
+                root.pickingMode = PickingMode.Ignore;
+                this.anchorApp.SetPanel(panel);
+                this.AttachAppRootToHost();
+                this.visualGenerationActive = true;
+                this.OnVisualGenerationInitialized(this.anchorApp);
+
+                if (navigationState != null)
                 {
-                    this.appRootVisualElement?.RemoveFromHierarchy();
+                    if (this.anchorApp.NavHost == null)
+                    {
+                        throw new InvalidOperationException("The visual generation did not initialize a navigation host.");
+                    }
+
+                    this.anchorApp.NavHost.RestoreReloadState(navigationState);
                 }
 
-                this.anchorApp.Dispose();
+                this.anchorApp.RefreshScreenMetrics();
+            }
+            catch
+            {
+                this.ReleaseVisualGeneration();
+                throw;
+            }
+        }
+
+        private void ShutdownApp()
+        {
+            try
+            {
+                if (this.anchorApp != null)
+                {
+                    try
+                    {
+                        this.InvokeVisualGenerationShuttingDown();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            this.OnAppShuttingDown(this.anchorApp);
+                        }
+                        finally
+                        {
+                            this.appRootVisualElement?.RemoveFromHierarchy();
+                            this.anchorApp.Dispose();
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                this.serviceProvider?.Dispose();
+
+                this.anchorApp = null;
+                this.serviceProvider = null;
+                this.appRootVisualElement = null;
+                this.hostRootVisualElement = null;
+                this.pendingNavigationState = null;
+                this.visualGenerationActive = false;
+            }
+        }
+
+        private void ReleaseVisualGeneration()
+        {
+            try
+            {
+                this.InvokeVisualGenerationShuttingDown();
+            }
+            finally
+            {
+                try
+                {
+                    this.appRootVisualElement?.RemoveFromHierarchy();
+                    this.anchorApp.ReleaseVisualGeneration();
+                }
+                finally
+                {
+                    this.appRootVisualElement = null;
+                }
+            }
+        }
+
+        private void ReleaseCurrentVisualGeneration()
+        {
+            if (this.anchorApp?.RootVisualElement == null)
+            {
+                return;
             }
 
-            this.serviceProvider?.Dispose();
+            this.CaptureNavigationState();
+            this.ReleaseVisualGeneration();
+        }
 
-            this.anchorApp = null;
-            this.serviceProvider = null;
-            this.appRootVisualElement = null;
+        private void CaptureNavigationState()
+        {
+            if (this.ToolbarOnly || this.pendingNavigationState != null)
+            {
+                return;
+            }
+
+            var navHost = this.anchorApp.NavHost ??
+                throw new InvalidOperationException("The current visual generation does not have a navigation host.");
+            this.pendingNavigationState = navHost.CaptureReloadState() ??
+                throw new InvalidOperationException($"{navHost.GetType().FullName} returned a null navigation reload state.");
+        }
+
+        private void InvokeVisualGenerationShuttingDown()
+        {
+            if (!this.visualGenerationActive)
+            {
+                return;
+            }
+
+            this.visualGenerationActive = false;
+            this.OnVisualGenerationShuttingDown(this.anchorApp);
         }
 
         private void AttachAppRootToHost()
@@ -226,10 +355,26 @@ namespace BovineLabs.Anchor
                 return;
             }
 
-            this.lastPanelVersion = version;
-            this.ShutdownApp(false);
-            this.hostRootVisualElement = rootElement;
-            this.InitializeApp();
+            this.hostRootVisualElement = rootElement ?? throw new ArgumentNullException(nameof(rootElement));
+
+            try
+            {
+                if (this.anchorApp == null)
+                {
+                    this.InitializeApp();
+                }
+
+                this.ReleaseCurrentVisualGeneration();
+
+                this.InitializeVisualGeneration(this.pendingNavigationState);
+                this.pendingNavigationState = null;
+                this.lastPanelVersion = version;
+            }
+            catch (Exception ex)
+            {
+                BLGlobalLogger.LogErrorString($"Failed to build Anchor panel visual generation {version}: {ex}");
+                throw;
+            }
         }
     }
 }

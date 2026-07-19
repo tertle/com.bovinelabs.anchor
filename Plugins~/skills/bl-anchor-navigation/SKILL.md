@@ -43,7 +43,8 @@ Use this skill for `AnchorNavHost` behavior and callers. Resolve Anchor source f
 - `PopBackStackToPanel()` restores the previous snapshot without popup layers. In the current implementation, `CurrentDestination` can still retain the stored popup destination; use `HasActivePopups` to determine overlay state.
 - `ClosePopup(destination, exitAnimation)` removes a matching active popup and updates the current destination.
 - `CloseAllPopups(exitAnimation)` removes every active popup and restores the base destination.
-- `SaveState()`, `RestoreState(...)`, `SaveStateHandle()`, and `ReleaseStateHandle(...)` are for temporary in-memory UI state capture and app shutdown restoration, not persistent save-game serialization.
+- `SaveState()`, `RestoreState(...)`, `SaveStateHandle()`, and `ReleaseStateHandle(...)` are for temporary in-memory UI state capture, not persistent save-game serialization.
+- `CaptureReloadState()` and `RestoreReloadState(...)` transfer the complete opaque navigation memento, including outstanding state handles, between visual generations.
 
 ## Arguments And Screen Callbacks
 

@@ -27,7 +27,8 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
             this.serviceProvider = services.BuildServiceProvider();
             this.app = new AnchorApp();
-            this.app.Initialize(this.serviceProvider, new AnchorPanel());
+            this.app.Initialize(this.serviceProvider);
+            this.app.SetPanel(new AnchorPanel());
         }
 
         public void Dispose()

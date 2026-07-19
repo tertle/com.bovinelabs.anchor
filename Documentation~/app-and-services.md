@@ -1,6 +1,6 @@
 # Application and services
 
-`AnchorAppBuilder` owns the managed application lifetime. It binds a UI Toolkit host, creates the service provider and panel, initializes `AnchorApp`, preserves navigation state across disable and enable, and disposes app-owned services on shutdown.
+`AnchorAppBuilder` owns the managed application lifetime. It creates one `AnchorApp` and service provider for the builder lifetime while treating each panel, root, navigation host, destination tree, and toolbar tree as a replaceable visual generation.
 
 ## Hosting model
 
@@ -10,7 +10,7 @@ Anchor separates the `PanelRenderer` component that owns the panel from the visu
 - `AnchorPanel` is the default panel implementation. It uses the App UI panel when App UI is available and a plain `VisualElement` otherwise.
 - `AnchorApp` owns the navigation host and exposes the running app through `AnchorApp.Current`.
 
-Place the host component and builder on the same GameObject. The builder will auto-find the host when its serialized reference is empty. Anchor treats that host as exclusive: it clears the host root before attaching or reattaching its app root, and clears it again during shutdown. See [Getting started](getting-started.md) for the scene setup.
+Place the host component and builder on the same GameObject. Anchor treats that host as exclusive: it clears the host root before attaching each fresh app root. See [Getting started](getting-started.md) for the scene setup.
 
 ## Builder lifecycle
 
@@ -18,18 +18,21 @@ The default lifecycle is:
 
 | Stage | Builder behavior |
 | --- | --- |
-| `OnEnable` | Binds the host, configures services, builds the provider, creates the app and panel, attaches the app root, then initializes the app. |
+| `Start` | Registers the renderer callback and asks `PanelRenderer` to validate and supply the initial visual generation. |
+| Initial renderer callback | Configures services, builds the provider, creates the app, runs one-time app initialization, then creates and attaches the first visual generation. |
 | `Update` | Polls screen and safe-area metrics and raises `AnchorApp.ScreenMetricsChanged` when they change. |
-| `OnDisable` | Calls the shutdown hook, saves navigation state when not toolbar-only, clears the host, disposes the app, then disposes the service provider. |
-| Host reload | Reattaches the existing app root when `PanelRenderer` reloads its visual tree. |
+| Host reload | Captures navigation migration state, invokes visual-generation teardown, releases callbacks and bindings, and creates fresh visuals against the existing app and provider. |
+| `OnDestroy` | Invokes final visual-generation teardown and app shutdown, disposes the app, then disposes the provider and its durable services exactly once. |
 
 The protected hooks have distinct responsibilities:
 
 - `OnConfigureServices` runs before the provider exists. Call `base` first, then add or replace project registrations.
-- `OnAppInitialized` runs after `AnchorApp.Current`, `Services`, `Panel`, and `RootVisualElement` are assigned. Call `base` first so navigation and toolbar initialization finish before project startup work.
-- `OnAppShuttingDown` runs while the app and services are still available. Preserve the base call so the default builder can save navigation state.
+- `OnAppInitialized` runs once after `AnchorApp.Current` and `Services` are assigned, before the first visual generation. Use it only for durable app/service initialization; `Panel`, `RootVisualElement`, and `NavHost` are not available yet.
+- `OnVisualGenerationInitialized` runs after each fresh panel/root is attached. Its base implementation applies debug styles, initializes navigation and the toolbar, and is safe to repeat after live reload.
+- `OnVisualGenerationShuttingDown` runs exactly once before every started visual generation is released, including failed initialization and final destruction. Unsubscribe from the current `NavHost` and dispose generation-owned resources here.
+- `OnAppShuttingDown` runs once during true destruction after the final visual teardown callback while the app and services are still available.
 
-The default `OnAppInitialized` creates the navigation host, navigates to `AnchorSettings.StartDestination`, initializes the toolbar, and then restores any state saved by an earlier disable. In editor or `BL_DEBUG` builds it also adds the configured debug style sheets.
+Reload restoration happens after `OnVisualGenerationInitialized`. It restores active and back stacks, popup layering, route arguments/options, animation state, and outstanding temporary navigation handles into the new navigation host.
 
 See [Navigation](navigation.md) for destination setup, state semantics, actions, popups, and the Burst entry points.
 
@@ -77,8 +80,14 @@ namespace MyGame.UI
 
         protected override void OnAppShuttingDown(AnchorApp app)
         {
-            // Stop project-owned subscriptions while app services are still valid.
+            // Stop durable project-owned subscriptions while app services are still valid.
             base.OnAppShuttingDown(app);
+        }
+
+        protected override void OnVisualGenerationShuttingDown(AnchorApp app)
+        {
+            // Unsubscribe from the current NavHost and release generation-owned resources.
+            base.OnVisualGenerationShuttingDown(app);
         }
     }
 }
@@ -116,7 +125,8 @@ namespace MyGame.UI
 Useful app properties include:
 
 - `Services`: the app's `IServiceProvider`.
-- `Panel` and `RootVisualElement`: the app's panel abstraction and visual root.
+- `Panel` and `RootVisualElement`: the current replaceable panel abstraction and visual root.
+- `Theme` and `Scale`: durable panel values that are reapplied to each new visual generation.
 - `NavHost`: the current navigation host.
 - `PopupContainer`, `NotificationContainer`, and `TooltipContainer`: named containers discovered during `AnchorApp.Initialize`, when the panel supplies them.
 - `ScreenMetricsChanged` and `AnchorApp.SafeArea`: screen and safe-area information for responsive elements.
@@ -155,7 +165,8 @@ var required = AnchorApp.Current.Services.GetRequiredService<IPlayerProfileServi
 
 ### Lifetimes and disposal
 
-- Singletons are constructed lazily and cached for the lifetime of the enabled builder.
+- Singletons are constructed lazily and cached for the builder lifetime.
+- Panel live reload does not recreate or dispose the provider, singleton services, or loaded view models.
 - Transients create a new instance on every resolution.
 - The provider disposes each resolved singleton that implements `IDisposable` once when the builder shuts down.
 - Transient instances are not tracked or disposed by the provider.
@@ -188,7 +199,9 @@ namespace MyGame.UI
 
 Auto-registered types still need a resolvable public constructor. Non-transient services that implement `IAnchorToolbarHost` are also registered as an `IAnchorToolbarHost` alias so the app can attach the toolbar during initialization.
 
-Use explicit registration when an interface mapping, prebuilt instance, or deliberate replacement is part of the application contract. Use `[IsService]` for concrete UI types that are naturally discovered with the app.
+`VisualElement` types and instances cannot be registered through any service-collection path. Visuals belong to a replaceable generation; register their durable view models or factories and create fresh visual elements from UXML or code.
+
+Use explicit registration when an interface mapping, prebuilt instance, or deliberate replacement is part of the application contract. Use `[IsService]` for durable view models and non-visual services that are naturally discovered with the app.
 
 ## Built-in services
 
@@ -317,7 +330,7 @@ namespace MyGame.UI
         public override void Initialize()
         {
             base.Initialize();
-            // Add project-level app behavior after Anchor navigation is ready.
+            // Add visual-generation behavior after Anchor navigation is ready.
         }
     }
 }
@@ -334,7 +347,7 @@ namespace MyGame.UI
 }
 ```
 
-Keep the base initialization unless the custom app intentionally replaces Anchor's navigation setup.
+`AnchorApp.Initialize()` runs for every visual generation, including live reload. Keep durable service initialization in `AnchorAppBuilder.OnAppInitialized`, and keep the base app initialization unless the custom app intentionally replaces Anchor's navigation setup.
 
 For a different visual root, override `PanelType` or `CreatePanel`. A `PanelType` must implement `IAnchorPanel` and have a public parameterless constructor; the builder validates both requirements before creating it.
 

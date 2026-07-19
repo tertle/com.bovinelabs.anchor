@@ -120,6 +120,38 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
+        /// <inheritdoc />
+        public IAnchorNavHostReloadState CaptureReloadState()
+        {
+            return new ReloadState(this.SaveState(), new Dictionary<int, AnchorNavHostSaveState>(this.savedStates), this.nextStateHandle);
+        }
+
+        /// <inheritdoc />
+        public void RestoreReloadState(IAnchorNavHostReloadState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            if (state is not ReloadState reloadState)
+            {
+                throw new ArgumentException(
+                    $"Reload state type '{state.GetType().FullName}' was not captured by {nameof(AnchorNavHost)}.",
+                    nameof(state));
+            }
+
+            this.RestoreState(reloadState.NavigationState);
+            this.savedStates.Clear();
+
+            foreach (var pair in reloadState.SavedStates)
+            {
+                this.savedStates.Add(pair.Key, pair.Value);
+            }
+
+            this.nextStateHandle = reloadState.NextStateHandle;
+        }
+
         private static AnchorNavHostSaveState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
         {
             return entry == null ? null : new AnchorNavHostSaveState.StackItem(entry.Destination, entry.Options, entry.Arguments, entry.IsPopup);
@@ -187,6 +219,25 @@ namespace BovineLabs.Anchor.Nav
             var options = item.Options?.Clone();
             var arguments = item.Arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
             return new AnchorNavStackItem(item.Destination, options, arguments, item.IsPopup);
+        }
+
+        private sealed class ReloadState : IAnchorNavHostReloadState
+        {
+            public ReloadState(
+                AnchorNavHostSaveState navigationState,
+                IReadOnlyDictionary<int, AnchorNavHostSaveState> savedStates,
+                int nextStateHandle)
+            {
+                this.NavigationState = navigationState;
+                this.SavedStates = savedStates;
+                this.NextStateHandle = nextStateHandle;
+            }
+
+            public AnchorNavHostSaveState NavigationState { get; }
+
+            public IReadOnlyDictionary<int, AnchorNavHostSaveState> SavedStates { get; }
+
+            public int NextStateHandle { get; }
         }
     }
 }

@@ -20,7 +20,7 @@ Assign or colocate a `PanelRenderer` on the same GameObject as `AnchorAppBuilder
 
 The builder aborts startup when it cannot bind the expected host. Also verify that the scene contains only one enabled Anchor builder; initializing a second app disposes and replaces `AnchorApp.Current`.
 
-If a custom builder overrides `OnConfigureServices`, `OnAppInitialized`, or `OnAppShuttingDown`, call the base implementation unless the custom builder intentionally replaces Anchor's defaults, navigation initialization, or state persistence.
+If a custom builder overrides `OnConfigureServices`, `OnVisualGenerationInitialized`, `OnVisualGenerationShuttingDown`, or `OnAppShuttingDown`, call the base implementation unless it intentionally replaces Anchor's defaults. Keep one-time service side effects in `OnAppInitialized`; pair generation-owned setup and subscriptions with `OnVisualGenerationShuttingDown`.
 
 ## A view key cannot be found
 
@@ -72,7 +72,7 @@ Confirm all of the following:
 - A player build defines `BL_DEBUG`; the toolbar assembly is always available in the Editor.
 - The durable `Toolbar` host is registered as a non-transient service implementing `IAnchorToolbarHost`.
 - An ECS toolbar system calls `Load` and `Unload` from `ISystemStartStop`.
-- A custom `AnchorAppBuilder.OnAppInitialized` calls the base implementation so `InitializeToolbar` runs.
+- A custom `AnchorAppBuilder.OnVisualGenerationInitialized` calls the base implementation so `InitializeToolbar` runs.
 
 ## UI audio is silent
 

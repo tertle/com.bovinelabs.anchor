@@ -5,9 +5,9 @@
 namespace BovineLabs.Anchor
 {
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 #if UNITY_APPUI
     using Unity.AppUI.UI;
-    using UnityEngine.UIElements;
 
     /// <summary>
     /// AppUI-backed panel implementation for Anchor when AppUI is available.
@@ -33,8 +33,6 @@ namespace BovineLabs.Anchor
         }
     }
 #else
-    using UnityEngine.UIElements;
-
     /// <summary>
     /// Root panel element used by Anchor apps.
     /// </summary>

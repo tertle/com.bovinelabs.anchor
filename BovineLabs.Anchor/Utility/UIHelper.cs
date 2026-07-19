@@ -4,6 +4,8 @@
 
 namespace BovineLabs.Anchor
 {
+    using System;
+    using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
@@ -19,6 +21,7 @@ namespace BovineLabs.Anchor
         where TD : unmanaged
     {
         private TD* data;
+        private IntPtr bindingHandle;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
@@ -58,31 +61,104 @@ namespace BovineLabs.Anchor
         /// <summary>Loads and pins the view model so the helper can forward changes.</summary>
         public void Bind()
         {
-            var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Load<TM>();
-            viewModel.PinObject();
-
-            if (viewModel is ILoadable loadable)
+            if (this.bindingHandle != IntPtr.Zero)
             {
-                loadable.Load();
+                throw new InvalidOperationException($"{nameof(UIHelper<TM, TD>)} is already bound.");
             }
 
-            this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
+            var viewModelService = AnchorApp.Current.Services.GetRequiredService<IViewModelService>();
+            var viewModel = viewModelService.Load<TM>();
+            var pinned = false;
+            var loaded = false;
+
+            try
+            {
+                viewModel.PinObject();
+                pinned = true;
+
+                if (viewModel is ILoadable loadable)
+                {
+                    loadable.Load();
+                    loaded = true;
+                }
+
+                this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
+                var handle = GCHandle.Alloc(new BindingContext(viewModelService, viewModel));
+                this.bindingHandle = GCHandle.ToIntPtr(handle);
+            }
+            catch
+            {
+                if (loaded && viewModel is ILoadable loadable)
+                {
+                    loadable.Unload();
+                }
+
+                if (pinned)
+                {
+                    viewModel.UnpinObject();
+                }
+
+                viewModelService.Unload<TM>();
+                this.data = null;
+                throw;
+            }
         }
 
         /// <summary>Unpins and unloads the view model that was previously bound.</summary>
         public void Unbind()
         {
-            var viewModel = AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Get<TM>();
-
-            if (viewModel is ILoadable loadable)
+            if (this.bindingHandle == IntPtr.Zero)
             {
-                loadable.Unload();
+                this.data = null;
+                return;
             }
 
-            viewModel?.UnpinObject();
-            this.data = null;
+            var handle = GCHandle.FromIntPtr(this.bindingHandle);
+            var context = (BindingContext)handle.Target;
 
-            AnchorApp.Current.Services.GetRequiredService<IViewModelService>().Unload<TM>();
+            try
+            {
+                if (context != null)
+                {
+                    try
+                    {
+                        if (context.ViewModel is ILoadable loadable)
+                        {
+                            loadable.Unload();
+                        }
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            context.ViewModel.UnpinObject();
+                        }
+                        finally
+                        {
+                            context.ViewModelService.Unload<TM>();
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                handle.Free();
+                this.bindingHandle = IntPtr.Zero;
+                this.data = null;
+            }
+        }
+
+        private sealed class BindingContext
+        {
+            public BindingContext(IViewModelService viewModelService, TM viewModel)
+            {
+                this.ViewModelService = viewModelService;
+                this.ViewModel = viewModel;
+            }
+
+            public IViewModelService ViewModelService { get; }
+
+            public TM ViewModel { get; }
         }
     }
 }

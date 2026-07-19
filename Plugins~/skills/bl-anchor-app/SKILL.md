@@ -14,14 +14,15 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 3. Use `AnchorAppBuilder` directly unless the app needs custom services, a custom `AnchorApp`, or lifecycle hooks.
 4. Override `OnConfigureServices` for app services and call `base.OnConfigureServices(services)` unless intentionally replacing Anchor defaults.
 5. Configure `AnchorSettings` for `Views`, `StartDestination`, `Actions`, `Animations`, `Audio`, `DebugStyleSheets`, and `ToolbarOnly`.
-6. Use `OnAppInitialized` and `OnAppShuttingDown` for app-specific startup/shutdown around the base initialization and saved navigation state.
+6. Use `OnAppInitialized` and `OnAppShuttingDown` for one-time app startup/shutdown. Pair `OnVisualGenerationInitialized` with `OnVisualGenerationShuttingDown` for each replaceable visual generation.
 7. Route navigation through `AnchorApp.Current.NavHost` from managed UI code, or through `AnchorNavHost.Burst` from Burst-compatible paths.
 8. Run `BovineLabs.Anchor.Tests` when code changes touch package behavior; documentation-only skill edits only need skill validation.
 
 ## Host And Lifecycle
 
-- `AnchorAppBuilder<T>` creates the `AnchorServiceProvider`, creates the panel, initializes `AnchorApp`, attaches the app root to the host element, updates screen metrics, and disposes services on disable.
-- Assign or colocate a `PanelRenderer`. The builder registers a reload callback, calls `IPanelComponent.PerformValidation(true)`, and reattaches the app root when the panel reloads.
+- `AnchorAppBuilder<T>` retains one `AnchorApp` and `AnchorServiceProvider` for its lifetime while replacing the panel, root, navigation host, and toolbar visuals after renderer reload.
+- Assign or colocate a `PanelRenderer`. The builder registers a reload callback, calls `IPanelComponent.PerformValidation(true)`, and builds a fresh visual generation for each new renderer version.
+- `OnVisualGenerationShuttingDown` runs before reload release, failed-generation cleanup, and final disposal. Unsubscribe from the current `NavHost` and release generation-owned resources there.
 - `AnchorPanel` is the default `IAnchorPanel`. It is AppUI-backed when `UNITY_APPUI` is defined and a plain `VisualElement` panel otherwise.
 - `ToolbarOnly` skips normal navigation initialization and initializes only the toolbar.
 - `AnchorApp.Current` is a managed singleton. Do not call it directly from Burst-compiled jobs except behind an established managed trampoline or `[BurstDiscard]` boundary.
@@ -30,6 +31,7 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 
 - Default services are `ILocalStorageService`, `IViewModelService`, and `IAudioService`; `IUXMLService` is also registered when `UXMLService` is not null.
 - Types marked `[IsService]` are auto-registered. Add `[Transient]` when each resolution should create a fresh instance.
+- `VisualElement` types and instances cannot be services. Register durable view models or factories and create fresh visuals for each generation.
 - Non-transient services implementing `IAnchorToolbarHost` are also aliased as `IAnchorToolbarHost`.
 - Register app-specific services with `AnchorServiceCollection` using `AddSingleton`, `AddTransient`, `AddSingletonInstance`, or `AddAlias`.
 - Resolve services through `AnchorApp.Current.Services.GetRequiredService<T>()` when absence is an invariant.

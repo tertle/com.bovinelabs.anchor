@@ -14,5 +14,8 @@ namespace BovineLabs.Anchor.Toolbar
         /// <summary>Creates a fresh root visual element for the toolbar UI.</summary>
         /// <returns>The newly composed toolbar root.</returns>
         VisualElement CreateRootVisualElement();
+
+        /// <summary>Releases the current visual generation without releasing durable toolbar registrations or models.</summary>
+        void ReleaseRootVisualElement();
     }
 }

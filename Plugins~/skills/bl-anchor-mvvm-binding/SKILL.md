@@ -54,7 +54,8 @@ namespace Example.UI
 ## Views And UXML
 
 - Plain C# views should derive from `VisualElement`, accept their model explicitly when needed, and set `dataSource` on the view or bound children.
-- Mark service-backed views or view models with `[IsService]`; add `[Transient]` when every service resolution should create a new instance.
+- Mark durable view models with `[IsService]`; add `[Transient]` when each model resolution should create a new instance.
+- Never register a `VisualElement` as a service or put `[IsService]` on one. Visuals are replaceable projections and must be recreated after panel reload.
 - `UXMLService.Instantiate` sets `dataSource` to `AnchorApp.Current.Services.GetService(dataSourceType)` for elements with `data-source-type`.
 - In C# views, set `dataSource = viewModel` and bind with UI Toolkit `DataBinding`, `SetBindingToUI`, `SetBindingFromUI`, or `SetBindingTwoWay`.
 - Use `Converters.RegisterConverters` groups by name when binding bools to `DisplayStyle`, inverted `DisplayStyle`, or inverted booleans.
@@ -123,5 +124,6 @@ public partial struct StatusSystem : ISystem, ISystemStartStop
 
 - Do not put managed string formatting or Unity object work in Burst paths.
 - Do not mutate visual elements from ECS jobs; publish unmanaged state and let bindings/view models present it.
+- Do not register visual elements as services or retain them across visual generations.
 - Do not add `data-source-type` to item templates whose parent control sets row data.
 - Do not bypass `SetProperty` when changing observable fields that the UI binds to.

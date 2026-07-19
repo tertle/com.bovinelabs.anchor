@@ -57,6 +57,9 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
                 model.PersistentValue = 29;
 
+                ReleaseVisualTreeResources(firstRoot);
+                Assert.IsTrue(firstRoot.resourcesReleased);
+
                 var secondRoot = (ToolbarView)toolbar.CreateRootVisualElement();
                 var secondElement = secondRoot.Q<TestToolbarElement>();
 
@@ -139,6 +142,40 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
 
         [Test]
+        public void RegistrationHandle_FromDisposedToolbarCannotRemoveFromNewToolbar()
+        {
+            const string saveKey = "bl.toolbar.Generation.Model";
+            PlayerPrefs.DeleteKey(saveKey);
+
+            try
+            {
+                var firstStorage = CreateVisibleStorage();
+                var first = new ToolbarService(
+                    new TestServiceProvider(),
+                    new ToolbarViewModel(firstStorage),
+                    firstStorage,
+                    Array.Empty<Type>());
+                var oldHandle = first.Register<TestBindingModel, TestBindingModel.Data>("Generation", "Model", out _);
+                first.Dispose();
+
+                var secondStorage = CreateVisibleStorage();
+                using var second = new ToolbarService(
+                    new TestServiceProvider(),
+                    new ToolbarViewModel(secondStorage),
+                    secondStorage,
+                    Array.Empty<Type>());
+                var currentHandle = second.Register<TestBindingModel, TestBindingModel.Data>("Generation", "Model", out _);
+
+                Assert.IsFalse(second.Remove(oldHandle));
+                Assert.IsTrue(second.Remove(currentHandle));
+            }
+            finally
+            {
+                PlayerPrefs.DeleteKey(saveKey);
+            }
+        }
+
+        [Test]
         public void AutoToolbarDiscovery_RunsOnceAcrossVisualRecreation()
         {
             var storage = CreateVisibleStorage();
@@ -157,6 +194,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
                 var firstRoot = (ToolbarView)toolbar.CreateRootVisualElement();
                 var firstElement = firstRoot.Q<TestScheduledToolbarElement<int>>();
+                ReleaseVisualTreeResources(firstRoot);
                 var secondRoot = (ToolbarView)toolbar.CreateRootVisualElement();
                 var secondElement = secondRoot.Q<TestScheduledToolbarElement<int>>();
 
@@ -198,6 +236,18 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         private static IntPtr GetAddress(TestBindingModel model)
         {
             return (IntPtr)UnsafeUtility.AddressOf(ref model.Value);
+        }
+
+        private static void ReleaseVisualTreeResources(VisualElement root)
+        {
+            root.RemoveFromHierarchy();
+
+            while (root.hierarchy.childCount > 0)
+            {
+                ReleaseVisualTreeResources(root.hierarchy[0]);
+            }
+
+            root.ReleaseResources();
         }
 
         [Serializable]

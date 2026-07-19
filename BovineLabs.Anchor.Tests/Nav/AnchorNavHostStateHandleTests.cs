@@ -89,6 +89,28 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
+        public void ReloadState_PreservesOutstandingHandlesAndNextHandle()
+        {
+            using var harness = new TestAnchorNavHostHarness();
+            harness.RegisterScreen("A");
+            harness.RegisterScreen("B");
+
+            harness.Host.Navigate("A");
+            var handle = harness.Host.SaveStateHandle();
+            harness.Host.Navigate("B");
+
+            IAnchorNavHost original = harness.Host;
+            var reloadState = original.CaptureReloadState();
+            IAnchorNavHost replacement = new AnchorNavHost();
+            replacement.RestoreReloadState(reloadState);
+
+            Assert.AreEqual("B", replacement.CurrentDestination);
+            Assert.IsTrue(replacement.ReleaseStateHandle(handle));
+            Assert.AreEqual("A", replacement.CurrentDestination);
+            Assert.Greater(replacement.SaveStateHandle(), handle);
+        }
+
+        [Test]
         public void RestoredState_PreservesPopupBaseLayering()
         {
             using var harness = new TestAnchorNavHostHarness();

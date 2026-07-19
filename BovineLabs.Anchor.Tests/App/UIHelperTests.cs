@@ -56,6 +56,69 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void Unbind_AfterAppReplacementReleasesOriginalViewModelOnly()
+        {
+            var firstScope = new TestAnchorAppScope(RegisterServices);
+            var firstHelper = default(UIHelper<TestViewModel, TestData>);
+            var secondHelper = default(UIHelper<TestViewModel, TestData>);
+            TestAnchorAppScope secondScope = null;
+            var firstBound = false;
+            var secondBound = false;
+
+            try
+            {
+                firstHelper.Bind();
+                firstBound = true;
+                var firstService = firstScope.ServiceProvider.GetRequiredService<IViewModelService>();
+                var firstViewModel = firstService.Get<TestViewModel>();
+                var firstKey = (IntPtr)UnsafeUtility.AddressOf(ref firstViewModel.Value);
+
+                firstScope.Dispose();
+
+                secondScope = new TestAnchorAppScope(RegisterServices);
+                secondHelper.Bind();
+                secondBound = true;
+                var secondService = secondScope.ServiceProvider.GetRequiredService<IViewModelService>();
+                var secondViewModel = secondService.Get<TestViewModel>();
+                var secondKey = (IntPtr)UnsafeUtility.AddressOf(ref secondViewModel.Value);
+
+                firstHelper.Unbind();
+                firstBound = false;
+
+                Assert.AreEqual(1, firstViewModel.DisposeCount);
+                Assert.AreEqual(0, secondViewModel.DisposeCount);
+                Assert.IsFalse(BurstObjectNotify.Changed.ContainsKey(firstKey));
+                Assert.IsTrue(BurstObjectNotify.Changed.ContainsKey(secondKey));
+                Assert.IsNull(firstService.Get<TestViewModel>());
+                Assert.AreSame(secondViewModel, secondService.Get<TestViewModel>());
+
+                Assert.DoesNotThrow(() => firstHelper.Unbind());
+                Assert.AreEqual(1, firstViewModel.DisposeCount);
+            }
+            finally
+            {
+                if (firstBound)
+                {
+                    firstHelper.Unbind();
+                }
+
+                if (secondBound)
+                {
+                    secondHelper.Unbind();
+                }
+
+                secondScope?.Dispose();
+                firstScope.Dispose();
+            }
+
+            static void RegisterServices(AnchorServiceCollection services)
+            {
+                services.AddSingleton(typeof(IViewModelService), typeof(ViewModelService));
+                services.AddSingleton(typeof(TestViewModel));
+            }
+        }
+
+        [Test]
         public void ComponentRequirementConstructor_RequiresMatchingComponentBeforeUpdate()
         {
             var system = this.World.CreateSystem<TestRequireUpdateSystem>();

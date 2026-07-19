@@ -18,7 +18,7 @@ The resulting managed access point is:
 IAnchorNavHost nav = AnchorApp.Current.NavHost;
 ```
 
-`AnchorAppBuilder` also captures `nav.SaveState()` when its app shuts down and restores that state when the same builder starts another app instance. This preserves the navigation stack across host disable and re-enable. It is not persistent storage across a player restart or domain reload.
+`AnchorAppBuilder` captures an opaque navigation reload state before replacing a panel visual generation. The replacement host restores the active and back stacks, popup layering, and outstanding state handles through the same `IAnchorNavHost` contract.
 
 If you construct `AnchorNavHost` yourself, the parameterless constructor discovers attributed code actions, but it does not read action or animation assets from `AnchorSettings`. Pass those collections to `AnchorNavHost(IEnumerable<AnchorAction>, IEnumerable<AnchorNavAnimation>)` when the custom host needs them.
 
@@ -361,7 +361,14 @@ int SaveStateHandle();
 bool ReleaseStateHandle(int handle, bool restore = true);
 ```
 
-Handles start above zero, increase for the lifetime of a host, and are consumed by `ReleaseStateHandle`. Passing `restore: false` discards the snapshot without changing navigation. A handle is owned by the `AnchorNavHost` that created it and cannot restore state into a replacement host.
+Handles start above zero, increase for the lifetime of a host, and are consumed by `ReleaseStateHandle`. Passing `restore: false` discards the snapshot without changing navigation. A raw handle is owned by the host that created it; visual reload transfers the complete handle table through an opaque reload state:
+
+```csharp
+IAnchorNavHostReloadState reloadState = nav.CaptureReloadState();
+replacementNav.RestoreReloadState(reloadState);
+```
+
+`CaptureReloadState` and `RestoreReloadState` are implementation-owned memento operations. Callers transfer the opaque state without inspecting it, and both operations are required by `IAnchorNavHost`.
 
 ## Animations
 
@@ -437,4 +444,4 @@ These methods cross to the managed host through initialized trampolines. If no c
 - Passing arguments to a screen with no bound `IAnchorNavigationScreen` produces a warning.
 - Using duplicate action names or an action name that unintentionally shadows a destination makes route resolution ambiguous.
 - Using `PopToSpecificDestination` with a target that is not already in the back stack empties the back stack.
-- Persisting `AnchorNavHostSaveState` or carrying a state handle into a different host is unsupported.
+- Persisting `AnchorNavHostSaveState` or carrying a raw state handle into a different host without its reload state is unsupported.

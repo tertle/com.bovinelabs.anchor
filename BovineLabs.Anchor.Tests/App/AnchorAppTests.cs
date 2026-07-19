@@ -96,6 +96,21 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void ServiceCollection_VisualElementsCannotBeRegistered()
+        {
+            var services = new AnchorServiceCollection();
+            var instance = new VisualElementService();
+
+            Assert.Throws<ArgumentException>(() => services.AddSingleton(typeof(VisualElementService)));
+            Assert.Throws<ArgumentException>(() => services.AddSingleton(typeof(IVisualElementService), typeof(VisualElementService)));
+            Assert.Throws<ArgumentException>(() => services.AddTransient(typeof(VisualElementService)));
+            Assert.Throws<ArgumentException>(() => services.AddTransient(typeof(IVisualElementService), typeof(VisualElementService)));
+            Assert.Throws<ArgumentException>(() => services.AddSingletonInstance(typeof(IVisualElementService), instance));
+            Assert.Throws<ArgumentException>(() => services.AddAlias(typeof(IVisualElementService), typeof(VisualElementService)));
+            Assert.AreEqual(0, services.Count);
+        }
+
+        [Test]
         public void Dispose_RaisesEvent_AndClearsCurrent()
         {
             var shutdownCalls = 0;
@@ -266,6 +281,14 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         private interface IMissingService
+        {
+        }
+
+        private interface IVisualElementService
+        {
+        }
+
+        private sealed class VisualElementService : VisualElement, IVisualElementService
         {
         }
 

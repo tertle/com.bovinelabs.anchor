@@ -196,9 +196,14 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.compositionCompleted = false;
 
             this.viewModel.PropertyChanged -= this.OnPropertyChanged;
-            this.UnregisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged);
-            this.UnregisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
-            this.UnregisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
+
+            if (!this.resourcesReleased)
+            {
+                this.UnregisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged);
+                this.UnregisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
+                this.UnregisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
+            }
+
             this.UnregisterPanelRoot();
 
             foreach (var group in this.toolbarGroups.Values)
@@ -210,9 +215,17 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.toolbarTabs.Clear();
             this.activeGroup = null;
 
-            this.RemoveFromHierarchy();
-            ClearBindingsAndDataSources(this);
-            this.Clear();
+            if (this.resourcesReleased)
+            {
+                this.dataSource = null;
+                this.filterButton.dataSource = null;
+            }
+            else
+            {
+                this.RemoveFromHierarchy();
+                ClearBindingsAndDataSources(this);
+                this.Clear();
+            }
         }
 
         /// <summary>Shows or hides the active ribbon group.</summary>
@@ -285,6 +298,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private static void ReleaseVisualElement(VisualElement element)
         {
+            var resourcesReleased = element.resourcesReleased;
+
             try
             {
                 if (element is IDisposable disposable)
@@ -294,8 +309,15 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
             finally
             {
-                element.RemoveFromHierarchy();
-                ClearBindingsAndDataSources(element);
+                if (resourcesReleased)
+                {
+                    element.dataSource = null;
+                }
+                else
+                {
+                    element.RemoveFromHierarchy();
+                    ClearBindingsAndDataSources(element);
+                }
             }
         }
 
@@ -399,14 +421,19 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 this.anchorApp.ScreenMetricsChanged -= this.OnScreenMetricsChanged;
             }
 
-            if (this.panelRoot != null)
+            if (this.panelRoot != null && !this.panelRoot.resourcesReleased)
             {
                 this.panelRoot.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
                 this.panelRoot.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
             }
 
             this.ResetCanvasOffsets();
-            AnchorSafeAreaUtility.ResetPadding(this.style);
+
+            if (!this.resourcesReleased)
+            {
+                AnchorSafeAreaUtility.ResetPadding(this.style);
+            }
+
             this.anchorApp = null;
             this.panelRoot = null;
             this.uiSize = Vector2.zero;

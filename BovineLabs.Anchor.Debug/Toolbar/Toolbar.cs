@@ -35,10 +35,13 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         [ConfigVar("anchor.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<Toolbar, EnabledVar>();
 
+        private static long nextOwnerId;
+
         private readonly SortedDictionary<int, Registration> registrations = new();
         private readonly IServiceProvider serviceProvider;
         private readonly ToolbarViewModel viewModel;
         private readonly ILocalStorageService storageService;
+        private readonly long ownerId;
 
         private ToolbarView currentView;
         private string activeTabName;
@@ -66,6 +69,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 throw new InvalidOperationException("Only one Anchor toolbar service can be active.");
             }
 
+            this.ownerId = ++nextOwnerId;
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             this.storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
@@ -101,9 +105,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         public VisualElement CreateRootVisualElement()
         {
             this.ThrowIfDisposed();
-
-            this.currentView?.Dispose();
-            this.currentView = null;
+            this.ReleaseRootVisualElement();
 
             var view = new ToolbarView(this, this.viewModel);
 
@@ -126,6 +128,14 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         }
 
         /// <inheritdoc />
+        public void ReleaseRootVisualElement()
+        {
+            var view = this.currentView;
+            this.currentView = null;
+            view?.Dispose();
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             if (this.disposed)
@@ -137,12 +147,10 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             Current = null;
             ToolbarViewData.ActiveTab.Data = default;
 
-            var view = this.currentView;
-            this.currentView = null;
             var regArray = this.registrations.Values.ToArray();
             this.registrations.Clear();
 
-            view?.Dispose();
+            this.ReleaseRootVisualElement();
 
             foreach (var registration in regArray)
             {
@@ -219,7 +227,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <returns><c>true</c> when a live registration was removed; otherwise <c>false</c>.</returns>
         internal bool Remove(ToolbarRegistrationHandle handle)
         {
-            if (!this.registrations.Remove(handle.RegistrationId, out var registration))
+            if (handle.OwnerId != this.ownerId || !this.registrations.Remove(handle.RegistrationId, out var registration))
             {
                 return false;
             }
@@ -356,7 +364,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private ToolbarRegistrationHandle AddRegistration(string tabName, string elementName, IToolbarElement model, Action release)
         {
             var registrationId = ++this.nextRegistrationId;
-            var handle = new ToolbarRegistrationHandle(registrationId);
+            var handle = new ToolbarRegistrationHandle(this.ownerId, registrationId);
             var registration = new Registration(handle, tabName, elementName, model, release);
 
             this.registrations.Add(registrationId, registration);

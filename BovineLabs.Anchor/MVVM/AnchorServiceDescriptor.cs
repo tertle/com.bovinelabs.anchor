@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor.MVVM
 {
     using System;
+    using UnityEngine.UIElements;
 
     public enum AnchorServiceLifetime
     {
@@ -62,6 +63,8 @@ namespace BovineLabs.Anchor.MVVM
             }
 
             ValidateServiceCompatibility(serviceType, implementationInstance.GetType());
+            ValidateNotVisualElement(serviceType, nameof(serviceType));
+            ValidateNotVisualElement(implementationInstance.GetType(), nameof(implementationInstance));
             return new AnchorServiceDescriptor(serviceType, implementationInstance.GetType(), AnchorServiceLifetime.Singleton, implementationInstance, null);
         }
 
@@ -72,6 +75,8 @@ namespace BovineLabs.Anchor.MVVM
                 throw new ArgumentNullException(nameof(existingServiceType));
             }
 
+            ValidateNotVisualElement(serviceType, nameof(serviceType));
+            ValidateNotVisualElement(existingServiceType, nameof(existingServiceType));
             return new AnchorServiceDescriptor(serviceType, null, AnchorServiceLifetime.Singleton, null, existingServiceType);
         }
 
@@ -83,6 +88,8 @@ namespace BovineLabs.Anchor.MVVM
             }
 
             ValidateServiceCompatibility(serviceType, implementationType);
+            ValidateNotVisualElement(serviceType, nameof(serviceType));
+            ValidateNotVisualElement(implementationType, nameof(implementationType));
         }
 
         private static void ValidateServiceCompatibility(Type serviceType, Type implementationType)
@@ -95,6 +102,16 @@ namespace BovineLabs.Anchor.MVVM
             if (!serviceType.IsAssignableFrom(implementationType))
             {
                 throw new ArgumentException($"{implementationType} is not assignable to {serviceType}.", nameof(implementationType));
+            }
+        }
+
+        private static void ValidateNotVisualElement(Type type, string parameterName)
+        {
+            if (type != null && typeof(VisualElement).IsAssignableFrom(type))
+            {
+                throw new ArgumentException(
+                    $"VisualElement type '{type.FullName}' cannot be registered as an Anchor service because visual generations are replaceable.",
+                    parameterName);
             }
         }
     }
