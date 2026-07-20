@@ -10,7 +10,7 @@ Anchor provides:
 - An Anchor-owned navigation stack with destinations, actions, popups, animations, saved state, and Burst trampolines.
 - Managed MVVM primitives and source generators.
 - `SystemObservableObject<T>` and `UIHelper<TViewModel, TData>` for ECS-to-UI communication.
-- AppUI adapter controls and an optional debug toolbar.
+- AppUI adapter controls and a debug toolbar.
 - Shared UI audio, safe-area, collection, and utility helpers.
 
 ## Start here
@@ -18,23 +18,23 @@ Anchor provides:
 1. Follow [Getting started](getting-started.md) to install the package, add the correct Unity UI host, and configure the first destination.
 2. Read [Application and services](app-and-services.md) when adding app-specific services, UXML templates, storage, or UI audio.
 3. Use [Navigation](navigation.md) for screen flow and [MVVM and binding](mvvm-and-binding.md) for view-model state.
-4. Add [adapter elements](adapter-elements.md) only when the project uses Unity App UI.
+4. Add [adapter elements](adapter-elements.md) when the project needs Anchor's App UI-backed controls.
 5. Add the [debug toolbar](debug-toolbar.md) to development builds that need live ECS and app controls.
 
 ## Requirements and assemblies
 
-Anchor 2.0.0 declares Unity 6000.7 and `com.bovinelabs.core` 2.0.0 in `package.json`.
+Anchor 2.0.0 declares Unity 6000.7, `com.bovinelabs.core` 2.0.0, Unity App UI 2.2.0, and Universal Render Pipeline 17.7.0 in `package.json`.
 
 All Anchor assemblies have `autoReferenced` disabled. Reference only the surfaces the consuming assembly uses:
 
 | Assembly | Add it when |
 |---|---|
 | `BovineLabs.Anchor` | The code hosts an app, defines a view model, navigates, binds ECS data, or uses core services/elements. |
-| `BovineLabs.Anchor.Adapters` | UXML or C# uses Anchor's AppUI-backed controls. This assembly is compiled only when `UNITY_APPUI` is available and `APP_UI_EDITOR_ONLY` does not exclude it from the player. |
+| `BovineLabs.Anchor.Adapters` | UXML or C# uses Anchor's AppUI-backed controls. `APP_UI_EDITOR_ONLY` still excludes it from players. |
 | `BovineLabs.Anchor.Debug` | A development assembly adds or controls toolbar panels. Player builds also require `BL_DEBUG`. |
 | `BovineLabs.Anchor.Editor` | Editor-only code extends Anchor authoring or inspectors. |
 
-The app, navigation, DI, and MVVM APIs are Anchor-owned rather than AppUI navigation or MVVM wrappers. Optional package integrations are enabled through asmdef `versionDefines`; references such as `Unity.AppUI` and `Unity.RenderPipelines.Universal.Runtime` do not make those packages required. AppUI is required only for the adapters, debug toolbar, and other APIs that directly use AppUI, such as `GroupedMenuBuilder`.
+The app, navigation, DI, and MVVM APIs are Anchor-owned rather than AppUI navigation or MVVM wrappers. App UI and URP are direct package requirements. Assembly references such as `Unity.AppUI` and `Unity.RenderPipelines.Universal.Runtime` provide compile-time access but remain separate from the package dependencies.
 
 ## Runtime shape
 
@@ -50,12 +50,11 @@ Managed UI code resolves services from `AnchorApp.Current.Services` and navigate
 
 ## Themes
 
-Anchor ships two theme entry points:
+Anchor's default theme entry point is:
 
 - `/Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss` imports AppUI and Anchor toolbar styles.
-- `/Packages/com.bovinelabs.anchor/PackageResources/Anchor No AppUI.tss` supplies the plain UI Toolkit Anchor styles.
 
-Assign the appropriate theme through the panel settings used by the scene host. Do not import both entry points.
+Assign it through the panel settings used by the scene host, or provide an equivalent custom App UI theme that includes Anchor's styles.
 
 ## Guides
 

@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_APPUI
 namespace BovineLabs.Anchor.Tests.Utility
 {
     using System;
@@ -205,4 +204,3 @@ namespace BovineLabs.Anchor.Tests.Utility
         }
     }
 }
-#endif

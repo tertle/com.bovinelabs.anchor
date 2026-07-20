@@ -19,7 +19,7 @@ Use this skill for Anchor-specific UI Toolkit/AppUI controls. Resolve Anchor sou
 
 - `AnchorGridView` extends AppUI `GridView`, exposes `itemTemplate`, and sets each cloned row element's `dataSource` to `itemsSource[index]`.
 - `AnchorAccordion` clones `itemTemplate` once per item and sets each `AccordionItem.dataSource` from `itemsSource`.
-- `GroupedMenuBuilder` lives in `BovineLabs.Anchor` but is available only when `UNITY_APPUI` is defined.
+- `GroupedMenuBuilder` lives in `BovineLabs.Anchor`; App UI is a direct Anchor package dependency.
 - Item templates supplied to `AnchorGridView` or `AnchorAccordion` should bind to row properties directly. Do not put a root `data-source-type` on those item templates unless the row really should ignore the supplied item data.
 - If a row binding cannot find data, check parent control ownership before changing the view model.
 

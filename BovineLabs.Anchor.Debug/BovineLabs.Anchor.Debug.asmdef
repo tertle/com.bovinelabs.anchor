@@ -33,7 +33,6 @@
   "precompiledReferences": [],
   "autoReferenced": false,
   "defineConstraints": [
-    "UNITY_APPUI",
     "UNITY_EDITOR || BL_DEBUG",
     "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
   ],
@@ -42,11 +41,6 @@
       "name": "com.bovinelabs.quill",
       "expression": "",
       "define": "BL_QUILL"
-    },
-    {
-      "name": "com.unity.dt.app-ui",
-      "expression": "",
-      "define": "UNITY_APPUI"
     },
     {
       "name": "com.unity.entities",

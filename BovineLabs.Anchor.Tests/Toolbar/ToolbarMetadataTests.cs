@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_APPUI
 namespace BovineLabs.Anchor.Tests.Toolbar
 {
     using BovineLabs.Anchor.Debug.Toolbar;
@@ -28,4 +27,3 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
     }
 }
-#endif

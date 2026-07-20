@@ -11,11 +11,7 @@ namespace BovineLabs.Anchor.Elements
     /// Safe-area-aware container that applies padding only for the unsafe edges overlapped by its own bounds.
     /// </summary>
     [UxmlElement]
-#if UNITY_APPUI
     public partial class AnchorSafeArea : VisualElement // ExVisualElement TODO figure out issues with this
-#else
-    public partial class AnchorSafeArea : VisualElement
-#endif
     {
         /// <summary>The main styling class for the safe-area wrapper.</summary>
         public const string UssClassName = "bl-anchor-safe-area";

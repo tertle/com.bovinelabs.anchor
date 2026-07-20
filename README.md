@@ -1,6 +1,6 @@
 # BovineLabs Anchor
 
-BovineLabs Anchor is a UI Toolkit application framework for Unity ECS projects. It provides app hosting, service registration, UXML ownership, navigation, MVVM source generation, Burst-to-UI binding, optional AppUI controls, and an in-game debug toolbar.
+BovineLabs Anchor is a UI Toolkit application framework for Unity ECS projects. It provides app hosting, service registration, UXML ownership, navigation, MVVM source generation, Burst-to-UI binding, AppUI controls, and an in-game debug toolbar.
 
 For support and discussions, join [Discord](https://discord.gg/RTsw6Cxvw3).
 
@@ -33,10 +33,10 @@ The runtime, adapter, debug, and editor assemblies have `autoReferenced` disable
 
 - Unity 6000.7 or newer.
 - `com.bovinelabs.core` 2.0.0 or a compatible newer version.
+- Unity App UI 2.2.0 or a compatible newer version.
 - Universal Render Pipeline 17.7.0 or newer.
-- A compatible Unity App UI package only when using `BovineLabs.Anchor.Adapters`, `BovineLabs.Anchor.Debug`, or other AppUI-specific APIs such as `GroupedMenuBuilder`.
 
-AppUI integration is enabled through the `UNITY_APPUI` asmdef version define. AppUI is not declared in `package.json`; install it explicitly before referencing AppUI-backed Anchor APIs. URP is a direct package dependency. See [Getting started](Documentation~/getting-started.md#requirements) for the current assembly constraints.
+App UI and URP are direct package dependencies. Anchor's assemblies are still not auto-referenced, so consuming asmdefs must explicitly reference the Anchor and App UI assemblies used by their code. See [Getting started](Documentation~/getting-started.md#requirements) for the current assembly constraints.
 
 ## Installation
 
@@ -54,5 +54,4 @@ Then follow [Getting started](Documentation~/getting-started.md).
 
 ## Theme entry points
 
-- Use `/Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss` with AppUI. It imports the AppUI theme and Anchor styles.
-- Use `/Packages/com.bovinelabs.anchor/PackageResources/Anchor No AppUI.tss` for the plain UI Toolkit panel.
+Use `/Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss` for the default App UI theme and Anchor styles.

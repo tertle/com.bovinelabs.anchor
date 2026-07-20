@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_APPUI
 namespace BovineLabs.Anchor.Tests.Elements
 {
     using System.Collections.Generic;
@@ -111,4 +110,3 @@ namespace BovineLabs.Anchor.Tests.Elements
         }
     }
 }
-#endif

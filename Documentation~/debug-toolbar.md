@@ -4,9 +4,8 @@
 
 ![Anchor debug toolbar ribbon](Images/ribbon.png)
 
-The toolbar is an AppUI feature. Its package asmdef requires:
+The toolbar is an AppUI feature. App UI is a direct Anchor package dependency, and the debug asmdef additionally requires:
 
-- `UNITY_APPUI`.
 - `UNITY_EDITOR || BL_DEBUG`, so player builds must explicitly define `BL_DEBUG`.
 - Runtime AppUI support when building a player, rather than `APP_UI_EDITOR_ONLY`.
 

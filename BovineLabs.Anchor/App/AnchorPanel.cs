@@ -4,13 +4,12 @@
 
 namespace BovineLabs.Anchor
 {
+    using Unity.AppUI.UI;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
-#if UNITY_APPUI
-    using Unity.AppUI.UI;
 
     /// <summary>
-    /// AppUI-backed panel implementation for Anchor when AppUI is available.
+    /// AppUI-backed panel implementation for Anchor.
     /// </summary>
     [Preserve]
     public class AnchorPanel : Panel, IAnchorPanel
@@ -32,21 +31,4 @@ namespace BovineLabs.Anchor
             set => this.scale = value;
         }
     }
-#else
-    /// <summary>
-    /// Root panel element used by Anchor apps.
-    /// </summary>
-    [Preserve]
-    public sealed class AnchorPanel : VisualElement, IAnchorPanel
-    {
-        /// <inheritdoc />
-        public VisualElement RootVisualElement => this;
-
-        /// <inheritdoc />
-        public string Scale { get; set; } = "medium";
-
-        /// <inheritdoc />
-        public string Theme { get; set; }
-    }
-#endif
 }

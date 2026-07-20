@@ -2,7 +2,6 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_APPUI
 namespace BovineLabs.Anchor.Tests.Toolbar
 {
     using System;
@@ -443,4 +442,3 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
     }
 }
-#endif

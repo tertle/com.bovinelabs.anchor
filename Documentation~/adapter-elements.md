@@ -2,7 +2,7 @@
 
 Anchor supplies a small set of AppUI adapters plus a few UI Toolkit-only elements. Use them where they add Anchor behavior; use the original AppUI control when no adapter behavior is needed.
 
-Most AppUI-backed element types compile in `BovineLabs.Anchor.Adapters`. A consuming asmdef must reference both `BovineLabs.Anchor.Adapters` and `Unity.AppUI`. The adapter assembly is enabled only when `UNITY_APPUI` is available and is not auto-referenced. `GroupedMenuBuilder` is the layout exception: it lives in the core `BovineLabs.Anchor` assembly, but is also compiled only when `UNITY_APPUI` is available.
+Most AppUI-backed element types compile in `BovineLabs.Anchor.Adapters`. A consuming asmdef must reference both `BovineLabs.Anchor.Adapters` and `Unity.AppUI`. The adapter assembly is not auto-referenced. `GroupedMenuBuilder` is the layout exception: it lives in the core `BovineLabs.Anchor` assembly.
 
 Unity converts C# camel-case `[UxmlAttribute]` names to kebab case. For example, `itemTemplate` is `item-template` and `showIndicator` is `show-indicator` in UXML.
 
@@ -284,7 +284,7 @@ Both overloads default to `BindingUpdateTrigger.OnSourceChanged`. `KeyValueGroup
 
 ## Large AppUI menus
 
-`GroupedMenuBuilder.AddGroupedActions` keeps large `MenuBuilder` menus navigable. It lives in `BovineLabs.Anchor`, not `BovineLabs.Anchor.Adapters`, but is guarded by `UNITY_APPUI` and its API requires `Unity.AppUI.UI`. Without a custom group it sorts normalized labels case-insensitively; with one it sorts by primary group and then label. A menu stays flat while its item count is at or below the configured cap. Larger menus are grouped by initial letter, then recursively by longer normalized prefixes. Blank or non-letter initial labels use the `#` group.
+`GroupedMenuBuilder.AddGroupedActions` keeps large `MenuBuilder` menus navigable. It lives in `BovineLabs.Anchor`, not `BovineLabs.Anchor.Adapters`, and its API requires `Unity.AppUI.UI`. Without a custom group it sorts normalized labels case-insensitively; with one it sorts by primary group and then label. A menu stays flat while its item count is at or below the configured cap. Larger menus are grouped by initial letter, then recursively by longer normalized prefixes. Blank or non-letter initial labels use the `#` group.
 
 ```csharp
 var menu = new Menu();

@@ -4,9 +4,9 @@ This guide creates the smallest useful Anchor application: one UI Toolkit screen
 
 ## Requirements
 
-The current package metadata targets Unity 6000.7 or newer and declares `com.bovinelabs.core` 2.0.0 as a dependency.
+The current package metadata targets Unity 6000.7 or newer and declares `com.bovinelabs.core` 2.0.0, Unity App UI 2.2.0, and Universal Render Pipeline 17.7.0 as dependencies.
 
-Unity App UI (`com.unity.dt.app-ui`) is optional. Install it when using `BovineLabs.Anchor.Adapters`, App UI-backed controls, or the optional debug toolbar. Anchor's core app, navigation, services, and UI Toolkit elements do not require it.
+Unity App UI (`com.unity.dt.app-ui`) is required and is installed with Anchor.
 
 The package's assembly definitions are not auto-referenced, so a consuming assembly definition must explicitly reference the Anchor assemblies it uses.
 
@@ -87,14 +87,13 @@ Use a dedicated host for Anchor. The builder clears the host root before attachi
 
 The builder auto-finds a colocated host component. Its serialized host field can also be assigned explicitly in the Inspector.
 
-## Choose the panel theme
+## Configure the panel theme
 
-Assign an Anchor theme style sheet through the Panel Settings asset:
+Assign the Anchor theme style sheet through the Panel Settings asset:
 
 - `Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss` imports the App UI theme plus Anchor and toolbar styles.
-- `Packages/com.bovinelabs.anchor/PackageResources/Anchor No AppUI.tss` imports only Anchor's core styles.
 
-Use the second option in projects that do not install App UI or that provide their own UI Toolkit theme.
+Custom themes must provide the App UI context and include the Anchor styles used by the application.
 
 ## Run the app
 

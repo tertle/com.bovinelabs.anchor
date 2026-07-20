@@ -23,7 +23,7 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 - `AnchorAppBuilder<T>` retains one `AnchorApp` and `AnchorServiceProvider` for its lifetime while replacing the panel, root, navigation host, and toolbar visuals after renderer reload.
 - Assign or colocate a `PanelRenderer`. The builder registers a reload callback, calls `IPanelComponent.PerformValidation(true)`, and builds a fresh visual generation for each new renderer version.
 - `OnVisualGenerationShuttingDown` runs before reload release, failed-generation cleanup, and final disposal. Unsubscribe from the current `NavHost` and release generation-owned resources there.
-- `AnchorPanel` is the default `IAnchorPanel`. It is AppUI-backed when `UNITY_APPUI` is defined and a plain `VisualElement` panel otherwise.
+- `AnchorPanel` is the default AppUI-backed `IAnchorPanel`.
 - `ToolbarOnly` skips normal navigation initialization and initializes only the toolbar.
 - `AnchorApp.Current` is a managed singleton. Do not call it directly from Burst-compiled jobs except behind an established managed trampoline or `[BurstDiscard]` boundary.
 

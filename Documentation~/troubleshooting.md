@@ -10,9 +10,9 @@ Anchor's asmdefs have `autoReferenced` disabled. Add an explicit reference from 
 - `BovineLabs.Anchor.Adapters` for AppUI-backed Anchor controls.
 - `BovineLabs.Anchor.Debug` for toolbar views and helpers.
 
-Adapter and debug code also needs Unity App UI. `BovineLabs.Anchor.Debug` is constrained to the Editor or builds with `BL_DEBUG`. When `APP_UI_EDITOR_ONLY` is defined, AppUI-backed assemblies are excluded from players.
+App UI is a direct Anchor package dependency. Adapter and debug consumers must still reference the relevant `Unity.AppUI` assemblies. `BovineLabs.Anchor.Debug` is constrained to the Editor or builds with `BL_DEBUG`. When `APP_UI_EDITOR_ONLY` is defined, AppUI-backed assemblies are excluded from players.
 
-Anchor uses the `UNITY_APPUI` asmdef version define for optional AppUI integration. URP is a direct package dependency. If an AppUI-backed API is missing, verify that AppUI is installed and that the expected version define is active.
+If an AppUI-backed API is missing, verify that Package Manager resolved Anchor's App UI dependency and that the consuming asmdef references the required Anchor and `Unity.AppUI` assemblies.
 
 ## The app does not start
 

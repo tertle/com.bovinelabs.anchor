@@ -5,6 +5,7 @@
 ### Breaking
 * Unity 6.7+ only
 * BovineLabs Core 2.0.0 or newer is required
+* Unity App UI 2.2.0 or newer is required
 * Universal Render Pipeline 17.7.0 or newer is required
 * Anchor app setup now separates durable app initialization from replaceable visual generations through
   `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`; visual elements can no longer be registered as services

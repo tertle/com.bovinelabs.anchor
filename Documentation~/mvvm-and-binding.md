@@ -113,7 +113,7 @@ A `CanExecuteMethod` must return `bool` and have the same parameters as the comm
 </ui:UXML>
 ```
 
-Replace `Example.UI` after the comma with the view model's assembly name. The button in this example is an optional AppUI adapter; see [Adapter elements](adapter-elements.md).
+Replace `Example.UI` after the comma with the view model's assembly name. The button in this example is an AppUI-backed Anchor adapter; see [Adapter elements](adapter-elements.md).
 
 In a stripped player build, use `[Preserve]` for a service type that is reached only through reflection or a UXML type string.
 

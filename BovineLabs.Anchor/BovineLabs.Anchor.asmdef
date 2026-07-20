@@ -19,12 +19,6 @@
     "defineConstraints": [
         "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
     ],
-    "versionDefines": [
-        {
-            "name": "com.unity.dt.app-ui",
-            "expression": "",
-            "define": "UNITY_APPUI"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }
