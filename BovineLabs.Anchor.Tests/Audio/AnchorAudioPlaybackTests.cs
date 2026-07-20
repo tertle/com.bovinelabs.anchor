@@ -7,20 +7,30 @@ namespace BovineLabs.Anchor.Tests.Audio
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+#if UNITY_APPUI
     using System.Windows.Input;
+#endif
     using BovineLabs.Anchor.Audio;
+#if UNITY_APPUI
     using BovineLabs.Anchor.Elements;
+#endif
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
+#if UNITY_APPUI
     using Unity.AppUI.UI;
     using UnityEditor;
+#endif
     using UnityEngine;
+#if UNITY_APPUI
     using UnityEngine.UIElements;
     using AppUIActionButton = Unity.AppUI.UI.ActionButton;
     using AppUIButton = Unity.AppUI.UI.Button;
+#endif
     using Object = UnityEngine.Object;
+#if UNITY_APPUI
     using UIToolkitButton = UnityEngine.UIElements.Button;
+#endif
 
     public class AnchorAudioPlaybackTests
     {
@@ -28,16 +38,21 @@ namespace BovineLabs.Anchor.Tests.Audio
             "SetCurrentApp",
             BindingFlags.Static | BindingFlags.NonPublic);
 
+#if UNITY_APPUI
         private static readonly MethodInfo PointerIdSetMethod = typeof(PointerEnterEvent)
             .GetProperty(nameof(PointerEnterEvent.pointerId), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?.GetSetMethod(true);
+#endif
 
         private readonly List<AudioClip> clips = new();
+#if UNITY_APPUI
         private readonly List<EditorWindow> windows = new();
+#endif
 
         [TearDown]
         public void TearDown()
         {
+#if UNITY_APPUI
             foreach (var window in this.windows)
             {
                 if (window)
@@ -47,6 +62,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             }
 
             this.windows.Clear();
+#endif
 
             foreach (var clip in this.clips)
             {
@@ -114,6 +130,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             Assert.AreSame(activate, service.Source.clip);
         }
 
+#if UNITY_APPUI
         [Test]
         public void AnchorButton_DefaultProfile_PlaysHoverAndActivationOutsideNavHost()
         {
@@ -334,6 +351,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             evt.target = element;
             element.SendEvent(evt);
         }
+#endif
 
         private TestAnchorAppScope CreateScope(FakeAudioService service, params AnchorAudioProfile[] profiles)
         {
@@ -344,6 +362,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             });
         }
 
+#if UNITY_APPUI
         private void AttachToPanel(VisualElement element)
         {
             var window = ScriptableObject.CreateInstance<TestWindow>();
@@ -351,6 +370,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             window.Show();
             window.rootVisualElement.Add(element);
         }
+#endif
 
         private static AnchorAudioSettings CreateSettings(params AnchorAudioProfile[] profiles)
         {
@@ -419,6 +439,7 @@ namespace BovineLabs.Anchor.Tests.Audio
             }
         }
 
+#if UNITY_APPUI
         private sealed class CountingCommand : ICommand
         {
             public event EventHandler CanExecuteChanged
@@ -448,5 +469,6 @@ namespace BovineLabs.Anchor.Tests.Audio
         private sealed class TestWindow : EditorWindow
         {
         }
+#endif
     }
 }
