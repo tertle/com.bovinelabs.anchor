@@ -65,9 +65,8 @@ The non-generic `AnchorAppBuilder` creates the standard `AnchorApp`. Subclassing
 
 1. Open **BovineLabs > Settings**.
 2. Select **Anchor**. The settings framework creates the `AnchorSettings` asset if it does not exist.
-3. Leave **Toolbar Only** disabled.
-4. Add an entry to **Views** with key `home` and assign `Home.uxml` as its asset.
-5. Set **Start Destination** to `home`.
+3. Add an entry to **Views** with key `home` and assign `Home.uxml` as its asset.
+4. Set **Start Destination** to `home`.
 
 View keys are exact string identifiers. `AnchorNavHost` asks `IUXMLService` to instantiate the asset whose key matches the destination.
 
@@ -135,7 +134,7 @@ Put `PanelRenderer` on the same GameObject as the builder, or assign the builder
 
 **The app starts but no screen appears**
 
-Confirm that **Toolbar Only** is disabled, **Start Destination** is not blank, and the same exact key exists in **Views** with a non-null `VisualTreeAsset`.
+Confirm that **Start Destination** is not blank and the same exact key exists in **Views** with a non-null `VisualTreeAsset`.
 
 **Project code cannot resolve Anchor types**
 

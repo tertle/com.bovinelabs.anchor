@@ -7,6 +7,8 @@
 * BovineLabs Core 2.0.0 or newer is required
 * Unity App UI 2.2.0 or newer is required
 * Universal Render Pipeline 17.7.0 or newer is required
+* `APP_UI_EDITOR_ONLY` is no longer supported
+* `AnchorSettings.ToolbarOnly` and toolbar-only app initialization have been removed
 * Anchor app setup now separates durable app initialization from replaceable visual generations through
   `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`; visual elements can no longer be registered as services
 * Debug toolbar panels now register durable `IToolbarElement` models that create fresh visual elements instead of registering `View<T>` instances

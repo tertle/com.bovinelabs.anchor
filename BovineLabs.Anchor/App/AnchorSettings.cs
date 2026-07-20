@@ -18,11 +18,6 @@ namespace BovineLabs.Anchor
     [SettingsGroup("Anchor")]
     public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
-        [Header("Options")]
-        [SerializeField]
-        [Tooltip("If true, will disable instantiation in builds without toolbar to speed up initialization.")]
-        private bool toolbarOnly;
-
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
 
@@ -43,15 +38,8 @@ namespace BovineLabs.Anchor
         [SerializeField]
         private AnchorAudioSettings audio = new();
 
-#if APP_UI_EDITOR_ONLY
-        public override bool IncludeInBuild => false;
-#endif
-
         /// <summary>Gets the list of UXML assets that can be instantiated by key.</summary>
         public KeyUXML[] Views => this.views;
-
-        /// <summary>Gets a value indicating whether the runtime should initialize only when the toolbar is available.</summary>
-        public bool ToolbarOnly => this.toolbarOnly;
 
         /// <summary>Gets the navigation destination that should be loaded when the app starts.</summary>
         public string StartDestination => this.startDestination;

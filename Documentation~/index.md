@@ -30,7 +30,7 @@ All Anchor assemblies have `autoReferenced` disabled. Reference only the surface
 | Assembly | Add it when |
 |---|---|
 | `BovineLabs.Anchor` | The code hosts an app, defines a view model, navigates, binds ECS data, or uses core services/elements. |
-| `BovineLabs.Anchor.Adapters` | UXML or C# uses Anchor's AppUI-backed controls. `APP_UI_EDITOR_ONLY` still excludes it from players. |
+| `BovineLabs.Anchor.Adapters` | UXML or C# uses Anchor's AppUI-backed controls. |
 | `BovineLabs.Anchor.Debug` | A development assembly adds or controls toolbar panels. Player builds also require `BL_DEBUG`. |
 | `BovineLabs.Anchor.Editor` | Editor-only code extends Anchor authoring or inspectors. |
 

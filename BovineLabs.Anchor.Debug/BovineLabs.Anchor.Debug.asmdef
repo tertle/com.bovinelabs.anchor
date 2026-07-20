@@ -33,8 +33,7 @@
   "precompiledReferences": [],
   "autoReferenced": false,
   "defineConstraints": [
-    "UNITY_EDITOR || BL_DEBUG",
-    "UNITY_EDITOR || !APP_UI_EDITOR_ONLY"
+    "UNITY_EDITOR || BL_DEBUG"
   ],
   "versionDefines": [
     {

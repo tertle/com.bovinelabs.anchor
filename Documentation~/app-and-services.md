@@ -7,7 +7,7 @@
 Anchor separates the `PanelRenderer` component that owns the panel from the visual element used as the app root:
 
 - `IAnchorPanel` abstracts the app root, theme, and scale.
-- `AnchorPanel` is the default panel implementation. It uses the App UI panel when App UI is available and a plain `VisualElement` otherwise.
+- `AnchorPanel` is the default App UI-backed panel implementation.
 - `AnchorApp` owns the navigation host and exposes the running app through `AnchorApp.Current`.
 
 Place the host component and builder on the same GameObject. Anchor treats that host as exclusive: it clears the host root before attaching each fresh app root. See [Getting started](getting-started.md) for the scene setup.
@@ -35,8 +35,6 @@ The protected hooks have distinct responsibilities:
 Reload restoration happens after `OnVisualGenerationInitialized`. It restores active and back stacks, popup layering, route arguments/options, animation state, and outstanding temporary navigation handles into the new navigation host.
 
 See [Navigation](navigation.md) for destination setup, state semantics, actions, popups, and the Burst entry points.
-
-When `AnchorSettings.ToolbarOnly` is enabled, normal app and navigation initialization is skipped and only the toolbar is initialized.
 
 ## Configure a project app
 
@@ -314,7 +312,7 @@ The replacement type must implement the corresponding service interface and have
 
 Alternatively, call `base.OnConfigureServices` and add another registration for the same contract. Because the last registration wins, this is convenient for a prebuilt instance or a replacement selected by project code.
 
-Set `UXMLService` to `null` only when the app deliberately does not use settings-backed UXML, such as a toolbar-only host or a fully custom app. Default navigation requires an `IUXMLService` to create destination screens.
+Set `UXMLService` to `null` only when a fully custom app deliberately does not use settings-backed UXML. Default navigation requires an `IUXMLService` to create destination screens.
 
 ## Custom app and panel types
 

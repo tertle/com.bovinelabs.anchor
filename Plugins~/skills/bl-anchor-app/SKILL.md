@@ -13,7 +13,7 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 2. Use `PanelRenderer` as the app host component.
 3. Use `AnchorAppBuilder` directly unless the app needs custom services, a custom `AnchorApp`, or lifecycle hooks.
 4. Override `OnConfigureServices` for app services and call `base.OnConfigureServices(services)` unless intentionally replacing Anchor defaults.
-5. Configure `AnchorSettings` for `Views`, `StartDestination`, `Actions`, `Animations`, `Audio`, `DebugStyleSheets`, and `ToolbarOnly`.
+5. Configure `AnchorSettings` for `Views`, `StartDestination`, `Actions`, `Animations`, `Audio`, and `DebugStyleSheets`.
 6. Use `OnAppInitialized` and `OnAppShuttingDown` for one-time app startup/shutdown. Pair `OnVisualGenerationInitialized` with `OnVisualGenerationShuttingDown` for each replaceable visual generation.
 7. Route navigation through `AnchorApp.Current.NavHost` from managed UI code, or through `AnchorNavHost.Burst` from Burst-compatible paths.
 8. Run `BovineLabs.Anchor.Tests` when code changes touch package behavior; documentation-only skill edits only need skill validation.
@@ -24,7 +24,6 @@ Use this skill for Anchor app root setup, lifecycle, settings, and services. Res
 - Assign or colocate a `PanelRenderer`. The builder registers a reload callback, calls `IPanelComponent.PerformValidation(true)`, and builds a fresh visual generation for each new renderer version.
 - `OnVisualGenerationShuttingDown` runs before reload release, failed-generation cleanup, and final disposal. Unsubscribe from the current `NavHost` and release generation-owned resources there.
 - `AnchorPanel` is the default AppUI-backed `IAnchorPanel`.
-- `ToolbarOnly` skips normal navigation initialization and initializes only the toolbar.
 - `AnchorApp.Current` is a managed singleton. Do not call it directly from Burst-compiled jobs except behind an established managed trampoline or `[BurstDiscard]` boundary.
 
 ## Services

@@ -7,7 +7,6 @@
 The toolbar is an AppUI feature. App UI is a direct Anchor package dependency, and the debug asmdef additionally requires:
 
 - `UNITY_EDITOR || BL_DEBUG`, so player builds must explicitly define `BL_DEBUG`.
-- Runtime AppUI support when building a player, rather than `APP_UI_EDITOR_ONLY`.
 
 `BovineLabs.Anchor.Debug` is not auto-referenced. Put custom panels in a debug asmdef that explicitly references `BovineLabs.Anchor`, `BovineLabs.Anchor.Debug`, `Unity.AppUI`, `Unity.Entities` for ECS panels, and any feature assemblies whose data the panel reads. Mirror the `UNITY_EDITOR || BL_DEBUG` constraint so debug code does not leak into normal player builds.
 

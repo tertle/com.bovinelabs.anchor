@@ -49,7 +49,6 @@ namespace BovineLabs.Anchor.Tests.App
         [Test]
         public void PanelRendererReload_RetainsDurableStateAndReplacesReleasedVisualGeneration()
         {
-            var previousToolbarOnly = GetAnchorSetting<bool>("toolbarOnly");
             var previousStartDestination = GetAnchorSetting<string>("startDestination");
             var gameObject = CreateBuilderGameObject(out var builder);
             var firstHostRoot = new VisualElement();
@@ -69,7 +68,6 @@ namespace BovineLabs.Anchor.Tests.App
 
             try
             {
-                SetAnchorSetting("toolbarOnly", false);
                 SetAnchorSetting("startDestination", string.Empty);
                 InvokePanelRendererReload(builder, firstHostRoot, 1);
 
@@ -210,49 +208,7 @@ namespace BovineLabs.Anchor.Tests.App
                 }
 
                 AnchorApp.ShuttingDown -= OnShuttingDown;
-                SetAnchorSetting("toolbarOnly", previousToolbarOnly);
                 SetAnchorSetting("startDestination", previousStartDestination);
-                Object.DestroyImmediate(gameObject);
-            }
-        }
-
-        [Test]
-        public void PanelRendererReload_ToolbarOnlyRetainsAppWithoutCreatingNavigationHost()
-        {
-            var previousToolbarOnly = GetAnchorSetting<bool>("toolbarOnly");
-            var gameObject = CreateBuilderGameObject(out var builder);
-            var firstHostRoot = new VisualElement();
-            var reloadedHostRoot = new VisualElement();
-
-            try
-            {
-                SetAnchorSetting("toolbarOnly", true);
-                InvokePanelRendererReload(builder, firstHostRoot, 1);
-
-                var app = (LifecycleTestAnchorApp)AnchorApp.Current;
-                var provider = app.Services;
-                var firstRoot = app.RootVisualElement;
-
-                Assert.IsNull(app.NavHost);
-                Assert.AreEqual(0, app.InitializeCalls);
-
-                ReleaseVisualTreeResources(firstRoot);
-                Assert.DoesNotThrow(() => InvokePanelRendererReload(builder, reloadedHostRoot, 2));
-
-                Assert.AreSame(app, AnchorApp.Current);
-                Assert.AreSame(provider, app.Services);
-                Assert.AreNotSame(firstRoot, app.RootVisualElement);
-                Assert.IsNull(app.NavHost);
-                Assert.AreEqual(0, app.InitializeCalls);
-                Assert.AreEqual(2, builder.VisualGenerationInitializedCalls);
-                Assert.AreEqual(1, builder.VisualGenerationShuttingDownCalls);
-                Assert.AreSame(firstRoot, builder.VisualGenerationShuttingDownRoots[0]);
-                Assert.IsNull(builder.VisualGenerationShuttingDownNavHosts[0]);
-            }
-            finally
-            {
-                InvokeLifecycleMethod(builder, "OnDestroy");
-                SetAnchorSetting("toolbarOnly", previousToolbarOnly);
                 Object.DestroyImmediate(gameObject);
             }
         }
@@ -260,7 +216,6 @@ namespace BovineLabs.Anchor.Tests.App
         [Test]
         public void OnDisable_SamePanelVersionReactivationRetainsAppAndRebuildsVisualGeneration()
         {
-            var previousToolbarOnly = GetAnchorSetting<bool>("toolbarOnly");
             var previousStartDestination = GetAnchorSetting<string>("startDestination");
             var gameObject = CreateBuilderGameObject(out var builder);
             var firstHostRoot = new VisualElement();
@@ -276,7 +231,6 @@ namespace BovineLabs.Anchor.Tests.App
 
             try
             {
-                SetAnchorSetting("toolbarOnly", false);
                 SetAnchorSetting("startDestination", string.Empty);
                 InvokePanelRendererReload(builder, firstHostRoot, 7);
 
@@ -316,7 +270,6 @@ namespace BovineLabs.Anchor.Tests.App
             {
                 InvokeLifecycleMethod(builder, "OnDestroy");
                 AnchorApp.ShuttingDown -= OnShuttingDown;
-                SetAnchorSetting("toolbarOnly", previousToolbarOnly);
                 SetAnchorSetting("startDestination", previousStartDestination);
                 Object.DestroyImmediate(gameObject);
             }
@@ -325,7 +278,6 @@ namespace BovineLabs.Anchor.Tests.App
         [Test]
         public void PanelRendererReload_FailedVisualGenerationCanRetrySameVersionWithoutDisposingApp()
         {
-            var previousToolbarOnly = GetAnchorSetting<bool>("toolbarOnly");
             var previousStartDestination = GetAnchorSetting<string>("startDestination");
             var gameObject = CreateBuilderGameObject(out var builder);
             var firstHostRoot = new VisualElement();
@@ -333,7 +285,6 @@ namespace BovineLabs.Anchor.Tests.App
 
             try
             {
-                SetAnchorSetting("toolbarOnly", false);
                 SetAnchorSetting("startDestination", string.Empty);
                 InvokePanelRendererReload(builder, firstHostRoot, 1);
 
@@ -363,7 +314,6 @@ namespace BovineLabs.Anchor.Tests.App
             finally
             {
                 InvokeLifecycleMethod(builder, "OnDestroy");
-                SetAnchorSetting("toolbarOnly", previousToolbarOnly);
                 SetAnchorSetting("startDestination", previousStartDestination);
                 Object.DestroyImmediate(gameObject);
             }

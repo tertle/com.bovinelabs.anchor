@@ -45,8 +45,6 @@ namespace BovineLabs.Anchor
         private bool visualGenerationActive;
         private int lastPanelVersion = -1;
 
-        protected bool ToolbarOnly => AnchorSettings.I.ToolbarOnly;
-
         protected IReadOnlyList<StyleSheet> DebugStyleSheets => AnchorSettings.I.DebugStyleSheets;
 
         protected virtual Type LocalStorageService { get; } = typeof(LocalStoragePlayerPrefsService);
@@ -162,12 +160,6 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnVisualGenerationInitialized(T app)
         {
-            if (this.ToolbarOnly)
-            {
-                app.InitializeToolbar();
-                return;
-            }
-
 #if UNITY_EDITOR || BL_DEBUG
             foreach (var style in this.DebugStyleSheets)
             {
@@ -315,7 +307,7 @@ namespace BovineLabs.Anchor
 
         private void CaptureNavigationState()
         {
-            if (this.ToolbarOnly || this.pendingNavigationState != null)
+            if (this.pendingNavigationState != null)
             {
                 return;
             }
