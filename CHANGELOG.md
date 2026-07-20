@@ -6,6 +6,12 @@
 * Unity 6.7+ only
 * BovineLabs Core 2.0.0 or newer is required
 * Universal Render Pipeline 17.7.0 or newer is required
+* Anchor app setup now separates durable app initialization from replaceable visual generations through
+  `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`; visual elements can no longer be registered as services
+* Debug toolbar panels now register durable `IToolbarElement` models that create fresh visual elements instead of registering `View<T>` instances
+
+### Changed
+* Anchor app services, navigation state, toolbar registrations, and persisted toolbar state now survive panel reloads while the visual tree is recreated
 
 ## [1.5.0] - 2026-07-13
 
