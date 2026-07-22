@@ -10,7 +10,7 @@ Anchor's asmdefs have `autoReferenced` disabled. Add an explicit reference from 
 - `BovineLabs.Anchor.Adapters` for AppUI-backed Anchor controls.
 - `BovineLabs.Anchor.Debug` for toolbar views and helpers.
 
-App UI is a direct Anchor package dependency. Adapter and debug consumers must still reference the relevant `Unity.AppUI` assemblies. `BovineLabs.Anchor.Debug` is constrained to the Editor or builds with `BL_DEBUG`.
+App UI is a direct Anchor package dependency. Adapter and debug consumers must still reference the relevant `Unity.AppUI` assemblies. `BovineLabs.Anchor.Debug` is constrained by `UNITY_INCLUDE_INSTRUMENTATION`, which Unity defines in the Editor and for Instrumented, Checked, and Debug players.
 
 If an AppUI-backed API is missing, verify that Package Manager resolved Anchor's App UI dependency and that the consuming asmdef references the required Anchor and `Unity.AppUI` assemblies.
 
@@ -69,7 +69,8 @@ Bind `UIHelper<TViewModel, TData>` in `OnStartRunning`, unbind it in `OnStopRunn
 Confirm all of the following:
 
 - The project has AppUI and the consuming asmdef references `BovineLabs.Anchor.Debug`.
-- A player build defines `BL_DEBUG`; the toolbar assembly is always available in the Editor.
+- The `UNITY_INCLUDE_INSTRUMENTATION` constraint is satisfied. Unity defines it in the Editor; a player profile must select the Instrumented, Checked, or Debug Managed Code Variant.
+- Unity-owned variant symbols are selected through Managed Code Variant, not added to scripting define settings.
 - The durable `Toolbar` host is registered as a non-transient service implementing `IAnchorToolbarHost`.
 - An ECS toolbar system calls `Load` and `Unload` from `ISystemStartStop`.
 - A custom `AnchorAppBuilder.OnVisualGenerationInitialized` calls the base implementation so `InitializeToolbar` runs.

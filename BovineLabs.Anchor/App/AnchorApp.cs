@@ -2,7 +2,7 @@
 //     Copyright (c) BovineLabs. All rights reserved.
 // </copyright>
 
-#if UNITY_EDITOR || BL_DEBUG
+#if UNITY_INCLUDE_INSTRUMENTATION
 #define CUSTOM_SAFE_AREA
 #endif
 

@@ -33,7 +33,7 @@
   "precompiledReferences": [],
   "autoReferenced": false,
   "defineConstraints": [
-    "UNITY_EDITOR || BL_DEBUG"
+    "UNITY_INCLUDE_INSTRUMENTATION"
   ],
   "versionDefines": [
     {

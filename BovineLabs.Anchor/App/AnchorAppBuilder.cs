@@ -160,7 +160,7 @@ namespace BovineLabs.Anchor
 
         protected virtual void OnVisualGenerationInitialized(T app)
         {
-#if UNITY_EDITOR || BL_DEBUG
+#if UNITY_INCLUDE_INSTRUMENTATION
             foreach (var style in this.DebugStyleSheets)
             {
                 app.RootVisualElement.styleSheets.Add(style);

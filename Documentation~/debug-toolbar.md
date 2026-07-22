@@ -6,9 +6,11 @@
 
 The toolbar is an AppUI feature. App UI is a direct Anchor package dependency, and the debug asmdef additionally requires:
 
-- `UNITY_EDITOR || BL_DEBUG`, so player builds must explicitly define `BL_DEBUG`.
+- `UNITY_INCLUDE_INSTRUMENTATION`.
 
-`BovineLabs.Anchor.Debug` is not auto-referenced. Put custom panels in a debug asmdef that explicitly references `BovineLabs.Anchor`, `BovineLabs.Anchor.Debug`, `Unity.AppUI`, `Unity.Entities` for ECS panels, and any feature assemblies whose data the panel reads. Mirror the `UNITY_EDITOR || BL_DEBUG` constraint so debug code does not leak into normal player builds.
+`UNITY_INCLUDE_INSTRUMENTATION` is the toolbar's sole availability gate. Unity defines it in the Editor and for Instrumented, Checked, and Debug Managed Code Variants; Release omits it. Checked and Debug also include check-only validation through `UNITY_ENABLE_CHECKS`. Select the player variant through **Managed Code Variant** in Player Settings or a build profile. Do not add Unity-owned variant symbols to scripting define settings, and do not treat the native **Development Build** flag as the variant selector.
+
+`BovineLabs.Anchor.Debug` is not auto-referenced. Put custom panels in a debug asmdef that explicitly references `BovineLabs.Anchor`, `BovineLabs.Anchor.Debug`, `Unity.AppUI`, `Unity.Entities` for ECS panels, and any feature assemblies whose data the panel reads. Mirror the `UNITY_INCLUDE_INSTRUMENTATION` constraint so debug code does not leak into normal player builds.
 
 Anchor's default app builder discovers the non-transient `Toolbar` service as `IAnchorToolbarHost` and calls `AnchorApp.InitializeToolbar()`. The service owns registrations, models, persistence, and filter state; each host initialization asks it for a replaceable visual root. Use the `Anchor UI.tss` theme entry point so the AppUI and toolbar style sheets are present. See [Getting started](getting-started.md) for host and theme setup.
 

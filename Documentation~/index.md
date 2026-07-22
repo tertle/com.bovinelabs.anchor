@@ -31,7 +31,7 @@ All Anchor assemblies have `autoReferenced` disabled. Reference only the surface
 |---|---|
 | `BovineLabs.Anchor` | The code hosts an app, defines a view model, navigates, binds ECS data, or uses core services/elements. |
 | `BovineLabs.Anchor.Adapters` | UXML or C# uses Anchor's AppUI-backed controls. |
-| `BovineLabs.Anchor.Debug` | A development assembly adds or controls toolbar panels. Player builds also require `BL_DEBUG`. |
+| `BovineLabs.Anchor.Debug` | A development assembly adds or controls toolbar panels when `UNITY_INCLUDE_INSTRUMENTATION` is defined. |
 | `BovineLabs.Anchor.Editor` | Editor-only code extends Anchor authoring or inspectors. |
 
 The app, navigation, DI, and MVVM APIs are Anchor-owned rather than AppUI navigation or MVVM wrappers. App UI and URP are direct package requirements. Assembly references such as `Unity.AppUI` and `Unity.RenderPipelines.Universal.Runtime` provide compile-time access but remain separate from the package dependencies.
