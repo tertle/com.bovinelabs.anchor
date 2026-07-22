@@ -1,4 +1,0 @@
-interface:
-  display_name: "Anchor Navigation"
-  short_description: "Implement Anchor navigation and popups"
-  default_prompt: "Use $bl-anchor-navigation to implement or debug this Anchor navigation flow."

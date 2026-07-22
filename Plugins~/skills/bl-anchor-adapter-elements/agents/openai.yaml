@@ -1,4 +1,0 @@
-interface:
-  display_name: "Anchor Adapter Elements"
-  short_description: "Use Anchor-specific AppUI controls"
-  default_prompt: "Use $bl-anchor-adapter-elements to wire or debug these Anchor AppUI controls."

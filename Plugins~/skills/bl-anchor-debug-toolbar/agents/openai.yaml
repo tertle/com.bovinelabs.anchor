@@ -1,4 +1,0 @@
-interface:
-  display_name: "Anchor Debug Toolbar"
-  short_description: "Build Anchor ECS debug toolbar panels"
-  default_prompt: "Use $bl-anchor-debug-toolbar to build or review this Anchor debug panel."

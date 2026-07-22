@@ -1,4 +1,0 @@
-interface:
-  display_name: "Anchor MVVM Binding"
-  short_description: "Author Anchor view models and bindings"
-  default_prompt: "Use $bl-anchor-mvvm-binding to implement this Anchor view model and binding flow."
