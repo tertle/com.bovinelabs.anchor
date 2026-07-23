@@ -13,8 +13,13 @@
   `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`; visual elements can no longer be registered as services
 * Debug toolbar panels now register durable `IToolbarElement` models that create fresh visual elements instead of registering `View<T>` instances
 
+### Added
+* Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
+
 ### Changed
 * Anchor app services, navigation state, toolbar registrations, and persisted toolbar state now survive panel reloads while the visual tree is recreated
+* Memory and rendering toolbar values now use compact GB and K/M/B formatting
+* Rendering toolbar draw-call and instance totals now aggregate Unity 6.7's standard, SRP Batcher, BRG, and null-geometry counters
 
 ## [1.5.0] - 2026-07-13
 

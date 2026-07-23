@@ -22,7 +22,7 @@ namespace BovineLabs.Anchor.Debug.Views
             this.dataSource = viewModel;
             this.AddToClassList(UssClassName);
 
-            TypeConverter<int, string> typeConverter = (ref int value) => $"{value} MB";
+            TypeConverter<int, string> typeConverter = (ref int value) => FormatMemory(value);
 
             this.Add(KeyValueGroup.Create(viewModel,
                 new (string, string, Action<DataBinding>)[]
@@ -37,6 +37,11 @@ namespace BovineLabs.Anchor.Debug.Views
         }
 
         private MemoryToolbarViewModel Model => (MemoryToolbarViewModel)this.dataSource;
+
+        private static string FormatMemory(int value)
+        {
+            return value < 1024 ? $"{value} MB" : $"{value / 1024f:0.#} GB";
+        }
 
         private void UpdateModel()
         {
