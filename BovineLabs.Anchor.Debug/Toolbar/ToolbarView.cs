@@ -107,6 +107,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
         }
 
+        public bool ToolbarHidden => this.toolbarHidden;
+
         private bool IsRibbonVisible
         {
             get => this.toolbar.IsRibbonVisible;
@@ -260,6 +262,32 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             this.IsRibbonVisible = show;
+        }
+
+        public void HideToolbar()
+        {
+            if (this.toolbarHidden)
+            {
+                return;
+            }
+
+            this.style.display = DisplayStyle.None;
+            this.toolbarHidden = true;
+            this.toolbar.SetToolbarHidden(true);
+            this.ResetRestoreClickState();
+        }
+
+        public void RestoreToolbar()
+        {
+            if (!this.toolbarHidden)
+            {
+                return;
+            }
+
+            this.style.display = DisplayStyle.Flex;
+            this.toolbarHidden = false;
+            this.toolbar.SetToolbarHidden(false);
+            this.ResetRestoreClickState();
         }
 
         private static void DisableKeyboardNavigation(VisualElement root)
@@ -518,32 +546,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             button.size = Size.S;
 
             return button;
-        }
-
-        private void HideToolbar()
-        {
-            if (this.toolbarHidden)
-            {
-                return;
-            }
-
-            this.style.display = DisplayStyle.None;
-            this.toolbarHidden = true;
-            this.toolbar.SetToolbarHidden(true);
-            this.ResetRestoreClickState();
-        }
-
-        private void RestoreToolbar()
-        {
-            if (!this.toolbarHidden)
-            {
-                return;
-            }
-
-            this.style.display = DisplayStyle.Flex;
-            this.toolbarHidden = false;
-            this.toolbar.SetToolbarHidden(false);
-            this.ResetRestoreClickState();
         }
 
         private void ResetRestoreClickState()

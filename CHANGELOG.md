@@ -68,6 +68,7 @@
 * Theme entry points split between AppUI and non AppUI setups
 * AnchorActionButton updated for App UI 2.2.0-pre.8
 * Package metadata, workflow skills, README, setup guides, and API documentation updated for the current optional AppUI workflows
+* Exposed ToolbarView riddon visibility
 
 ### Fixed
 * Navigation stack and animation edge cases
@@ -86,6 +87,7 @@
 * Burst object notification delegates now declare the unmanaged calling convention required by Unity 6.6
 * `GroupedMenuBuilder` is guarded behind `UNITY_APPUI` so the core runtime continues to compile without App UI installed
 * `SystemObservableObject` pinning now works with serialized data and CoreCLR
+* Errors when using ToolbarOnly
 
 ### Removed
 * Hard package dependency on com.unity.dt.app-ui
