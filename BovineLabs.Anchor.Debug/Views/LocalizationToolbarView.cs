@@ -9,8 +9,8 @@ namespace BovineLabs.Anchor.Debug.Views
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.Localization.Settings;
-    using UnityEngine.UIElements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
     public class LocalizationToolbarView : VisualElement

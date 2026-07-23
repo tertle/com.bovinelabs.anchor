@@ -8,8 +8,8 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
     using Unity.Properties;
-    using UnityEngine.UIElements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
     public class MemoryToolbarView : VisualElement
@@ -29,8 +29,8 @@ namespace BovineLabs.Anchor.Debug.Views
                 {
                     ("Allocated", nameof(MemoryToolbarViewModel.TotalAllocatedMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
                     ("Reserved", nameof(MemoryToolbarViewModel.TotalReservedMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
-                    ("Mono", nameof(MemoryToolbarViewModel.MonoUsedSizeMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
                     ("Graphics", nameof(MemoryToolbarViewModel.AllocatedMemoryForGraphicsMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
+                    ("Textures", nameof(MemoryToolbarViewModel.TextureMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
                 }));
 
             this.schedule.Execute(this.UpdateModel).Every(1);

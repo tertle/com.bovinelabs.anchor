@@ -13,11 +13,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
+    using UnityEngine.Rendering.Universal;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
     using Canvas = UnityEngine.Canvas;
     using Object = UnityEngine.Object;
-    using UnityEngine.Rendering.Universal;
 
     /// <summary>
     /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.

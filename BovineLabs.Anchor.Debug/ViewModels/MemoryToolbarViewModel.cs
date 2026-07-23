@@ -24,7 +24,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private int totalReservedMemoryMB;
 
-        private int monoUsedSizeMB;
+        private int textureMemoryMB;
 
         private int allocatedMemoryForGraphicsMB;
 
@@ -43,10 +43,10 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         }
 
         [CreateProperty]
-        public int MonoUsedSizeMB
+        public int TextureMemoryMB
         {
-            get => this.monoUsedSizeMB;
-            set => this.SetProperty(ref this.monoUsedSizeMB, value);
+            get => this.textureMemoryMB;
+            set => this.SetProperty(ref this.textureMemoryMB, value);
         }
 
         [CreateProperty]
@@ -76,8 +76,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             this.TotalAllocatedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalAllocatedMemoryLong() / megaByte);
             this.TotalReservedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalReservedMemoryLong() / megaByte);
-            this.MonoUsedSizeMB = Mathf.CeilToInt(Profiler.GetMonoUsedSizeLong() / megaByte);
             this.AllocatedMemoryForGraphicsMB = Mathf.CeilToInt(Profiler.GetAllocatedMemoryForGraphicsDriver() / megaByte);
+            this.TextureMemoryMB = Mathf.CeilToInt(Texture.currentTextureMemory / megaByte);
         }
     }
 }

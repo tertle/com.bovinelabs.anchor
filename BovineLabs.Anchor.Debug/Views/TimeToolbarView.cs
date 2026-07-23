@@ -11,9 +11,9 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Elements;
     using Unity.AppUI.UI;
     using Unity.Properties;
+    using UnityEngine.Scripting;
     using UnityEngine.UIElements;
     using FloatField = Unity.AppUI.UI.FloatField;
-    using UnityEngine.Scripting;
 
     [Preserve]
     public class TimeToolbarView : VisualElement

@@ -8,8 +8,8 @@ namespace BovineLabs.Anchor.Debug.Views
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
     using Unity.Properties;
-    using UnityEngine.UIElements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     [Preserve]
     public class FPSToolbarView : VisualElement
