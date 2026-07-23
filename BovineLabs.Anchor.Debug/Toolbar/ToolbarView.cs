@@ -153,6 +153,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <inheritdoc />
         public VisualElement RootVisualElement => this;
 
+        public bool ToolbarHidden => this.toolbarHidden;
+
         private bool IsRibbonVisible
         {
             get => bool.TryParse(this.storageService.GetValue(ShowRibbonKey), out var value) && value;
@@ -255,12 +257,28 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             return this.RemoveTab<VisualElement>(id);
         }
 
-        /// <summary>Gets the VisualElement backing a registered tab.</summary>
-        /// <param name="id">Identifier of the tab that should be queried.</param>
-        /// <returns>The view backing the tab, or null when not found.</returns>
-        public VisualElement GetPanel(int id)
+        public void HideToolbar()
         {
-            return this.toolbarGroups.TryGetValue(id, out var group) ? group.View : null;
+            if (this.toolbarHidden)
+            {
+                return;
+            }
+
+            this.style.display = DisplayStyle.None;
+            this.toolbarHidden = true;
+            this.ResetRestoreClickState();
+        }
+
+        public void RestoreToolbar()
+        {
+            if (!this.toolbarHidden)
+            {
+                return;
+            }
+
+            this.style.display = DisplayStyle.Flex;
+            this.toolbarHidden = false;
+            this.ResetRestoreClickState();
         }
 
         private static void DisableKeyboardNavigation(VisualElement root)
@@ -491,30 +509,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             button.size = Size.S;
 
             return button;
-        }
-
-        private void HideToolbar()
-        {
-            if (this.toolbarHidden)
-            {
-                return;
-            }
-
-            this.style.display = DisplayStyle.None;
-            this.toolbarHidden = true;
-            this.ResetRestoreClickState();
-        }
-
-        private void RestoreToolbar()
-        {
-            if (!this.toolbarHidden)
-            {
-                return;
-            }
-
-            this.style.display = DisplayStyle.Flex;
-            this.toolbarHidden = false;
-            this.ResetRestoreClickState();
         }
 
         private void ResetRestoreClickState()
