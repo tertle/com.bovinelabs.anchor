@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine.UIElements;
 
     /// <summary>
@@ -12,6 +13,7 @@ namespace BovineLabs.Anchor.Nav
     /// </summary>
     public struct AnimationDescription
     {
+        [NoAutoStaticsCleanup]
         public static readonly AnimationDescription None = new()
         {
             Easing = UnityEngine.UIElements.Experimental.Easing.Linear,

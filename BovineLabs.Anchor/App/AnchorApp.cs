@@ -15,6 +15,7 @@ namespace BovineLabs.Anchor
     using BovineLabs.Core.ConfigVars;
     using JetBrains.Annotations;
     using Unity.Burst;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
@@ -44,6 +45,7 @@ namespace BovineLabs.Anchor
         private string scale;
 
         /// <summary>Event called when the app is shutting down.</summary>
+        [NoAutoStaticsCleanup]
         public static event Action ShuttingDown;
 
         /// <summary>
@@ -52,6 +54,7 @@ namespace BovineLabs.Anchor
         public event Action<AnchorScreenMetrics> ScreenMetricsChanged;
 
         /// <summary>Gets the currently running <see cref="AnchorApp"/>.</summary>
+        [NoAutoStaticsCleanup]
         public static AnchorApp Current { get; private set; }
 
         public static Rect SafeArea => GetSafeArea();

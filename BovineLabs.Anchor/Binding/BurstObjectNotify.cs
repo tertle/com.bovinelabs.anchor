@@ -40,6 +40,7 @@ namespace BovineLabs.Anchor.Binding
 
     internal static unsafe partial class BurstObjectNotify
     {
+        [NoAutoStaticsCleanup]
         internal static readonly Dictionary<IntPtr, IBindingObjectNotify> Changed = new();
 
         [OnCodeInitializing]

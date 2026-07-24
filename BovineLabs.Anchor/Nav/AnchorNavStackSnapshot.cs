@@ -7,9 +7,11 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Unity.Scripting.LifecycleManagement;
 
     internal sealed class AnchorNavStackSnapshot
     {
+        [NoAutoStaticsCleanup]
         private static readonly AnchorNavStackSnapshot EmptyInstance = new(Array.Empty<AnchorNavStackItem>());
 
         private readonly List<AnchorNavStackItem> items;

@@ -10,6 +10,7 @@ namespace BovineLabs.Anchor.Editor
     using System.Reflection;
     using BovineLabs.Core.Editor.UI;
     using JetBrains.Annotations;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEditor;
     using UnityEditor.Scripting.LifecycleManagement;
     using UnityEditor.Toolbars;
@@ -21,9 +22,11 @@ namespace BovineLabs.Anchor.Editor
     {
         private const string StartupPath = "BovineLabs/View Model";
 
+        [NoAutoStaticsCleanup]
         private static readonly PropertyInfo RootVisualElementProperty = typeof(PanelRenderer).GetProperty(
             "rootVisualElement", BindingFlags.Instance | BindingFlags.NonPublic);
 
+        [NoAutoStaticsCleanup]
         private static HashSet<object> viewModels = new();
 
         [UsedImplicitly]

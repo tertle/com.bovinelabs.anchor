@@ -14,6 +14,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Utility;
     using Unity.Burst;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
@@ -35,6 +36,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         [ConfigVar("anchor.toolbar", true, "Should the toolbar be shown", true)]
         private static readonly SharedStatic<bool> Show = SharedStatic<bool>.GetOrCreate<Toolbar, EnabledVar>();
 
+        [NoAutoStaticsCleanup]
         private static long nextOwnerId;
 
         private readonly SortedDictionary<int, Registration> registrations = new();
@@ -91,6 +93,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
+        [NoAutoStaticsCleanup]
         internal static Toolbar Current { get; private set; }
 
         internal static bool IsAvailable => Current != null;

@@ -7,12 +7,14 @@ namespace BovineLabs.Anchor
     using System;
     using System.Collections.Generic;
     using Unity.AppUI.UI;
+    using Unity.Scripting.LifecycleManagement;
 
     /// <summary> Extension helpers for building large AppUI menus with balanced submenus. </summary>
     public static class GroupedMenuBuilder
     {
         private const string FallbackGroupKey = "#";
 
+        [NoAutoStaticsCleanup]
         private static readonly IComparer<string> DefaultComparer = StringComparer.OrdinalIgnoreCase;
 
         /// <summary> Adds actions to a menu, grouping by first letter when the item count exceeds the configured menu cap. </summary>

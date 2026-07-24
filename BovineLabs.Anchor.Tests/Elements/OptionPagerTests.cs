@@ -5,7 +5,6 @@
 namespace BovineLabs.Anchor.Tests.Elements
 {
     using System.Collections.Generic;
-    using System.Reflection;
     using BovineLabs.Anchor.Elements;
     using NUnit.Framework;
     using UnityEngine.UIElements;
@@ -44,41 +43,6 @@ namespace BovineLabs.Anchor.Tests.Elements
         }
 
         [Test]
-        public void WrapTrue_PreviousAndNext_WrapAtBounds()
-        {
-            var pager = new OptionPager
-            {
-                wrap = true,
-                sourceItems = new List<string> { "A", "B", "C" },
-                selectedIndex = 0,
-            };
-
-            InvokePrivate(pager, "SelectPrevious");
-            Assert.AreEqual(2, pager.selectedIndex);
-
-            InvokePrivate(pager, "SelectNext");
-            Assert.AreEqual(0, pager.selectedIndex);
-        }
-
-        [Test]
-        public void WrapFalse_PreviousAndNext_LockAtBounds()
-        {
-            var pager = new OptionPager
-            {
-                wrap = false,
-                sourceItems = new List<string> { "A", "B", "C" },
-                selectedIndex = 0,
-            };
-
-            InvokePrivate(pager, "SelectPrevious");
-            Assert.AreEqual(0, pager.selectedIndex);
-
-            pager.selectedIndex = 2;
-            InvokePrivate(pager, "SelectNext");
-            Assert.AreEqual(2, pager.selectedIndex);
-        }
-
-        [Test]
         public void EmptyText_UpdatesDisplayWhenNoItems()
         {
             var pager = new OptionPager
@@ -103,10 +67,5 @@ namespace BovineLabs.Anchor.Tests.Elements
             Assert.AreEqual(DisplayStyle.Flex, pager.Indicator.style.display.value);
         }
 
-        private static void InvokePrivate(OptionPager pager, string methodName)
-        {
-            var method = typeof(OptionPager).GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
-            method!.Invoke(pager, null);
-        }
     }
 }

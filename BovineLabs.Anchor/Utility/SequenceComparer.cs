@@ -6,16 +6,23 @@ namespace BovineLabs.Anchor
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Unity.Scripting.LifecycleManagement;
 
     /// <summary>
     /// Provides cached sequence comparers for common primitive types.
     /// </summary>
     public static class SequenceComparer
     {
+        [NoAutoStaticsCleanup]
         public static readonly SequenceComparer<int> Int = new();
+
+        [NoAutoStaticsCleanup]
         public static readonly SequenceComparer<float> Float = new();
 
+        [NoAutoStaticsCleanup]
         public static readonly SequenceListComparer<int> IntList = new();
+
+        [NoAutoStaticsCleanup]
         public static readonly SequenceListComparer<float> FloatList = new();
     }
 

@@ -22,7 +22,6 @@ namespace BovineLabs.Anchor.Tests.App
         {
             base.Setup();
             BurstObjectNotify.Changed.Clear();
-            TestRequireUpdateSystem.UpdateCount = 0;
         }
 
         [Test]
@@ -122,14 +121,15 @@ namespace BovineLabs.Anchor.Tests.App
         public void ComponentRequirementConstructor_RequiresMatchingComponentBeforeUpdate()
         {
             var system = this.World.CreateSystem<TestRequireUpdateSystem>();
+            ref var testSystem = ref this.WorldUnmanaged.GetUnsafeSystemRef<TestRequireUpdateSystem>(system);
 
             system.Update(this.WorldUnmanaged);
-            Assert.AreEqual(0, TestRequireUpdateSystem.UpdateCount);
+            Assert.AreEqual(0, testSystem.UpdateCount);
 
             this.Manager.CreateEntity(typeof(TestRequiredComponent));
             system.Update(this.WorldUnmanaged);
 
-            Assert.AreEqual(1, TestRequireUpdateSystem.UpdateCount);
+            Assert.AreEqual(1, testSystem.UpdateCount);
         }
 
         private sealed class TestViewModel : SystemObservableObject<TestData>, ILoadable
@@ -160,7 +160,7 @@ namespace BovineLabs.Anchor.Tests.App
 
         private partial struct TestRequireUpdateSystem : ISystem
         {
-            public static int UpdateCount;
+            public int UpdateCount;
 
             public void OnCreate(ref SystemState state)
             {
@@ -169,7 +169,7 @@ namespace BovineLabs.Anchor.Tests.App
 
             public void OnUpdate(ref SystemState state)
             {
-                UpdateCount++;
+                this.UpdateCount++;
             }
         }
     }

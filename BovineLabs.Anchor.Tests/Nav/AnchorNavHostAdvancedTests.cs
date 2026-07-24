@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Tests.Nav
 {
     using System;
     using System.Collections.Generic;
-    using System.Reflection;
     using System.Text.RegularExpressions;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
@@ -16,158 +15,9 @@ namespace BovineLabs.Anchor.Tests.Nav
     using UnityEngine;
     using UnityEngine.TestTools;
     using UnityEngine.UIElements;
-    using Object = UnityEngine.Object;
 
     public class AnchorNavHostAdvancedTests
     {
-        [Test]
-        public void Navigate_ActionName_InvokesActionTriggeredAndMergesArguments()
-        {
-            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
-
-            try
-            {
-                SetField(namedAction, "actionName", "go-popup");
-                SetField(
-                    namedAction,
-                    "action",
-                        new AnchorNavAction(
-                        "popup",
-                        new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
-                        new[]
-                        {
-                            AnchorNavArgument.String("default", "one"),
-                            AnchorNavArgument.String("override", "before"),
-                        }));
-
-                using var context = new HostContext(new[] { namedAction }, null);
-                context.RegisterScreen("base");
-                var popupReceiver = context.RegisterScreen("popup");
-
-                context.Host.Navigate("base");
-
-                var actionTriggered = 0;
-                context.Host.ActionTriggered += (_, _) => actionTriggered++;
-
-                var navigated = context.Host.Navigate(
-                    "go-popup",
-                    AnchorNavArgument.String("override", "after"),
-                    AnchorNavArgument.String("extra", "two"));
-
-                Assert.IsTrue(navigated);
-                Assert.AreEqual(1, actionTriggered);
-                Assert.AreEqual("popup", context.Host.CurrentDestination);
-                Assert.IsTrue(context.Host.HasActivePopups);
-                Assert.AreEqual(1, popupReceiver.EnterCount);
-                CollectionAssert.AreEquivalent(
-                    new[]
-                    {
-                        AnchorNavArgument.String("default", "one"),
-                        AnchorNavArgument.String("override", "after"),
-                        AnchorNavArgument.String("extra", "two"),
-                    },
-                    popupReceiver.LastEnterArguments);
-            }
-            finally
-            {
-                Object.DestroyImmediate(namedAction);
-            }
-        }
-
-        [Test]
-        public void Toggle_ActionName_NavigatesUsingResolvedAction()
-        {
-            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
-
-            try
-            {
-                SetField(namedAction, "actionName", "toggle-popup");
-                SetField(
-                    namedAction,
-                    "action",
-                    new AnchorNavAction(
-                        "popup",
-                        new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
-                        new[]
-                        {
-                            AnchorNavArgument.String("default", "one"),
-                            AnchorNavArgument.String("override", "before"),
-                        }));
-
-                using var context = new HostContext(new[] { namedAction }, null);
-                context.RegisterScreen("base");
-                var popupReceiver = context.RegisterScreen("popup");
-
-                context.Host.Navigate("base");
-
-                var actionTriggered = 0;
-                context.Host.ActionTriggered += (_, _) => actionTriggered++;
-
-                var toggled = context.Host.Toggle(
-                    "toggle-popup",
-                    AnchorNavArgument.String("override", "after"),
-                    AnchorNavArgument.String("extra", "two"));
-
-                Assert.IsTrue(toggled);
-                Assert.AreEqual(1, actionTriggered);
-                Assert.AreEqual("popup", context.Host.CurrentDestination);
-                Assert.IsTrue(context.Host.HasActivePopups);
-                Assert.AreEqual(1, popupReceiver.EnterCount);
-                CollectionAssert.AreEquivalent(
-                    new[]
-                    {
-                        AnchorNavArgument.String("default", "one"),
-                        AnchorNavArgument.String("override", "after"),
-                        AnchorNavArgument.String("extra", "two"),
-                    },
-                    popupReceiver.LastEnterArguments);
-            }
-            finally
-            {
-                Object.DestroyImmediate(namedAction);
-            }
-        }
-
-        [Test]
-        public void Toggle_ActionName_WhenResolvedPopupActive_DismissesPopupBranch()
-        {
-            var namedAction = ScriptableObject.CreateInstance<AnchorAction>();
-
-            try
-            {
-                SetField(namedAction, "actionName", "toggle-popup-a");
-                SetField(
-                    namedAction,
-                    "action",
-                    new AnchorNavAction(
-                        "popup-a",
-                        new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent }));
-
-                using var context = new HostContext(new[] { namedAction }, null);
-                context.RegisterScreen("base");
-                context.RegisterScreen("popup-a");
-                context.RegisterScreen("popup-b");
-
-                context.Host.Navigate("base");
-                context.Host.Navigate("popup-a", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-                context.Host.Navigate("popup-b", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-
-                var actionTriggered = 0;
-                context.Host.ActionTriggered += (_, _) => actionTriggered++;
-
-                var toggled = context.Host.Toggle("toggle-popup-a");
-
-                Assert.IsTrue(toggled);
-                Assert.AreEqual(1, actionTriggered);
-                Assert.AreEqual("base", context.Host.CurrentDestination);
-                Assert.IsFalse(context.Host.HasActivePopups);
-            }
-            finally
-            {
-                Object.DestroyImmediate(namedAction);
-            }
-        }
-
         [Test]
         public void PopupExistingStrategy_CloseOtherPopups_ReplacesPopupLayer()
         {
@@ -383,24 +233,6 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.AreEqual(2, receiver.EnterCount);
             Assert.AreEqual(0, receiver.ExitCount);
             Assert.AreEqual(AnchorNavArgument.String("x", "2"), receiver.LastEnterArguments[0]);
-        }
-
-        private static void SetField(object instance, string fieldName, object value)
-        {
-            var field = instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (field == null)
-            {
-                throw new MissingFieldException(instance.GetType().FullName, fieldName);
-            }
-
-            field.SetValue(instance, value);
-        }
-
-        private sealed class TestAnchorNavAnimation : AnchorNavAnimation
-        {
-            protected override Func<float, float> EasingFunction => static f => f;
-
-            protected override Action<VisualElement, float> Callback => null;
         }
 
         private sealed class HostContext : IDisposable

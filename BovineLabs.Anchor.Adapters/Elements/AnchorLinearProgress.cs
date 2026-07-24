@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.Core;
     using Unity.AppUI.UI;
     using Unity.Properties;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -27,6 +28,7 @@ namespace BovineLabs.Anchor.Elements
 
         private const string ShaderResourcePath = "BovineLabs.Anchor/AnchorLinearProgress";
 
+        [NoAutoStaticsCleanup]
         private static readonly CustomStyleProperty<Texture2D> FillTextureStyleProperty = new(FillTextureUssPropertyName);
 
         private static readonly BindingId DirectionProperty = nameof(direction);
@@ -50,6 +52,7 @@ namespace BovineLabs.Anchor.Elements
         private static readonly int UseFillTextureProperty = Shader.PropertyToID("_UseFillTexture");
         private static readonly int MaskTextureShaderProperty = Shader.PropertyToID("_MaskTexture");
 
+        [NoAutoStaticsCleanup]
         private static Material s_material;
 
         private Direction m_direction;
