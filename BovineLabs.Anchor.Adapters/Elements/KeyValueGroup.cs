@@ -27,7 +27,6 @@ namespace BovineLabs.Anchor.Elements
         public const string RightUssClassName = UssClassName + "__right";
 
         private readonly List<KeyValueElement> elements = new();
-        private string test;
 
         /// <summary>Initializes a new instance of the <see cref="KeyValueGroup"/> class.</summary>
         [UsedImplicitly]

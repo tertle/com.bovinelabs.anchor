@@ -108,35 +108,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void Dispose_RaisesEvent_AndClearsCurrent()
-        {
-            var shutdownCalls = 0;
-
-            void OnShuttingDown()
-            {
-                shutdownCalls++;
-            }
-
-            AnchorApp.ShuttingDown += OnShuttingDown;
-
-            try
-            {
-                using var scope = new TestAnchorAppScope();
-                Assert.AreSame(scope.App, AnchorApp.Current);
-
-                scope.App.Dispose();
-
-                Assert.AreEqual(1, shutdownCalls);
-            }
-            finally
-            {
-                AnchorApp.ShuttingDown -= OnShuttingDown;
-            }
-
-            Assert.IsNull(AnchorApp.Current);
-        }
-
-        [Test]
         public void UpdateScreenMetrics_WhenMetricsChange_RaisesScreenMetricsChanged()
         {
             using var scope = new TestAnchorAppScope();

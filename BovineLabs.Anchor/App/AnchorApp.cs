@@ -44,10 +44,6 @@ namespace BovineLabs.Anchor
         private string theme;
         private string scale;
 
-        /// <summary>Event called when the app is shutting down.</summary>
-        [NoAutoStaticsCleanup]
-        public static event Action ShuttingDown;
-
         /// <summary>
         /// Event raised when the app detects screen-space metric changes such as size or safe-area updates.
         /// </summary>
@@ -60,7 +56,7 @@ namespace BovineLabs.Anchor
         public static Rect SafeArea => GetSafeArea();
 
         /// <summary>Gets the app panel host abstraction.</summary>
-        public virtual IAnchorPanel Panel { get; private set; }
+        public IAnchorPanel Panel { get; private set; }
 
         /// <summary>Gets the current app service provider.</summary>
         public IServiceProvider Services { get; private set; }
@@ -173,8 +169,6 @@ namespace BovineLabs.Anchor
             {
                 return;
             }
-
-            ShuttingDown?.Invoke();
 
             this.ReleaseVisualGeneration();
             this.toolbarHost = null;

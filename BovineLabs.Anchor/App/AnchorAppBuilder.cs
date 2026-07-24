@@ -132,28 +132,6 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <summary>
-        /// Creates the panel host for the app root.
-        /// </summary>
-        /// <returns>Panel implementation used by this app instance.</returns>
-        protected virtual IAnchorPanel CreatePanel()
-        {
-            var panelType = this.PanelType ?? typeof(AnchorPanel);
-            if (!typeof(IAnchorPanel).IsAssignableFrom(panelType))
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(this.PanelType)} '{panelType.FullName}' must implement {nameof(IAnchorPanel)}.");
-            }
-
-            if (panelType.GetConstructor(Type.EmptyTypes) == null)
-            {
-                throw new InvalidOperationException(
-                    $"{nameof(this.PanelType)} '{panelType.FullName}' must have a public parameterless constructor.");
-            }
-
-            return (IAnchorPanel)Activator.CreateInstance(panelType);
-        }
-
         protected virtual void OnAppInitialized(T app)
         {
         }
@@ -200,6 +178,28 @@ namespace BovineLabs.Anchor
                 this.serviceProvider = null;
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Creates the panel host for the app root.
+        /// </summary>
+        /// <returns>Panel implementation used by this app instance.</returns>
+        private IAnchorPanel CreatePanel()
+        {
+            var panelType = this.PanelType ?? typeof(AnchorPanel);
+            if (!typeof(IAnchorPanel).IsAssignableFrom(panelType))
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(this.PanelType)} '{panelType.FullName}' must implement {nameof(IAnchorPanel)}.");
+            }
+
+            if (panelType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                throw new InvalidOperationException(
+                    $"{nameof(this.PanelType)} '{panelType.FullName}' must have a public parameterless constructor.");
+            }
+
+            return (IAnchorPanel)Activator.CreateInstance(panelType);
         }
 
         private void InitializeVisualGeneration(IAnchorNavHostReloadState navigationState)
