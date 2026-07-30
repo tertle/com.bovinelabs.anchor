@@ -2,24 +2,27 @@
 
 ## [2.0.0] - Unreleased
 
-### Breaking
-* Unity 6.7+ only
-* BovineLabs Core 2.0.0 or newer is required
-* Unity App UI 2.2.0 or newer is required
-* Universal Render Pipeline 17.7.0 or newer is required
-* `APP_UI_EDITOR_ONLY` is no longer supported
-* `AnchorSettings.ToolbarOnly` and toolbar-only app initialization have been removed
-* Anchor app setup now separates durable app initialization from replaceable visual generations through
-  `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`; visual elements can no longer be registered as services
-* Debug toolbar panels now register durable `IToolbarElement` models that create fresh visual elements instead of registering `View<T>` instances
-
 ### Added
 * Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
 
 ### Changed
+* Unity 6.7+ only
+* BovineLabs Core 2.0.0 or newer is required
+* Unity App UI 2.2.0 or newer is required
+* Universal Render Pipeline 17.7.0 or newer is required
+* Anchor app setup now separates durable app initialization from replaceable visual generations through
+  `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`
+* Debug toolbar panels now register durable `IToolbarElement` models that create fresh visual elements instead of registering `View<T>` instances
 * Anchor app services, navigation state, toolbar registrations, and persisted toolbar state now survive panel reloads while the visual tree is recreated
 * Memory and rendering toolbar values now use compact GB and K/M/B formatting
 * Rendering toolbar draw-call and instance totals now aggregate Unity 6.7's standard, SRP Batcher, BRG, and null-geometry counters
+
+### Removed
+* `APP_UI_EDITOR_ONLY` is no longer supported
+* `AnchorSettings.ToolbarOnly` and toolbar-only app initialization have been removed
+* The `AnchorApp.ShuttingDown` event and panel-construction override points have been removed; configure custom panels through
+  `AnchorAppBuilder.PanelType`
+* Visual elements can no longer be registered as services to ensure live reload support
 
 ## [1.5.0] - 2026-07-13
 
