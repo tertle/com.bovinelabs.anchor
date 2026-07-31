@@ -104,5 +104,12 @@ namespace BovineLabs.Anchor.Tests.Binding
             Assert.AreEqual(1, field.Value.Length);
             Assert.AreEqual(1, field.Value[0]);
         }
+
+        internal struct TestBindingObject
+        {
+#pragma warning disable CS0649
+            public int Version;
+#pragma warning restore CS0649
+        }
     }
 }

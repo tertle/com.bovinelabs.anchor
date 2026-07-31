@@ -84,7 +84,9 @@ namespace BovineLabs.Anchor.Tests.App
 
         private struct TestData
         {
+#pragma warning disable CS0649
             public int Value;
+#pragma warning restore CS0649
         }
     }
 }
