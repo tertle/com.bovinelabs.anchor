@@ -40,15 +40,29 @@ App UI and URP are direct package dependencies. Anchor's assemblies are still no
 
 ## Installation
 
-Add the Git URL through Package Manager, or add Anchor to the project's `Packages/manifest.json`:
+### Latest stable — recommended
 
-```json
-{
-  "dependencies": {
-    "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git"
-  }
-}
+Add the BovineLabs scoped registry to your project:
+
+1. Open **Edit > Project Settings > Package Manager**.
+2. Under **Scoped Registries**, add:
+   - **Name:** `BovineLabs`
+   - **URL:** `https://upm.bovinelabs.com`
+   - **Scope:** `com.bovinelabs`
+3. Open **Window > Package Management > Package Manager**.
+4. Select **My Registries**, choose **BovineLabs Anchor**, and click **Install**.
+
+The scoped registry only needs to be added once per project and can provide all BovineLabs packages.
+
+### Latest experimental
+
+To install the latest development version, open the Package Manager, select **Install package from git URL...**, and enter:
+
+```text
+https://gitlab.com/tertle/com.bovinelabs.anchor.git
 ```
+
+The experimental version tracks the latest development branch and may contain unfinished or breaking changes.
 
 Then follow [Getting started](Documentation~/getting-started.md).
 
