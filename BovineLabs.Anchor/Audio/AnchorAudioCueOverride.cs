@@ -73,7 +73,10 @@ namespace BovineLabs.Anchor.Audio
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine((int)this.mode, this.clip);
+            unchecked
+            {
+                return ((int)this.mode * 397) ^ (this.clip != null ? this.clip.GetHashCode() : 0);
+            }
         }
     }
 }

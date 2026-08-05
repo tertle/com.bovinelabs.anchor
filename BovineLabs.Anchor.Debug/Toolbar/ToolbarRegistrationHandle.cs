@@ -42,7 +42,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.ownerId, this.registrationId);
+            unchecked
+            {
+                var hashCode = (int)this.ownerId ^ (int)(this.ownerId >> 32);
+                return (hashCode * 397) ^ this.registrationId;
+            }
         }
 
         public static bool operator ==(ToolbarRegistrationHandle left, ToolbarRegistrationHandle right)
