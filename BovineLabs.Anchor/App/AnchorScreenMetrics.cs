@@ -59,7 +59,12 @@ namespace BovineLabs.Anchor
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.ScreenWidth, this.ScreenHeight, this.SafeArea);
+            unchecked
+            {
+                var hashCode = this.ScreenWidth;
+                hashCode = (hashCode * 397) ^ this.ScreenHeight;
+                return (hashCode * 397) ^ this.SafeArea.GetHashCode();
+            }
         }
     }
 }

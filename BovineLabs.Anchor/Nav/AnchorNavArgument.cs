@@ -80,9 +80,11 @@ namespace BovineLabs.Anchor.Nav
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                this.name,
-                this.value);
+            unchecked
+            {
+                var hashCode = this.name != null ? this.name.GetHashCode() : 0;
+                return (hashCode * 397) ^ (this.value != null ? this.value.GetHashCode() : 0);
+            }
         }
     }
 }
