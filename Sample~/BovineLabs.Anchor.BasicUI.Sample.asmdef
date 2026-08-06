@@ -1,0 +1,16 @@
+{
+    "name": "BovineLabs.Anchor.BasicUI.Sample",
+    "rootNamespace": "",
+    "references": [
+        "BovineLabs.Anchor"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

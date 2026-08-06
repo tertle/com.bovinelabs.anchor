@@ -43,7 +43,8 @@ Then follow [Getting started](Documentation~/getting-started.md).
 
 ## Sample
 
-Import **Basic UI** from the Package Manager, open `Scenes/Basic UI`, and enter Play mode. The included `AnchorSettings` maps the `home` destination to the sample UXML.
+Import **Basic UI** from the Package Manager, open `Scenes/Basic UI`, and enter Play mode. Its scene script navigates to the sample screen without changing
+project settings.
 
 ## Documentation
 

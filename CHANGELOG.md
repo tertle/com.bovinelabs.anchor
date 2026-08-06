@@ -4,10 +4,11 @@
 
 ### Added
 * Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
-* Basic UI sample with a ready-to-run scene and standard `AnchorSettings` setup
+* Basic UI sample with a ready-to-run scene and default UXML screen
 
 ### Fixed
 * Documentation for the supported panel customization and builder shutdown hooks
+* Basic UI sample now opens its screen without importing a duplicate `AnchorSettings` singleton
 
 ### Changed
 * Unity 6.7+ only
