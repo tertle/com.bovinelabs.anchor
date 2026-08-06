@@ -31,7 +31,7 @@ namespace BovineLabs.Anchor
         public IReadOnlyList<NavigationComponent> Types => this.types;
 
         /// <summary>
-        /// Describes which navigation states map to a specific MonoBehaviour component.
+        /// Describes which navigation states map to a specific ECS marker component.
         /// </summary>
         [Serializable]
         public class NavigationComponent

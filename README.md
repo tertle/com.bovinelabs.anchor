@@ -29,15 +29,15 @@ Add the BovineLabs scoped registry to your project:
 
 The scoped registry only needs to be added once per project and can provide all BovineLabs packages.
 
-### Latest experimental
+### Git URL — 2.0.0
 
-To install the latest development version, open the Package Manager, select **Install package from git URL...**, and enter:
+To install the 2.0.0 release directly from Git, open the Package Manager, select **Install package from git URL...**, and enter:
 
 ```text
-https://gitlab.com/tertle/com.bovinelabs.anchor.git
+https://gitlab.com/tertle/com.bovinelabs.anchor.git#2.0.0
 ```
 
-The experimental version tracks the latest development branch and may contain unfinished or breaking changes.
+The tag is explicit because the repository's default branch can still point at an earlier release.
 
 Then follow [Getting started](Documentation~/getting-started.md).
 
@@ -74,3 +74,8 @@ The runtime, adapter, debug, and editor assemblies have `autoReferenced` disable
 ## Theme entry points
 
 Use `/Packages/com.bovinelabs.anchor/PackageResources/Anchor UI.tss` for the default App UI theme and Anchor styles.
+
+## License
+
+BovineLabs Anchor is licensed under the [MIT License](LICENSE.md).
+The bundled Inter font remains under the SIL Open Font License 1.1; see [Third Party Notices](Third%20Party%20Notices.md).

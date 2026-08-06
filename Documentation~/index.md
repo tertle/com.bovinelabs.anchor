@@ -40,11 +40,13 @@ The app, navigation, DI, and MVVM APIs are Anchor-owned rather than AppUI naviga
 
 `AnchorAppBuilder` owns the application lifetime:
 
-1. It binds to the scene's `PanelRenderer`.
-2. It registers Anchor defaults and app-specific services.
-3. It creates `AnchorPanel`, attaches it to the Unity host, and initializes `AnchorApp.Current`.
-4. `AnchorApp` creates `AnchorNavHost`, opens the configured start destination, and attaches an available toolbar host.
-5. On disable, the builder saves navigation state, disposes the app and services, and restores the saved state on the next enable.
+1. `OnEnable` registers the scene's `PanelRenderer` reload callback and asks the renderer to validate and supply a visual generation.
+2. The first renderer callback registers Anchor defaults and app-specific services, creates the provider, and initializes `AnchorApp.Current` once.
+3. It creates `AnchorPanel`, attaches it to the Unity host, then creates `AnchorNavHost`, opens the configured start destination, and attaches an
+   available toolbar host.
+4. `OnDisable` captures navigation state and releases only the current visual generation. The durable app, provider, and services remain alive for
+   the next enable.
+5. `OnDestroy` shuts down the final visual generation and app, then disposes the provider and its services.
 
 Managed UI code resolves services from `AnchorApp.Current.Services` and navigates through `AnchorApp.Current.NavHost`. Burst-compatible code uses the explicit `AnchorNavHost.Burst` entry points. ECS systems exchange data with view models through `UIHelper` rather than reading managed UI objects in jobs.
 

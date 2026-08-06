@@ -37,5 +37,42 @@ namespace BovineLabs.Anchor.Tests.Utility
             Assert.AreEqual(-1, uiArray.IndexOf(100));
             Assert.AreEqual(-1, uiArray.IndexOf("6"));
         }
+
+        [Test]
+        public void CopyTo_WithOffset_CopiesEveryElement()
+        {
+            var nativeArray = new NativeArray<int>(new[] { 4, 5, 6 }, Allocator.Temp);
+            var uiArray = (UIArray<int>)(MultiContainer<int>)nativeArray;
+            var destination = new[] { 1, 2, 3, 3, 3 };
+
+            uiArray.CopyTo(destination, 2);
+
+            CollectionAssert.AreEqual(new[] { 1, 2, 4, 5, 6 }, destination);
+        }
+
+        [Test]
+        public void CopyTo_ObjectArray_BoxesEveryElement()
+        {
+            var nativeArray = new NativeArray<int>(new[] { 4, 5 }, Allocator.Temp);
+            var uiArray = (UIArray<int>)(MultiContainer<int>)nativeArray;
+            var destination = new object[2];
+
+            uiArray.CopyTo(destination, 0);
+
+            CollectionAssert.AreEqual(new object[] { 4, 5 }, destination);
+        }
+
+        [Test]
+        public void CopyTo_InvalidDestination_ThrowsExpectedArgumentException()
+        {
+            var nativeArray = new NativeArray<int>(new[] { 4, 5 }, Allocator.Temp);
+            var uiArray = (UIArray<int>)(MultiContainer<int>)nativeArray;
+
+            Assert.Throws<ArgumentNullException>(() => uiArray.CopyTo(null, 0));
+            Assert.Throws<ArgumentException>(() => uiArray.CopyTo(new int[1, 2], 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => uiArray.CopyTo(new int[2], -1));
+            Assert.Throws<ArgumentException>(() => uiArray.CopyTo(new int[2], 1));
+            Assert.Throws<ArgumentException>(() => uiArray.CopyTo(new string[2], 0));
+        }
     }
 }

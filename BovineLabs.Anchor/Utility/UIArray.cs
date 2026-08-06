@@ -62,12 +62,46 @@ namespace BovineLabs.Anchor
             return this.array.GetEnumerator();
         }
 
-        /// <summary>Copy operation is not supported because the collection is read-only.</summary>
-        /// <param name="a">Destination array.</param>
-        /// <param name="index">Index at which copying would begin.</param>
-        public void CopyTo(Array a, int index)
+        /// <summary>Copies the collection into a compatible one-dimensional array.</summary>
+        /// <param name="array">Destination array.</param>
+        /// <param name="index">Zero-based destination index at which copying begins.</param>
+        public void CopyTo(Array array, int index)
         {
-            throw new NotImplementedException();
+            if (array == null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (array.Rank != 1 || array.GetLowerBound(0) != 0)
+            {
+                throw new ArgumentException("The destination must be a zero-based, one-dimensional array.", nameof(array));
+            }
+
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            if (index > array.Length || array.Length - index < this.Count)
+            {
+                throw new ArgumentException("The destination array does not have enough available space.", nameof(array));
+            }
+
+            try
+            {
+                for (var i = 0; i < this.Count; i++)
+                {
+                    array.SetValue(this.array[i], index + i);
+                }
+            }
+            catch (InvalidCastException exception)
+            {
+                throw new ArgumentException("The destination array type is not compatible with the collection element type.", nameof(array), exception);
+            }
+            catch (ArrayTypeMismatchException exception)
+            {
+                throw new ArgumentException("The destination array type is not compatible with the collection element type.", nameof(array), exception);
+            }
         }
 
         /// <summary>Adding is not supported.</summary>

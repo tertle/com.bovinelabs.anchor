@@ -18,10 +18,11 @@ The default lifecycle is:
 
 | Stage | Builder behavior |
 | --- | --- |
-| `Start` | Registers the renderer callback and asks `PanelRenderer` to validate and supply the initial visual generation. |
+| `OnEnable` | Registers the renderer callback and asks `PanelRenderer` to validate and supply the current visual generation. |
 | Initial renderer callback | Configures services, builds the provider, creates the app, runs one-time app initialization, then creates and attaches the first visual generation. |
 | `Update` | Polls screen and safe-area metrics and raises `AnchorApp.ScreenMetricsChanged` when they change. |
 | Host reload | Captures navigation migration state, invokes visual-generation teardown, releases callbacks and bindings, and creates fresh visuals against the existing app and provider. |
+| `OnDisable` | Unregisters the renderer callback, captures navigation state, and releases only the current visual generation. The app, provider, and durable services remain alive. |
 | `OnDestroy` | Invokes final visual-generation teardown and app shutdown, disposes the app, then disposes the provider and its durable services exactly once. |
 
 The protected hooks have distinct responsibilities:

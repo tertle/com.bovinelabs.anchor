@@ -433,7 +433,10 @@ Burst route names must fit in `FixedString32Bytes`. The Burst `Navigate` and `To
 
 These methods cross to the managed host through initialized trampolines. If no current app or nav host exists, or a trampoline is not initialized, commands are no-ops and query methods return `false`, `0`, or a default `FixedString32Bytes`. In particular, handle `0` means no state was captured.
 
-`NavigationStateSystem` also reads `AnchorNavHost.Burst.CurrentDestination()` and maps configured `UISystemTypes` destination names to ECS components on the UI system entity. Use that settings map when systems should start or stop according to the top navigation destination. Because a popup becomes `CurrentDestination`, configure popup mappings deliberately.
+`NavigationStateSystem` also reads `AnchorNavHost.Burst.CurrentDestination()` and maps configured `UISystemTypes` destination names to ECS marker
+components on the UI system entity. It adds the active marker and removes the previous marker only when the mapped destination changes. This uses
+component presence intentionally: `RequireForUpdate` ignores the enabled state of `IEnableableComponent`, so preinstalling and disabling a marker would
+not gate systems. Because a popup becomes `CurrentDestination`, configure popup mappings deliberately.
 
 ## Common mistakes
 

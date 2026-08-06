@@ -15,7 +15,7 @@ The package's assembly definitions are not auto-referenced, so a consuming assem
 In Package Manager, choose **Add package from git URL** and enter:
 
 ```text
-https://gitlab.com/tertle/com.bovinelabs.anchor.git
+https://gitlab.com/tertle/com.bovinelabs.anchor.git#2.0.0
 ```
 
 The equivalent `Packages/manifest.json` entry is:
@@ -23,10 +23,12 @@ The equivalent `Packages/manifest.json` entry is:
 ```json
 {
   "dependencies": {
-    "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git"
+    "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git#2.0.0"
   }
 }
 ```
+
+Keep the `#2.0.0` revision when installing from Git. The repository's default branch can still point at an earlier release.
 
 Add `BovineLabs.Anchor` to the references of the runtime assembly that will contain the app builder. Add `BovineLabs.Anchor.Adapters` as well if that assembly uses Anchor's App UI controls.
 

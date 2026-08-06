@@ -302,7 +302,8 @@ namespace Example.UI
 The default helper does not add an ECS query requirement. These constructors intentionally call `RequireForUpdate`:
 
 - `UIHelper(ref state, ComponentType)` waits for the specified component, including system entities.
-- `UIHelper(ref state, FixedString32Bytes)` maps a UI state name through `UISystemTypes.NameToKey` and waits for its component.
+- `UIHelper(ref state, FixedString32Bytes)` maps a UI state name through `UISystemTypes.NameToKey` and waits for its marker component.
+  `NavigationStateSystem` adds or removes that marker only when the mapped navigation destination changes.
 
 Publish data from the system's main-thread update. Do not capture the pinned binding reference in a scheduled job, and do not manipulate visual elements from ECS or Burst code.
 

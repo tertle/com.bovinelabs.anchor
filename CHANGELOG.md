@@ -5,10 +5,13 @@
 ### Added
 * Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
 * Basic UI sample with a ready-to-run scene and default UXML screen
+* SIL Open Font License 1.1 attribution and license text for the bundled Inter font
 
 ### Fixed
 * Documentation for the supported panel customization and builder shutdown hooks
 * Basic UI sample now opens its screen without importing a duplicate `AnchorSettings` singleton
+* `UIArray<T>.CopyTo` now copies into compatible arrays and validates invalid destinations
+* Navigation aliases that share a marker now keep that marker active when moving between mapped destinations
 
 ### Changed
 * Unity 6.7+ only
