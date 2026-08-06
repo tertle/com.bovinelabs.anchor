@@ -84,7 +84,7 @@ Anchor uses `PanelRenderer` as its UI Toolkit panel component.
 
 Use a dedicated host for Anchor. The builder clears the host root before attaching its app root, including after a `PanelRenderer` reload. Any visual content supplied by a renderer Source Asset would therefore be removed.
 
-The builder auto-finds a colocated host component. Its serialized host field can also be assigned explicitly in the Inspector.
+The builder always uses the `PanelRenderer` on the same GameObject.
 
 ## Configure the panel theme
 
@@ -130,7 +130,7 @@ Do not use `AnchorApp.Current` directly inside Burst-compiled code. Anchor expos
 
 **The builder logs that no host is assigned**
 
-Put `PanelRenderer` on the same GameObject as the builder, or assign the builder's serialized host field.
+Put `PanelRenderer` on the same GameObject as the builder.
 
 **The app starts but no screen appears**
 

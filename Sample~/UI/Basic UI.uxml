@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement class="anchor-sample">
+        <ui:VisualElement class="anchor-sample__card">
+            <ui:Label text="ANCHOR" class="anchor-sample__eyebrow"/>
+            <ui:Label text="Your UI is running" class="anchor-sample__title"/>
+            <ui:Label text="This screen was loaded from UXML through Anchor navigation." class="anchor-sample__body"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

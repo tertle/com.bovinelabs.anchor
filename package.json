@@ -14,5 +14,12 @@
   ],
   "author": {
     "name": "BovineLabs"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Basic UI",
+      "description": "A minimal Anchor app that opens a single UXML screen.",
+      "path": "Sample~"
+    }
+  ]
 }

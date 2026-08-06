@@ -41,6 +41,10 @@ The experimental version tracks the latest development branch and may contain un
 
 Then follow [Getting started](Documentation~/getting-started.md).
 
+## Sample
+
+Import **Basic UI** from the Package Manager, open `Scenes/Basic UI`, and enter Play mode. The included `AnchorSettings` maps the `home` destination to the sample UXML.
+
 ## Documentation
 
 | Guide | Covers |

@@ -4,6 +4,10 @@
 
 ### Added
 * Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
+* Basic UI sample with a ready-to-run scene and standard `AnchorSettings` setup
+
+### Fixed
+* Documentation for the supported panel customization and builder shutdown hooks
 
 ### Changed
 * Unity 6.7+ only

@@ -347,8 +347,8 @@ namespace MyGame.UI
 
 `AnchorApp.Initialize()` runs for every visual generation, including live reload. Keep durable service initialization in `AnchorAppBuilder.OnAppInitialized`, and keep the base app initialization unless the custom app intentionally replaces Anchor's navigation setup.
 
-For a different visual root, override `PanelType` or `CreatePanel`. A `PanelType` must implement `IAnchorPanel` and have a public parameterless constructor; the builder validates both requirements before creating it.
+For a different visual root, override `PanelType`. The type must implement `IAnchorPanel` and have a public parameterless constructor; the builder validates both requirements before creating it.
 
-## Shutdown events
+## Shutdown hooks
 
-`AnchorApp.ShuttingDown` is raised at the start of app disposal, while the app references are still valid. After event handlers return, the app clears its navigation, panel, service, container, and screen-metric references; the builder then disposes the provider. Prefer the builder's shutdown hook for app-specific teardown that needs service access, and always unsubscribe static event handlers that outlive an app instance.
+`AnchorApp` no longer exposes a shutdown event. Override `AnchorAppBuilder.OnVisualGenerationShuttingDown` to release subscriptions and resources owned by the current visual generation. Override `AnchorAppBuilder.OnAppShuttingDown` for final app teardown that needs access to app services; it runs once after the last visual generation has shut down and before the app and provider are disposed. Call the base implementation unless the custom builder intentionally replaces it.
