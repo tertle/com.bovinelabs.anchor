@@ -7,12 +7,6 @@
 * Basic UI sample with a ready-to-run scene and default UXML screen
 * SIL Open Font License 1.1 attribution and license text for the bundled Inter font
 
-### Fixed
-* Documentation for the supported panel customization and builder shutdown hooks
-* Basic UI sample now opens its screen without importing a duplicate `AnchorSettings` singleton
-* `UIArray<T>.CopyTo` now copies into compatible arrays and validates invalid destinations
-* Navigation aliases that share a marker now keep that marker active when moving between mapped destinations
-
 ### Changed
 * Unity 6.7+ only
 * BovineLabs Core 2.0.0 or newer is required
@@ -24,6 +18,12 @@
 * Anchor app services, navigation state, toolbar registrations, and persisted toolbar state now survive panel reloads while the visual tree is recreated
 * Memory and rendering toolbar values now use compact GB and K/M/B formatting
 * Rendering toolbar draw-call and instance totals now aggregate Unity 6.7's standard, SRP Batcher, BRG, and null-geometry counters
+
+### Fixed
+* Documentation for the supported panel customization and builder shutdown hooks
+* Basic UI sample now opens its screen without importing a duplicate `AnchorSettings` singleton
+* `UIArray<T>.CopyTo` now copies into compatible arrays and validates invalid destinations
+* Navigation aliases that share a marker now keep that marker active when moving between mapped destinations
 
 ### Removed
 * `APP_UI_EDITOR_ONLY` is no longer supported
