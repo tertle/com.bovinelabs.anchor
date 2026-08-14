@@ -6,7 +6,7 @@
   "displayName": "BovineLabs Anchor",
   "dependencies": {
     "com.bovinelabs.core": "2.0.0",
-    "com.unity.dt.app-ui": "2.2.0",
+    "com.unity.dt.app-ui": "2.2.1",
     "com.unity.render-pipelines.universal": "17.7.0"
   },
   "keywords": [
