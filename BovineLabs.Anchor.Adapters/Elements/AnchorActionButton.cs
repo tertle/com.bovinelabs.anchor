@@ -10,13 +10,11 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine;
-    using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
 
     /// <summary>
     /// ActionButton variant that exposes the click event data to bound commands.
     /// </summary>
-    [MovedFrom(true, "BovineLabs.Anchor.Elements", "BovineLabs.Anchor")]
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]

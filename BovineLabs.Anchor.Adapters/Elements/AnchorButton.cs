@@ -9,14 +9,12 @@ namespace BovineLabs.Anchor.Elements
     using BovineLabs.Anchor.Audio;
     using Unity.Properties;
     using UnityEngine;
-    using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
     /// <summary>
     /// Button that forwards the full click event info to an ICommand.
     /// </summary>
-    [MovedFrom(true, "BovineLabs.Anchor.Elements", "BovineLabs.Anchor")]
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]

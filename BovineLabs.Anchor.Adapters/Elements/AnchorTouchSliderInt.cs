@@ -7,13 +7,11 @@ namespace BovineLabs.Anchor.Elements
     using System;
     using System.Globalization;
     using UnityEngine;
-    using UnityEngine.Scripting.APIUpdating;
     using UnityEngine.UIElements;
 
     /// <summary>
     /// Touch slider replacement for integer values.
     /// </summary>
-    [MovedFrom(true, "BovineLabs.Anchor.Elements", "BovineLabs.Anchor")]
     [UxmlElement]
     public partial class AnchorTouchSliderInt : AnchorTouchSlider<int>
     {
