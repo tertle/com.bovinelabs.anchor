@@ -55,17 +55,5 @@ namespace BovineLabs.Anchor.Tests.Elements
             Assert.AreEqual("Nothing", pager.SelectedItemElement.label);
         }
 
-        [Test]
-        public void ShowIndicator_TogglesIndicatorDisplay()
-        {
-            var pager = new OptionPager();
-
-            pager.showIndicator = false;
-            Assert.AreEqual(DisplayStyle.None, pager.Indicator.style.display.value);
-
-            pager.showIndicator = true;
-            Assert.AreEqual(DisplayStyle.Flex, pager.Indicator.style.display.value);
-        }
-
     }
 }

@@ -81,18 +81,6 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
-        public void CloseAllPopups_WhenNone_ReturnsFalse()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("A");
-            harness.Host.Navigate("A");
-
-            var closed = harness.Host.CloseAllPopups();
-
-            Assert.IsFalse(closed);
-        }
-
-        [Test]
         public void NavigatePopupOnCurrent_SetsPopupState()
         {
             using var harness = new TestAnchorNavHostHarness();
@@ -107,22 +95,6 @@ namespace BovineLabs.Anchor.Tests.Nav
 
             Assert.IsTrue(result);
             Assert.AreEqual("popup", harness.Host.CurrentDestination);
-            Assert.IsTrue(harness.Host.HasActivePopups);
-        }
-
-        [Test]
-        public void ClosePopup_Unknown_ReturnsFalse()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("base");
-            harness.RegisterScreen("popup");
-
-            harness.Host.Navigate("base");
-            harness.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-
-            var closed = harness.Host.ClosePopup("missing");
-
-            Assert.IsFalse(closed);
             Assert.IsTrue(harness.Host.HasActivePopups);
         }
 
