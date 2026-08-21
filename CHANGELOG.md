@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0] - Unreleased
+## [2.0.0-pre.1] - Unreleased
 
 ### Added
 * Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
@@ -9,7 +9,7 @@
 
 ### Changed
 * Unity 6.7+ only
-* BovineLabs Core 2.0.0 or newer is required
+* BovineLabs Core 2.0.0-pre.1 or newer is required
 * Unity App UI 2.2.0 or newer is required
 * Universal Render Pipeline 17.7.0 or newer is required
 * Anchor app setup now separates durable app initialization from replaceable visual generations through
