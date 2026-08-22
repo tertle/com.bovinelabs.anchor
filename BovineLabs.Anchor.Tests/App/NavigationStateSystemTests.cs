@@ -40,7 +40,7 @@ namespace BovineLabs.Anchor.Tests.App
         public void DestinationChanges_GateConsumerWithoutPerFrameStructuralChanges()
         {
             this.componentAsset = ScriptableObject.CreateInstance<ComponentAsset>();
-            SetField(this.componentAsset, "component", TypeManager.GetTypeInfo<TestNavigationState>().StableTypeHash);
+            SetType(this.componentAsset, typeof(TestNavigationState));
 
             this.settings = ScriptableObject.CreateInstance<UISystemTypes>();
             InitializeSettings(this.settings, new[]
@@ -117,6 +117,13 @@ namespace BovineLabs.Anchor.Tests.App
             var field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(field);
             field.SetValue(target, value);
+        }
+
+        private static void SetType(TypeAsset target, Type type)
+        {
+            var field = typeof(TypeAsset).GetField("typeName", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.IsNotNull(field);
+            field.SetValue(target, type.AssemblyQualifiedName);
         }
 
         private struct TestNavigationState : IComponentData
