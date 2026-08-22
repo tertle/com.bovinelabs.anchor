@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.1] - Unreleased
+## [2.0.0-pre.1] - 2026-08-22
 
 ### Added
 * Rendering debug toolbar with triangles, vertices, draw calls, SetPass calls, and instances
