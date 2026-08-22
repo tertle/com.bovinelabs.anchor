@@ -15,29 +15,31 @@ App UI and URP are direct package dependencies. Anchor's assemblies are still no
 
 ## Installation
 
-### Latest stable — recommended
+### BovineLabs Package Manager — recommended
 
-Add the BovineLabs scoped registry to your project:
+Install the standalone [BovineLabs Package Manager](https://gitlab.com/tertle/com.bovinelabs) once per project:
 
-1. Open **Edit > Project Settings > Package Manager**.
-2. Under **Scoped Registries**, add:
-   - **Name:** `BovineLabs`
-   - **URL:** `https://upm.bovinelabs.com`
-   - **Scope:** `com.bovinelabs`
-3. Open **Window > Package Management > Package Manager**.
-4. Select **My Registries**, choose **BovineLabs Anchor**, and click **Install**.
-
-The scoped registry only needs to be added once per project and can provide all BovineLabs packages.
-
-### Git URL — 2.0.0
-
-To install the 2.0.0 release directly from Git, open the Package Manager, select **Install package from git URL...**, and enter:
+1. Open **Window > Package Management > Package Manager**.
+2. Select **Install package from git URL...** from the add menu and enter:
 
 ```text
-https://gitlab.com/tertle/com.bovinelabs.anchor.git#2.0.0
+https://gitlab.com/tertle/com.bovinelabs.git
 ```
 
-The tag is explicit because the repository's default branch can still point at an earlier release.
+3. Open **Window > Package Management > BovineLabs Package Manager**.
+4. Select **BovineLabs Anchor** and click **Install**.
+
+The BovineLabs Package Manager installs this package and its required BovineLabs dependencies as embedded packages under `Packages/`. Commit the
+installed package directories to version control. The manager connects to the BovineLabs registry itself; do not add the registry to Unity's scoped
+registry settings.
+
+### Git URL
+
+To install Anchor directly from Git, open the Package Manager, select **Install package from git URL...**, and enter:
+
+```text
+https://gitlab.com/tertle/com.bovinelabs.anchor.git
+```
 
 Then follow [Getting started](Documentation~/getting-started.md).
 

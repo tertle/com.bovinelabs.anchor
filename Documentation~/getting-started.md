@@ -12,10 +12,29 @@ The package's assembly definitions are not auto-referenced, so a consuming assem
 
 ## Install Anchor
 
-In Package Manager, choose **Add package from git URL** and enter:
+### BovineLabs Package Manager — recommended
+
+Install the standalone [BovineLabs Package Manager](https://gitlab.com/tertle/com.bovinelabs) once per project:
+
+1. Open **Window > Package Management > Package Manager**.
+2. Select **Install package from git URL...** from the add menu and enter:
 
 ```text
-https://gitlab.com/tertle/com.bovinelabs.anchor.git#2.0.0
+https://gitlab.com/tertle/com.bovinelabs.git
+```
+
+3. Open **Window > Package Management > BovineLabs Package Manager**.
+4. Select **BovineLabs Anchor** and click **Install**.
+
+The manager installs Anchor and its required BovineLabs dependencies as embedded packages under `Packages/`. Commit the installed package directories
+to version control. The manager connects to the BovineLabs registry itself; do not add the registry to Unity's scoped registry settings.
+
+### Git or manifest alternative
+
+To install Anchor directly from Git, open the Unity Package Manager, choose **Install package from git URL...**, and enter:
+
+```text
+https://gitlab.com/tertle/com.bovinelabs.anchor.git
 ```
 
 The equivalent `Packages/manifest.json` entry is:
@@ -23,12 +42,10 @@ The equivalent `Packages/manifest.json` entry is:
 ```json
 {
   "dependencies": {
-    "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git#2.0.0"
+    "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git"
   }
 }
 ```
-
-Keep the `#2.0.0` revision when installing from Git. The repository's default branch can still point at an earlier release.
 
 Add `BovineLabs.Anchor` to the references of the runtime assembly that will contain the app builder. Add `BovineLabs.Anchor.Adapters` as well if that assembly uses Anchor's App UI controls.
 
