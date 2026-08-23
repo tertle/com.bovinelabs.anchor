@@ -5,13 +5,14 @@
 namespace BovineLabs.Anchor.Nav
 {
     using System;
+    using UnityEngine.Scripting;
 
     /// <summary>
     /// Attribute used to mark static parameterless methods that return navigation actions for
     /// automatic registration with <see cref="AnchorNavHost"/>.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
-    public sealed class AnchorNavActionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class AnchorNavActionAttribute : PreserveAttribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AnchorNavActionAttribute"/> class.

@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Collections
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
+    using System.ComponentModel;
     using Unity.Properties;
 
     /// <summary>
@@ -38,20 +39,20 @@ namespace BovineLabs.Anchor.Collections
                 return;
             }
 
-            var wasEmpty = this.Items.Count == 0;
+            var snapshot = new List<T>(items);
+            if (this.Items.Count == 0 && snapshot.Count == 0)
+            {
+                return;
+            }
 
             this.Items.Clear();
 
-            foreach (var item in items)
+            foreach (var item in snapshot)
             {
                 this.Items.Add(item);
             }
 
-            // Check it's not still empty
-            if (!wasEmpty || this.Items.Count != 0)
-            {
-                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            }
+            this.OnBulkCollectionChanged();
         }
 
         /// <summary>
@@ -66,17 +67,25 @@ namespace BovineLabs.Anchor.Collections
                 return;
             }
 
-            var count = this.Items.Count;
+            var snapshot = new List<T>(items);
+            if (snapshot.Count == 0)
+            {
+                return;
+            }
 
-            foreach (var item in items)
+            foreach (var item in snapshot)
             {
                 this.Items.Add(item);
             }
 
-            if (this.Items.Count != count)
-            {
-                this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            }
+            this.OnBulkCollectionChanged();
+        }
+
+        private void OnBulkCollectionChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.Count)));
+            this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
     }
 }

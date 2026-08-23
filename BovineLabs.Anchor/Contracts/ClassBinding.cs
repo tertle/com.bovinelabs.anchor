@@ -14,6 +14,8 @@ namespace BovineLabs.Anchor
     [UxmlObject]
     public partial class ClassBinding : CustomBinding, IDataSourceProvider
     {
+        private IVisualElementScheduledItem scheduledItem;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ClassBinding"/> class.
         /// </summary>
@@ -55,6 +57,8 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         protected override BindingResult Update(in BindingContext context)
         {
+            this.CancelScheduledUpdate();
+
             if (string.IsNullOrWhiteSpace(this.Class))
             {
                 return new BindingResult(BindingStatus.Failure, "[UI Toolkit] ClassBinding requires a non-empty class name.");
@@ -64,19 +68,19 @@ namespace BovineLabs.Anchor
 
             if (result.status != BindingStatus.Success)
             {
-                SetState(context.targetElement, this.Delay, this.Class, false);
+                this.SetState(context.targetElement, this.Delay, this.Class, false);
                 return result;
             }
 
-            SetState(context.targetElement, this.Delay, this.Class, enabled);
+            this.SetState(context.targetElement, this.Delay, this.Class, enabled);
             return result;
         }
 
-        private static void SetState(VisualElement element, bool delay, string className, bool state)
+        private void SetState(VisualElement element, bool delay, string className, bool state)
         {
             if (delay)
             {
-                element.schedule.Execute(() => element.EnableInClassList(className, state));
+                this.scheduledItem = element.schedule.Execute(() => element.EnableInClassList(className, state));
             }
             else
             {
@@ -87,12 +91,19 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         protected override void OnDeactivated(in BindingActivationContext context)
         {
+            this.CancelScheduledUpdate();
             base.OnDeactivated(in context);
 
             if (!string.IsNullOrWhiteSpace(this.Class))
             {
                 context.targetElement.RemoveFromClassList(this.Class);
             }
+        }
+
+        private void CancelScheduledUpdate()
+        {
+            this.scheduledItem?.Pause();
+            this.scheduledItem = null;
         }
 
         private BindingResult TryResolveBoolean(in BindingContext context, out bool value)

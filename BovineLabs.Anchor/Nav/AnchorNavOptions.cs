@@ -157,7 +157,7 @@ namespace BovineLabs.Anchor.Nav
         public AnchorAnimations Animations
         {
             get => this.animations;
-            set => this.animations = value;
+            set => this.animations = value ?? new AnchorAnimations();
         }
 
         /// <summary>

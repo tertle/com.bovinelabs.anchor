@@ -34,13 +34,29 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         public override bool Equals(IEnumerable<T> x, IEnumerable<T> y)
         {
-            return x != null && y != null && x.SequenceEqual(y);
+            return ReferenceEquals(x, y) || (x != null && y != null && x.SequenceEqual(y));
         }
 
         /// <inheritdoc/>
         public override int GetHashCode(IEnumerable<T> obj)
         {
-            return obj.GetHashCode();
+            if (obj == null)
+            {
+                return 0;
+            }
+
+            var hashCode = 17;
+            var elementComparer = EqualityComparer<T>.Default;
+
+            unchecked
+            {
+                foreach (var element in obj)
+                {
+                    hashCode = (hashCode * 31) + (ReferenceEquals(element, null) ? 0 : elementComparer.GetHashCode(element));
+                }
+            }
+
+            return hashCode;
         }
     }
 
@@ -52,13 +68,29 @@ namespace BovineLabs.Anchor
         /// <inheritdoc/>
         public override bool Equals(List<T> x, List<T> y)
         {
-            return x != null && y != null && x.SequenceEqual(y);
+            return ReferenceEquals(x, y) || (x != null && y != null && x.SequenceEqual(y));
         }
 
         /// <inheritdoc/>
         public override int GetHashCode(List<T> obj)
         {
-            return obj.GetHashCode();
+            if (obj == null)
+            {
+                return 0;
+            }
+
+            var hashCode = 17;
+            var elementComparer = EqualityComparer<T>.Default;
+
+            unchecked
+            {
+                foreach (var element in obj)
+                {
+                    hashCode = (hashCode * 31) + (ReferenceEquals(element, null) ? 0 : elementComparer.GetHashCode(element));
+                }
+            }
+
+            return hashCode;
         }
     }
 }

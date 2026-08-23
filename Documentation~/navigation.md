@@ -261,7 +261,9 @@ namespace MyGame.UI
     using BovineLabs.Anchor;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [IsService]
     public partial class ProfileViewModel : ObservableObject, IAnchorNavigationScreen
     {
@@ -392,7 +394,8 @@ bool ClosePopup(string destination, int exitAnimation = 0);
 bool CloseAllPopups(int exitAnimation = 0);
 ```
 
-ID `0` means no animation and resolves successfully to `null`. An unknown non-zero ID logs a warning and falls back to no animation. Keep `AnchorNavOptions.Animations` non-null; the default constructor initializes it.
+ID `0` means no animation and resolves successfully to `null`. An unknown non-zero ID logs a warning and falls back to no animation. The default
+constructor initializes `AnchorNavOptions.Animations`, and assigning `null` resets it to an empty animation set.
 
 ## Burst entry points
 
@@ -429,7 +432,9 @@ static int SaveStateHandle();
 static void ReleaseStateHandle(int handle, bool restore = true);
 ```
 
-Burst route names must fit in `FixedString32Bytes`. The Burst `Navigate` and `Toggle` overloads do not accept arguments or direct `AnchorNavOptions`; use a registered named action when the call needs default options or default arguments.
+Burst route names must fit in `FixedString32Bytes`. `CurrentDestination` throws when the current managed route cannot fit rather than truncating it. The
+Burst `Navigate` and `Toggle` overloads do not accept arguments or direct `AnchorNavOptions`; use a registered named action when the call needs default
+options or default arguments.
 
 These methods cross to the managed host through initialized trampolines. If no current app or nav host exists, or a trampoline is not initialized, commands are no-ops and query methods return `false`, `0`, or a default `FixedString32Bytes`. In particular, handle `0` means no state was captured.
 

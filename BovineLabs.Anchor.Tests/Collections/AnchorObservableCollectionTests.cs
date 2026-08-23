@@ -5,7 +5,7 @@
 namespace BovineLabs.Anchor.Tests.Collections
 {
     using System.Collections.Generic;
-    using System.Collections.Specialized;
+    using System.ComponentModel;
     using BovineLabs.Anchor.Collections;
     using NUnit.Framework;
 
@@ -15,11 +15,11 @@ namespace BovineLabs.Anchor.Tests.Collections
         public void Replace_WithChanges_RaisesSingleReset()
         {
             var collection = new AnchorObservableCollection<int> { 1, 2 };
-            var resetCount = CountResetEvents(collection);
+            var events = ObserveEvents(collection);
 
             collection.Replace(new[] { 5, 6, 7 });
 
-            Assert.AreEqual(1, resetCount.Count);
+            CollectionAssert.AreEqual(new[] { "Count", "Item[]", "Reset" }, events);
             Assert.AreEqual(3, collection.Count);
             CollectionAssert.AreEqual(new[] { 5, 6, 7 }, collection);
         }
@@ -28,33 +28,47 @@ namespace BovineLabs.Anchor.Tests.Collections
         public void AddRange_RaisesSingleReset_OnlyWhenItemsAdded()
         {
             var collection = new AnchorObservableCollection<int>();
-            var resetCount = CountResetEvents(collection);
+            var events = ObserveEvents(collection);
 
             collection.AddRange(new List<int>());
-            Assert.AreEqual(0, resetCount.Count);
+            Assert.AreEqual(0, events.Count);
 
             collection.AddRange(new[] { 9, 10 });
-            Assert.AreEqual(1, resetCount.Count);
+            CollectionAssert.AreEqual(new[] { "Count", "Item[]", "Reset" }, events);
             CollectionAssert.AreEqual(new[] { 9, 10 }, collection);
         }
 
-        private static ResetCounter CountResetEvents(AnchorObservableCollection<int> collection)
+        [Test]
+        public void AddRange_WithSelf_SnapshotsOriginalItems()
         {
-            var counter = new ResetCounter();
-            collection.CollectionChanged += (_, args) =>
-            {
-                if (args.Action == NotifyCollectionChangedAction.Reset)
-                {
-                    counter.Count++;
-                }
-            };
+            var collection = new AnchorObservableCollection<int> { 1, 2 };
+            var events = ObserveEvents(collection);
 
-            return counter;
+            collection.AddRange(collection);
+
+            CollectionAssert.AreEqual(new[] { 1, 2, 1, 2 }, collection);
+            CollectionAssert.AreEqual(new[] { "Count", "Item[]", "Reset" }, events);
         }
 
-        private sealed class ResetCounter
+        [Test]
+        public void Replace_WithSelf_SnapshotsOriginalItems()
         {
-            public int Count;
+            var collection = new AnchorObservableCollection<int> { 1, 2 };
+            var events = ObserveEvents(collection);
+
+            collection.Replace(collection);
+
+            CollectionAssert.AreEqual(new[] { 1, 2 }, collection);
+            CollectionAssert.AreEqual(new[] { "Count", "Item[]", "Reset" }, events);
+        }
+
+        private static List<string> ObserveEvents(AnchorObservableCollection<int> collection)
+        {
+            var events = new List<string>();
+            ((INotifyPropertyChanged)collection).PropertyChanged += (_, args) => events.Add(args.PropertyName);
+            collection.CollectionChanged += (_, args) => events.Add(args.Action.ToString());
+
+            return events;
         }
     }
 }

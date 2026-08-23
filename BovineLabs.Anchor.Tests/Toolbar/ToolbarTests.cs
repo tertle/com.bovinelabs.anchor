@@ -7,6 +7,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using BovineLabs.Anchor.Binding;
     using BovineLabs.Anchor.Debug.Toolbar;
@@ -15,6 +16,8 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     using NUnit.Framework;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Entities;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.UIElements;
     using ToolbarService = BovineLabs.Anchor.Debug.Toolbar.Toolbar;
@@ -171,6 +174,121 @@ namespace BovineLabs.Anchor.Tests.Toolbar
             finally
             {
                 PlayerPrefs.DeleteKey(saveKey);
+            }
+        }
+
+        [Test]
+        public void ToolbarSystemGroup_AppRecreation_StopsAndRestartsChildSystems()
+        {
+            TestToolbarLifecycleSystem.Reset();
+
+            using var scope = new TestAnchorAppScope();
+            using var world = new World(nameof(ToolbarSystemGroup_AppRecreation_StopsAndRestartsChildSystems));
+            var group = world.GetOrCreateSystemManaged<ToolbarSystemGroup>();
+            var child = world.CreateSystem<TestToolbarLifecycleSystem>();
+            group.AddSystemToUpdateList(child);
+            group.SortSystems();
+
+            var firstStorage = CreateVisibleStorage();
+            var first = new ToolbarService(
+                new TestServiceProvider(),
+                new ToolbarViewModel(firstStorage),
+                firstStorage,
+                Array.Empty<Type>());
+
+            group.Update();
+            Assert.AreEqual(1, TestToolbarLifecycleSystem.StartCalls);
+            Assert.AreEqual(0, TestToolbarLifecycleSystem.StopCalls);
+
+            first.Dispose();
+            var secondStorage = CreateVisibleStorage();
+            var second = new ToolbarService(
+                new TestServiceProvider(),
+                new ToolbarViewModel(secondStorage),
+                secondStorage,
+                Array.Empty<Type>());
+
+            group.Update();
+            Assert.AreEqual(2, TestToolbarLifecycleSystem.StartCalls);
+            Assert.AreEqual(1, TestToolbarLifecycleSystem.StopCalls);
+
+            second.Dispose();
+            group.Update();
+            Assert.AreEqual(2, TestToolbarLifecycleSystem.StartCalls);
+            Assert.AreEqual(2, TestToolbarLifecycleSystem.StopCalls);
+
+            var thirdStorage = CreateVisibleStorage();
+            using var third = new ToolbarService(
+                new TestServiceProvider(),
+                new ToolbarViewModel(thirdStorage),
+                thirdStorage,
+                Array.Empty<Type>());
+
+            group.Update();
+            Assert.AreEqual(3, TestToolbarLifecycleSystem.StartCalls);
+            Assert.AreEqual(2, TestToolbarLifecycleSystem.StopCalls);
+        }
+
+        [Test]
+        public void ResizeAndDispose_RestoreReplacedMainCameraRects()
+        {
+            var previousMain = Camera.main;
+            var previousTag = previousMain == null ? null : previousMain.tag;
+            if (previousMain != null)
+            {
+                previousMain.tag = "Untagged";
+            }
+
+            var firstCameraObject = new GameObject("FirstCamera");
+            firstCameraObject.tag = "MainCamera";
+            var firstCamera = firstCameraObject.AddComponent<Camera>();
+            var firstOriginalRect = new Rect(0.1f, 0.2f, 0.8f, 0.7f);
+            firstCamera.rect = firstOriginalRect;
+            GameObject secondCameraObject = null;
+            ToolbarService toolbar = null;
+
+            try
+            {
+                var storage = CreateVisibleStorage();
+                toolbar = new ToolbarService(
+                    new TestServiceProvider(),
+                    new ToolbarViewModel(storage),
+                    storage,
+                    Array.Empty<Type>());
+                var root = (ToolbarView)toolbar.CreateRootVisualElement();
+                var resizeCamera = typeof(ToolbarView).GetMethod("ResizeCamera", BindingFlags.Instance | BindingFlags.NonPublic);
+
+                Assert.IsNotNull(resizeCamera);
+                resizeCamera!.Invoke(root, new object[] { 0.5f });
+                Assert.AreEqual(0.5f, firstCamera.rect.height);
+
+                firstCameraObject.tag = "Untagged";
+                secondCameraObject = new GameObject("SecondCamera");
+                secondCameraObject.tag = "MainCamera";
+                var secondCamera = secondCameraObject.AddComponent<Camera>();
+                var secondOriginalRect = new Rect(0.2f, 0.1f, 0.7f, 0.8f);
+                secondCamera.rect = secondOriginalRect;
+
+                resizeCamera.Invoke(root, new object[] { 0.5f });
+                Assert.AreEqual(firstOriginalRect, firstCamera.rect);
+                Assert.AreEqual(0.5f, secondCamera.rect.height);
+
+                toolbar.Dispose();
+                Assert.AreEqual(secondOriginalRect, secondCamera.rect);
+            }
+            finally
+            {
+                toolbar?.Dispose();
+                UnityEngine.Object.DestroyImmediate(firstCameraObject);
+                if (secondCameraObject != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(secondCameraObject);
+                }
+
+                if (previousMain != null)
+                {
+                    previousMain.tag = previousTag;
+                }
             }
         }
 
@@ -438,6 +556,43 @@ namespace BovineLabs.Anchor.Tests.Toolbar
                 where T : class
             {
                 this.services.Add(typeof(T), service);
+            }
+        }
+
+        private partial struct TestToolbarLifecycleSystem : ISystem, ISystemStartStop
+        {
+            [NoAutoStaticsCleanup]
+            public static int StartCalls { get; private set; }
+
+            [NoAutoStaticsCleanup]
+            public static int StopCalls { get; private set; }
+
+            public static void Reset()
+            {
+                StartCalls = 0;
+                StopCalls = 0;
+            }
+
+            public void OnCreate(ref SystemState state)
+            {
+            }
+
+            public void OnDestroy(ref SystemState state)
+            {
+            }
+
+            public void OnStartRunning(ref SystemState state)
+            {
+                StartCalls++;
+            }
+
+            public void OnStopRunning(ref SystemState state)
+            {
+                StopCalls++;
+            }
+
+            public void OnUpdate(ref SystemState state)
+            {
             }
         }
     }

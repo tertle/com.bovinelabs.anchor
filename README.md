@@ -7,9 +7,9 @@ For support and discussions, join [Discord](https://discord.gg/RTsw6Cxvw3).
 ## Requirements
 
 - Unity 6000.7 or newer.
-- BovineLabs Core.
-- Unity App UI.
-- Universal Render Pipeline.
+- BovineLabs Core 2.0.0-pre.1 or newer.
+- Unity App UI 2.2.1 or newer.
+- Universal Render Pipeline 17.7.0 or newer.
 
 App UI and URP are direct package dependencies. Anchor's assemblies are still not auto-referenced, so consuming asmdefs must explicitly reference the Anchor and App UI assemblies used by their code. See [Getting started](Documentation~/getting-started.md#requirements) for the current assembly constraints.
 
@@ -33,13 +33,17 @@ The BovineLabs Package Manager installs this package and its required BovineLabs
 installed package directories to version control. The manager connects to the BovineLabs registry itself; do not add the registry to Unity's scoped
 registry settings.
 
-### Git URL
+### Git URLs
 
-To install Anchor directly from Git, open the Package Manager, select **Install package from git URL...**, and enter:
+To install Anchor directly from Git in a fresh project, install Core first, then Anchor. Open the Package Manager, select
+**Install package from git URL...**, and enter each URL in this order:
 
 ```text
+https://gitlab.com/tertle/com.bovinelabs.core.git
 https://gitlab.com/tertle/com.bovinelabs.anchor.git
 ```
+
+The Git versions may contain unpublished changes.
 
 Then follow [Getting started](Documentation~/getting-started.md).
 

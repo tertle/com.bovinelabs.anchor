@@ -7,8 +7,7 @@
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities",
-        "Unity.Mathematics",
-        "Unity.RenderPipelines.Universal.Runtime"
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

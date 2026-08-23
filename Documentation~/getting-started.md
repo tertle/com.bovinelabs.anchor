@@ -4,7 +4,7 @@ This guide creates the smallest useful Anchor application: one UI Toolkit screen
 
 ## Requirements
 
-The current package metadata targets Unity 6000.7 or newer and declares `com.bovinelabs.core` 2.0.0, Unity App UI 2.2.1, and Universal Render Pipeline 17.7.0 as dependencies.
+The current package metadata targets Unity 6000.7 or newer and declares `com.bovinelabs.core` 2.0.0-pre.1, Unity App UI 2.2.1, and Universal Render Pipeline 17.7.0 as dependencies.
 
 Unity App UI (`com.unity.dt.app-ui`) is required and is installed with Anchor.
 
@@ -31,21 +31,26 @@ to version control. The manager connects to the BovineLabs registry itself; do n
 
 ### Git or manifest alternative
 
-To install Anchor directly from Git, open the Unity Package Manager, choose **Install package from git URL...**, and enter:
+To install Anchor directly from Git in a fresh project, install Core first, then Anchor. Open the Unity Package Manager, choose
+**Install package from git URL...**, and enter each URL in this order:
 
 ```text
+https://gitlab.com/tertle/com.bovinelabs.core.git
 https://gitlab.com/tertle/com.bovinelabs.anchor.git
 ```
 
-The equivalent `Packages/manifest.json` entry is:
+The equivalent `Packages/manifest.json` entries are:
 
 ```json
 {
   "dependencies": {
+    "com.bovinelabs.core": "https://gitlab.com/tertle/com.bovinelabs.core.git",
     "com.bovinelabs.anchor": "https://gitlab.com/tertle/com.bovinelabs.anchor.git"
   }
 }
 ```
+
+The Git versions may contain unpublished changes.
 
 Add `BovineLabs.Anchor` to the references of the runtime assembly that will contain the app builder. Add `BovineLabs.Anchor.Adapters` as well if that assembly uses Anchor's App UI controls.
 

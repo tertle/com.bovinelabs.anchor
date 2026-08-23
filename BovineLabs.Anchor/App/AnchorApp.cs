@@ -44,6 +44,8 @@ namespace BovineLabs.Anchor
         private string theme;
         private string scale;
 
+        internal bool RestoringNavigationState { get; set; }
+
         /// <summary>
         /// Event raised when the app detects screen-space metric changes such as size or safe-area updates.
         /// </summary>
@@ -208,7 +210,7 @@ namespace BovineLabs.Anchor
             this.NavHost = navHost;
             this.RootVisualElement.Add(navHost);
 
-            if (!string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
+            if (!this.RestoringNavigationState && !string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
             {
                 this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());
             }

@@ -7,11 +7,13 @@ namespace BovineLabs.Anchor.MVVM
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Runtime.ExceptionServices;
 
     public sealed class AnchorServiceProvider : IServiceProvider, IDisposable
     {
         private readonly AnchorServiceCollection services;
         private readonly Dictionary<Type, object> singletonCache = new();
+        private readonly List<object> singletonCreationOrder = new();
         private readonly HashSet<Type> resolving = new();
         private bool disposed;
 
@@ -71,6 +73,7 @@ namespace BovineLabs.Anchor.MVVM
 
                     var singleton = this.CreateService(descriptor);
                     this.singletonCache.Add(serviceType, singleton);
+                    this.singletonCreationOrder.Add(singleton);
                     return singleton;
                 }
 
@@ -89,20 +92,45 @@ namespace BovineLabs.Anchor.MVVM
                 return;
             }
 
+            this.disposed = true;
             var disposedInstances = new List<object>();
-            foreach (var instance in this.singletonCache.Values)
+            List<Exception> exceptions = null;
+
+            for (var i = this.singletonCreationOrder.Count - 1; i >= 0; i--)
             {
+                var instance = this.singletonCreationOrder[i];
                 if (instance is not IDisposable disposable || ContainsReference(disposedInstances, instance))
                 {
                     continue;
                 }
 
-                disposable.Dispose();
                 disposedInstances.Add(instance);
+
+                try
+                {
+                    disposable.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    exceptions ??= new List<Exception>();
+                    exceptions.Add(exception);
+                }
             }
 
             this.singletonCache.Clear();
-            this.disposed = true;
+            this.singletonCreationOrder.Clear();
+
+            if (exceptions == null)
+            {
+                return;
+            }
+
+            if (exceptions.Count == 1)
+            {
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+            }
+
+            throw new AggregateException("One or more Anchor services failed to dispose.", exceptions);
         }
 
         private static bool ContainsReference(List<object> values, object target)
@@ -194,12 +222,20 @@ namespace BovineLabs.Anchor.MVVM
 
             ConstructorInfo selected = null;
             var selectedParameterCount = -1;
+            ConstructorInfo circularFallback = null;
+            var circularFallbackParameterCount = -1;
 
             foreach (var constructor in constructors)
             {
                 var parameters = constructor.GetParameters();
-                if (!this.CanResolve(parameters))
+                if (!this.CanResolve(parameters, out var circularDependency))
                 {
+                    if (circularDependency && parameters.Length > circularFallbackParameterCount)
+                    {
+                        circularFallback = constructor;
+                        circularFallbackParameterCount = parameters.Length;
+                    }
+
                     continue;
                 }
 
@@ -212,16 +248,18 @@ namespace BovineLabs.Anchor.MVVM
                 selectedParameterCount = parameters.Length;
             }
 
-            return selected;
+            return selected ?? circularFallback;
         }
 
-        private bool CanResolve(ParameterInfo[] parameters)
+        private bool CanResolve(ParameterInfo[] parameters, out bool circularDependency)
         {
-            return this.CanResolve(parameters, new HashSet<Type>());
+            return this.CanResolve(parameters, new HashSet<Type>(this.resolving), out circularDependency);
         }
 
-        private bool CanResolve(ParameterInfo[] parameters, HashSet<Type> resolutionPath)
+        private bool CanResolve(ParameterInfo[] parameters, HashSet<Type> resolutionPath, out bool circularDependency)
         {
+            circularDependency = false;
+
             foreach (var parameter in parameters)
             {
                 var parameterType = parameter.ParameterType;
@@ -230,60 +268,76 @@ namespace BovineLabs.Anchor.MVVM
                     continue;
                 }
 
-                if (!this.CanResolve(parameterType, resolutionPath))
+                if (this.CanResolve(parameterType, resolutionPath, out var parameterIsCircular))
                 {
+                    continue;
+                }
+
+                if (!parameterIsCircular)
+                {
+                    circularDependency = false;
                     return false;
                 }
+
+                circularDependency = true;
             }
 
-            return true;
+            return !circularDependency;
         }
 
-        private bool CanResolve(Type serviceType, HashSet<Type> resolutionPath)
+        private bool CanResolve(Type serviceType, HashSet<Type> resolutionPath, out bool circularDependency)
         {
+            circularDependency = false;
+
             if (serviceType == typeof(IServiceProvider) || serviceType == typeof(AnchorServiceProvider))
             {
                 return true;
             }
 
-            var descriptor = this.FindDescriptor(serviceType);
-            if (descriptor == null)
-            {
-                return false;
-            }
-
-            if (descriptor.IsAlias)
-            {
-                return this.CanResolve(descriptor.AliasType, resolutionPath);
-            }
-
-            if (descriptor.IsInstance)
+            if (this.singletonCache.ContainsKey(serviceType))
             {
                 return true;
             }
 
-            var implementationType = descriptor.ImplementationType;
-            if (implementationType == null || implementationType.IsAbstract || implementationType.IsInterface)
+            if (!resolutionPath.Add(serviceType))
             {
+                circularDependency = true;
                 return false;
             }
-
-            if (resolutionPath.Contains(serviceType))
-            {
-                return true;
-            }
-
-            resolutionPath.Add(serviceType);
 
             try
             {
+                var descriptor = this.FindDescriptor(serviceType);
+                if (descriptor == null)
+                {
+                    return false;
+                }
+
+                if (descriptor.IsAlias)
+                {
+                    return this.CanResolve(descriptor.AliasType, resolutionPath, out circularDependency);
+                }
+
+                if (descriptor.IsInstance)
+                {
+                    return true;
+                }
+
+                var implementationType = descriptor.ImplementationType;
+                if (implementationType == null || implementationType.IsAbstract || implementationType.IsInterface)
+                {
+                    return false;
+                }
+
                 var constructors = implementationType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
                 foreach (var constructor in constructors)
                 {
-                    if (this.CanResolve(constructor.GetParameters(), resolutionPath))
+                    if (this.CanResolve(constructor.GetParameters(), resolutionPath, out var constructorIsCircular))
                     {
                         return true;
                     }
+
+                    circularDependency |= constructorIsCircular;
                 }
 
                 return false;

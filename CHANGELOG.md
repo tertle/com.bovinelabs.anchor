@@ -10,8 +10,9 @@
 ### Changed
 * Unity 6.7+ only
 * BovineLabs Core 2.0.0-pre.1 or newer is required
-* Unity App UI 2.2.0 or newer is required
+* Unity App UI 2.2.1 or newer is required
 * Universal Render Pipeline 17.7.0 or newer is required
+* `UISystemTypes` navigation mappings now use Core `ComponentAsset` references; reassign existing 1.x component asset type selections after upgrading
 * Anchor app setup now separates durable app initialization from replaceable visual generations through
   `OnVisualGenerationInitialized` and `OnVisualGenerationShuttingDown`
 * Debug toolbar panels now register durable `IToolbarElement` models that create fresh visual elements instead of registering `View<T>` instances
@@ -24,13 +25,23 @@
 * Basic UI sample now opens its screen without importing a duplicate `AnchorSettings` singleton
 * `UIArray<T>.CopyTo` now copies into compatible arrays and validates invalid destinations
 * Navigation aliases that share a marker now keep that marker active when moving between mapped destinations
+* Burst list binding now preserves the native element alignment when resizing `NativeList<T>` storage
+* Service construction now falls back from cyclic constructors, detects alias cycles, and disposes resolved singletons safely in reverse order
+* Visual reload restores the captured route without first entering the configured start destination
+* Long toolbar tab names no longer throw or collide when exposed to fixed-string ECS state
+* Debug toolbar recreation now restarts ECS registrations, restores modified camera rectangles, and retains the intended memory polling interval
+* Bulk observable collection notifications, sequence comparer hashing, delayed class binding cancellation, and null navigation animations now follow their
+  public contracts
+* Reflection-discovered navigation actions, services, view models, and custom panels now document or carry the required managed-stripping preservation
 
 ### Removed
 * `APP_UI_EDITOR_ONLY` is no longer supported
+* `BL_DEBUG` no longer enables the debug toolbar; select an Instrumented, Checked, or Debug Managed Code Variant instead
 * `AnchorSettings.ToolbarOnly` and toolbar-only app initialization have been removed
 * The `AnchorApp.ShuttingDown` event and panel-construction override points have been removed; configure custom panels through
   `AnchorAppBuilder.PanelType`
 * Visual elements can no longer be registered as services to ensure live reload support
+* Package-distributed Codex skills and the `Plugins~/skills.json` catalog
 
 ## [1.5.0] - 2026-07-13
 
@@ -79,7 +90,7 @@
 * Theme entry points split between AppUI and non AppUI setups
 * AnchorActionButton updated for App UI 2.2.0-pre.8
 * Package metadata, workflow skills, README, setup guides, and API documentation updated for the current optional AppUI workflows
-* Exposed ToolbarView riddon visibility
+* Exposed ToolbarView ribbon visibility
 
 ### Fixed
 * Navigation stack and animation edge cases
@@ -119,10 +130,10 @@
 * Full custom AnchorNavHost replacing AppUI NavHost. Automates a lot of ViewModel workflow and adds support for popups, UI Toolkit Live Reloading, asset based transitions
 * IAnchorNavigationScreen that works on ViewModel
 * IUXMLService workflow for managing VisualTreeAsset
-* AnchorAccordion - Accordian with itemTemplate uxml and itemsSource binding
+* AnchorAccordion - Accordion with itemTemplate uxml and itemsSource binding
 * AnchorActionButton - ActionButton with clickable binding and commandWithEventInfo
 * AnchorButton - Button with commandWithEventInfo
-* AnchorGridView - GridView with itemTemplate uxml and selectIndex, seletedIndices, itemsSource, columnCount, makeItem, bindItem binding. makeItem and bindItem also have default implementations that auto bind to the itemsSource
+* AnchorGridView - GridView with itemTemplate uxml and selectIndex, selectedIndices, itemsSource, columnCount, makeItem, bindItem binding. makeItem and bindItem also have default implementations that auto bind to the itemsSource
 * AnchorObservableCollection - ObservableCollection with Replace and AddRange methods to stop per element events
 * A few built in converts for DisplayStyle and inverting bools
 

@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor.Tests.App
 {
     using System;
+    using System.Collections.Generic;
     using BovineLabs.Anchor;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Tests.TestDoubles;
@@ -72,6 +73,33 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void ServiceProvider_SelectsFallbackConstructor_WhenLongerConstructorHasCircularDependency()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddTransient(typeof(CircularConstructorSelectionTarget));
+            services.AddTransient(typeof(CircularConstructorDependency));
+
+            using var provider = services.BuildServiceProvider();
+            var resolved = provider.GetRequiredService<CircularConstructorSelectionTarget>();
+
+            Assert.AreEqual(0, resolved.ConstructorParameterCount);
+        }
+
+        [Test]
+        public void ServiceProvider_SelectsFallbackConstructor_WhenLongerConstructorHasAliasCycle()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddTransient(typeof(AliasCycleConstructorSelectionTarget));
+            services.AddAlias<IAliasCycleA, IAliasCycleB>();
+            services.AddAlias<IAliasCycleB, IAliasCycleA>();
+
+            using var provider = services.BuildServiceProvider();
+            var resolved = provider.GetRequiredService<AliasCycleConstructorSelectionTarget>();
+
+            Assert.AreEqual(0, resolved.ConstructorParameterCount);
+        }
+
+        [Test]
         public void ServiceProvider_CircularDependency_Throws()
         {
             var services = new AnchorServiceCollection();
@@ -82,6 +110,73 @@ namespace BovineLabs.Anchor.Tests.App
             var exception = Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<CircularDependencyA>());
 
             StringAssert.Contains("Circular dependency detected", exception!.Message);
+        }
+
+        [Test]
+        public void ServiceProvider_Dispose_DisposesDependentBeforeDependency()
+        {
+            var disposalOrder = new List<string>();
+            var services = new AnchorServiceCollection();
+            services.AddSingletonInstance(typeof(List<string>), disposalOrder);
+            services.AddSingleton(typeof(DisposableDependency));
+            services.AddSingleton(typeof(DisposableDependent));
+
+            var provider = services.BuildServiceProvider();
+            var dependent = provider.GetRequiredService<DisposableDependent>();
+
+            Assert.IsNotNull(dependent.Dependency);
+
+            provider.Dispose();
+
+            CollectionAssert.AreEqual(new[] { "dependent", "dependency" }, disposalOrder);
+        }
+
+        [Test]
+        public void ServiceProvider_Dispose_WhenServiceThrows_AttemptsRemainingServicesAndClearsState()
+        {
+            var disposalOrder = new List<string>();
+            var expectedException = new InvalidOperationException("Expected dispose failure.");
+            var recording = new RecordingDisposable(disposalOrder);
+            var throwing = new ThrowingDisposable(disposalOrder, expectedException);
+            var services = new AnchorServiceCollection();
+            services.AddSingletonInstance(typeof(RecordingDisposable), recording);
+            services.AddSingletonInstance(typeof(ThrowingDisposable), throwing);
+
+            var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<RecordingDisposable>();
+            provider.GetRequiredService<ThrowingDisposable>();
+
+            var actualException = Assert.Throws<InvalidOperationException>(() => provider.Dispose());
+
+            Assert.AreSame(expectedException, actualException);
+            CollectionAssert.AreEqual(new[] { "throwing", "recording" }, disposalOrder);
+            Assert.Throws<ObjectDisposedException>(() => provider.GetRequiredService<RecordingDisposable>());
+            Assert.DoesNotThrow(() => provider.Dispose());
+        }
+
+        [Test]
+        public void ServiceProvider_Dispose_WhenMultipleServicesThrow_AggregatesFailures()
+        {
+            var disposalOrder = new List<string>();
+            var firstException = new InvalidOperationException("First dispose failure.");
+            var secondException = new InvalidOperationException("Second dispose failure.");
+            var first = new ThrowingDisposable(disposalOrder, firstException, "first");
+            var second = new ThrowingDisposable(disposalOrder, secondException, "second");
+            var services = new AnchorServiceCollection();
+            services.AddSingletonInstance(typeof(IFirstThrowingDisposable), first);
+            services.AddSingletonInstance(typeof(ISecondThrowingDisposable), second);
+
+            var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<IFirstThrowingDisposable>();
+            provider.GetRequiredService<ISecondThrowingDisposable>();
+
+            var aggregateException = Assert.Throws<AggregateException>(() => provider.Dispose());
+
+            Assert.AreEqual(2, aggregateException!.InnerExceptions.Count);
+            Assert.AreSame(secondException, aggregateException.InnerExceptions[0]);
+            Assert.AreSame(firstException, aggregateException.InnerExceptions[1]);
+            CollectionAssert.AreEqual(new[] { "second", "first" }, disposalOrder);
+            Assert.DoesNotThrow(() => provider.Dispose());
         }
 
         [Test]
@@ -215,6 +310,127 @@ namespace BovineLabs.Anchor.Tests.App
 
         private sealed class MissingNestedDependency
         {
+        }
+
+        private interface IAliasCycleA
+        {
+        }
+
+        private interface IAliasCycleB
+        {
+        }
+
+        private sealed class AliasCycleConstructorSelectionTarget
+        {
+            public AliasCycleConstructorSelectionTarget()
+            {
+                this.ConstructorParameterCount = 0;
+            }
+
+            public AliasCycleConstructorSelectionTarget(IAliasCycleA dependency)
+            {
+                this.ConstructorParameterCount = 1;
+            }
+
+            public int ConstructorParameterCount { get; }
+        }
+
+        private sealed class CircularConstructorSelectionTarget
+        {
+            public CircularConstructorSelectionTarget()
+            {
+                this.ConstructorParameterCount = 0;
+            }
+
+            public CircularConstructorSelectionTarget(CircularConstructorDependency dependency)
+            {
+                this.ConstructorParameterCount = 1;
+            }
+
+            public int ConstructorParameterCount { get; }
+        }
+
+        private sealed class CircularConstructorDependency
+        {
+            public CircularConstructorDependency(CircularConstructorSelectionTarget dependency)
+            {
+            }
+        }
+
+        private sealed class DisposableDependency : IDisposable
+        {
+            private readonly List<string> disposalOrder;
+
+            public DisposableDependency(List<string> disposalOrder)
+            {
+                this.disposalOrder = disposalOrder;
+            }
+
+            public void Dispose()
+            {
+                this.disposalOrder.Add("dependency");
+            }
+        }
+
+        private sealed class DisposableDependent : IDisposable
+        {
+            private readonly List<string> disposalOrder;
+
+            public DisposableDependent(DisposableDependency dependency, List<string> disposalOrder)
+            {
+                this.Dependency = dependency;
+                this.disposalOrder = disposalOrder;
+            }
+
+            public DisposableDependency Dependency { get; }
+
+            public void Dispose()
+            {
+                this.disposalOrder.Add("dependent");
+            }
+        }
+
+        private sealed class RecordingDisposable : IDisposable
+        {
+            private readonly List<string> disposalOrder;
+
+            public RecordingDisposable(List<string> disposalOrder)
+            {
+                this.disposalOrder = disposalOrder;
+            }
+
+            public void Dispose()
+            {
+                this.disposalOrder.Add("recording");
+            }
+        }
+
+        private interface IFirstThrowingDisposable : IDisposable
+        {
+        }
+
+        private interface ISecondThrowingDisposable : IDisposable
+        {
+        }
+
+        private sealed class ThrowingDisposable : IFirstThrowingDisposable, ISecondThrowingDisposable
+        {
+            private readonly List<string> disposalOrder;
+            private readonly Exception exception;
+            private readonly string name;
+
+            public ThrowingDisposable(List<string> disposalOrder, Exception exception, string name = "throwing")
+            {
+                this.disposalOrder = disposalOrder;
+                this.exception = exception;
+                this.name = name;
+            }
+
+            public void Dispose()
+            {
+                this.disposalOrder.Add(this.name);
+                throw this.exception;
+            }
         }
 
         private sealed class CircularDependencyA

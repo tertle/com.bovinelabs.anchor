@@ -8,12 +8,9 @@
     "BovineLabs.Core",
     "BovineLabs.Testing",
     "Unity.AppUI",
-    "Unity.AppUI.MVVM",
-    "Unity.AppUI.Navigation",
     "Unity.Burst",
     "Unity.Collections",
     "Unity.Entities",
-    "Unity.Mathematics",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

@@ -216,7 +216,16 @@ namespace BovineLabs.Anchor
                 this.anchorApp.SetPanel(panel);
                 this.AttachAppRootToHost();
                 this.visualGenerationActive = true;
-                this.OnVisualGenerationInitialized(this.anchorApp);
+
+                this.anchorApp.RestoringNavigationState = navigationState != null;
+                try
+                {
+                    this.OnVisualGenerationInitialized(this.anchorApp);
+                }
+                finally
+                {
+                    this.anchorApp.RestoringNavigationState = false;
+                }
 
                 if (navigationState != null)
                 {

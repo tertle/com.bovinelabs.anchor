@@ -21,10 +21,11 @@ namespace BovineLabs.Anchor.Tests.Binding
             };
 
             const int elementSize = sizeof(int);
+            var elementAlignment = UnsafeUtility.AlignOf<int>();
 
             try
             {
-                list.Resize(3, elementSize);
+                list.Resize(3, elementSize, elementAlignment);
                 Assert.GreaterOrEqual(list.Capacity, 3);
 
                 var data = (int*)list.Ptr;
@@ -33,7 +34,7 @@ namespace BovineLabs.Anchor.Tests.Binding
                 data[2] = 30;
 
                 var grownRequest = list.Capacity * 2;
-                list.SetCapacity(grownRequest, elementSize);
+                list.SetCapacity(grownRequest, elementSize, elementAlignment);
                 Assert.GreaterOrEqual(list.Capacity, grownRequest);
 
                 data = (int*)list.Ptr;
@@ -42,7 +43,7 @@ namespace BovineLabs.Anchor.Tests.Binding
                 Assert.AreEqual(30, data[2]);
 
                 var previousCapacity = list.Capacity;
-                list.SetCapacity(1, elementSize);
+                list.SetCapacity(1, elementSize, elementAlignment);
                 Assert.LessOrEqual(list.Capacity, previousCapacity);
                 Assert.GreaterOrEqual(list.Capacity, 1);
 
@@ -53,7 +54,7 @@ namespace BovineLabs.Anchor.Tests.Binding
             }
             finally
             {
-                Free(ref list, elementSize);
+                Free(ref list, elementSize, elementAlignment);
             }
         }
 
@@ -66,34 +67,34 @@ namespace BovineLabs.Anchor.Tests.Binding
             };
 
             var largeElementSize = CollectionHelper.CacheLineSize * 2;
+            var elementAlignment = UnsafeUtility.AlignOf<byte>();
 
             try
             {
-                list.SetCapacity(1, largeElementSize);
+                list.SetCapacity(1, largeElementSize, elementAlignment);
 
                 Assert.AreEqual(1, list.Capacity);
                 Assert.AreNotEqual(IntPtr.Zero, (IntPtr)list.Ptr);
 
-                list.SetCapacity(0, largeElementSize);
+                list.SetCapacity(0, largeElementSize, elementAlignment);
 
                 Assert.AreEqual(0, list.Capacity);
                 Assert.AreEqual(IntPtr.Zero, (IntPtr)list.Ptr);
             }
             finally
             {
-                Free(ref list, largeElementSize);
+                Free(ref list, largeElementSize, elementAlignment);
             }
         }
 
-        private static void Free(ref UntypedUnsafeList list, int elementSize)
+        private static void Free(ref UntypedUnsafeList list, int elementSize, int elementAlignment)
         {
             if (list.Ptr == null || list.Capacity <= 0)
             {
                 return;
             }
 
-            var alignOf = UnsafeUtility.AlignOf<byte>();
-            AllocatorManager.Free(list.Allocator, list.Ptr, elementSize, alignOf, list.Capacity);
+            AllocatorManager.Free(list.Allocator, list.Ptr, elementSize, elementAlignment, list.Capacity);
             list.Ptr = null;
             list.Capacity = 0;
             list.Length = 0;

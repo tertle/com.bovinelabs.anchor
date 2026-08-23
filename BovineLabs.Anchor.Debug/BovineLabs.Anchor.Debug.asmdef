@@ -6,25 +6,14 @@
     "BovineLabs.Anchor.Adapters",
     "BovineLabs.Core",
     "Unity.AppUI",
-    "Unity.AppUI.MVVM",
-    "Unity.AppUI.Navigation",
-    "Unity.AppUI.Redux",
     "Unity.Burst",
     "Unity.Collections",
     "Unity.Entities",
-    "Unity.Entities.Graphics",
-    "Unity.Entities.Hybrid",
-    "Unity.InputSystem",
     "Unity.Localization",
-    "Unity.Mathematics",
-    "Unity.Mathematics.Extensions",
-    "Unity.NetCode",
     "Unity.Physics",
     "Unity.Physics.Hybrid",
     "Unity.RenderPipelines.Universal.Runtime",
-    "Unity.ResourceManager",
-    "Unity.Scenes",
-    "Unity.Transforms"
+    "Unity.ResourceManager"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
@@ -45,11 +34,6 @@
       "name": "com.unity.localization",
       "expression": "",
       "define": "UNITY_LOCALIZATION"
-    },
-    {
-      "name": "com.unity.netcode",
-      "expression": "6.7.0",
-      "define": "UNITY_NETCODE"
     },
     {
       "name": "com.unity.physics",

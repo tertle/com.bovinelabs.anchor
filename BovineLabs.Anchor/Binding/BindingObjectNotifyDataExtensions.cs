@@ -182,6 +182,7 @@ namespace BovineLabs.Anchor.Binding
                 NewValues = newValue,
                 Length = length,
                 ElementSize = sizeof(TV),
+                ElementAlignment = UnsafeUtility.AlignOf<TV>(),
             });
         }
 

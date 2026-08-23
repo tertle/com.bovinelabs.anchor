@@ -21,17 +21,17 @@ namespace BovineLabs.Anchor.Binding
         internal AllocatorManager.AllocatorHandle Allocator;
         internal int Padding;
 
-        internal void Resize(int length, int elementSize)
+        internal void Resize(int length, int elementSize, int elementAlignment)
         {
             if (length > this.Capacity)
             {
-                this.SetCapacity(length, elementSize);
+                this.SetCapacity(length, elementSize, elementAlignment);
             }
 
             this.Length = length;
         }
 
-        internal void SetCapacity(int capacity, int elementSize)
+        internal void SetCapacity(int capacity, int elementSize, int elementAlignment)
         {
             var newCapacity = math.max(capacity, CollectionHelper.CacheLineSize / elementSize);
             newCapacity = math.ceilpow2(newCapacity);
@@ -45,11 +45,9 @@ namespace BovineLabs.Anchor.Binding
 
             void* newPointer = null;
 
-            var alignOf = UnsafeUtility.AlignOf<byte>();
-
             if (newCapacity > 0)
             {
-                newPointer = this.Allocator.Allocate(elementSize, alignOf, newCapacity);
+                newPointer = this.Allocator.Allocate(elementSize, elementAlignment, newCapacity);
 
                 if (this.Ptr != null && this.Capacity > 0)
                 {
@@ -59,7 +57,7 @@ namespace BovineLabs.Anchor.Binding
                 }
             }
 
-            AllocatorManager.Free(this.Allocator, this.Ptr, elementSize, alignOf, this.Capacity);
+            AllocatorManager.Free(this.Allocator, this.Ptr, elementSize, elementAlignment, this.Capacity);
 
             this.Ptr = newPointer;
             this.Capacity = newCapacity;

@@ -60,5 +60,20 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.AreEqual(1, options.PopupBaseArguments.Count);
             Assert.AreEqual("x", options.PopupBaseArguments[0].Name);
         }
+
+        [Test]
+        public void Clone_NullAnimationsAssignment_ProducesIndependentAnimationSets()
+        {
+            var options = new AnchorNavOptions
+            {
+                Animations = null,
+            };
+
+            var clone = options.Clone();
+
+            Assert.IsNotNull(options.Animations);
+            Assert.IsNotNull(clone.Animations);
+            Assert.AreNotSame(options.Animations, clone.Animations);
+        }
     }
 }

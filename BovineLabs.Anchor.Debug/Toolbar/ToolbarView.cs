@@ -41,8 +41,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private const float RestoreHotspotPercent = 0.04f;
         private const int RestoreClickThreshold = 5;
         private const float RestoreClickResetSeconds = 1f;
+        private const int CameraRefreshMilliseconds = 250;
 
         private readonly List<Transform> transformList = new();
+        private readonly List<Camera> cameraList = new();
+        private readonly Dictionary<Camera, Rect> originalCameraRects = new();
         private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
         private readonly Toolbar toolbar;
@@ -51,13 +54,16 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private readonly VisualElement menuContainer;
         private readonly Dropdown filterButton;
         private readonly Button showButton;
+        private readonly IVisualElementScheduledItem cameraRefresh;
 
         private ToolbarGroup activeGroup;
         private AnchorApp anchorApp;
         private VisualElement panelRoot;
 
         private Vector2 uiSize;
+        private float cameraHeightNormalized;
         private bool toolbarHidden;
+        private bool hasCameraHeight;
         private bool compositionCompleted;
         private bool disposed;
         private int restoreClickCount;
@@ -105,6 +111,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             this.RegisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
             this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
+            this.cameraRefresh = this.schedule.Execute(this.RefreshCameraRects).Every(CameraRefreshMilliseconds);
         }
 
         public bool ToolbarHidden => this.toolbarHidden;
@@ -196,6 +203,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
             this.disposed = true;
             this.compositionCompleted = false;
+            this.cameraRefresh.Pause();
 
             this.viewModel.PropertyChanged -= this.OnPropertyChanged;
 
@@ -456,6 +464,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
 
             this.ResetCanvasOffsets();
+            this.hasCameraHeight = false;
+            this.ResetCameraRects();
 
             if (!this.resourcesReleased)
             {
@@ -759,29 +769,89 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void ResizeCamera(float cameraHeightNormalized)
         {
+            this.cameraHeightNormalized = cameraHeightNormalized;
+            this.hasCameraHeight = true;
+
             var cam = Camera.main;
-            if (cam != null)
+            this.cameraList.Clear();
+
+            if (cam == null)
             {
-                var rect = cam.rect;
-                rect.height = cameraHeightNormalized;
-                cam.rect = rect;
+                this.ResetCameraRects();
+                return;
+            }
 
-                var additional = cam.GetComponent<UniversalAdditionalCameraData>();
-                if (additional != null && additional.scriptableRenderer.SupportsCameraStackingType(CameraRenderType.Base))
+            this.cameraList.Add(cam);
+            var rect = this.GetOriginalCameraRect(cam);
+            rect.height = cameraHeightNormalized;
+            cam.rect = rect;
+
+            var additional = cam.GetComponent<UniversalAdditionalCameraData>();
+            if (additional != null && additional.scriptableRenderer.SupportsCameraStackingType(CameraRenderType.Base))
+            {
+                foreach (var camera in additional.cameraStack)
                 {
-                    foreach (var camera in additional.cameraStack)
+                    if (camera == null)
                     {
-                        if (camera == null)
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        if (camera.rect != rect)
-                        {
-                            camera.rect = rect;
-                        }
+                    this.cameraList.Add(camera);
+                    this.GetOriginalCameraRect(camera);
+
+                    if (camera.rect != rect)
+                    {
+                        camera.rect = rect;
                     }
                 }
+            }
+
+            foreach (var camera in this.originalCameraRects.Keys.ToArray())
+            {
+                if (camera == null || !this.cameraList.Contains(camera))
+                {
+                    this.RestoreCameraRect(camera);
+                }
+            }
+        }
+
+        private void RefreshCameraRects()
+        {
+            if (this.hasCameraHeight)
+            {
+                this.ResizeCamera(this.cameraHeightNormalized);
+            }
+        }
+
+        private Rect GetOriginalCameraRect(Camera camera)
+        {
+            if (!this.originalCameraRects.TryGetValue(camera, out var rect))
+            {
+                rect = camera.rect;
+                this.originalCameraRects.Add(camera, rect);
+            }
+
+            return rect;
+        }
+
+        private void ResetCameraRects()
+        {
+            foreach (var camera in this.originalCameraRects.Keys.ToArray())
+            {
+                this.RestoreCameraRect(camera);
+            }
+
+            this.cameraList.Clear();
+        }
+
+        private void RestoreCameraRect(Camera camera)
+        {
+            var rect = this.originalCameraRects[camera];
+            this.originalCameraRects.Remove(camera);
+
+            if (camera != null)
+            {
+                camera.rect = rect;
             }
         }
 

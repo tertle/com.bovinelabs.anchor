@@ -3,18 +3,9 @@
     "rootNamespace": "",
     "references": [
         "BovineLabs.Anchor",
-        "BovineLabs.Core",
         "BovineLabs.Core.Editor",
-        "Unity.Burst",
         "Unity.Collections",
-        "Unity.Entities",
-        "Unity.Entities.Graphics",
-        "Unity.Entities.Hybrid",
-        "Unity.InputSystem",
-        "Unity.Mathematics",
-        "Unity.Mathematics.Extensions",
-        "Unity.Physics",
-        "Unity.Transforms"
+        "Unity.Entities"
     ],
     "includePlatforms": [
         "Editor"

@@ -14,6 +14,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using BovineLabs.Core.ConfigVars;
     using BovineLabs.Core.Utility;
     using Unity.Burst;
+    using Unity.Collections;
     using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.Scripting;
@@ -79,7 +80,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             this.isRibbonVisible = storageService.GetValue(ShowRibbonKey, false);
             this.isToolbarHidden = !Show.Data;
 
-            ToolbarViewData.ActiveTab.Data = this.activeTabName;
+            SetBurstActiveTab(this.activeTabName);
 
             try
             {
@@ -249,7 +250,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         internal void SetActiveTab(string tabName)
         {
             this.activeTabName = tabName ?? string.Empty;
-            ToolbarViewData.ActiveTab.Data = this.activeTabName;
+            SetBurstActiveTab(this.activeTabName);
             this.storageService.SetValue(ActiveTabKey, this.activeTabName);
         }
 
@@ -280,6 +281,18 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private static string GetSaveKey(string tabName, string elementName)
         {
             return $"bl.toolbar.{tabName}.{elementName}";
+        }
+
+        private static void SetBurstActiveTab(string tabName)
+        {
+            var activeTab = default(FixedString32Bytes);
+
+            if (activeTab.CopyFromTruncated(tabName) != CopyError.None)
+            {
+                activeTab = default;
+            }
+
+            ToolbarViewData.ActiveTab.Data = activeTab;
         }
 
         private static void ReleaseDynamicModel<TModel, TData>(TModel model, bool isSerializable, string saveKey)

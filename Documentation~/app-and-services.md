@@ -182,12 +182,15 @@ Concrete types marked with `[IsService]` are registered automatically when the b
 namespace MyGame.UI
 {
     using BovineLabs.Anchor;
+    using UnityEngine.Scripting;
 
+    [Preserve]
     [IsService]
     public sealed class OptionsViewModel
     {
     }
 
+    [Preserve]
     [IsService]
     [Transient]
     public sealed class ConfirmationDialogViewModel
@@ -196,7 +199,9 @@ namespace MyGame.UI
 }
 ```
 
-Auto-registered types still need a resolvable public constructor. Non-transient services that implement `IAnchorToolbarHost` are also registered as an `IAnchorToolbarHost` alias so the app can attach the toolbar during initialization.
+Auto-registered types still need a resolvable public constructor. In stripped player builds, keep `[Preserve]` on every reflection-discovered service type.
+Preserving a type retains its default constructor; also put `[Preserve]` on each parameterized constructor that Anchor may select. Non-transient services
+that implement `IAnchorToolbarHost` are also registered as an `IAnchorToolbarHost` alias so the app can attach the toolbar during initialization.
 
 `VisualElement` types and instances cannot be registered through any service-collection path. Visuals belong to a replaceable generation; register their durable view models or factories and create fresh visual elements from UXML or code.
 
@@ -348,7 +353,7 @@ namespace MyGame.UI
 
 `AnchorApp.Initialize()` runs for every visual generation, including live reload. Keep durable service initialization in `AnchorAppBuilder.OnAppInitialized`, and keep the base app initialization unless the custom app intentionally replaces Anchor's navigation setup.
 
-For a different visual root, override `PanelType`. The type must implement `IAnchorPanel` and have a public parameterless constructor; the builder validates both requirements before creating it.
+For a different visual root, override `PanelType`. The type must implement `IAnchorPanel` and have a public parameterless constructor; the builder validates both requirements before creating it. The constructor is invoked through reflection, so in stripped player builds declare it explicitly and mark it `[Preserve]`.
 
 ## Shutdown hooks
 

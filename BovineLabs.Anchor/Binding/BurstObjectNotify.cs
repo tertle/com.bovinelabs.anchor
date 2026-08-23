@@ -30,6 +30,7 @@ namespace BovineLabs.Anchor.Binding
         public void* NewValues;
         public int Length;
         public int ElementSize;
+        public int ElementAlignment;
     }
 
     internal struct NotifyParams
@@ -88,7 +89,7 @@ namespace BovineLabs.Anchor.Binding
             {
                 Assert.IsTrue(handle.Field != handle.NewValues, "Trying to write self to destination");
 
-                handle.Field->Resize(handle.Length, handle.ElementSize);
+                handle.Field->Resize(handle.Length, handle.ElementSize, handle.ElementAlignment);
                 UnsafeUtility.MemCpy(handle.Field->Ptr, handle.NewValues, handle.Length * handle.ElementSize);
             }
         }
@@ -106,7 +107,8 @@ namespace BovineLabs.Anchor.Binding
         internal static class Burst
         {
             public static readonly SharedStatic<BurstTrampoline> SetValue = SharedStatic<BurstTrampoline>.GetOrCreate<IBindingObjectNotify, SetValueParams>();
-            public static readonly SharedStatic<BurstTrampoline> SetListValue = SharedStatic<BurstTrampoline>.GetOrCreate<IBindingObjectNotify, SetListValueParams>();
+            public static readonly SharedStatic<BurstTrampoline> SetListValue =
+                SharedStatic<BurstTrampoline>.GetOrCreate<IBindingObjectNotify, SetListValueParams>();
             public static readonly SharedStatic<BurstTrampoline> Notify = SharedStatic<BurstTrampoline>.GetOrCreate<IBindingObjectNotify, NotifyParams>();
         }
     }

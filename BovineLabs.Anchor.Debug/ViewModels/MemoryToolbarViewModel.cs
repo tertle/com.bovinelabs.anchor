@@ -72,6 +72,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 return;
             }
 
+            this.timeToTriggerUpdatesPassed = 0;
+
             const float megaByte = 1024 * 1024;
 
             this.TotalAllocatedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalAllocatedMemoryLong() / megaByte);
