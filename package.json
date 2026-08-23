@@ -4,6 +4,15 @@
   "version": "2.0.0-pre.1",
   "unity": "6000.7",
   "displayName": "BovineLabs Anchor",
+  "documentationUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/Documentation~/index.md",
+  "changelogUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/LICENSE.md",
+  "homepage": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/tree/main",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/tertle/com.bovinelabs.anchor.git",
+    "revision": "main"
+  },
   "dependencies": {
     "com.bovinelabs.core": "2.0.0-pre.1",
     "com.unity.dt.app-ui": "2.2.1",
