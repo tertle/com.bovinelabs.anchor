@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Elements
     /// App UI linear progress that supports horizontal or vertical fill and an optional alpha mask.
     /// </summary>
     [UxmlElement]
-    public partial class AnchorLinearProgress : Progress
+    public partial class AnchorLinearProgress : LinearProgress
     {
         /// <summary>Anchor styling class.</summary>
         public const string UssClassName = "bl-anchor-linear-progress";
@@ -63,6 +63,7 @@ namespace BovineLabs.Anchor.Elements
         /// <summary>Initializes a new instance of the <see cref="AnchorLinearProgress"/> class.</summary>
         public AnchorLinearProgress()
         {
+            this.RemoveFromClassList(LinearProgress.ussClassName);
             this.AddToClassList(UssClassName);
             this.AddToClassList(GetDirectionUssClassName(this.m_direction));
             this.RegisterContextChangedCallback<DirContext>(this.OnLayoutDirectionChanged);
@@ -137,6 +138,12 @@ namespace BovineLabs.Anchor.Elements
         /// <inheritdoc />
         protected override void GenerateTextures()
         {
+            if (this.direction == Direction.Horizontal && !this.fillTexture && !this.maskTexture)
+            {
+                base.GenerateTextures();
+                return;
+            }
+
             if (!EnsureMaterial())
             {
                 this.ReleaseTextures();

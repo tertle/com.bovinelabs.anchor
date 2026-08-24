@@ -223,7 +223,9 @@ The element exposes stable USS hooks:
 
 ## Touch sliders
 
-`AnchorTouchSliderFloat` and `AnchorTouchSliderInt` preserve AppUI touch-slider styling while fixing overflow behavior and providing an inline numeric editor. A click without a drag opens the editor; accepted text is parsed with Unity's `ExpressionEvaluator`.
+`AnchorTouchSliderFloat` and `AnchorTouchSliderInt` derive directly from App UI's concrete touch sliders. They inherit App UI's localized labels, blinking
+text cursor, runtime context menu, inline numeric editor, and numeric parsing. Anchor adds border-aware overflow correction, selects all text when editing
+starts, and publishes binding notifications when `size` or `label` changes. A click without a drag opens the editor.
 
 ```xml
 <BovineLabs.Anchor.Elements.AnchorTouchSliderFloat
@@ -240,7 +242,7 @@ The element exposes stable USS hooks:
 </BovineLabs.Anchor.Elements.AnchorTouchSliderFloat>
 ```
 
-Anchor declares these UXML attributes on the concrete sliders:
+The concrete sliders inherit these App UI UXML attributes:
 
 | Attribute | Float default | Int default |
 | --- | --- | --- |

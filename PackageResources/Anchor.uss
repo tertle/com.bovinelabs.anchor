@@ -20,7 +20,7 @@
 }
 
 /* TouchSlider overflow workaround.
-   Keep AppUI classes/styling and only remove overflow clipping on our replacement controls. */
+   Keep AppUI classes/styling and only remove overflow clipping on Anchor subclasses. */
 .appui-touchslider.bl-touchslider-workaround {
     overflow: visible;
 }

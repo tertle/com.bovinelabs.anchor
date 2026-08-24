@@ -5,180 +5,94 @@
 namespace BovineLabs.Anchor.Elements
 {
     using System;
-    using System.Globalization;
-    using UnityEngine;
+    using Unity.AppUI.Core;
+    using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
     /// <summary>
-    /// Touch slider replacement for floating-point values.
+    /// App UI floating-point touch slider with Anchor's overflow and focused-editing fixes.
     /// </summary>
     [UxmlElement]
-    public partial class AnchorTouchSliderFloat : AnchorTouchSlider<float>
+    public partial class AnchorTouchSliderFloat : TouchSliderFloat, INotifyBindablePropertyChanged
     {
-        private const float DefaultStep = 0.1f;
-        private const float DefaultShiftStep = 1f;
-        private const string DefaultFormatString = "g7";
+        private readonly VisualElement progressElement;
+        private event EventHandler<BindablePropertyChangedEventArgs> BindingPropertyChanged;
+
+        /// <inheritdoc />
+        event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
+        {
+            add => this.BindingPropertyChanged += value;
+            remove => this.BindingPropertyChanged -= value;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AnchorTouchSliderFloat"/> class.
         /// </summary>
         public AnchorTouchSliderFloat()
         {
-            this.formatString = DefaultFormatString;
-            this.step = DefaultStep;
-            this.shiftStep = DefaultShiftStep;
-            this.lowValue = 0f;
-            this.highValue = 1f;
-            this.value = 0f;
+            this.progressElement = this.Q<VisualElement>(TouchSlider<float>.progressUssClassName);
+            AnchorTouchSlider.Initialize(this);
         }
 
         /// <summary>
-        /// Gets or sets the low end of the slider range.
+        /// Gets or sets the slider size and publishes binding notifications missing from App UI's implementation.
         /// </summary>
-        [UxmlAttribute("low-value")]
-        public float lowValueOverride
+        public new Size size
         {
-            get => this.lowValue;
-            set => this.lowValue = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the high end of the slider range.
-        /// </summary>
-        [UxmlAttribute("high-value")]
-        public float highValueOverride
-        {
-            get => this.highValue;
-            set => this.highValue = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the current slider value.
-        /// </summary>
-        [UxmlAttribute("value")]
-        public float valueOverride
-        {
-            get => this.value;
-            set => this.value = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the keyboard/controller step amount.
-        /// </summary>
-        [UxmlAttribute("step")]
-        public float stepOverride
-        {
-            get => this.step;
-            set => this.step = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the keyboard/controller shift step amount.
-        /// </summary>
-        [UxmlAttribute("shift-step")]
-        public float shiftStepOverride
-        {
-            get => this.shiftStep;
-            set => this.shiftStep = value;
-        }
-
-        /// <inheritdoc />
-        protected override int thumbCount => 1;
-
-        /// <inheritdoc />
-        protected override bool ParseStringToValue(string strValue, out float value)
-        {
-            if (string.IsNullOrWhiteSpace(strValue))
+            get => base.size;
+            set
             {
-                value = this.value;
-                return false;
-            }
+                if (base.size == value)
+                {
+                    return;
+                }
 
-            if (ExpressionEvaluator.Evaluate(strValue, out double result))
+                base.size = value;
+                this.NotifyBindingPropertyChanged(in AnchorTouchSlider.SizeProperty);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the optional label and publishes binding notifications missing from App UI's implementation.
+        /// </summary>
+        public new string label
+        {
+            get => base.label;
+            set
             {
-                value = ClampToFloat(result);
-                return true;
+                if (base.label == value)
+                {
+                    return;
+                }
+
+                base.label = value;
+                this.NotifyBindingPropertyChanged(in AnchorTouchSlider.LabelProperty);
             }
-
-            value = this.value;
-            return false;
         }
 
         /// <inheritdoc />
-        protected override string ParseValueToString(float value)
+        public override void SetValueWithoutNotify(float newValue)
         {
-            return this.formatFunction != null
-                ? this.formatFunction(value)
-                : value.ToString(this.formatString, CultureInfo.InvariantCulture.NumberFormat);
+            base.SetValueWithoutNotify(newValue);
+            this.RefreshProgress();
         }
 
         /// <inheritdoc />
-        protected override string ParseSubValueToString(float value)
+        protected override void SetOrientation(Direction newValue)
         {
-            return this.ParseValueToString(value);
+            base.SetOrientation(newValue);
+            this.RefreshProgress();
         }
 
-        /// <inheritdoc />
-        protected override string ParseRawValueToString(float value)
+        private void RefreshProgress()
         {
-            return value.ToString(CultureInfo.InvariantCulture.NumberFormat);
+            AnchorTouchSlider.RefreshProgress(this, this.progressElement, this.orientation, this.m_CurrentDirection);
         }
 
-        /// <inheritdoc />
-        protected override float SliderLerpUnclamped(float a, float b, float interpolant)
+        private void NotifyBindingPropertyChanged(in BindingId property)
         {
-            return Mathf.LerpUnclamped(a, b, interpolant);
-        }
-
-        /// <inheritdoc />
-        protected override float SliderNormalizeValue(float currentValue, float lowerValue, float higherValue)
-        {
-            return Mathf.InverseLerp(lowerValue, higherValue, currentValue);
-        }
-
-        /// <inheritdoc />
-        protected override float Mad(int m, float a, float b)
-        {
-            return (m * a) + b;
-        }
-
-        /// <inheritdoc />
-        protected override int GetStepCount(float stepValue)
-        {
-            return Mathf.FloorToInt((this.highValue - this.lowValue) / stepValue) + 1;
-        }
-
-        /// <inheritdoc />
-        protected override float ClampThumb(float x, float min, float max)
-        {
-            return Mathf.Clamp(x, min, max);
-        }
-
-        /// <inheritdoc />
-        protected override float GetValueFromScalarValues(Span<float> values)
-        {
-            return values[0];
-        }
-
-        /// <inheritdoc />
-        protected override void GetScalarValuesFromValue(float value, Span<float> values)
-        {
-            values[0] = value;
-        }
-
-        private static float ClampToFloat(double value)
-        {
-            if (value < float.MinValue)
-            {
-                return float.MinValue;
-            }
-
-            if (value > float.MaxValue)
-            {
-                return float.MaxValue;
-            }
-
-            return (float)value;
+            this.NotifyPropertyChanged(in property);
+            this.BindingPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(property));
         }
     }
 }
