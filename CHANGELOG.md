@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.2] -Unreleased
+## [2.0.0-pre.2] - Unreleased
 
 ### Changed
 * Unity App UI 3.0.0-pre.1 or newer is required
