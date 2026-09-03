@@ -105,7 +105,7 @@ namespace BovineLabs.Anchor.Services
                 return this.source;
             }
 
-            this.host = new GameObject("Anchor UI Audio");
+            this.host = new GameObject("Anchor UI Audio", typeof(AudioSource));
 #if UNITY_EDITOR
             this.host.hideFlags = HideFlags.HideAndDontSave;
 
@@ -115,7 +115,7 @@ namespace BovineLabs.Anchor.Services
                 Object.DontDestroyOnLoad(this.host);
             }
 
-            this.source = this.host.AddComponent<AudioSource>();
+            this.source = this.host.GetComponent<AudioSource>();
             this.source.playOnAwake = false;
             this.source.spatialBlend = 0f;
             this.source.loop = false;
