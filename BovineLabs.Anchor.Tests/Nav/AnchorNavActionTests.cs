@@ -21,9 +21,7 @@ namespace BovineLabs.Anchor.Tests.Nav
                     AnchorNavArgument.String("b", "2"),
                 });
 
-            var merged = action.MergeArguments(
-                AnchorNavArgument.String("b", "22"),
-                AnchorNavArgument.String("c", "3"));
+            var merged = action.MergeArguments(new[] { AnchorNavArgument.String("b", "22"), AnchorNavArgument.String("c", "3") });
 
             Assert.AreEqual(3, merged.Length);
             Assert.AreEqual(AnchorNavArgument.String("a", "1"), merged[0]);

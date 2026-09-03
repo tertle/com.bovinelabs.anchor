@@ -67,7 +67,7 @@ namespace BovineLabs.Anchor.Nav
         /// <summary> Merge the default arguments with the provided arguments. </summary>
         /// <param name="arguments"> Arguments to merge with defaults.</param>
         /// <returns> The merged arguments.</returns>
-        public AnchorNavArgument[] MergeArguments(params AnchorNavArgument[] arguments)
+        public AnchorNavArgument[] MergeArguments(AnchorNavArgument[] arguments = null)
         {
             arguments ??= Array.Empty<AnchorNavArgument>();
             var mergedArguments = new List<AnchorNavArgument>(this.DefaultArguments);

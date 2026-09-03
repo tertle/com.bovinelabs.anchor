@@ -156,7 +156,7 @@ AnchorNavAction(
     AnchorNavOptions options,
     IEnumerable<AnchorNavArgument> defaultArguments = null);
 
-AnchorNavArgument[] MergeArguments(params AnchorNavArgument[] arguments);
+AnchorNavArgument[] MergeArguments(AnchorNavArgument[] arguments = null);
 ```
 
 ## Stack options
