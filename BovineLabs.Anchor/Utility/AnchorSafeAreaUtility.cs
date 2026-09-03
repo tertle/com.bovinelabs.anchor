@@ -53,19 +53,19 @@ namespace BovineLabs.Anchor
             var topInset = ((screenSize.y - safeArea.yMax) / screenSize.y) * panelRootWorldBound.height;
             var bottomInset = (safeArea.y / screenSize.y) * panelRootWorldBound.height;
 
-            var left = edges.HasFlag(AnchorSafeAreaEdges.Left)
+            var left = (edges & AnchorSafeAreaEdges.Left) != AnchorSafeAreaEdges.None
                 ? CalculateOverlap(elementWorldBound.xMin, elementWorldBound.xMax, panelRootWorldBound.xMin, panelRootWorldBound.xMin + leftInset)
                 : 0f;
 
-            var right = edges.HasFlag(AnchorSafeAreaEdges.Right)
+            var right = (edges & AnchorSafeAreaEdges.Right) != AnchorSafeAreaEdges.None
                 ? CalculateOverlap(elementWorldBound.xMin, elementWorldBound.xMax, panelRootWorldBound.xMax - rightInset, panelRootWorldBound.xMax)
                 : 0f;
 
-            var top = edges.HasFlag(AnchorSafeAreaEdges.Top)
+            var top = (edges & AnchorSafeAreaEdges.Top) != AnchorSafeAreaEdges.None
                 ? CalculateOverlap(elementWorldBound.yMin, elementWorldBound.yMax, panelRootWorldBound.yMin, panelRootWorldBound.yMin + topInset)
                 : 0f;
 
-            var bottom = edges.HasFlag(AnchorSafeAreaEdges.Bottom)
+            var bottom = (edges & AnchorSafeAreaEdges.Bottom) != AnchorSafeAreaEdges.None
                 ? CalculateOverlap(elementWorldBound.yMin, elementWorldBound.yMax, panelRootWorldBound.yMax - bottomInset, panelRootWorldBound.yMax)
                 : 0f;
 

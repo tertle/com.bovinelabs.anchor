@@ -288,7 +288,7 @@ namespace BovineLabs.Anchor.Nav
             var baseDestination = options.PopupBaseDestination;
             if (string.IsNullOrWhiteSpace(baseDestination))
             {
-                BLGlobalLogger.LogError($"Popup strategy {AnchorPopupStrategy.EnsureBaseAndPopup} requires a base destination.");
+                BLGlobalLogger.LogErrorString($"Popup strategy {AnchorPopupStrategy.EnsureBaseAndPopup} requires a base destination.");
                 return false;
             }
 
