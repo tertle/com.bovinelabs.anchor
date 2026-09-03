@@ -6,6 +6,8 @@
 * Unity App UI 3.0.0-pre.1 or newer is required
 * `AnchorTouchSliderFloat` and `AnchorTouchSliderInt` now extend App UI's concrete touch sliders instead of maintaining copied implementations
 * `AnchorLinearProgress` now extends App UI's `LinearProgress` and uses its renderer when directional or texture features are not active
+* Managed navigation accepts either one `AnchorNavArgument` or an explicit argument array instead of `params`, avoiding implicit argument-array
+  allocations at call sites
 
 ### Fixed
 * Anchor touch sliders now inherit App UI's localized labels, blinking text cursor, runtime context menu, and current numeric parsing behavior while

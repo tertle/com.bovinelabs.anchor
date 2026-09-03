@@ -48,15 +48,21 @@ Set **Start Destination** to a registered destination when the app should open o
 The managed navigation overloads are:
 
 ```csharp
-bool Navigate(string actionOrDestination, params AnchorNavArgument[] arguments);
+bool Navigate(string actionOrDestination, AnchorNavArgument argument);
+bool Navigate(string actionOrDestination, AnchorNavArgument[] arguments = null);
 
 bool Navigate(
     string destination,
     AnchorNavOptions options,
-    params AnchorNavArgument[] arguments);
+    AnchorNavArgument argument);
+
+bool Navigate(
+    string destination,
+    AnchorNavOptions options,
+    AnchorNavArgument[] arguments = null);
 ```
 
-The first overload resolves a named action and falls back to treating the string as a destination key. The second overload always treats its first argument as a destination and applies the supplied options directly.
+The first pair resolves a named action and falls back to treating the string as a destination key. The second pair always treats its first argument as a destination and applies the supplied options directly. Pass an explicit array when navigating with multiple arguments.
 
 ```csharp
 var nav = AnchorApp.Current.NavHost;
@@ -227,7 +233,8 @@ nav.Navigate(
 ### Toggle and close
 
 ```csharp
-bool Toggle(string actionOrDestination, params AnchorNavArgument[] arguments);
+bool Toggle(string actionOrDestination, AnchorNavArgument argument);
+bool Toggle(string actionOrDestination, AnchorNavArgument[] arguments = null);
 bool ClosePopup(string destination, int exitAnimation = 0);
 bool CloseAllPopups(int exitAnimation = 0);
 bool HasActivePopups { get; }

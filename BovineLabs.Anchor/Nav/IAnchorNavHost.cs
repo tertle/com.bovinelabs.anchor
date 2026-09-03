@@ -48,16 +48,38 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary>Navigate to the destination or action with the given name.</summary>
         /// <param name="actionOrDestination">The name of the action or destination.</param>
+        /// <param name="argument">The argument to pass to the destination.</param>
+        /// <returns>True if the navigation was successful.</returns>
+        bool Navigate(string actionOrDestination, AnchorNavArgument argument);
+
+        /// <summary>Navigate to the destination or action with the given name.</summary>
+        /// <param name="actionOrDestination">The name of the action or destination.</param>
         /// <param name="arguments">The arguments to pass to the destination.</param>
         /// <returns>True if the navigation was successful.</returns>
-        bool Navigate(string actionOrDestination, params AnchorNavArgument[] arguments);
+        bool Navigate(string actionOrDestination, AnchorNavArgument[] arguments = null);
+
+        /// <summary>Navigate to the destination with the provided options.</summary>
+        /// <param name="destination">The destination.</param>
+        /// <param name="options">The options to use for the navigation.</param>
+        /// <param name="argument">The argument to pass to the destination.</param>
+        /// <returns>True if the navigation was successful.</returns>
+        bool Navigate(string destination, AnchorNavOptions options, AnchorNavArgument argument);
 
         /// <summary>Navigate to the destination with the provided options.</summary>
         /// <param name="destination">The destination.</param>
         /// <param name="options">The options to use for the navigation.</param>
         /// <param name="arguments">The arguments to pass to the destination.</param>
         /// <returns>True if the navigation was successful.</returns>
-        bool Navigate(string destination, AnchorNavOptions options, params AnchorNavArgument[] arguments);
+        bool Navigate(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments = null);
+
+        /// <summary>
+        /// Toggle a popup destination or action. If the resolved destination is active in the popup segment, dismiss it and
+        /// any popups above it; otherwise, navigate to it.
+        /// </summary>
+        /// <param name="actionOrDestination">The name of the action or destination.</param>
+        /// <param name="argument">The argument to pass when navigating.</param>
+        /// <returns>True if the toggle was successful.</returns>
+        bool Toggle(string actionOrDestination, AnchorNavArgument argument);
 
         /// <summary>
         /// Toggle a popup destination or action. If the resolved destination is active in the popup segment, dismiss it and
@@ -66,7 +88,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="actionOrDestination">The name of the action or destination.</param>
         /// <param name="arguments">The arguments to pass when navigating.</param>
         /// <returns>True if the toggle was successful.</returns>
-        bool Toggle(string actionOrDestination, params AnchorNavArgument[] arguments);
+        bool Toggle(string actionOrDestination, AnchorNavArgument[] arguments = null);
 
         /// <summary>Pop the current destination from the back stack and navigate to the previous destination.</summary>
         /// <returns>True if the back stack was popped; otherwise, false.</returns>

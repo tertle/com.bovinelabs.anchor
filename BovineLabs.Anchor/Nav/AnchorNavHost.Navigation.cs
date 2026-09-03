@@ -32,9 +32,18 @@ namespace BovineLabs.Anchor.Nav
 
         /// <summary> Navigate to the destination with the given name. </summary>
         /// <param name="actionOrDestination"> The name of the action. </param>
+        /// <param name="argument"> The argument to pass to the destination. </param>
+        /// <returns> True if the navigation was successful. </returns>
+        public bool Navigate(string actionOrDestination, AnchorNavArgument argument)
+        {
+            return this.Navigate(actionOrDestination, new[] { argument });
+        }
+
+        /// <summary> Navigate to the destination with the given name. </summary>
+        /// <param name="actionOrDestination"> The name of the action. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string actionOrDestination, params AnchorNavArgument[] arguments)
+        public bool Navigate(string actionOrDestination, AnchorNavArgument[] arguments = null)
         {
             if (!this.TryResolveActionOrDestination(actionOrDestination, arguments, out var destination, out var options, out var mergedArguments))
             {
@@ -47,9 +56,19 @@ namespace BovineLabs.Anchor.Nav
         /// <summary> Navigate to the destination with the given name. </summary>
         /// <param name="destination"> The destination. </param>
         /// <param name="options"> The options to use for the navigation. </param>
+        /// <param name="argument"> The argument to pass to the destination. </param>
+        /// <returns> True if the navigation was successful. </returns>
+        public bool Navigate(string destination, AnchorNavOptions options, AnchorNavArgument argument)
+        {
+            return this.Navigate(destination, options, new[] { argument });
+        }
+
+        /// <summary> Navigate to the destination with the given name. </summary>
+        /// <param name="destination"> The destination. </param>
+        /// <param name="options"> The options to use for the navigation. </param>
         /// <param name="arguments"> The arguments to pass to the destination. </param>
         /// <returns> True if the navigation was successful. </returns>
-        public bool Navigate(string destination, AnchorNavOptions options, params AnchorNavArgument[] arguments)
+        public bool Navigate(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments = null)
         {
             options ??= new AnchorNavOptions();
 
@@ -112,9 +131,20 @@ namespace BovineLabs.Anchor.Nav
         /// Toggle a popup destination or action by dismissing the matching popup branch when active, otherwise navigating.
         /// </summary>
         /// <param name="actionOrDestination">The action or destination to toggle.</param>
+        /// <param name="argument">The argument to pass when navigating.</param>
+        /// <returns>True if the toggle was successful.</returns>
+        public bool Toggle(string actionOrDestination, AnchorNavArgument argument)
+        {
+            return this.Toggle(actionOrDestination, new[] { argument });
+        }
+
+        /// <summary>
+        /// Toggle a popup destination or action by dismissing the matching popup branch when active, otherwise navigating.
+        /// </summary>
+        /// <param name="actionOrDestination">The action or destination to toggle.</param>
         /// <param name="arguments">The arguments to pass when navigating.</param>
         /// <returns>True if the toggle was successful.</returns>
-        public bool Toggle(string actionOrDestination, params AnchorNavArgument[] arguments)
+        public bool Toggle(string actionOrDestination, AnchorNavArgument[] arguments = null)
         {
             if (!this.TryResolveActionOrDestination(actionOrDestination, arguments, out var destination, out var options, out var mergedArguments))
             {
@@ -839,4 +869,3 @@ namespace BovineLabs.Anchor.Nav
         }
     }
 }
-
