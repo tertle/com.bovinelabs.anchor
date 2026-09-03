@@ -19,22 +19,14 @@ namespace BovineLabs.Anchor
 
         /// <summary> Adds actions to a menu, grouping by first letter when the item count exceeds the configured menu cap. </summary>
         public static MenuBuilder AddGroupedActions<T>(
-            this MenuBuilder builder,
-            IReadOnlyList<T> items,
-            Func<T, string> labelSelector,
-            Action<T> callback,
-            GroupedMenuBuilderOptions options = default)
+            this MenuBuilder builder, IReadOnlyList<T> items, Func<T, string> labelSelector, Action<T> callback, GroupedMenuBuilderOptions options = default)
         {
             return builder.AddGroupedActions(items, labelSelector, null, null, callback, options);
         }
 
         /// <summary> Adds actions to a menu, grouping first by a caller-owned key and then by label prefixes for oversized groups. </summary>
         public static MenuBuilder AddGroupedActions<T>(
-            this MenuBuilder builder,
-            IReadOnlyList<T> items,
-            Func<T, string> labelSelector,
-            Func<T, string> primaryGroupSelector,
-            Action<T> callback,
+            this MenuBuilder builder, IReadOnlyList<T> items, Func<T, string> labelSelector, Func<T, string> primaryGroupSelector, Action<T> callback,
             GroupedMenuBuilderOptions options = default)
         {
             return builder.AddGroupedActions(items, labelSelector, primaryGroupSelector, null, callback, options);
@@ -42,13 +34,8 @@ namespace BovineLabs.Anchor
 
         /// <summary> Adds actions to a menu, grouping first by a caller-owned key and using a caller-owned group order. </summary>
         public static MenuBuilder AddGroupedActions<T>(
-            this MenuBuilder builder,
-            IReadOnlyList<T> items,
-            Func<T, string> labelSelector,
-            Func<T, string> primaryGroupSelector,
-            IComparer<string> primaryGroupComparer,
-            Action<T> callback,
-            GroupedMenuBuilderOptions options = default)
+            this MenuBuilder builder, IReadOnlyList<T> items, Func<T, string> labelSelector, Func<T, string> primaryGroupSelector,
+            IComparer<string> primaryGroupComparer, Action<T> callback, GroupedMenuBuilderOptions options = default)
         {
             if (builder == null)
             {
@@ -104,10 +91,7 @@ namespace BovineLabs.Anchor
         }
 
         private static List<Entry<T>> CreateEntries<T>(
-            IReadOnlyList<T> items,
-            Func<T, string> labelSelector,
-            Func<T, string> primaryGroupSelector,
-            IComparer<string> groupComparer)
+            IReadOnlyList<T> items, Func<T, string> labelSelector, Func<T, string> primaryGroupSelector, IComparer<string> groupComparer)
         {
             var entries = new List<Entry<T>>(items.Count);
             for (var i = 0; i < items.Count; i++)
@@ -127,11 +111,7 @@ namespace BovineLabs.Anchor
         }
 
         private static void BuildBuckets<T>(
-            MenuBuilder builder,
-            List<Bucket<T>> buckets,
-            Action<T> callback,
-            GroupedMenuBuilderOptions options,
-            IComparer<string> groupComparer)
+            MenuBuilder builder, List<Bucket<T>> buckets, Action<T> callback, GroupedMenuBuilderOptions options, IComparer<string> groupComparer)
         {
             if (buckets.Count == 0)
             {
@@ -171,11 +151,7 @@ namespace BovineLabs.Anchor
         }
 
         private static void BuildBucket<T>(
-            MenuBuilder builder,
-            Bucket<T> bucket,
-            Action<T> callback,
-            GroupedMenuBuilderOptions options,
-            IComparer<string> groupComparer)
+            MenuBuilder builder, Bucket<T> bucket, Action<T> callback, GroupedMenuBuilderOptions options, IComparer<string> groupComparer)
         {
             if (bucket.Entries.Count == 1 && options.FlattenSingleItemGroups)
             {
@@ -197,11 +173,7 @@ namespace BovineLabs.Anchor
         }
 
         private static void BuildPrefixGroups<T>(
-            MenuBuilder builder,
-            List<Entry<T>> entries,
-            Action<T> callback,
-            GroupedMenuBuilderOptions options,
-            int prefixLength,
+            MenuBuilder builder, List<Entry<T>> entries, Action<T> callback, GroupedMenuBuilderOptions options, int prefixLength,
             IComparer<string> groupComparer = null)
         {
             if (entries.Count <= options.EffectiveMaxItemsPerMenu)
@@ -238,10 +210,7 @@ namespace BovineLabs.Anchor
         }
 
         private static List<Bucket<T>> CreateBuckets<T>(
-            List<Entry<T>> entries,
-            Func<Entry<T>, string> keySelector,
-            Func<Entry<T>, int> nextPrefixLengthSelector,
-            IComparer<string> comparer)
+            List<Entry<T>> entries, Func<Entry<T>, string> keySelector, Func<Entry<T>, int> nextPrefixLengthSelector, IComparer<string> comparer)
         {
             var buckets = new List<Bucket<T>>();
             foreach (var entry in entries)

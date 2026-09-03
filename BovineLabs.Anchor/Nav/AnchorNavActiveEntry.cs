@@ -9,12 +9,7 @@ namespace BovineLabs.Anchor.Nav
 
     internal sealed class AnchorNavActiveEntry
     {
-        public AnchorNavActiveEntry(
-            string destination,
-            AnchorNavArgument[] arguments,
-            bool isPopup,
-            AnchorNavOptions options,
-            VisualElement element)
+        public AnchorNavActiveEntry(string destination, AnchorNavArgument[] arguments, bool isPopup, AnchorNavOptions options, VisualElement element)
         {
             this.Destination = destination;
             this.Arguments = arguments ?? Array.Empty<AnchorNavArgument>();

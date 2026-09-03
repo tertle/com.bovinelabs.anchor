@@ -15,10 +15,7 @@ namespace BovineLabs.Anchor.Nav
 
         private bool completed;
 
-        public AnchorNavAnimationHandle(
-            VisualElement element,
-            AnimationDescription description,
-            Action onCompleted)
+        public AnchorNavAnimationHandle(VisualElement element, AnimationDescription description, Action onCompleted)
         {
             this.Element = element;
             this.description = description;

@@ -14,11 +14,7 @@ namespace BovineLabs.Anchor.Nav
         /// <param name="options"> The options associated with this entry. </param>
         /// <param name="arguments"> The arguments associated with this entry. </param>
         /// <param name="snapshot"> The snapshot of the visual stack for this entry. </param>
-        internal AnchorNavBackStackEntry(
-            string destination,
-            AnchorNavOptions options,
-            AnchorNavArgument[] arguments,
-            AnchorNavStackSnapshot snapshot = null)
+        internal AnchorNavBackStackEntry(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, AnchorNavStackSnapshot snapshot = null)
         {
             this.Destination = destination;
             this.Options = options ?? new AnchorNavOptions();

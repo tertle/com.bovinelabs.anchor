@@ -223,10 +223,7 @@ namespace BovineLabs.Anchor.Nav
 
         private sealed class ReloadState : IAnchorNavHostReloadState
         {
-            public ReloadState(
-                AnchorNavHostSaveState navigationState,
-                IReadOnlyDictionary<int, AnchorNavHostSaveState> savedStates,
-                int nextStateHandle)
+            public ReloadState(AnchorNavHostSaveState navigationState, IReadOnlyDictionary<int, AnchorNavHostSaveState> savedStates, int nextStateHandle)
             {
                 this.NavigationState = navigationState;
                 this.SavedStates = savedStates;

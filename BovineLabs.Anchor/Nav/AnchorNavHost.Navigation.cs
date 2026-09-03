@@ -443,11 +443,7 @@ namespace BovineLabs.Anchor.Nav
             return null;
         }
 
-        private void ApplySnapshot(
-            AnchorNavStackSnapshot snapshot,
-            AnchorNavAnimation exitAnim,
-            AnchorNavAnimation enterAnim,
-            AnchorNavOptions optionsForTop)
+        private void ApplySnapshot(AnchorNavStackSnapshot snapshot, AnchorNavAnimation exitAnim, AnchorNavAnimation enterAnim, AnchorNavOptions optionsForTop)
         {
             optionsForTop ??= new AnchorNavOptions();
 
@@ -679,10 +675,7 @@ namespace BovineLabs.Anchor.Nav
         }
 
         private bool TryResolveActionOrDestination(
-            string actionOrDestination,
-            AnchorNavArgument[] arguments,
-            out string destination,
-            out AnchorNavOptions options,
+            string actionOrDestination, AnchorNavArgument[] arguments, out string destination, out AnchorNavOptions options,
             out AnchorNavArgument[] mergedArguments)
         {
             destination = null;

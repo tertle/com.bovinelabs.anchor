@@ -159,8 +159,7 @@ namespace BovineLabs.SystemPropertyGenerator
         }
 
         private static IReadOnlyCollection<TypeGenerationModel> MergeCandidates(
-            ImmutableArray<PartialTypeModel> candidates,
-            CancellationToken cancellationToken)
+            ImmutableArray<PartialTypeModel> candidates, CancellationToken cancellationToken)
         {
             var models = new Dictionary<INamedTypeSymbol, TypeGenerationModel>(SymbolEqualityComparer.Default);
 
@@ -260,11 +259,8 @@ namespace BovineLabs.SystemPropertyGenerator
         }
 
         private static void CollectObservableProperties(
-            TypeDeclarationSyntax typeDeclaration,
-            SemanticModel semanticModel,
-            ICollection<ObservablePropertyData> properties,
-            ICollection<Diagnostic> diagnostics,
-            CancellationToken cancellationToken)
+            TypeDeclarationSyntax typeDeclaration, SemanticModel semanticModel, ICollection<ObservablePropertyData> properties,
+            ICollection<Diagnostic> diagnostics, CancellationToken cancellationToken)
         {
             foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclarationSyntax>())
             {
@@ -318,10 +314,7 @@ namespace BovineLabs.SystemPropertyGenerator
         }
 
         private static void CollectCommands(
-            TypeDeclarationSyntax typeDeclaration,
-            SemanticModel semanticModel,
-            ICollection<CommandData> commands,
-            ICollection<Diagnostic> diagnostics,
+            TypeDeclarationSyntax typeDeclaration, SemanticModel semanticModel, ICollection<CommandData> commands, ICollection<Diagnostic> diagnostics,
             CancellationToken cancellationToken)
         {
             foreach (var methodDeclaration in typeDeclaration.Members.OfType<MethodDeclarationSyntax>())
@@ -401,9 +394,7 @@ namespace BovineLabs.SystemPropertyGenerator
         }
 
         private static void CollectPropertyDependencies(
-            TypeDeclarationSyntax typeDeclaration,
-            SemanticModel semanticModel,
-            ICollection<PropertyDependencyData> propertyDependencies,
+            TypeDeclarationSyntax typeDeclaration, SemanticModel semanticModel, ICollection<PropertyDependencyData> propertyDependencies,
             CancellationToken cancellationToken)
         {
             foreach (var propertyDeclaration in typeDeclaration.Members.OfType<PropertyDeclarationSyntax>())
@@ -426,9 +417,7 @@ namespace BovineLabs.SystemPropertyGenerator
         }
 
         private static void ValidateGeneratedMemberConflicts(
-            INamedTypeSymbol typeSymbol,
-            IEnumerable<ObservablePropertyData> observableProperties,
-            IEnumerable<CommandData> commands,
+            INamedTypeSymbol typeSymbol, IEnumerable<ObservablePropertyData> observableProperties, IEnumerable<CommandData> commands,
             ICollection<Diagnostic> diagnostics)
         {
             var generatedNames = new HashSet<string>(StringComparer.Ordinal);
@@ -651,10 +640,7 @@ namespace BovineLabs.SystemPropertyGenerator
         }
 
         private static void AddDependents(
-            string sourceProperty,
-            Dictionary<string, List<string>> directDependents,
-            HashSet<string> visited,
-            ImmutableArray<string>.Builder notifications)
+            string sourceProperty, Dictionary<string, List<string>> directDependents, HashSet<string> visited, ImmutableArray<string>.Builder notifications)
         {
             if (!directDependents.TryGetValue(sourceProperty, out var dependents))
             {
@@ -817,10 +803,7 @@ namespace BovineLabs.SystemPropertyGenerator
             return chain;
         }
 
-        private static IMethodSymbol ResolveCanExecuteMethod(
-            INamedTypeSymbol typeSymbol,
-            string methodName,
-            ImmutableArray<IParameterSymbol> commandParameters)
+        private static IMethodSymbol ResolveCanExecuteMethod(INamedTypeSymbol typeSymbol, string methodName, ImmutableArray<IParameterSymbol> commandParameters)
         {
             foreach (var candidate in typeSymbol.GetMembers(methodName).OfType<IMethodSymbol>())
             {
@@ -1172,11 +1155,8 @@ namespace BovineLabs.SystemPropertyGenerator
         private sealed class PartialTypeModel
         {
             public PartialTypeModel(
-                INamedTypeSymbol typeSymbol,
-                ImmutableArray<ObservablePropertyData> observableProperties,
-                ImmutableArray<CommandData> commands,
-                ImmutableArray<PropertyDependencyData> propertyDependencies,
-                ImmutableArray<Diagnostic> diagnostics)
+                INamedTypeSymbol typeSymbol, ImmutableArray<ObservablePropertyData> observableProperties, ImmutableArray<CommandData> commands,
+                ImmutableArray<PropertyDependencyData> propertyDependencies, ImmutableArray<Diagnostic> diagnostics)
             {
                 this.TypeSymbol = typeSymbol;
                 this.ObservableProperties = observableProperties;
@@ -1221,10 +1201,7 @@ namespace BovineLabs.SystemPropertyGenerator
         private sealed class ObservablePropertyData
         {
             public ObservablePropertyData(
-                string fieldName,
-                string fieldTypeName,
-                string propertyName,
-                ImmutableArray<string> additionalNotifications,
+                string fieldName, string fieldTypeName, string propertyName, ImmutableArray<string> additionalNotifications,
                 ImmutableArray<IMethodSymbol> additionalMethods)
             {
                 this.FieldName = fieldName;

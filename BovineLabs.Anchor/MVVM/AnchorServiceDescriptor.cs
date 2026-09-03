@@ -16,11 +16,7 @@ namespace BovineLabs.Anchor.MVVM
     public sealed class AnchorServiceDescriptor
     {
         private AnchorServiceDescriptor(
-            Type serviceType,
-            Type implementationType,
-            AnchorServiceLifetime lifetime,
-            object implementationInstance,
-            Type aliasType)
+            Type serviceType, Type implementationType, AnchorServiceLifetime lifetime, object implementationInstance, Type aliasType)
         {
             this.ServiceType = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
             this.ImplementationType = implementationType;

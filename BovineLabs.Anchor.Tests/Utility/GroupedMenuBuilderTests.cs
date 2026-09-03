@@ -130,11 +130,8 @@ namespace BovineLabs.Anchor.Tests.Utility
         }
 
         private static Menu BuildMenu(
-            IReadOnlyList<TestItem> items,
-            GroupedMenuBuilderOptions options,
-            Func<TestItem, string> primaryGroupSelector = null,
-            IComparer<string> primaryGroupComparer = null,
-            Action<TestItem> callback = null)
+            IReadOnlyList<TestItem> items, GroupedMenuBuilderOptions options, Func<TestItem, string> primaryGroupSelector = null,
+            IComparer<string> primaryGroupComparer = null, Action<TestItem> callback = null)
         {
             var menu = new Menu();
             var builder = MenuBuilder.Build(new VisualElement(), menu);
