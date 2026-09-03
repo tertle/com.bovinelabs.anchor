@@ -896,9 +896,9 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 }
             }
 
-            var go = new GameObject("ToolbarOffset");
+            var go = new GameObject("ToolbarOffset", typeof(ToolbarOffset));
             go.transform.SetParent(canvas.transform, false);
-            return go.AddComponent<ToolbarOffset>();
+            return go.GetComponent<ToolbarOffset>();
         }
 
         private void MoveCanvasChildrenToOffset(Canvas canvas, ToolbarOffset offset)
