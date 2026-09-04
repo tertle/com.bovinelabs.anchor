@@ -1,9 +1,10 @@
 {
   "name": "com.bovinelabs.anchor",
   "description": "UI and toolkit framework based on Unity App UI",
-  "version": "2.0.0-pre.2",
+  "version": "2.0.0-pre.3",
   "unity": "6000.7",
   "displayName": "BovineLabs Anchor",
+  "license": "MIT",
   "documentationUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/Documentation~/index.md",
   "changelogUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/CHANGELOG.md",
   "licensesUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/LICENSE.md",
@@ -14,7 +15,7 @@
     "revision": "main"
   },
   "dependencies": {
-    "com.bovinelabs.core": "2.0.0-pre.2",
+    "com.bovinelabs.core": "2.0.0-pre.3",
     "com.unity.dt.app-ui": "3.0.0-pre.1",
     "com.unity.render-pipelines.universal": "17.7.0"
   },
