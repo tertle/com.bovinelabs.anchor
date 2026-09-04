@@ -1,8 +1,9 @@
 # Changelog
 
-## [2.0.0-pre.2] - Unreleased
+## [2.0.0-pre.2] - 2026-09-04
 
 ### Changed
+* Updated the BovineLabs Core dependency to `2.0.0-pre.2`
 * Unity App UI 3.0.0-pre.1 or newer is required
 * `AnchorTouchSliderFloat` and `AnchorTouchSliderInt` now extend App UI's concrete touch sliders instead of maintaining copied implementations
 * `AnchorLinearProgress` now extends App UI's `LinearProgress` and uses its renderer when directional or texture features are not active
