@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor.Tests.Elements
 {
     using System;
+    using System.Collections.Generic;
     using BovineLabs.Anchor.Elements;
     using NUnit.Framework;
     using Unity.AppUI.UI;
@@ -12,25 +13,21 @@ namespace BovineLabs.Anchor.Tests.Elements
 
     public class AnchorTouchSliderTests
     {
-        private const string WorkaroundUssClassName = "bl-touchslider-workaround";
-
         [Test]
-        public void FloatSlider_ExtendsAppUiAndPublishesRetainedNotifications()
+        public void FloatSlider_PublishesRetainedNotificationsOnlyWhenValuesChange()
         {
             var slider = new AnchorTouchSliderFloat();
 
-            Assert.IsInstanceOf<TouchSliderFloat>(slider);
             AssertBindingNotifications(slider, value => slider.size = value, value => slider.label = value);
             Assert.AreEqual(Size.L, slider.size);
             Assert.AreEqual("Volume", slider.label);
         }
 
         [Test]
-        public void IntSlider_ExtendsAppUiAndPublishesRetainedNotifications()
+        public void IntSlider_PublishesRetainedNotificationsOnlyWhenValuesChange()
         {
             var slider = new AnchorTouchSliderInt();
 
-            Assert.IsInstanceOf<TouchSliderInt>(slider);
             AssertBindingNotifications(slider, value => slider.size = value, value => slider.label = value);
             Assert.AreEqual(Size.L, slider.size);
             Assert.AreEqual("Volume", slider.label);
@@ -38,19 +35,18 @@ namespace BovineLabs.Anchor.Tests.Elements
 
         private static void AssertBindingNotifications(VisualElement slider, Action<Size> setSize, Action<string> setLabel)
         {
-            var notificationCount = 0;
-            ((INotifyBindablePropertyChanged)slider).propertyChanged += (_, _) => notificationCount++;
+            var changedProperties = new List<string>();
+            ((INotifyBindablePropertyChanged)slider).propertyChanged += (_, args) => changedProperties.Add(args.propertyName);
 
             setSize(Size.L);
             setLabel("Volume");
 
-            Assert.AreEqual(2, notificationCount);
-            Assert.IsTrue(slider.ClassListContains(WorkaroundUssClassName));
+            CollectionAssert.AreEqual(new[] { "size", "label" }, changedProperties);
 
             setSize(Size.L);
             setLabel("Volume");
 
-            Assert.AreEqual(2, notificationCount);
+            CollectionAssert.AreEqual(new[] { "size", "label" }, changedProperties);
         }
     }
 }

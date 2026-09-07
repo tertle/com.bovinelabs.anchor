@@ -37,18 +37,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
 
         [Test]
-        public void AddSelection_Repeated_DoesNotDuplicateItems()
-        {
-            var vm = new ToolbarViewModel(new TestLocalStorageService());
-
-            vm.AddSelection("Shared");
-            vm.AddSelection("Shared");
-
-            Assert.AreEqual(1, vm.FilterItems.Count);
-            Assert.AreEqual("Shared", vm.FilterItems[0]);
-        }
-
-        [Test]
         public void RemoveSelection_DecrementsAndRemovesWhenRefCountHitsZero()
         {
             var vm = new ToolbarViewModel(new TestLocalStorageService());

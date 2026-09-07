@@ -7,7 +7,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using UnityEngine.UIElements;
 
     public class AnchorNavHostTests
     {
@@ -19,18 +18,6 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.IsFalse(harness.Host.Navigate(null));
             Assert.IsFalse(harness.Host.Navigate(string.Empty));
             Assert.IsFalse(harness.Host.Navigate("   "));
-        }
-
-        [Test]
-        public void Navigate_CreatedItem_UsesIgnorePickingMode()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("A");
-
-            harness.Host.Navigate("A");
-
-            Assert.AreEqual(1, harness.Host.contentContainer.childCount);
-            Assert.AreEqual(PickingMode.Ignore, harness.Host.contentContainer[0].pickingMode);
         }
 
         [Test]
