@@ -2,39 +2,43 @@
     flex-grow: 1;
     align-items: center;
     justify-content: center;
-    padding: 48px;
-    background-color: rgb(18, 21, 28);
+    padding: 24px;
+    background-color: var(--bl-background);
 }
 
 .anchor-sample__card {
     width: 520px;
     max-width: 100%;
-    padding: 40px;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    border-bottom-right-radius: 16px;
-    border-bottom-left-radius: 16px;
-    background-color: rgb(31, 36, 47);
+    padding: 24px;
+    border-top-left-radius: var(--bl-radius-large);
+    border-top-right-radius: var(--bl-radius-large);
+    border-bottom-right-radius: var(--bl-radius-large);
+    border-bottom-left-radius: var(--bl-radius-large);
+    background-color: var(--bl-panel);
 }
 
 .anchor-sample__eyebrow {
     margin-bottom: 12px;
-    color: rgb(93, 205, 255);
+    color: var(--bl-secondary-accent);
     font-size: 13px;
     -unity-font-style: bold;
-    letter-spacing: 3px;
+    letter-spacing: 0.7px;
 }
 
 .anchor-sample__title {
     margin-bottom: 12px;
-    color: rgb(245, 247, 250);
-    font-size: 34px;
+    color: var(--bl-text);
+    font-size: var(--bl-title-size);
     -unity-font-style: bold;
     white-space: normal;
 }
 
 .anchor-sample__body {
-    color: rgb(183, 191, 207);
+    color: var(--bl-text-muted);
     font-size: 16px;
     white-space: normal;
+}
+
+.anchor-sample__card > .bl-theme-selector {
+    margin-bottom: 16px;
 }

@@ -1,3 +1,5 @@
+@import url("BovineThemeAppUI.uss");
+
 :root {
     /* Workaround for missing font in build when using the name Inter-Regular */
     --appui-font-weights-100: url("Inter-Normal.ttf");
