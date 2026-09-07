@@ -1,0 +1,109 @@
+/* Bridge the shared BovineLabs palette to App UI 3's public theme aliases.
+   These overrides are scoped to themed BovineLabs roots, including nested panels. */
+.bl-theme,
+.appui.bl-theme,
+.bl-theme .appui {
+    --appui-backgrounds-50: var(--bl-background);
+    --appui-backgrounds-100: var(--bl-panel);
+    --appui-backgrounds-200: var(--bl-surface);
+    --appui-backgrounds-300: var(--bl-border);
+    --appui-foregrounds-25: var(--bl-text-muted);
+    --appui-foregrounds-50: var(--bl-text-muted);
+    --appui-foregrounds-100: var(--bl-text);
+    --appui-foregrounds-200: var(--bl-text);
+    --appui-base-25: var(--bl-background);
+    --appui-base-50: var(--bl-selection);
+    --appui-base-100: var(--bl-surface);
+    --appui-base-200: var(--bl-surface-hover);
+    --appui-base-300: var(--bl-selection);
+    --appui-base-400: var(--bl-border);
+    --appui-base-500: var(--bl-secondary-accent);
+    --appui-accent-25: var(--bl-accent-hover);
+    --appui-accent-50: var(--bl-accent-hover);
+    --appui-accent-100: var(--bl-accent);
+    --appui-accent-200: var(--bl-accent);
+    --appui-accent-300: var(--bl-accent);
+    --appui-destructive-25: var(--bl-error);
+    --appui-destructive-50: var(--bl-error);
+    --appui-destructive-100: var(--bl-error);
+    --appui-destructive-200: var(--bl-error);
+    --appui-destructive-300: var(--bl-error);
+    --appui-warning-25: var(--bl-warning);
+    --appui-warning-50: var(--bl-warning);
+    --appui-warning-100: var(--bl-warning);
+    --appui-warning-200: var(--bl-warning);
+    --appui-warning-300: var(--bl-warning);
+    --appui-positive-25: var(--bl-success);
+    --appui-positive-50: var(--bl-success);
+    --appui-positive-100: var(--bl-success);
+    --appui-positive-200: var(--bl-success);
+    --appui-positive-300: var(--bl-success);
+    --appui-alias-control-border-radius: var(--bl-radius);
+    --appui-alias-actions-border-radius: var(--bl-radius);
+    --appui-alias-control-outline-color: var(--bl-secondary-accent);
+    --appui-alias-control-border-color-focus: var(--bl-secondary-accent);
+    --appui-alias-actions-border-color-focus: var(--bl-secondary-accent);
+    --appui-alias-field-border-color-focus: var(--bl-secondary-accent);
+    --appui-alias-actions-accent-foreground-color-default: var(--bl-accent-text);
+    --appui-alias-actions-accent-foreground-color-hover: var(--bl-accent-text);
+    --appui-alias-actions-accent-foreground-color-active: var(--bl-accent-text);
+    --appui-alias-actions-accent-foreground-color-focus: var(--bl-accent-text);
+    --appui-alias-actions-selected-background-color-default: var(--bl-selection);
+    --appui-alias-actions-selected-background-color-hover: var(--bl-surface-hover);
+    --appui-alias-actions-selected-background-color-active: var(--bl-selection);
+    --appui-alias-actions-selected-background-color-focus: var(--bl-selection);
+    --appui-alias-actions-selected-background-color-disabled: var(--bl-surface);
+    --appui-alias-control-background-color-default: var(--bl-surface);
+    --appui-alias-control-background-color-hover: var(--bl-surface-hover);
+    --appui-alias-control-background-color-active: var(--bl-selection);
+    --appui-alias-control-background-color-focus: var(--bl-surface);
+    --appui-alias-control-background-color-disabled: var(--bl-panel);
+    --appui-alias-control-border-color-default: var(--bl-border);
+    --appui-alias-control-border-color-hover: var(--bl-secondary-accent);
+    --appui-alias-control-border-color-active: var(--bl-secondary-accent);
+    --appui-alias-control-border-color-disabled: var(--bl-border);
+    --appui-alias-control-border-color-selected: var(--bl-secondary-accent);
+    --appui-alias-actions-background-color-default: var(--bl-surface);
+    --appui-alias-actions-background-color-hover: var(--bl-surface-hover);
+    --appui-alias-actions-background-color-active: var(--bl-selection);
+    --appui-alias-actions-background-color-focus: var(--bl-surface);
+    --appui-alias-actions-background-color-disabled: var(--bl-panel);
+    --appui-alias-actions-border-color-default: var(--bl-border);
+    --appui-alias-actions-border-color-hover: var(--bl-secondary-accent);
+    --appui-alias-actions-border-color-active: var(--bl-secondary-accent);
+    --appui-alias-actions-border-color-disabled: var(--bl-border);
+    --appui-alias-actions-border-color-selected: var(--bl-secondary-accent);
+    --appui-alias-field-background-color-default: var(--bl-background);
+    --appui-alias-field-background-color-hover: var(--bl-panel);
+    --appui-alias-field-background-color-active: var(--bl-background);
+    --appui-alias-field-background-color-focus: var(--bl-background);
+    --appui-alias-field-background-color-disabled: var(--bl-panel);
+    --appui-alias-field-border-color-default: var(--bl-border);
+    --appui-alias-field-border-color-hover: var(--bl-secondary-accent);
+    --appui-alias-field-border-color-active: var(--bl-secondary-accent);
+    --appui-alias-field-border-color-disabled: var(--bl-border);
+    --appui-alias-field-border-color-selected: var(--bl-secondary-accent);
+    --appui-alias-menu-border-color-default: var(--bl-border);
+}
+
+.bl-theme .bl-toolbar-tab {
+    border-bottom-width: 1px;
+    border-bottom-color: var(--bl-border);
+}
+
+/* App UI's filled-button subtitle uses a white constant rather than its foreground alias. */
+.bl-theme .appui-button--accent .appui-button__subtitle,
+.bl-theme .appui-button--primary .appui-button__subtitle,
+.bl-theme .appui-button--destructive .appui-button__subtitle {
+    color: var(--appui-alias-actions-accent-foreground-color-default);
+}
+
+.bl-theme .appui-button--accent.appui-button--quiet .appui-button__subtitle,
+.bl-theme .appui-button--primary.appui-button--quiet .appui-button__subtitle,
+.bl-theme .appui-button--destructive.appui-button--quiet .appui-button__subtitle {
+    color: var(--appui-foregrounds-50);
+}
+
+.bl-theme .appui-button:disabled .appui-button__subtitle {
+    color: var(--appui-foregrounds-25);
+}
