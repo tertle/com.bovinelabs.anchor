@@ -3,7 +3,6 @@
         <ui:VisualElement class="anchor-sample__card">
             <ui:Label text="ANCHOR" class="anchor-sample__eyebrow"/>
             <ui:Label text="Your UI is running" class="anchor-sample__title"/>
-            <bl:BovineThemeSelector/>
             <ui:Label text="This self-contained sample opens its screen without changing project settings." class="anchor-sample__body"/>
         </ui:VisualElement>
     </bl:BovineThemeRoot>

@@ -38,7 +38,3 @@
     font-size: 16px;
     white-space: normal;
 }
-
-.anchor-sample__card > .bl-theme-selector {
-    margin-bottom: 16px;
-}
