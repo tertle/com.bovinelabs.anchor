@@ -3,7 +3,7 @@
 ## [2.0.0-pre.3] - Unreleased
 
 ### Added
-* Scoped App UI styling for Core's Bovine Works and The Curator themes, with a theme selector in the Basic UI sample
+* Scoped App UI styling for Core's Bovine Works and The Curator themes in the Basic UI sample
 
 ### Changed
 * The system property source generator now embeds CodeGenHelpers source instead of depending on a separate helper assembly
