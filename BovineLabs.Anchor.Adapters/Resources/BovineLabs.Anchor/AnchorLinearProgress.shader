@@ -87,21 +87,23 @@ Shader "Hidden/BovineLabs/Anchor/LinearProgress"
 
             half4 Frag(Varyings input) : SV_Target
             {
+                float start = _Start;
+                float end = _End;
                 #if ANCHOR_PROGRESS_INDETERMINATE
                 const float duration = 1.0;
                 const float time = fmod(_Phase.y / duration, 1.0);
-                _Start = time < 0.5 ? lerp(0.0, 0.15, time / 0.5) :
+                start = time < 0.5 ? lerp(0.0, 0.15, time / 0.5) :
                     time < 0.75 ? lerp(0.15, 0.2, (time - 0.5) / 0.25) : lerp(0.2, 0.99, (time - 0.75) / 0.25);
-                _End = time < 0.5 ? lerp(0.0, 0.8, time / 0.5) :
+                end = time < 0.5 ? lerp(0.0, 0.8, time / 0.5) :
                     time < 0.65 ? lerp(0.8, 0.85, (time - 0.5) / 0.15) :
                     time < 0.8 ? lerp(0.85, 1.0, (time - 0.65) / 0.15) : 1.0;
                 #endif
 
                 const float progress = input.progressUv.x;
                 const float radius = 1.0 / _Ratio * 0.5;
-                float valueMask = progress >= _Start && progress <= _End ? 1.0 : 0.0;
-                valueMask = max(valueMask, Circle(input.progressUv, float2(_Start, 0), radius) * _Rounded);
-                valueMask = max(valueMask, Circle(input.progressUv, float2(_End, 0), radius) * _Rounded);
+                float valueMask = progress >= start && progress <= end ? 1.0 : 0.0;
+                valueMask = max(valueMask, Circle(input.progressUv, float2(start, 0), radius) * _Rounded);
+                valueMask = max(valueMask, Circle(input.progressUv, float2(end, 0), radius) * _Rounded);
 
                 const half4 fillSample = _UseFillTexture ? tex2D(_FillTexture, input.maskUv) : half4(1.0, 1.0, 1.0, 1.0);
                 const half4 fillColor = half4(fillSample.rgb * _Color.rgb, fillSample.a);
