@@ -4,11 +4,12 @@
 
 namespace BovineLabs.Anchor.Services
 {
+    using System;
     using BovineLabs.Anchor;
     using BovineLabs.Core;
     using JetBrains.Annotations;
-    using UnityEngine.UIElements;
     using UnityEngine.Scripting;
+    using UnityEngine.UIElements;
 
     /// <summary>
     /// Default implementation that looks up view templates from <see cref="AnchorSettings"/>.
@@ -20,22 +21,34 @@ namespace BovineLabs.Anchor.Services
         /// <inheritdoc/>
         public VisualTreeAsset GetAsset(string assetName)
         {
+            VisualTreeAsset asset = null;
+
             foreach (var v in AnchorSettings.I.Views)
             {
                 if (v.Key == assetName)
                 {
-                    return v.Asset;
+                    asset = v.Asset;
+                    break;
                 }
             }
 
-            BLGlobalLogger.LogError($"VisualTreeAsset for the key {assetName} was not found. Check AnchorSettings.");
-            return null;
+            if (asset == null)
+            {
+                BLGlobalLogger.LogErrorString($"VisualTreeAsset for the key {assetName} was not found or null. Check AnchorSettings.");
+            }
+
+            return asset;
         }
 
         /// <inheritdoc/>
         public VisualElement Instantiate(string assetName)
         {
             var asset = this.GetAsset(assetName);
+            if (asset == null)
+            {
+                return new VisualElement();
+            }
+
             var container = asset.Instantiate();
 
             foreach (var ve in container.Query().Build())
