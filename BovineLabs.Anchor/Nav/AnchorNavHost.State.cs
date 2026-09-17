@@ -116,13 +116,11 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        /// <inheritdoc />
         public IAnchorNavHostReloadState CaptureReloadState()
         {
             return new ReloadState(this.SaveState(), new Dictionary<int, AnchorNavHostSaveState>(this.savedStates), this.nextStateHandle);
         }
 
-        /// <inheritdoc />
         public void RestoreReloadState(IAnchorNavHostReloadState state)
         {
             if (state == null)

@@ -15,7 +15,6 @@ namespace BovineLabs.Anchor.Debug.Systems
     {
         private ToolbarHelper<PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data> toolbar;
 
-        /// <inheritdoc />
         public void OnCreate(ref SystemState state)
         {
             if (state.World.GetExistingSystem<BuildPhysicsWorld>() == SystemHandle.Null)
@@ -27,7 +26,6 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.toolbar = new ToolbarHelper<PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data>(ref state, "Physics");
         }
 
-        /// <inheritdoc />
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
@@ -35,13 +33,11 @@ namespace BovineLabs.Anchor.Debug.Systems
             this.UpdateData(ref state, ref this.toolbar.Binding);
         }
 
-        /// <inheritdoc />
         public void OnStopRunning(ref SystemState state)
         {
             this.toolbar.Unload();
         }
 
-        /// <inheritdoc />
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {

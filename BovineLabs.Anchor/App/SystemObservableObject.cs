@@ -28,14 +28,12 @@
 
         public ref T Value => ref this.data.Value;
 
-        /// <inheritdoc/>
         void IBindingObjectNotify<T>.Pin()
         {
             Check.Assume(!this.pin.IsAllocated);
             this.pin = GCHandle.Alloc(this.data, GCHandleType.Pinned);
         }
 
-        /// <inheritdoc/>
         void IBindingObjectNotify<T>.Unpin()
         {
             Check.Assume(this.pin.IsAllocated);
@@ -43,13 +41,11 @@
             this.pin = default;
         }
 
-        /// <inheritdoc/>
         public void OnPropertyChanging(in FixedString64Bytes property)
         {
             this.OnPropertyChanging(new PropertyChangingEventArgs(property.ToString()));
         }
 
-        /// <inheritdoc/>
         public void OnPropertyChanged(in FixedString64Bytes property)
         {
             this.OnPropertyChanged(new PropertyChangedEventArgs(property.ToString()));

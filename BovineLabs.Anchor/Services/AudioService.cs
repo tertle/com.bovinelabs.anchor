@@ -27,7 +27,6 @@ namespace BovineLabs.Anchor.Services
 
         internal AudioSource Source => this.source;
 
-        /// <inheritdoc />
         public void Play(string profileKey, AnchorAudioCue cue, AnchorAudioCueOverride cueOverride)
         {
             switch (cueOverride.Mode)
@@ -55,7 +54,6 @@ namespace BovineLabs.Anchor.Services
             audioSource.PlayOneShot(clip);
         }
 
-        /// <inheritdoc />
         public void Dispose()
         {
             if (this.host != null)

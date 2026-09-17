@@ -67,7 +67,6 @@
             set => this.SetProperty(ref this.maxFPS, value);
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new FPSToolbarView(this);

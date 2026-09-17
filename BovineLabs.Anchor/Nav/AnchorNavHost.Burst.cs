@@ -145,7 +145,6 @@ namespace BovineLabs.Anchor.Nav
             internal static readonly SharedStatic<BurstTrampoline> ReleaseStateFunc =
                 SharedStatic<BurstTrampoline>.GetOrCreate<AnchorNavHost, ReleaseStateType>();
 
-            /// <inheritdoc cref="AnchorNavHost.Navigate(string, AnchorNavArgument[])" />
             public static void Navigate(in FixedString32Bytes screen)
             {
                 if (NavigateFunc.Data.IsCreated)
@@ -154,7 +153,6 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            /// <inheritdoc cref="AnchorNavHost.Toggle(string, AnchorNavArgument[])" />
             public static bool Toggle(in FixedString32Bytes actionOrDestination)
             {
                 if (ToggleFunc.Data.IsCreated)
@@ -166,7 +164,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.CurrentDestination" />
             public static FixedString32Bytes CurrentDestination()
             {
                 if (CurrentFunc.Data.IsCreated)
@@ -178,7 +175,6 @@ namespace BovineLabs.Anchor.Nav
                 return default;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.ClearBackStack" />
             public static void ClearBackStack()
             {
                 if (ClearBackStackFunc.Data.IsCreated)
@@ -187,7 +183,6 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            /// <inheritdoc cref="AnchorNavHost.ClearNavigation" />
             public static void ClearNavigation(in int exitAnimation = 0)
             {
                 if (ClearNavigationFunc.Data.IsCreated)
@@ -196,7 +191,6 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            /// <inheritdoc cref="AnchorNavHost.PopBackStack" />
             public static bool PopBackStack()
             {
                 if (PopBackStackFunc.Data.IsCreated)
@@ -208,7 +202,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.PopBackStackToPanel" />
             public static bool PopBackStackToPanel()
             {
                 if (PopBackStackToPanelFunc.Data.IsCreated)
@@ -220,7 +213,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.CloseAllPopups" />
             public static bool CloseAllPopups(int exitAnimation = 0)
             {
                 if (CloseAllPopupsFunc.Data.IsCreated)
@@ -232,7 +224,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.ClosePopup" />
             public static bool ClosePopup(in FixedString32Bytes destination, in int exitAnimation = 0)
             {
                 if (ClosePopupFunc.Data.IsCreated)
@@ -244,7 +235,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.HasActivePopups" />
             public static bool HasActivePopups()
             {
                 if (HasActivePopupsFunc.Data.IsCreated)
@@ -256,7 +246,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.CanGoBack" />
             public static bool CanGoBack()
             {
                 if (CanGoBackFunc.Data.IsCreated)
@@ -268,7 +257,6 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.SaveStateHandle" />
             public static int SaveStateHandle()
             {
                 if (SaveStateFunc.Data.IsCreated)
@@ -280,7 +268,6 @@ namespace BovineLabs.Anchor.Nav
                 return 0;
             }
 
-            /// <inheritdoc cref="AnchorNavHost.ReleaseStateHandle" />
             public static void ReleaseStateHandle(int handle, bool restore = true)
             {
                 if (ReleaseStateFunc.Data.IsCreated)

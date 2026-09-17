@@ -9,7 +9,6 @@ namespace BovineLabs.Anchor.Editor
     [CustomEditor(typeof(AnchorSettings))]
     public class AnchorSettingsEditor : ElementEditor
     {
-        /// <inheritdoc />
         protected override VisualElement CreateElement(SerializedProperty property)
         {
             return property.name switch

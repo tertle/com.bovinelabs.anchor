@@ -44,13 +44,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.locales, value);
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new LocalizationToolbarView(this);
         }
 
-        /// <inheritdoc />
         public void Load()
         {
             if (this.loaded || !LocalizationSettings.HasSettings)
@@ -62,7 +60,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             LocalizationSettings.InitializationOperation.Completed += this.OnInitializationCompleted;
         }
 
-        /// <inheritdoc />
         public void Unload()
         {
             if (!this.loaded)

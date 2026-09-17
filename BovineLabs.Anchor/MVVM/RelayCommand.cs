@@ -50,10 +50,8 @@ namespace BovineLabs.Anchor.MVVM
             }
         }
 
-        /// <inheritdoc/>
         public event EventHandler CanExecuteChanged;
 
-        /// <inheritdoc/>
         public bool CanExecute(object parameter)
         {
             return this.canExecute?.Invoke() ?? true;
@@ -68,7 +66,6 @@ namespace BovineLabs.Anchor.MVVM
             return this.CanExecute(null);
         }
 
-        /// <inheritdoc/>
         public void Execute(object parameter)
         {
             if (!this.CanExecute(parameter))
@@ -87,7 +84,6 @@ namespace BovineLabs.Anchor.MVVM
             this.Execute(null);
         }
 
-        /// <inheritdoc/>
         public void NotifyCanExecuteChanged()
         {
             this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);

@@ -14,7 +14,6 @@ namespace BovineLabs.Anchor.Services
     [UsedImplicitly]
     public class UXMLService : IUXMLService
     {
-        /// <inheritdoc/>
         public VisualTreeAsset GetAsset(string assetName)
         {
             VisualTreeAsset asset = null;
@@ -36,7 +35,6 @@ namespace BovineLabs.Anchor.Services
             return asset;
         }
 
-        /// <inheritdoc/>
         public VisualElement Instantiate(string assetName)
         {
             var asset = this.GetAsset(assetName);

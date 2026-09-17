@@ -50,7 +50,6 @@ namespace BovineLabs.Anchor.Nav
             return new AnchorNavArgument(name, value);
         }
 
-        /// <inheritdoc />
         public bool Equals(AnchorNavArgument other)
         {
             if (ReferenceEquals(this, other))
@@ -67,13 +66,11 @@ namespace BovineLabs.Anchor.Nav
                    this.value == other.value;
         }
 
-        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return this.Equals(obj as AnchorNavArgument);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             unchecked

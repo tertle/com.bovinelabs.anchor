@@ -12,15 +12,12 @@ namespace BovineLabs.Anchor.MVVM
     [Serializable]
     public abstract class ObservableObject : INotifyPropertyChanged, INotifyPropertyChanging, INotifyBindablePropertyChanged
     {
-        /// <inheritdoc/>
         public event PropertyChangingEventHandler PropertyChanging;
 
-        /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
 
         private event EventHandler<BindablePropertyChangedEventArgs> BindablePropertyChanged;
 
-        /// <inheritdoc/>
         event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
         {
             add => this.BindablePropertyChanged += value;

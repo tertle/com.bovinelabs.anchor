@@ -54,19 +54,16 @@ namespace BovineLabs.Anchor.Audio
             return new AnchorAudioCueOverride(AnchorAudioOverrideMode.Custom, clip);
         }
 
-        /// <inheritdoc />
         public bool Equals(AnchorAudioCueOverride other)
         {
             return this.mode == other.mode && this.clip == other.clip;
         }
 
-        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return obj is AnchorAudioCueOverride other && this.Equals(other);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             unchecked

@@ -101,7 +101,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         internal bool IsToolbarHidden => this.isToolbarHidden;
 
-        /// <inheritdoc />
         public VisualElement CreateRootVisualElement()
         {
             this.ThrowIfDisposed();
@@ -127,7 +126,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
-        /// <inheritdoc />
         public void ReleaseRootVisualElement()
         {
             var view = this.currentView;
@@ -135,7 +133,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             view?.Dispose();
         }
 
-        /// <inheritdoc />
         public void Dispose()
         {
             if (this.disposed)

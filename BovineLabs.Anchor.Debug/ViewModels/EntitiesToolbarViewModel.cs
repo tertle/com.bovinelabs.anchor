@@ -18,7 +18,6 @@
         [CreateProperty(ReadOnly = true)]
         public int Chunks => this.Value.Chunks;
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new EntitiesToolbarView(this);

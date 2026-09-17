@@ -10,17 +10,14 @@ namespace BovineLabs.Anchor
     [Preserve]
     public class AnchorPanel : Panel, IAnchorPanel
     {
-        /// <inheritdoc />
         public VisualElement RootVisualElement => this;
 
-        /// <inheritdoc/>
         public string Theme
         {
             get => this.theme;
             set => this.theme = value;
         }
 
-        /// <inheritdoc/>
         public string Scale
         {
             get => this.scale;

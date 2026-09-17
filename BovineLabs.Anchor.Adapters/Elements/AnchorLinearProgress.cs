@@ -131,7 +131,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <inheritdoc />
         protected override void GenerateTextures()
         {
             if (this.direction == Direction.Horizontal && !this.fillTexture && !this.maskTexture)

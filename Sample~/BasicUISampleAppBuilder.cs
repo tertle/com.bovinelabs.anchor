@@ -13,27 +13,23 @@ namespace BovineLabs.Anchor.Samples.BasicUI
         [SerializeField]
         private VisualTreeAsset view;
 
-        /// <inheritdoc />
         protected override void OnConfigureServices(AnchorServiceCollection services)
         {
             base.OnConfigureServices(services);
             services.AddSingletonInstance(typeof(IUXMLService), this);
         }
 
-        /// <inheritdoc />
         protected override void OnVisualGenerationInitialized(AnchorApp app)
         {
             base.OnVisualGenerationInitialized(app);
             app.NavHost.Navigate(Destination);
         }
 
-        /// <inheritdoc />
         public VisualTreeAsset GetAsset(string assetName)
         {
             return this.view;
         }
 
-        /// <inheritdoc />
         public VisualElement Instantiate(string assetName)
         {
             return this.view.Instantiate();

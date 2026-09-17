@@ -35,7 +35,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             this.Value.Dispose();
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new SubSceneToolbarView(this);

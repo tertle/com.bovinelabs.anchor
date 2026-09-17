@@ -87,13 +87,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.instances, value);
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new RenderingToolbarView(this);
         }
 
-        /// <inheritdoc />
         public void Load()
         {
             this.trianglesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Triangles Count");
@@ -103,7 +101,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             this.instancesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, InstanceCounterNames);
         }
 
-        /// <inheritdoc />
         public void Unload()
         {
             this.trianglesRecorder.Dispose();

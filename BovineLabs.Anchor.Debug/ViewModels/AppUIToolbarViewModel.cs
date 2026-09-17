@@ -69,13 +69,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new AppUIToolbarView(this);
         }
 
-        /// <inheritdoc />
         public void Load()
         {
             if (this.loaded)
@@ -87,7 +85,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             this.RefreshSystemThemeSubscription();
         }
 
-        /// <inheritdoc />
         public void Unload()
         {
             this.loaded = false;

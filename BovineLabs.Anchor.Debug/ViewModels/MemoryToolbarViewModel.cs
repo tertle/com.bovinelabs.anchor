@@ -52,7 +52,6 @@
             set => this.SetProperty(ref this.allocatedMemoryForGraphicsMB, value);
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new MemoryToolbarView(this);

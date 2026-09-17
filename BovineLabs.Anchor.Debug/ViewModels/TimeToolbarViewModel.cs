@@ -45,7 +45,6 @@
             set => this.SetProperty(ref this.seconds, value);
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new TimeToolbarView(this);

@@ -189,7 +189,6 @@
             this.EnsureActiveGroup();
         }
 
-        /// <inheritdoc />
         public void Dispose()
         {
             if (this.disposed)

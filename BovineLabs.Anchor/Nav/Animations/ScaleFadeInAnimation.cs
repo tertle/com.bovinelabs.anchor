@@ -14,13 +14,10 @@
         [SerializeField]
         private float endScale = 1.0f;
 
-        /// <inheritdoc/>
         protected override Func<float, float> EasingFunction { get; } = Easing.OutCubic;
 
-        /// <inheritdoc/>
         protected override Action<VisualElement, float> Callback => this.Function;
 
-        /// <inheritdoc/>
         protected override int DefaultDuration => 500;
 
         private void Function(VisualElement v, float f)

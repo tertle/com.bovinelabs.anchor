@@ -51,10 +51,8 @@ namespace BovineLabs.Anchor.MVVM
             }
         }
 
-        /// <inheritdoc/>
         public event EventHandler CanExecuteChanged;
 
-        /// <inheritdoc/>
         public bool CanExecute(object parameter)
         {
             if (!TryGetCommandArg(parameter, out var typed))
@@ -65,13 +63,11 @@ namespace BovineLabs.Anchor.MVVM
             return this.CanExecute(typed);
         }
 
-        /// <inheritdoc/>
         public bool CanExecute(T parameter)
         {
             return this.canExecute?.Invoke(parameter) ?? true;
         }
 
-        /// <inheritdoc/>
         public void Execute(object parameter)
         {
             if (!TryGetCommandArg(parameter, out var typed))
@@ -82,7 +78,6 @@ namespace BovineLabs.Anchor.MVVM
             this.Execute(typed);
         }
 
-        /// <inheritdoc/>
         public void Execute(T parameter)
         {
             if (!this.CanExecute(parameter))
@@ -93,7 +88,6 @@ namespace BovineLabs.Anchor.MVVM
             this.execute(parameter);
         }
 
-        /// <inheritdoc/>
         public void NotifyCanExecuteChanged()
         {
             this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);

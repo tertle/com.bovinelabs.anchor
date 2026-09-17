@@ -14,7 +14,6 @@ namespace BovineLabs.Anchor.Elements
         private readonly VisualElement progressElement;
         private event EventHandler<BindablePropertyChangedEventArgs> BindingPropertyChanged;
 
-        /// <inheritdoc />
         event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
         {
             add => this.BindingPropertyChanged += value;
@@ -66,14 +65,12 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <inheritdoc />
         public override void SetValueWithoutNotify(int newValue)
         {
             base.SetValueWithoutNotify(newValue);
             this.RefreshProgress();
         }
 
-        /// <inheritdoc />
         protected override void SetOrientation(Direction newValue)
         {
             base.SetOrientation(newValue);

@@ -21,7 +21,6 @@ namespace BovineLabs.Anchor.Nav
         [SerializeField]
         private int duration;
 
-        /// <inheritdoc/>
         int IUID.ID
         {
             get => this.ID;

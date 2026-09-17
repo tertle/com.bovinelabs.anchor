@@ -9,10 +9,8 @@ namespace BovineLabs.Anchor.Editor
     [CustomPropertyDrawer(typeof(AnchorNavOptions))]
     public class AnchorNavOptionsEditor : ElementProperty
     {
-        /// <inheritdoc/>
         protected override ParentTypes ParentType => ParentTypes.None;
 
-        /// <inheritdoc/>
         protected override VisualElement CreateElement(SerializedProperty property)
         {
             var cache = this.Cache<Cache>();
@@ -43,7 +41,6 @@ namespace BovineLabs.Anchor.Editor
             return base.CreateElement(property);
         }
 
-        /// <inheritdoc/>
         protected override void PostElementCreation(VisualElement root, bool createdElements)
         {
             var cache = this.Cache<Cache>();

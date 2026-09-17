@@ -39,7 +39,6 @@
         [CreateProperty(ReadOnly = true)]
         public List<string> QualityChoices { get; }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new QualityToolbarView(this);

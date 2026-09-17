@@ -6,7 +6,6 @@
     [CustomPropertyDrawer(typeof(UISystemTypes.NavigationComponent))]
     public class NavigationComponentEditor : ElementProperty
     {
-        /// <inheritdoc/>
         protected override string GetDisplayName(SerializedProperty property)
         {
             var names = property.FindPropertyRelative(nameof(UISystemTypes.NavigationComponent.States));

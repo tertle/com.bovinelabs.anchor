@@ -17,7 +17,6 @@
 
         private NativeHashMap<FixedString32Bytes, ComponentType> statesMap;
 
-        /// <inheritdoc/>
         public void OnCreate(ref SystemState state)
         {
             this.statesMap = new NativeHashMap<FixedString32Bytes, ComponentType>(16, Allocator.Persistent);
@@ -34,13 +33,11 @@
             }
         }
 
-        /// <inheritdoc/>
         public void OnDestroy(ref SystemState state)
         {
             this.statesMap.Dispose();
         }
 
-        /// <inheritdoc/>
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {

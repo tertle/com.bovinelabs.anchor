@@ -13,25 +13,21 @@
     {
         private ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> toolbar;
 
-        /// <inheritdoc />
         public void OnCreate(ref SystemState state)
         {
             this.toolbar = new ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
         }
 
-        /// <inheritdoc />
         public void OnStartRunning(ref SystemState state)
         {
             this.toolbar.Load();
         }
 
-        /// <inheritdoc />
         public void OnStopRunning(ref SystemState state)
         {
             this.toolbar.Unload();
         }
 
-        /// <inheritdoc />
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {

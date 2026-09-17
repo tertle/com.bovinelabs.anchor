@@ -12,7 +12,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private readonly HashSet<SystemHandle> suspendedSystems = new();
         private Toolbar currentToolbar;
 
-        /// <inheritdoc/>
         protected override void OnUpdate()
         {
             this.SortSystems();

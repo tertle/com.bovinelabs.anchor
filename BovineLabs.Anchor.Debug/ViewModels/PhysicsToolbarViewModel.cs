@@ -55,7 +55,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.Value.DrawTerrainColliderEdges = value;
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new PhysicsToolbarView(this);

@@ -23,19 +23,16 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         /// <summary>Gets a value indicating whether this handle identifies a registration.</summary>
         public bool IsValid => this.ownerId != 0 && this.registrationId != 0;
 
-        /// <inheritdoc />
         public bool Equals(ToolbarRegistrationHandle other)
         {
             return this.ownerId == other.ownerId && this.registrationId == other.registrationId;
         }
 
-        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return obj is ToolbarRegistrationHandle other && this.Equals(other);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             unchecked

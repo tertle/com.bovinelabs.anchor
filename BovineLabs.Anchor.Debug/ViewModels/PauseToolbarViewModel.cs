@@ -17,7 +17,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => this.SetProperty(ref this.Value.Pause, value);
         }
 
-        /// <inheritdoc />
         public VisualElement CreateElement()
         {
             return new PauseToolbarView(this);

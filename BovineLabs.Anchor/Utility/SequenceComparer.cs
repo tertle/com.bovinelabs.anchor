@@ -27,13 +27,11 @@
     /// </summary>
     public class SequenceComparer<T> : EqualityComparer<IEnumerable<T>>
     {
-        /// <inheritdoc/>
         public override bool Equals(IEnumerable<T> x, IEnumerable<T> y)
         {
             return ReferenceEquals(x, y) || (x != null && y != null && x.SequenceEqual(y));
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode(IEnumerable<T> obj)
         {
             if (obj == null)
@@ -61,13 +59,11 @@
     /// </summary>
     public class SequenceListComparer<T> : EqualityComparer<List<T>>
     {
-        /// <inheritdoc/>
         public override bool Equals(List<T> x, List<T> y)
         {
             return ReferenceEquals(x, y) || (x != null && y != null && x.SequenceEqual(y));
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode(List<T> obj)
         {
             if (obj == null)

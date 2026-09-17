@@ -7,10 +7,8 @@
     /// <summary> Fade in animation. </summary>
     public class FadeInAnimation : AnchorNavAnimation
     {
-        /// <inheritdoc/>
         protected override Func<float, float> EasingFunction { get; } = Easing.OutCubic;
 
-        /// <inheritdoc/>
         protected override Action<VisualElement, float> Callback { get; } = (v, f) => v.style.opacity = f;
     }
 }

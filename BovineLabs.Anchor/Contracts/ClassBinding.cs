@@ -20,11 +20,9 @@ namespace BovineLabs.Anchor
             this.updateTrigger = BindingUpdateTrigger.OnSourceChanged;
         }
 
-        /// <inheritdoc />
         [CreateProperty]
         public object dataSource { get; set; }
 
-        /// <inheritdoc />
         [CreateProperty]
         public PropertyPath dataSourcePath { get; set; }
 
@@ -50,7 +48,6 @@ namespace BovineLabs.Anchor
             set => this.dataSourcePath = new PropertyPath(value);
         }
 
-        /// <inheritdoc/>
         protected override BindingResult Update(in BindingContext context)
         {
             this.CancelScheduledUpdate();
@@ -84,7 +81,6 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <inheritdoc/>
         protected override void OnDeactivated(in BindingActivationContext context)
         {
             this.CancelScheduledUpdate();
