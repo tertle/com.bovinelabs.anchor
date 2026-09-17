@@ -9,9 +9,6 @@ namespace BovineLabs.Anchor
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Entities;
 
-    /// <summary>
-    /// Helper that pins a view model's unmanaged data so burst systems can mutate UI state directly.
-    /// </summary>
     public unsafe struct UIHelper<TM, TD>
         where TM : class, IBindingObjectNotify<TD>
         where TD : unmanaged
@@ -19,11 +16,6 @@ namespace BovineLabs.Anchor
         private TD* data;
         private IntPtr bindingHandle;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
-        /// </summary>
-        /// <param name="state">System state used to satisfy component requirements.</param>
-        /// <param name="requiredComponent">Component type that must exist before the UI helper binds.</param>
         public UIHelper(ref SystemState state, ComponentType requiredComponent)
         {
             this = default;
@@ -41,20 +33,13 @@ namespace BovineLabs.Anchor
             state.RequireForUpdate(query);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UIHelper{TM, TD}"/> struct.
-        /// </summary>
-        /// <param name="state">System state used to satisfy component requirements.</param>
-        /// <param name="name">Navigation state that should be resolved to a component requirement.</param>
         public UIHelper(ref SystemState state, FixedString32Bytes name)
             : this(ref state, ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(UISystemTypes.NameToKey(name))))
         {
         }
 
-        /// <summary>Gets direct access to the pinned view model data.</summary>
         public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
 
-        /// <summary>Loads and pins the view model so the helper can forward changes.</summary>
         public void Bind()
         {
             if (this.bindingHandle != IntPtr.Zero)
@@ -100,7 +85,6 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <summary>Unpins and unloads the view model that was previously bound.</summary>
         public void Unbind()
         {
             if (this.bindingHandle == IntPtr.Zero)

@@ -4,17 +4,11 @@ namespace BovineLabs.Anchor
     using Unity.Properties;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Custom binding that toggles a USS class on a visual element based on a boolean data source.
-    /// </summary>
     [UxmlObject]
     public partial class ClassBinding : CustomBinding, IDataSourceProvider
     {
         private IVisualElementScheduledItem scheduledItem;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClassBinding"/> class.
-        /// </summary>
         public ClassBinding()
         {
             this.updateTrigger = BindingUpdateTrigger.OnSourceChanged;
@@ -26,9 +20,6 @@ namespace BovineLabs.Anchor
         [CreateProperty]
         public PropertyPath dataSourcePath { get; set; }
 
-        /// <summary>
-        /// Gets or sets the USS class that will be toggled on the target element.
-        /// </summary>
         [CreateProperty]
         [UxmlAttribute("class")]
         public string Class { get; set; }
@@ -38,9 +29,6 @@ namespace BovineLabs.Anchor
         [UxmlAttribute("delay")]
         public bool Delay { get; set; }
 
-        /// <summary>
-        /// Gets or sets convenience accessor for setting the data source path using a string value.
-        /// </summary>
         [UxmlAttribute("data-source-path")]
         public string DataSourcePathString
         {

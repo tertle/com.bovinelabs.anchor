@@ -3,12 +3,12 @@
     using System;
     using Unity.Collections.LowLevel.Unsafe;
 
-    /// <summary> The interfacing for supporting binding and your view model from burst. Should only be applied to structs. </summary>
-    /// <typeparam name="T"> The type of the inherited struct. </typeparam>
+    /// <summary>
+    /// Implement on structs only; T is the implementing struct.
+    /// </summary>
     public interface IBindingObjectNotify<T> : IBindingObjectNotify
         where T : unmanaged
     {
-        /// <summary>Gets a reference to the unmanaged data backing the binding.</summary>
         ref T Value { get; }
 
         void Pin();

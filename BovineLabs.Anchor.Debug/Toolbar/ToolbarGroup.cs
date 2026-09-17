@@ -21,9 +21,6 @@
 
         public List<Tab> Groups { get; } = new();
 
-        /// <summary>
-        /// Represents a toolbar tab entry inside a group.
-        /// </summary>
         public class Tab
         {
             public Tab(int id, string name, ToolbarTabElement container, ToolbarGroup group, VisualElement view)
@@ -35,19 +32,14 @@
                 this.View = view;
             }
 
-            /// <summary> Gets the name of the group, shown below. </summary>
             public string Name { get; }
 
-            /// <summary>Gets the unique identifier assigned to this tab.</summary>
             public int ID { get; }
 
-            /// <summary> Gets the root visual element of the tab. </summary>
             public ToolbarTabElement Container { get; }
 
-            /// <summary>Gets the owning toolbar group.</summary>
             public ToolbarGroup Group { get; }
 
-            /// <summary>Gets the instantiated view associated with the tab.</summary>
             public VisualElement View { get; }
         }
     }

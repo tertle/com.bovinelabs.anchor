@@ -6,9 +6,6 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Base class for Anchor navigation animations.
-    /// </summary>
     [AutoRef("AnchorSettings", "animations", nameof(AnchorNavAnimation), "UI/Animations")]
     public abstract class AnchorNavAnimation : ScriptableObject, IUID
     {
@@ -29,20 +26,12 @@ namespace BovineLabs.Anchor.Nav
 
         public int ID => this.id;
 
-        /// <summary>
-        /// Gets the easing function to use for the animation.
-        /// </summary>
         protected abstract Func<float, float> EasingFunction { get; }
 
-        /// <summary> Gets the callback to call when the animation is running. </summary>
         protected abstract Action<VisualElement, float> Callback { get; }
 
         protected virtual int DefaultDuration => 150;
 
-        /// <summary>
-        /// Gets the animation description for this animation.
-        /// </summary>
-        /// <returns>Animation description used by UI Toolkit animations.</returns>
         public AnimationDescription GetDescription()
         {
             return new AnimationDescription

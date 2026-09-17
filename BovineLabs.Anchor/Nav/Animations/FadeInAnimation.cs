@@ -4,7 +4,6 @@
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
-    /// <summary> Fade in animation. </summary>
     public class FadeInAnimation : AnchorNavAnimation
     {
         protected override Func<float, float> EasingFunction { get; } = Easing.OutCubic;

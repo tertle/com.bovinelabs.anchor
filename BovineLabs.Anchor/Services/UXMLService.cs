@@ -7,9 +7,6 @@ namespace BovineLabs.Anchor.Services
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Default implementation that looks up view templates from <see cref="AnchorSettings"/>.
-    /// </summary>
     [Preserve]
     [UsedImplicitly]
     public class UXMLService : IUXMLService

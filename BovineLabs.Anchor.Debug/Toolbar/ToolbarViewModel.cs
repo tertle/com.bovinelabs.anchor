@@ -8,9 +8,6 @@
     using Unity.Properties;
     using UnityEngine.Scripting;
 
-    /// <summary>
-    /// View model that keeps track of toolbar filter selections and persistence.
-    /// </summary>
     [Preserve]
     [IsService]
     public class ToolbarViewModel : ObservableObject
@@ -23,10 +20,6 @@
         private readonly List<int> filterValuesPrevious = new();
         private readonly List<int> filterValues = new();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ToolbarViewModel"/> class.
-        /// </summary>
-        /// <param name="storageService">Service used to persist filter selections.</param>
         [Preserve]
         public ToolbarViewModel(ILocalStorageService storageService)
         {
@@ -38,13 +31,10 @@
             this.selectionsHidden.Remove(string.Empty);
         }
 
-        /// <summary>Gets the set of group names currently hidden by the filter dropdown.</summary>
         public IReadOnlyCollection<string> SelectionsHidden => this.selectionsHidden;
 
-        /// <summary>Gets the ordered list of filter names shown in the dropdown.</summary>
         public List<string> FilterItems { get; } = new();
 
-        /// <summary>Gets or sets the indices of filter items that are currently selected.</summary>
         [CreateProperty]
         public IEnumerable<int> FilterValues
         {
@@ -81,8 +71,6 @@
             }
         }
 
-        /// <summary>Registers that a toolbar group with the specified filter name is now available.</summary>
-        /// <param name="filterName">Name used to identify the toolbar group.</param>
         public void AddSelection(string filterName)
         {
             this.selectionsCount.TryGetValue(filterName, out var count);
@@ -97,8 +85,6 @@
             this.selectionsCount[filterName] = count + 1;
         }
 
-        /// <summary>Unregisters a previously tracked toolbar group.</summary>
-        /// <param name="filterName">Name of the toolbar group being removed.</param>
         public void RemoveSelection(string filterName)
         {
             if (!this.selectionsCount.TryGetValue(filterName, out var currentValue))

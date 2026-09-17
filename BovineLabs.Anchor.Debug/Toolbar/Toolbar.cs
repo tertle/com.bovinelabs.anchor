@@ -16,15 +16,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Durable owner of toolbar registrations, models, persistence, and visual generations.
-    /// </summary>
     [Preserve]
     [Configurable]
     [IsService]
     public sealed unsafe class Toolbar : IAnchorToolbarHost, IDisposable
     {
-        /// <summary>Default polling interval in seconds for managed toolbar updates.</summary>
         public const float UpdateRateSeconds = 1 / 4f;
 
         private const string ActiveTabKey = "bl.active-tab";
@@ -49,12 +45,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         private bool isToolbarHidden;
         private bool disposed;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Toolbar"/> class.
-        /// </summary>
-        /// <param name="serviceProvider">Anchor service provider used to resolve managed auto-toolbar models.</param>
-        /// <param name="viewModel">Durable toolbar filter model.</param>
-        /// <param name="storageService">Persistence layer for toolbar chrome state.</param>
         [Preserve]
         public Toolbar(IServiceProvider serviceProvider, ToolbarViewModel viewModel, ILocalStorageService storageService)
             : this(serviceProvider, viewModel, storageService, ReflectionUtility.GetAllWithAttribute<AutoToolbarAttribute>())
@@ -156,15 +146,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
-        /// <summary>
-        /// Registers a new ECS-backed toolbar model and returns its pinned data pointer.
-        /// </summary>
-        /// <typeparam name="TModel">Toolbar model type.</typeparam>
-        /// <typeparam name="TData">Unmanaged binding data type.</typeparam>
-        /// <param name="tabName">Toolbar tab name.</param>
-        /// <param name="elementName">Toolbar group/filter name.</param>
-        /// <param name="data">Pinned data pointer used by the registering ECS system.</param>
-        /// <returns>An opaque handle used to remove the registration.</returns>
         public ToolbarRegistrationHandle Register<TModel, TData>(string tabName, string elementName, out TData* data)
             where TModel : class, IToolbarElement, IBindingObjectNotify<TData>, new()
             where TData : unmanaged
@@ -219,9 +200,6 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             }
         }
 
-        /// <summary>Removes a durable toolbar registration.</summary>
-        /// <param name="handle">Handle returned when the registration was created.</param>
-        /// <returns><c>true</c> when a live registration was removed; otherwise <c>false</c>.</returns>
         internal bool Remove(ToolbarRegistrationHandle handle)
         {
             if (handle.OwnerId != this.ownerId || !this.registrations.Remove(handle.RegistrationId, out var registration))

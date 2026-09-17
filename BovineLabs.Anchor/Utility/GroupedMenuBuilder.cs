@@ -5,7 +5,6 @@ namespace BovineLabs.Anchor
     using Unity.AppUI.UI;
     using Unity.Scripting.LifecycleManagement;
 
-    /// <summary> Extension helpers for building large AppUI menus with balanced submenus. </summary>
     public static class GroupedMenuBuilder
     {
         private const string FallbackGroupKey = "#";
@@ -13,14 +12,12 @@ namespace BovineLabs.Anchor
         [NoAutoStaticsCleanup]
         private static readonly IComparer<string> DefaultComparer = StringComparer.OrdinalIgnoreCase;
 
-        /// <summary> Adds actions to a menu, grouping by first letter when the item count exceeds the configured menu cap. </summary>
         public static MenuBuilder AddGroupedActions<T>(
             this MenuBuilder builder, IReadOnlyList<T> items, Func<T, string> labelSelector, Action<T> callback, GroupedMenuBuilderOptions options = default)
         {
             return builder.AddGroupedActions(items, labelSelector, null, null, callback, options);
         }
 
-        /// <summary> Adds actions to a menu, grouping first by a caller-owned key and then by label prefixes for oversized groups. </summary>
         public static MenuBuilder AddGroupedActions<T>(
             this MenuBuilder builder, IReadOnlyList<T> items, Func<T, string> labelSelector, Func<T, string> primaryGroupSelector, Action<T> callback,
             GroupedMenuBuilderOptions options = default)
@@ -28,7 +25,6 @@ namespace BovineLabs.Anchor
             return builder.AddGroupedActions(items, labelSelector, primaryGroupSelector, null, callback, options);
         }
 
-        /// <summary> Adds actions to a menu, grouping first by a caller-owned key and using a caller-owned group order. </summary>
         public static MenuBuilder AddGroupedActions<T>(
             this MenuBuilder builder, IReadOnlyList<T> items, Func<T, string> labelSelector, Func<T, string> primaryGroupSelector,
             IComparer<string> primaryGroupComparer, Action<T> callback, GroupedMenuBuilderOptions options = default)

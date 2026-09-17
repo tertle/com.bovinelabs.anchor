@@ -8,9 +8,6 @@
     using Unity.Entities;
 
     // [StructLayout(LayoutKind.Explicit)] // this broke the assembly
-    /// <summary>
-    /// Lightweight wrapper that can represent several native collection types through a single interface.
-    /// </summary>
     public struct MultiContainer<T>
         where T : unmanaged, IEquatable<T>
     {
@@ -25,7 +22,6 @@
             HashSet = 2,
         }
 
-        /// <summary>Gets a value indicating whether the underlying container has been allocated.</summary>
         public bool IsCreated => this.type switch
         {
             ContainerType.Array => this.array.IsCreated,
@@ -33,7 +29,6 @@
             _ => throw new ArgumentOutOfRangeException(),
         };
 
-        /// <summary>Gets the length of the underlying array container.</summary>
         public int Length
         {
             get
@@ -43,7 +38,6 @@
             }
         }
 
-        /// <summary>Provides read-only indexed access when the container wraps an array.</summary>
         public T this[int index]
         {
             get
@@ -53,9 +47,6 @@
             }
         }
 
-        /// <summary>Creates a container backed by the provided native array.</summary>
-        /// <param name="array">Array whose contents will be exposed.</param>
-        /// <returns>A multi-container that wraps the array.</returns>
         public static implicit operator MultiContainer<T>(NativeArray<T> array)
         {
             return new MultiContainer<T>
@@ -65,9 +56,6 @@
             };
         }
 
-        /// <summary>Creates a container backed by a read-only native array.</summary>
-        /// <param name="array">Read-only array whose contents will be exposed.</param>
-        /// <returns>A multi-container that wraps the array.</returns>
         public static implicit operator MultiContainer<T>(NativeArray<T>.ReadOnly array)
         {
             return new MultiContainer<T>
@@ -77,9 +65,6 @@
             };
         }
 
-        /// <summary>Creates a container backed by a native list.</summary>
-        /// <param name="list">List whose contents will be exposed.</param>
-        /// <returns>A multi-container that wraps the list.</returns>
         public static implicit operator MultiContainer<T>(NativeList<T> list)
         {
             return new MultiContainer<T>
@@ -89,9 +74,6 @@
             };
         }
 
-        /// <summary>Creates a container backed by a dynamic buffer.</summary>
-        /// <param name="list">Buffer whose contents will be exposed.</param>
-        /// <returns>A multi-container that wraps the buffer.</returns>
         public static implicit operator MultiContainer<T>(DynamicBuffer<T> list)
         {
             return new MultiContainer<T>
@@ -101,9 +83,6 @@
             };
         }
 
-        /// <summary>Creates a container backed by a native hash set.</summary>
-        /// <param name="hashSet">Hash set whose contents will be exposed.</param>
-        /// <returns>A multi-container that wraps the hash set.</returns>
         public static implicit operator MultiContainer<T>(NativeHashSet<T> hashSet)
         {
             return new MultiContainer<T>
@@ -113,9 +92,6 @@
             };
         }
 
-        /// <summary>Creates a container backed by a read-only native hash set.</summary>
-        /// <param name="hashSet">Read-only hash set whose contents will be exposed.</param>
-        /// <returns>A multi-container that wraps the hash set.</returns>
         public static implicit operator MultiContainer<T>(NativeHashSet<T>.ReadOnly hashSet)
         {
             return new MultiContainer<T>
@@ -125,8 +101,6 @@
             };
         }
 
-        /// <summary>Returns the wrapped data as a native array.</summary>
-        /// <returns>The underlying array in read-only form.</returns>
         public NativeArray<T>.ReadOnly AsArray()
         {
             Debug.Assert(this.type == ContainerType.Array, "AsArray used on non array");

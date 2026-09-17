@@ -5,9 +5,6 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// App UI floating-point touch slider with Anchor's overflow and focused-editing fixes.
-    /// </summary>
     [UxmlElement]
     public partial class AnchorTouchSliderFloat : TouchSliderFloat, INotifyBindablePropertyChanged
     {
@@ -20,18 +17,12 @@ namespace BovineLabs.Anchor.Elements
             remove => this.BindingPropertyChanged -= value;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorTouchSliderFloat"/> class.
-        /// </summary>
         public AnchorTouchSliderFloat()
         {
             this.progressElement = this.Q<VisualElement>(TouchSlider<float>.progressUssClassName);
             AnchorTouchSlider.Initialize(this);
         }
 
-        /// <summary>
-        /// Gets or sets the slider size and publishes binding notifications missing from App UI's implementation.
-        /// </summary>
         public new Size size
         {
             get => base.size;
@@ -47,9 +38,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>
-        /// Gets or sets the optional label and publishes binding notifications missing from App UI's implementation.
-        /// </summary>
         public new string label
         {
             get => base.label;

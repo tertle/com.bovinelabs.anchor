@@ -7,16 +7,11 @@ namespace BovineLabs.Anchor.Nav
     using BovineLabs.Core.Utility;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// VisualElement that manages Anchor navigation by keeping track of the active stack, back stack, and popup overlays.
-    /// </summary>
     [UxmlElement]
     public partial class AnchorNavHost : VisualElement, IAnchorNavHost
     {
-        /// <summary> The NavHost main styling class. </summary>
         private const string USSClassName = "appui-navhost";
 
-        /// <summary> The NavHost container styling class. </summary>
         private const string ContainerUssClassName = USSClassName + "__container";
 
         private readonly VisualElement container;
@@ -32,11 +27,6 @@ namespace BovineLabs.Anchor.Nav
         private AnchorNavAnimation currentPopExitAnimation;
         private AnchorNavAnimation currentPopEnterAnimation;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class with predefined actions and animations.
-        /// </summary>
-        /// <param name="actions">Named actions that can be invoked for navigation.</param>
-        /// <param name="animations">Named animations that can be invoked by key.</param>
         public AnchorNavHost(IEnumerable<AnchorAction> actions, IEnumerable<AnchorNavAnimation> animations)
             : this()
         {
@@ -44,9 +34,6 @@ namespace BovineLabs.Anchor.Nav
             this.RegisterAnimations(animations);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorNavHost"/> class.
-        /// </summary>
         public AnchorNavHost()
         {
             this.AddToClassList(USSClassName);
@@ -62,32 +49,27 @@ namespace BovineLabs.Anchor.Nav
             this.RegisterAllActions();
         }
 
-        /// <summary> Event that is triggered when a new destination is entered. </summary>
         public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> EnteredDestination;
 
-        /// <summary> Event that is triggered when a destination is exited. </summary>
         public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> ExitedDestination;
 
-        /// <summary> Event that is invoked when an action is triggered. </summary>
         public event Action<AnchorNavHost, AnchorNavAction> ActionTriggered;
 
-        /// <summary> Event that is invoked when the current destination changes. </summary>
         public event Action<AnchorNavHost, string> DestinationChanged;
 
-        /// <summary> Gets or sets a value indicating whether the navigation host can receive focus. </summary>
         public override sealed bool focusable
         {
             get => base.focusable;
             set => base.focusable = value;
         }
 
-        /// <summary> Gets a value indicating whether returns true if there is a destination on the back stack that can be popped. </summary>
         public bool CanGoBack => this.backStack.Count > 0;
 
-        /// <summary> Gets a value indicating whether there are popup overlays active on top of the base panel. </summary>
         public bool HasActivePopups => this.activeStack.Any(e => e.IsPopup);
 
-        /// <summary> Gets or sets the reported current destination. Setting this value does not navigate or update either stack. </summary>
+        /// <summary>
+        /// Setting this value does not navigate or update either stack.
+        /// </summary>
         public string CurrentDestination
         {
             get => this.currentDestination;
@@ -103,18 +85,10 @@ namespace BovineLabs.Anchor.Nav
             }
         }
 
-        /// <summary> Gets the container that will hold the current <see cref="NavigationScreen"/>. </summary>
         public override VisualElement contentContainer => this.container.contentContainer;
 
-        /// <summary> Gets the last entry on the back stack. </summary>
         private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
 
-        /// <summary>
-        /// Try to resolve a registered animation by name.
-        /// </summary>
-        /// <param name="id">The animation id.</param>
-        /// <param name="animation">The animation definition.</param>
-        /// <returns>True if the animation was found.</returns>
         public bool TryGetAnimation(int id, out AnchorNavAnimation animation)
         {
             if (id == 0)
@@ -126,10 +100,6 @@ namespace BovineLabs.Anchor.Nav
             return this.animations.TryGetValue(id, out animation);
         }
 
-        /// <summary>
-        /// Register an animation by name for lookup during navigation.
-        /// </summary>
-        /// <param name="animation">The animation definition.</param>
         private void RegisterAnimation(AnchorNavAnimation animation)
         {
             if (animation == null)

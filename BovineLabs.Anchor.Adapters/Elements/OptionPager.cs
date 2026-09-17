@@ -6,9 +6,6 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Alternative to a dropdown that lets users cycle through options with previous/next buttons.
-    /// </summary>
     [UxmlElement]
     public partial class OptionPager : VisualElement
     {
@@ -47,7 +44,6 @@ namespace BovineLabs.Anchor.Elements
         private string m_nextButtonIcon = "caret-right";
         private bool m_showIndicator = true;
 
-        /// <summary>Initializes a new instance of the <see cref="OptionPager"/> class.</summary>
         public OptionPager()
         {
             this.AddToClassList(UssClassName);
@@ -116,21 +112,16 @@ namespace BovineLabs.Anchor.Elements
             this.ApplySelection(sendChangeEvent: false, notifyBindings: false);
         }
 
-        /// <summary>Gets the previous navigation button.</summary>
         public ActionButton PreviousButton => this.m_previousButton;
 
-        /// <summary>Gets the next navigation button.</summary>
         public ActionButton NextButton => this.m_nextButton;
 
-        /// <summary>Gets the dropdown item element that renders the selected option.</summary>
         public DropdownItem SelectedItemElement => this.m_selectedItemElement;
 
-        /// <summary>Gets the page indicator used to visualize selection position.</summary>
         public PageIndicator Indicator => this.m_pageIndicator;
 
         /// <summary>
-        /// Gets or sets the source items collection.
-        /// When <see cref="bindItem"/> is null, each item is rendered using <see cref="object.ToString"/>.
+        /// Without a bindItem callback, items render using object.ToString.
         /// </summary>
         [CreateProperty]
         public IList sourceItems
@@ -156,13 +147,9 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets the number of available options.</summary>
         [CreateProperty]
         public int optionsCount => this.m_sourceItems?.Count ?? 0;
 
-        /// <summary>
-        /// Gets or sets the function used to bind the selected source item to the center text.
-        /// </summary>
         [CreateProperty]
         public Dropdown.BindItemFunc bindItem
         {
@@ -181,7 +168,7 @@ namespace BovineLabs.Anchor.Elements
         }
 
         /// <summary>
-        /// Gets or sets the selected index. Values are clamped into the current options range.
+        /// Clamped to the current options range.
         /// </summary>
         [CreateProperty]
         [UxmlAttribute]
@@ -200,13 +187,9 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets the display text of the selected option.</summary>
         [CreateProperty]
         public string selectedText => this.m_selectedText;
 
-        /// <summary>
-        /// Gets or sets a value indicating whether next/previous wraps around at the list bounds.
-        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public bool wrap
@@ -225,9 +208,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>
-        /// Gets or sets the text shown when there is no available option.
-        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public string emptyText
@@ -248,9 +228,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>
-        /// Gets or sets the previous button icon.
-        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public string previousButtonIcon
@@ -271,9 +248,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>
-        /// Gets or sets the next button icon.
-        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public string nextButtonIcon
@@ -294,9 +268,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the page indicator is visible.
-        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public bool showIndicator

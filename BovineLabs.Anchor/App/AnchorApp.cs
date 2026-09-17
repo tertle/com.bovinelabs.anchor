@@ -16,15 +16,11 @@ namespace BovineLabs.Anchor
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Root Anchor application that wires the navigation stack, toolbar integration, and Burst-safe helpers.
-    /// </summary>
     [Preserve]
     [UsedImplicitly]
     [Configurable]
     public class AnchorApp : IDisposable
     {
-        /// <summary>The default name for the service tab exposed in the toolbar.</summary>
         public const string DefaultServiceTabName = "Service";
 
 #if CUSTOM_SAFE_AREA
@@ -42,27 +38,19 @@ namespace BovineLabs.Anchor
 
         internal bool RestoringNavigationState { get; set; }
 
-        /// <summary>
-        /// Event raised when the app detects screen-space metric changes such as size or safe-area updates.
-        /// </summary>
         public event Action<AnchorScreenMetrics> ScreenMetricsChanged;
 
-        /// <summary>Gets the currently running <see cref="AnchorApp"/>.</summary>
         [NoAutoStaticsCleanup]
         public static AnchorApp Current { get; private set; }
 
         public static Rect SafeArea => GetSafeArea();
 
-        /// <summary>Gets the app panel host abstraction.</summary>
         public IAnchorPanel Panel { get; private set; }
 
-        /// <summary>Gets the current app service provider.</summary>
         public IServiceProvider Services { get; private set; }
 
-        /// <summary>Gets the root visual element hosting the app content.</summary>
         public VisualElement RootVisualElement { get; private set; }
 
-        /// <summary>Gets or sets the theme retained across visual generations.</summary>
         public string Theme
         {
             get => this.Panel?.Theme ?? this.theme;
@@ -77,7 +65,6 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <summary>Gets or sets the scale retained across visual generations.</summary>
         public string Scale
         {
             get => this.Panel?.Scale ?? this.scale;
@@ -92,19 +79,14 @@ namespace BovineLabs.Anchor
             }
         }
 
-        /// <summary>Gets the name used for the default service tab added to the toolbar.</summary>
         public virtual string ServiceTabName => DefaultServiceTabName;
 
-        /// <summary>Gets or sets the navigation host that manages screen transitions.</summary>
         public IAnchorNavHost NavHost { get; set; }
 
-        /// <summary>Gets the container that holds popup visual elements instantiated by the app.</summary>
         public VisualElement PopupContainer { get; private set; }
 
-        /// <summary>Gets the container that displays notification visuals.</summary>
         public VisualElement NotificationContainer { get; private set; }
 
-        /// <summary>Gets the container that manages tooltip content.</summary>
         public VisualElement TooltipContainer { get; private set; }
 
         internal void Initialize(IServiceProvider provider)
@@ -195,9 +177,6 @@ namespace BovineLabs.Anchor
             return Screen.safeArea;
         }
 
-        /// <summary>
-        /// Configures the root visual tree, initializes the navigation host, and registers toolbars and containers.
-        /// </summary>
         public virtual void Initialize()
         {
             this.RootVisualElement.pickingMode = PickingMode.Ignore;

@@ -4,9 +4,6 @@
     using Unity.Scripting.LifecycleManagement;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// An animation description. It contains the duration of the animation, the easing function and the callback.
-    /// </summary>
     public struct AnimationDescription
     {
         [NoAutoStaticsCleanup]
@@ -18,18 +15,12 @@
         };
 
         /// <summary>
-        /// The duration of the animation in milliseconds.
+        /// Duration in milliseconds.
         /// </summary>
         public int DurationMs;
 
-        /// <summary>
-        /// The easing function to use for the animation.
-        /// </summary>
         public Func<float, float> Easing;
 
-        /// <summary>
-        /// The callback to call when the animation is running.
-        /// </summary>
         public Action<VisualElement, float> Callback;
     }
 }

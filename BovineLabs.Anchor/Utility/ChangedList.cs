@@ -4,9 +4,6 @@
     using BovineLabs.Core.Extensions;
     using Unity.Collections;
 
-    /// <summary>
-    /// Tracks whether a native list has been mutated since the last read.
-    /// </summary>
     public struct ChangedList<T>
         where T : unmanaged
     {
@@ -14,10 +11,8 @@
         private bool changed;
 
         /// <summary>
-        /// Implicitly wraps a native list and marks it as changed.
+        /// Conversion marks the list as changed.
         /// </summary>
-        /// <param name="value">Native list to track.</param>
-        /// <returns>A new tracker representing the supplied list.</returns>
         public static implicit operator ChangedList<T>(NativeList<T> value)
         {
             return new ChangedList<T>
@@ -27,8 +22,6 @@
             };
         }
 
-        /// <summary>Replaces the contents of the list and marks the value as changed.</summary>
-        /// <param name="values">Values that should replace the list contents.</param>
         public void SetValue(IEnumerable<T> values)
         {
             this.Value.Clear();
@@ -36,8 +29,6 @@
             this.changed = true;
         }
 
-        /// <summary>Adds a single value and marks the list as changed.</summary>
-        /// <param name="value">Item to append to the list.</param>
         public void Add(T value)
         {
             this.Value.Add(value);
@@ -45,10 +36,8 @@
         }
 
         /// <summary>
-        /// Returns the backing list when it has changed since the last call.
+        /// Reports changes since the previous call.
         /// </summary>
-        /// <param name="value">The list reference.</param>
-        /// <returns>True if the list was marked as changed.</returns>
         public bool GetIfChanged(out NativeList<T> value)
         {
             value = this.Value;

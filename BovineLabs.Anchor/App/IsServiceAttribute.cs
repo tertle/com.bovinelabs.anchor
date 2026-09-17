@@ -4,9 +4,8 @@
     using JetBrains.Annotations;
 
     /// <summary>
-    /// Indicates that a non-visual class or interface is a service and should be automatically registered with the Anchor service container.
+    /// Automatically registers non-visual services; VisualElement implementations are rejected.
     /// </summary>
-    /// <remarks><see cref="UnityEngine.UIElements.VisualElement"/> implementations are rejected by the service collection.</remarks>
     [MeansImplicitUse]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class IsServiceAttribute : Attribute

@@ -4,21 +4,17 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine.UIElements;
 
     /// <summary>
-    /// Safe-area-aware container that applies padding only for the unsafe edges overlapped by its own bounds.
+    /// Applies safe-area padding only to unsafe edges overlapped by this element's own bounds.
     /// </summary>
     [UxmlElement]
     public partial class AnchorSafeArea : VisualElement // ExVisualElement TODO figure out issues with this
     {
-        /// <summary>The main styling class for the safe-area wrapper.</summary>
         public const string UssClassName = "bl-anchor-safe-area";
 
         private AnchorApp anchorApp;
         private VisualElement panelRoot;
         private AnchorSafeAreaEdges safeAreaEdges = AnchorSafeAreaEdges.All;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorSafeArea"/> class.
-        /// </summary>
         public AnchorSafeArea()
         {
             this.AddToClassList(UssClassName);
@@ -28,9 +24,6 @@ namespace BovineLabs.Anchor.Elements
             this.RegisterCallback<GeometryChangedEvent>(this.OnGeometryChanged);
         }
 
-        /// <summary>
-        /// Gets or sets the unsafe edges that should be applied when overlapped.
-        /// </summary>
         [UxmlAttribute("edges")]
         [CreateProperty]
         public AnchorSafeAreaEdges Edges

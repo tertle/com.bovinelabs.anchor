@@ -12,10 +12,6 @@
     using Unity.Collections;
     using UnityEngine;
 
-    /// <summary>
-    /// Observable object base class that exposes unmanaged data for burst-compatible bindings.
-    /// </summary>
-    /// <typeparam name="T"> The unmanaged data. </typeparam>
     [IsService]
     [Serializable]
     public abstract class SystemObservableObject<T> : ObservableObject, IBindingObjectNotify<T>

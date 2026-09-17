@@ -7,19 +7,13 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// App UI linear progress that supports horizontal or vertical fill and an optional alpha mask.
-    /// </summary>
     [UxmlElement]
     public partial class AnchorLinearProgress : LinearProgress
     {
-        /// <summary>Anchor styling class.</summary>
         public const string UssClassName = "bl-anchor-linear-progress";
 
-        /// <summary>Direction styling class prefix.</summary>
         public const string DirectionUssClassName = UssClassName + "--";
 
-        /// <summary>USS custom property for the fill texture.</summary>
         public const string FillTextureUssPropertyName = "--bl-anchor-linear-progress-fill-texture";
 
         private const string ShaderResourcePath = "BovineLabs.Anchor/AnchorLinearProgress";
@@ -56,7 +50,6 @@ namespace BovineLabs.Anchor.Elements
         private Texture2D m_fillTextureFromStyle;
         private Texture2D m_maskTexture;
 
-        /// <summary>Initializes a new instance of the <see cref="AnchorLinearProgress"/> class.</summary>
         public AnchorLinearProgress()
         {
             this.RemoveFromClassList(LinearProgress.ussClassName);
@@ -66,7 +59,9 @@ namespace BovineLabs.Anchor.Elements
             this.RegisterCallback<CustomStyleResolvedEvent>(this.OnCustomStylesResolved);
         }
 
-        /// <summary>Gets or sets the progress axis. Vertical progress follows the active App UI layout direction.</summary>
+        /// <summary>
+        /// Vertical progress follows the active App UI layout direction.
+        /// </summary>
         [CreateProperty]
         [UxmlAttribute]
         public Direction direction
@@ -87,7 +82,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the texture revealed by the progress and buffer values.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public Texture2D fillTexture
@@ -112,7 +106,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the texture whose alpha clips the complete progress render.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public Texture2D maskTexture

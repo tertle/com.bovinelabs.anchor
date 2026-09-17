@@ -6,9 +6,6 @@
     using Unity.Collections;
     using Unity.Entities;
 
-    /// <summary>
-    /// Synchronizes DOTS component states with the currently active Anchor navigation destination.
-    /// </summary>
     [WorldSystemFilter(WorldSystemFilterFlags.Presentation | Worlds.Menu)]
     [UpdateInGroup(typeof(UISystemGroup))]
     public partial struct NavigationStateSystem : ISystem

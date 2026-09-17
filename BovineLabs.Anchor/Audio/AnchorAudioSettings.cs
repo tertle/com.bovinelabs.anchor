@@ -4,13 +4,9 @@ namespace BovineLabs.Anchor.Audio
     using System.Collections.Generic;
     using UnityEngine;
 
-    /// <summary>
-    /// Audio feedback configuration for Anchor UI.
-    /// </summary>
     [Serializable]
     public sealed class AnchorAudioSettings
     {
-        /// <summary>The standard Anchor UI audio profile key.</summary>
         public const string DefaultProfileKey = "default";
 
         [SerializeField]

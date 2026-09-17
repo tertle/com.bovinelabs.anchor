@@ -4,9 +4,6 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// GridView variant that surfaces UXML attributes and bindings commonly needed by Anchor screens.
-    /// </summary>
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
@@ -19,9 +16,6 @@ namespace BovineLabs.Anchor.Elements
             this.bindItem = this.BindItem;
         }
 
-        /// <summary>
-        /// Gets or sets the visual tree asset cloned for each slot.
-        /// </summary>
         [UxmlAttribute]
         public VisualTreeAsset itemTemplate { get; set; }
 

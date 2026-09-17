@@ -7,7 +7,6 @@
     using Unity.Burst;
     using Unity.Entities;
 
-    /// <summary> The toolbar for monitoring the number of entities, chunks and archetypes of a world. </summary>
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     internal partial struct EntitiesToolbarSystem : ISystem, ISystemStartStop
     {

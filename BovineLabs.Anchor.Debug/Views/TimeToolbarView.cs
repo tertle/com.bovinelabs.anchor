@@ -16,7 +16,6 @@
     {
         public const string UssClassName = "bl-time-tab";
 
-        /// <summary> Initializes a new instance of the <see cref="TimeToolbarView" /> class. </summary>
         [Preserve]
         public TimeToolbarView(TimeToolbarViewModel viewModel)
         {

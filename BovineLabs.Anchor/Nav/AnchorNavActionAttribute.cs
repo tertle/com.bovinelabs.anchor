@@ -4,16 +4,11 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine.Scripting;
 
     /// <summary>
-    /// Attribute used to mark static parameterless methods that return navigation actions for
-    /// automatic registration with <see cref="AnchorNavHost"/>.
+    /// Automatic registration requires a static, parameterless method returning a navigation action.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class AnchorNavActionAttribute : PreserveAttribute
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorNavActionAttribute"/> class.
-        /// </summary>
-        /// <param name="name">The required unique action name.</param>
         public AnchorNavActionAttribute(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -24,7 +19,6 @@ namespace BovineLabs.Anchor.Nav
             this.Name = name;
         }
 
-        /// <summary>Gets the action name.</summary>
         public string Name { get; }
     }
 }

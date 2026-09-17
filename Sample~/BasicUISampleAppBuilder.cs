@@ -5,7 +5,6 @@ namespace BovineLabs.Anchor.Samples.BasicUI
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>Builds the sample app and opens its UXML screen.</summary>
     public sealed class BasicUISampleAppBuilder : AnchorAppBuilder, IUXMLService
     {
         private const string Destination = "anchor-basic-ui";

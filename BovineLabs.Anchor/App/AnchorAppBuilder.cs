@@ -13,19 +13,10 @@
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Default app builder that scaffolds an <see cref="AnchorApp"/> with the standard Anchor services.
-    /// </summary>
     public class AnchorAppBuilder : AnchorAppBuilder<AnchorApp>
     {
     }
 
-    /// <summary>
-    /// <para>A MonoBehaviour that can be used to build and host an app in a UI Toolkit panel component.</para>
-    /// <para>Uses a <see cref="PanelRenderer"/> to host the app root.</para>
-    /// <para>This class is intended to be used as a base class for a MonoBehaviour that is attached to a GameObject in a scene.</para>
-    /// </summary>
-    /// <typeparam name="T">The type of the app to build.</typeparam>
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
     [RequireComponent(typeof(PanelRenderer))]
     public abstract class AnchorAppBuilder<T> : MonoBehaviour
@@ -52,11 +43,8 @@
         protected virtual Type UXMLService { get; } = typeof(UXMLService);
 
         /// <summary>
-        /// Gets the panel type used for the app root.
+        /// Must implement IAnchorPanel and have a public parameterless constructor.
         /// </summary>
-        /// <remarks>
-        /// The type must implement <see cref="IAnchorPanel"/> and provide a public parameterless constructor.
-        /// </remarks>
         protected virtual Type PanelType { get; } = typeof(AnchorPanel);
 
         private void Awake()
@@ -176,10 +164,6 @@
             }
         }
 
-        /// <summary>
-        /// Creates the panel host for the app root.
-        /// </summary>
-        /// <returns>Panel implementation used by this app instance.</returns>
         private IAnchorPanel CreatePanel()
         {
             var panelType = this.PanelType ?? typeof(AnchorPanel);

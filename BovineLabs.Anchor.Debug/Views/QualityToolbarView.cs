@@ -11,7 +11,6 @@
     {
         public const string UssClassName = "bl-quality-tab";
 
-        /// <summary> Initializes a new instance of the <see cref="QualityToolbarView" /> class. </summary>
         [Preserve]
         public QualityToolbarView(QualityToolbarViewModel viewModel)
         {

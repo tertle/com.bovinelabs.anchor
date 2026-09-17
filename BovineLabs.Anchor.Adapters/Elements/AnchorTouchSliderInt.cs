@@ -5,9 +5,6 @@ namespace BovineLabs.Anchor.Elements
     using Unity.AppUI.UI;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// App UI integer touch slider with Anchor's overflow and focused-editing fixes.
-    /// </summary>
     [UxmlElement]
     public partial class AnchorTouchSliderInt : TouchSliderInt, INotifyBindablePropertyChanged
     {
@@ -20,18 +17,12 @@ namespace BovineLabs.Anchor.Elements
             remove => this.BindingPropertyChanged -= value;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnchorTouchSliderInt"/> class.
-        /// </summary>
         public AnchorTouchSliderInt()
         {
             this.progressElement = this.Q<VisualElement>(TouchSlider<int>.progressUssClassName);
             AnchorTouchSlider.Initialize(this);
         }
 
-        /// <summary>
-        /// Gets or sets the slider size and publishes binding notifications missing from App UI's implementation.
-        /// </summary>
         public new Size size
         {
             get => base.size;
@@ -47,9 +38,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>
-        /// Gets or sets the optional label and publishes binding notifications missing from App UI's implementation.
-        /// </summary>
         public new string label
         {
             get => base.label;

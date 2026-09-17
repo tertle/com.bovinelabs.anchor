@@ -9,10 +9,6 @@ namespace BovineLabs.Anchor.Nav
         private readonly Dictionary<int, AnchorNavHostSaveState> savedStates = new();
         private int nextStateHandle = 1;
 
-        /// <summary>
-        /// Captures the current visual stack, back stack, and popup configuration so it can be restored later.
-        /// </summary>
-        /// <returns>A snapshot containing the navigation state that can be supplied to <see cref="RestoreState"/>.</returns>
         public AnchorNavHostSaveState SaveState()
         {
             var activeItems = new List<AnchorNavHostSaveState.StackItem>(this.activeStack.Count);
@@ -44,10 +40,6 @@ namespace BovineLabs.Anchor.Nav
                 backStackEntries);
         }
 
-        /// <summary>
-        /// Restores a previously captured navigation snapshot.
-        /// </summary>
-        /// <param name="state">Snapshot created via <see cref="SaveState"/>.</param>
         public void RestoreState(AnchorNavHostSaveState state)
         {
             if (state == null)
@@ -87,8 +79,6 @@ namespace BovineLabs.Anchor.Nav
             this.CurrentDestination = state.CurrentDestination;
         }
 
-        /// <summary> Captures a navigation state snapshot and returns a handle to restore it later. </summary>
-        /// <returns> The handle. </returns>
         public int SaveStateHandle()
         {
             var state = this.SaveState();
@@ -97,10 +87,6 @@ namespace BovineLabs.Anchor.Nav
             return handle;
         }
 
-        /// <summary> Releases a navigation state snapshot, optionally restoring it first. </summary>
-        /// <param name="handle"> The handle to release. </param>
-        /// <param name="restore"> Should the UI state also be restored to the saved snapshot. </param>
-        /// <returns> True if the handle existed. </returns>
         public bool ReleaseStateHandle(int handle, bool restore = true)
         {
             if (!this.savedStates.Remove(handle, out var state))

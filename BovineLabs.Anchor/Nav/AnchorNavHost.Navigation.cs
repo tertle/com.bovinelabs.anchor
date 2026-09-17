@@ -10,15 +10,14 @@ namespace BovineLabs.Anchor.Nav
 
     public partial class AnchorNavHost
     {
-        /// <summary> Clear the back stack entirely. </summary>
-        /// <remarks> The current destination remains unchanged. </remarks>
+        /// <summary>
+        /// Leaves the current destination unchanged.
+        /// </summary>
         public void ClearBackStack()
         {
             this.backStack.Clear();
         }
 
-        /// <summary> Clear the active stack and back stack so no destination remains active. </summary>
-        /// <param name="exitAnimation"> Optional animation to use when removing the last active entry. </param>
         public void ClearNavigation(int exitAnimation = 0)
         {
             var animation = this.ResolveAnimation(exitAnimation);
@@ -26,19 +25,11 @@ namespace BovineLabs.Anchor.Nav
             this.ApplySnapshot(AnchorNavStackSnapshot.Empty, animation, null, new AnchorNavOptions());
         }
 
-        /// <summary> Navigate to the destination with the given name. </summary>
-        /// <param name="actionOrDestination"> The name of the action. </param>
-        /// <param name="argument"> The argument to pass to the destination. </param>
-        /// <returns> True if the navigation was successful. </returns>
         public bool Navigate(string actionOrDestination, AnchorNavArgument argument)
         {
             return this.Navigate(actionOrDestination, new[] { argument });
         }
 
-        /// <summary> Navigate to the destination with the given name. </summary>
-        /// <param name="actionOrDestination"> The name of the action. </param>
-        /// <param name="arguments"> The arguments to pass to the destination. </param>
-        /// <returns> True if the navigation was successful. </returns>
         public bool Navigate(string actionOrDestination, AnchorNavArgument[] arguments = null)
         {
             if (!this.TryResolveActionOrDestination(actionOrDestination, arguments, out var destination, out var options, out var mergedArguments))
@@ -49,21 +40,11 @@ namespace BovineLabs.Anchor.Nav
             return this.Navigate(destination, options, mergedArguments);
         }
 
-        /// <summary> Navigate to the destination with the given name. </summary>
-        /// <param name="destination"> The destination. </param>
-        /// <param name="options"> The options to use for the navigation. </param>
-        /// <param name="argument"> The argument to pass to the destination. </param>
-        /// <returns> True if the navigation was successful. </returns>
         public bool Navigate(string destination, AnchorNavOptions options, AnchorNavArgument argument)
         {
             return this.Navigate(destination, options, new[] { argument });
         }
 
-        /// <summary> Navigate to the destination with the given name. </summary>
-        /// <param name="destination"> The destination. </param>
-        /// <param name="options"> The options to use for the navigation. </param>
-        /// <param name="arguments"> The arguments to pass to the destination. </param>
-        /// <returns> True if the navigation was successful. </returns>
         public bool Navigate(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments = null)
         {
             options ??= new AnchorNavOptions();
@@ -123,23 +104,11 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        /// <summary>
-        /// Toggle a popup destination or action by dismissing the matching popup branch when active, otherwise navigating.
-        /// </summary>
-        /// <param name="actionOrDestination">The action or destination to toggle.</param>
-        /// <param name="argument">The argument to pass when navigating.</param>
-        /// <returns>True if the toggle was successful.</returns>
         public bool Toggle(string actionOrDestination, AnchorNavArgument argument)
         {
             return this.Toggle(actionOrDestination, new[] { argument });
         }
 
-        /// <summary>
-        /// Toggle a popup destination or action by dismissing the matching popup branch when active, otherwise navigating.
-        /// </summary>
-        /// <param name="actionOrDestination">The action or destination to toggle.</param>
-        /// <param name="arguments">The arguments to pass when navigating.</param>
-        /// <returns>True if the toggle was successful.</returns>
         public bool Toggle(string actionOrDestination, AnchorNavArgument[] arguments = null)
         {
             if (!this.TryResolveActionOrDestination(actionOrDestination, arguments, out var destination, out var options, out var mergedArguments))
@@ -155,23 +124,16 @@ namespace BovineLabs.Anchor.Nav
             return this.Navigate(destination, options, mergedArguments);
         }
 
-        /// <summary> Pop the current destination from the back stack and navigate to the previous destination. </summary>
-        /// <returns> True if the back stack was popped, false otherwise. </returns>
         public bool PopBackStack()
         {
             return this.PopBackStack(clearPopups: false);
         }
 
-        /// <summary> Pop the current destination and clear any popup overlays that were captured with it. </summary>
-        /// <returns> True if the back stack or popup stack was updated, false otherwise. </returns>
         public bool PopBackStackToPanel()
         {
             return this.PopBackStack(clearPopups: true);
         }
 
-        /// <summary> Close all currently-displayed popup overlays. </summary>
-        /// <param name="exitAnimation"> Optional animation ID to play when dismissing each popup. </param>
-        /// <returns> True if at least one popup was closed. </returns>
         public bool CloseAllPopups(int exitAnimation = 0)
         {
             var startIndex = this.FindFirstActivePopupIndex();
@@ -186,10 +148,6 @@ namespace BovineLabs.Anchor.Nav
             return true;
         }
 
-        /// <summary> Close a popup in the active stack that matches the provided destination. </summary>
-        /// <param name="destination"> The destination key of the popup to close. </param>
-        /// <param name="exitAnimation"> Optional animation ID to play when dismissing the popup. </param>
-        /// <returns> True if the popup was closed; otherwise, false. </returns>
         public bool ClosePopup(string destination, int exitAnimation = 0)
         {
             if (string.IsNullOrWhiteSpace(destination) || this.activeStack.Count == 0)

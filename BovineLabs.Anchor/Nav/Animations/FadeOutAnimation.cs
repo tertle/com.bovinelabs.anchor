@@ -4,7 +4,6 @@
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
-    /// <summary> Fade out animation. </summary>
     public class FadeOutAnimation : AnchorNavAnimation
     {
         protected override Func<float, float> EasingFunction { get; } = Easing.OutCubic;

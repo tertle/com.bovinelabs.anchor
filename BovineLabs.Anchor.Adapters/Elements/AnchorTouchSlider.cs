@@ -5,36 +5,19 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Shared Anchor behavior applied to App UI touch sliders.
-    /// </summary>
     internal static class AnchorTouchSlider
     {
-        /// <summary>
-        /// Additional class used to scope the overflow workaround override.
-        /// </summary>
         public const string WorkaroundUssClassName = "bl-touchslider-workaround";
 
         public static readonly BindingId SizeProperty = nameof(TouchSliderFloat.size);
         public static readonly BindingId LabelProperty = nameof(TouchSliderFloat.label);
 
-        /// <summary>
-        /// Adds Anchor's focused-editing behavior to an App UI touch slider.
-        /// </summary>
-        /// <param name="slider">The slider to initialize.</param>
         public static void Initialize(VisualElement slider)
         {
             slider.AddToClassList(WorkaroundUssClassName);
             slider.Q<UnityEngine.UIElements.TextField>(TouchSlider<float>.valueUssClassName).RegisterCallback<FocusEvent>(OnInputFocused);
         }
 
-        /// <summary>
-        /// Keeps App UI's progress fill inside the border while allowing the input editor to overflow.
-        /// </summary>
-        /// <param name="slider">The slider element.</param>
-        /// <param name="progress">The App UI progress element.</param>
-        /// <param name="orientation">The slider orientation.</param>
-        /// <param name="layoutDirection">The active layout direction.</param>
         public static void RefreshProgress(VisualElement slider, VisualElement progress, Direction orientation, Dir layoutDirection)
         {
             if (slider.panel == null || !slider.layout.IsValid())

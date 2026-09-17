@@ -3,10 +3,8 @@ namespace BovineLabs.Anchor.Binding
     using Unity.Scripting.LifecycleManagement;
     using UnityEngine.UIElements;
 
-    /// <summary>Utility class that registers converter groups needed by Anchor bindings.</summary>
     public static partial class Converters
     {
-        /// <summary> Registers the converter groups used to bridge booleans and display styles. </summary>
         [OnCodeInitializing]
         private static void RegisterConverters()
         {

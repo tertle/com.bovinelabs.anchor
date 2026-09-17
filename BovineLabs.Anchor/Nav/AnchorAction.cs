@@ -4,9 +4,6 @@ namespace BovineLabs.Anchor.Nav
     using BovineLabs.Core.Asset;
     using UnityEngine;
 
-    /// <summary>
-    /// Serializable pairing of an action name and its definition.
-    /// </summary>
     [Serializable]
     [AutoRef("AnchorSettings", "actions", nameof(AnchorAction), "UI/Actions")]
     public class AnchorAction : ScriptableObject
@@ -17,10 +14,8 @@ namespace BovineLabs.Anchor.Nav
         [SerializeField]
         private AnchorNavAction action = new();
 
-        /// <summary>Gets the unique action name.</summary>
         public string ActionName => this.actionName;
 
-        /// <summary>Gets the action definition.</summary>
         public AnchorNavAction Action => this.action ??= new AnchorNavAction();
     }
 }

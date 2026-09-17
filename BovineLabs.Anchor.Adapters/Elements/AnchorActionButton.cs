@@ -8,9 +8,6 @@ namespace BovineLabs.Anchor.Elements
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// ActionButton variant that exposes the click event data to bound commands.
-    /// </summary>
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
     [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
@@ -38,7 +35,6 @@ namespace BovineLabs.Anchor.Elements
             this.RegisterCallback<PointerEnterEvent>(this.OnAudioPointerEnter);
         }
 
-        /// <summary>Gets or sets the command invoked when the button is clicked with the event payload.</summary>
         [CreateProperty]
         public ICommand commandWithEventInfo
         {
@@ -53,7 +49,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the named audio profile key.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public string audioProfile
@@ -70,7 +65,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the hover audio override mode.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public AnchorAudioOverrideMode hoverAudioMode
@@ -86,7 +80,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the hover audio clip used when <see cref="hoverAudioMode"/> is custom.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public AudioClip hoverAudioClip
@@ -102,7 +95,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the activation audio override mode.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public AnchorAudioOverrideMode activateAudioMode
@@ -118,7 +110,6 @@ namespace BovineLabs.Anchor.Elements
             }
         }
 
-        /// <summary>Gets or sets the activation audio clip used when <see cref="activateAudioMode"/> is custom.</summary>
         [CreateProperty]
         [UxmlAttribute]
         public AudioClip activateAudioClip

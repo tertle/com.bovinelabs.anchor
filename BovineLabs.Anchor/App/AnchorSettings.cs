@@ -8,9 +8,6 @@
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Centralized configuration for Anchor UI behaviour, including views, navigation defaults, and debug styles.
-    /// </summary>
     [SettingsGroup("Anchor")]
     public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
@@ -34,25 +31,18 @@
         [SerializeField]
         private AnchorAudioSettings audio = new();
 
-        /// <summary>Gets the list of UXML assets that can be instantiated by key.</summary>
         public KeyUXML[] Views => this.views;
 
-        /// <summary>Gets the navigation destination that should be loaded when the app starts.</summary>
         public string StartDestination => this.startDestination;
 
-        /// <summary>Gets the collection of named navigation actions that are available globally.</summary>
         public IReadOnlyList<AnchorAction> Actions => this.actions;
 
-        /// <summary>Gets the collection of navigation animations that are available globally.</summary>
         public IReadOnlyList<AnchorNavAnimation> Animations => this.animations;
 
-        /// <summary>Gets any additional style sheets that should be injected while running in debug contexts.</summary>
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
 
-        /// <summary>Gets UI audio feedback settings.</summary>
         public AnchorAudioSettings Audio => this.audio;
 
-        /// <summary>Maps a unique string key to a visual tree asset.</summary>
         [Serializable]
         public class KeyUXML
         {

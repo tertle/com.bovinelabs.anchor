@@ -3,42 +3,22 @@ namespace BovineLabs.Anchor.MVVM
     using System;
     using System.ComponentModel;
 
-    /// <summary>
-    /// Generic relay command implementation.
-    /// </summary>
-    /// <typeparam name="T">Command parameter type.</typeparam>
     public sealed class RelayCommand<T> : IRelayCommand<T>
     {
         private readonly Action<T> execute;
         private readonly Predicate<T> canExecute;
         private readonly string[] observedProperties;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand{T}"/> class.
-        /// </summary>
-        /// <param name="execute">Execution callback.</param>
         public RelayCommand(Action<T> execute)
             : this(execute, null)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand{T}"/> class.
-        /// </summary>
-        /// <param name="execute">Execution callback.</param>
-        /// <param name="canExecute">Optional can-execute callback.</param>
         public RelayCommand(Action<T> execute, Predicate<T> canExecute)
             : this(execute, canExecute, null)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand{T}"/> class.
-        /// </summary>
-        /// <param name="execute">Execution callback.</param>
-        /// <param name="canExecute">Optional can-execute callback.</param>
-        /// <param name="propertyChangedSource">Optional property source that invalidates can-execute.</param>
-        /// <param name="observedProperties">Properties that invalidate can-execute when changed.</param>
         public RelayCommand(Action<T> execute, Predicate<T> canExecute, INotifyPropertyChanged propertyChangedSource, params string[] observedProperties)
         {
             this.execute = execute ?? throw new ArgumentNullException(nameof(execute));

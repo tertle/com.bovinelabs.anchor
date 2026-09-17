@@ -15,14 +15,8 @@
     using Canvas = UnityEngine.Canvas;
     using Object = UnityEngine.Object;
 
-    /// <summary>
-    /// Ribbon-style toolbar that surfaces debug and service panels within the Anchor app.
-    /// </summary>
     public class ToolbarView : VisualElement, IDisposable
     {
-        /// <summary>
-        /// The NavigationScreen main styling class.
-        /// </summary>
         private const string UssClassName = "bl-toolbar";
         private const string MenuButtonClassName = UssClassName + "__button";
         private const string MenuUssClassName = UssClassName + "__menu";
@@ -65,11 +59,6 @@
         private int restoreClickCount;
         private float lastRestoreClickTime;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ToolbarView"/> class.
-        /// </summary>
-        /// <param name="toolbar">Durable toolbar service that owns state and registrations.</param>
-        /// <param name="viewModel">Backing view model used to manage selections.</param>
         internal ToolbarView(Toolbar toolbar, ToolbarViewModel viewModel)
         {
             this.toolbar = toolbar;
@@ -233,8 +222,6 @@
             }
         }
 
-        /// <summary>Shows or hides the active ribbon group.</summary>
-        /// <param name="show">Whether the active ribbon group should be shown.</param>
         public void ShowRibbon(bool show)
         {
             if (show)

@@ -5,61 +5,43 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine;
     using UnityEngine.Serialization;
 
-    /// <summary>
-    /// Pre-navigation behaviour describing how the back stack is adjusted before activating the destination.
-    /// </summary>
     public enum AnchorStackStrategy
     {
-        /// <summary>Leave the back stack untouched prior to navigation.</summary>
         None,
 
-        /// <summary>Pop entries until the specified destination is on top, clearing the stack when it is absent.</summary>
+        /// <summary>
+        /// Clears the stack if the target destination is absent.
+        /// </summary>
         PopToSpecificDestination,
 
-        /// <summary>
-        /// Pop entries until the oldest back-stack destination remains.
-        /// </summary>
         PopToRoot,
 
-        /// <summary>Remove every entry from the back stack before navigating.</summary>
         PopAll,
     }
 
-    /// <summary>
-    /// Determines whether a navigation request should be handled as a popup overlay or a standard destination change.
-    /// </summary>
     [Serializable]
     public enum AnchorPopupStrategy
     {
-        /// <summary>Treat the navigation as a normal destination change with no popup handling.</summary>
         None,
 
-        /// <summary>Overlay the destination on top of the current visual stack without altering the base.</summary>
         PopupOnCurrent,
 
-        /// <summary>Ensure a specific base destination is active before overlaying the popup.</summary>
         EnsureBaseAndPopup,
     }
 
-    /// <summary>
-    /// Specifies how existing popups should be treated when presenting a new popup destination.
-    /// </summary>
     [Serializable]
     public enum AnchorPopupExistingStrategy
     {
-        /// <summary>Keep any existing popups and add the new popup on top of the stack.</summary>
         None,
 
-        /// <summary>Remove all current popups before the new popup is shown while leaving the base destination intact.</summary>
         CloseOtherPopups,
 
-        /// <summary>Archive the current stack, rebuild the base, and present the new popup regardless of existing popups.</summary>
+        /// <summary>
+        /// Archives the current stack, rebuilds the base, and presents the new popup regardless of existing popups.
+        /// </summary>
         PushNew,
     }
 
-    /// <summary>
-    /// AnchorNavOptions stores special options for navigate actions.
-    /// </summary>
     [Serializable]
     public class AnchorNavOptions
     {
@@ -91,75 +73,48 @@ namespace BovineLabs.Anchor.Nav
         [SerializeField]
         private AnchorAnimations animations = new();
 
-        /// <summary>
-        /// Gets or sets the strategy used to manipulate the back stack before navigating.
-        /// </summary>
         public AnchorStackStrategy StackStrategy
         {
             get => this.stackStrategy;
             set => this.stackStrategy = value;
         }
 
-        /// <summary>
-        /// Gets or sets the destination route to pop up to before navigating. When provided, all other destinations above
-        /// the target will be removed from the back stack.
-        /// </summary>
         public string PopupToDestination
         {
             get => this.popupToDestination;
             set => this.popupToDestination = value;
         }
 
-        /// <summary>
-        /// Gets or sets the popup presentation strategy to use for this navigation request.
-        /// </summary>
         public AnchorPopupStrategy PopupStrategy
         {
             get => this.popupStrategy;
             set => this.popupStrategy = value;
         }
 
-        /// <summary>
-        /// Gets or sets the behaviour applied to popups that are already present when this popup is requested.
-        /// </summary>
         public AnchorPopupExistingStrategy PopupExistingStrategy
         {
             get => this.popupExistingStrategy;
             set => this.popupExistingStrategy = value;
         }
 
-        /// <summary>
-        /// Gets or sets the destination that should be ensured as the base layer before displaying a popup when
-        /// <see cref="PopupStrategy"/> is <see cref="AnchorPopupStrategy.EnsureBaseAndPopup"/>.
-        /// </summary>
         public string PopupBaseDestination
         {
             get => this.popupBaseDestination;
             set => this.popupBaseDestination = value;
         }
 
-        /// <summary>
-        /// Gets or sets the arguments used when navigating to <see cref="PopupBaseDestination"/>.
-        /// </summary>
         public IList<AnchorNavArgument> PopupBaseArguments
         {
             get => this.popupBaseArguments;
             set => this.popupBaseArguments = value != null ? new List<AnchorNavArgument>(value) : new List<AnchorNavArgument>();
         }
 
-        /// <summary>
-        /// Gets or sets the non-null animation set used to enter, exit, push, and pop this destination.
-        /// </summary>
         public AnchorAnimations Animations
         {
             get => this.animations;
             set => this.animations = value ?? new AnchorAnimations();
         }
 
-        /// <summary>
-        /// Creates a deep copy of this options instance.
-        /// </summary>
-        /// <returns> A cloned copy. </returns>
         public AnchorNavOptions Clone()
         {
             return new AnchorNavOptions

@@ -4,9 +4,6 @@
     using System.Linq;
     using Unity.Scripting.LifecycleManagement;
 
-    /// <summary>
-    /// Provides cached sequence comparers for common primitive types.
-    /// </summary>
     public static class SequenceComparer
     {
         [NoAutoStaticsCleanup]
@@ -22,9 +19,6 @@
         public static readonly SequenceListComparer<float> FloatList = new();
     }
 
-    /// <summary>
-    /// Equality comparer that performs element-wise comparisons on enumerable sequences.
-    /// </summary>
     public class SequenceComparer<T> : EqualityComparer<IEnumerable<T>>
     {
         public override bool Equals(IEnumerable<T> x, IEnumerable<T> y)
@@ -54,9 +48,6 @@
         }
     }
 
-    /// <summary>
-    /// Equality comparer that performs element-wise comparisons on <see cref="List{T}"/> instances.
-    /// </summary>
     public class SequenceListComparer<T> : EqualityComparer<List<T>>
     {
         public override bool Equals(List<T> x, List<T> y)

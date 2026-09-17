@@ -4,9 +4,6 @@ namespace BovineLabs.Anchor
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// AppUI-backed panel implementation for Anchor.
-    /// </summary>
     [Preserve]
     public class AnchorPanel : Panel, IAnchorPanel
     {

@@ -5,7 +5,6 @@
     using UnityEngine.UIElements;
     using UnityEngine.UIElements.Experimental;
 
-    /// <summary> Scale and fade in animation. </summary>
     public class ScaleFadeInAnimation : AnchorNavAnimation
     {
         [SerializeField]

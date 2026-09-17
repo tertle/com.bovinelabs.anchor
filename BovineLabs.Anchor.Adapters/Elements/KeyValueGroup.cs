@@ -9,9 +9,6 @@
     using UnityEngine.Assertions;
     using UnityEngine.UIElements;
 
-    /// <summary>
-    /// Visual element that lays out a set of key/value text pairs in two aligned columns.
-    /// </summary>
     [UxmlElement]
     public partial class KeyValueGroup : VisualElement
     {
@@ -22,17 +19,12 @@
 
         private readonly List<KeyValueElement> elements = new();
 
-        /// <summary>Initializes a new instance of the <see cref="KeyValueGroup"/> class.</summary>
         [UsedImplicitly]
         public KeyValueGroup()
             : this(null)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="KeyValueGroup"/> class with the provided keys.
-        /// </summary>
-        /// <param name="keys">Keys to pre-populate along the left column.</param>
         public KeyValueGroup(IEnumerable<string> keys)
         {
             this.AddToClassList(UssClassName);
@@ -62,16 +54,8 @@
             }
         }
 
-        /// <summary>Gets the rendered key/value elements in display order.</summary>
         public IReadOnlyList<KeyValueElement> Elements => this.elements;
 
-        /// <summary>
-        /// Creates a key/value group and binds each value to the provided view-model path.
-        /// </summary>
-        /// <param name="viewModel">View model that provides the data for binding.</param>
-        /// <param name="fields">Keys and property paths that should be rendered.</param>
-        /// <param name="trigger">Binding trigger used when synchronizing values.</param>
-        /// <returns>A fully bound key/value group.</returns>
         public static KeyValueGroup Create(
             object viewModel, (string Key, string Path)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
         {
@@ -96,13 +80,6 @@
             return group;
         }
 
-        /// <summary>
-        /// Creates a key/value group and binds each value using a per-field binding callback.
-        /// </summary>
-        /// <param name="viewModel">View model that supplies binding data.</param>
-        /// <param name="fields">Keys, property paths, and binding callbacks per entry.</param>
-        /// <param name="trigger">Binding trigger used when synchronizing values.</param>
-        /// <returns>A fully bound key/value group.</returns>
         public static KeyValueGroup Create(
             object viewModel, (string Key, string Path, Action<DataBinding> BindCallback)[] fields,
             BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
