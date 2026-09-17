@@ -1,8 +1,4 @@
-﻿// <copyright file="AnchorApp.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-#if UNITY_INCLUDE_INSTRUMENTATION
+﻿#if UNITY_INCLUDE_INSTRUMENTATION
 #define CUSTOM_SAFE_AREA
 #endif
 

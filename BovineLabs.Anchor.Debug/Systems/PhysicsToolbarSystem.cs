@@ -1,8 +1,4 @@
-﻿// <copyright file="PhysicsToolbarSystem.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-#if UNITY_PHYSICS && !BL_QUILL && UNITY_EDITOR // Default physics doesn't support builds
+﻿#if UNITY_PHYSICS && !BL_QUILL && UNITY_EDITOR // Default physics doesn't support builds
 namespace BovineLabs.Anchor.Debug.Systems
 {
     using BovineLabs.Anchor.Debug.Toolbar;

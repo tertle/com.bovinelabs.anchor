@@ -1,7 +1,3 @@
-// <copyright file="ViewModelServiceTests.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Tests.Services
 {
     using BovineLabs.Anchor.Services;

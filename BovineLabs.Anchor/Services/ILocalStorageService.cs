@@ -1,8 +1,4 @@
-﻿// <copyright file="ILocalStorageService.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Services
+﻿namespace BovineLabs.Anchor.Services
 {
     /// <summary>
     /// Abstraction over player storage for primitive key/value preferences.

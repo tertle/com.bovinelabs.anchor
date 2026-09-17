@@ -1,8 +1,4 @@
-﻿// <copyright file="AnimationDescription.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Nav
+﻿namespace BovineLabs.Anchor.Nav
 {
     using System;
     using Unity.Scripting.LifecycleManagement;

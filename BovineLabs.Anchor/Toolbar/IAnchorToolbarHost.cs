@@ -1,7 +1,3 @@
-// <copyright file="IAnchorToolbarHost.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Toolbar
 {
     using UnityEngine.UIElements;

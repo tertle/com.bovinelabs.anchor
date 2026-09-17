@@ -1,7 +1,3 @@
-// <copyright file="GroupedMenuBuilderOptions.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor
 {
     /// <summary> Options for grouped AppUI menu construction. </summary>

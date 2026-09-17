@@ -1,8 +1,4 @@
-﻿// <copyright file="IInitializable.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor
+﻿namespace BovineLabs.Anchor
 {
     /// <summary>
     /// Contract for view models that require an explicit Load and Unload.

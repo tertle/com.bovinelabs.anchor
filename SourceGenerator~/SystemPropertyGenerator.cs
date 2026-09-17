@@ -1,8 +1,4 @@
-﻿// <copyright file="SystemPropertyGenerator.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.SystemPropertyGenerator
+﻿namespace BovineLabs.SystemPropertyGenerator
 {
     using System.Collections.Immutable;
     using System;

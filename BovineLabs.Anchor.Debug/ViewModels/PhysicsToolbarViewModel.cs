@@ -1,8 +1,4 @@
-﻿// <copyright file="PhysicsToolbarViewModel.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-#if UNITY_PHYSICS
+﻿#if UNITY_PHYSICS
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System;

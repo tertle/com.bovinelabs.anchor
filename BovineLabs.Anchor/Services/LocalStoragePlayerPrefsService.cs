@@ -1,8 +1,4 @@
-﻿// <copyright file="LocalStoragePlayerPrefsService.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Services
+﻿namespace BovineLabs.Anchor.Services
 {
     using UnityEngine;
     using UnityEngine.Scripting;

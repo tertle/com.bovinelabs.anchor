@@ -1,8 +1,4 @@
-﻿// <copyright file="UISystemGroup.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor
+﻿namespace BovineLabs.Anchor
 {
     using BovineLabs.Core;
     using Unity.Entities;

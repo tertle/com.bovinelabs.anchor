@@ -1,8 +1,4 @@
-﻿// <copyright file="EntitiesToolbarSystem.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Debug.Systems
+﻿namespace BovineLabs.Anchor.Debug.Systems
 {
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;

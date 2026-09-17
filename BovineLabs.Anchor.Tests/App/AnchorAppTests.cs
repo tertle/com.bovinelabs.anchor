@@ -1,7 +1,3 @@
-// <copyright file="AnchorAppTests.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Tests.App
 {
     using System;

@@ -1,7 +1,3 @@
-// <copyright file="IAnchorNavHost.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Nav
 {
     using System;

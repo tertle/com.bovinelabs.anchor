@@ -1,7 +1,3 @@
-// <copyright file="GroupedMenuBuilder.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor
 {
     using System;

@@ -1,8 +1,4 @@
-﻿// <copyright file="IViewModelService.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Services
+﻿namespace BovineLabs.Anchor.Services
 {
     /// <summary>
     /// Provides lifetime management for view model services used by Anchor UI.

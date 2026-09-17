@@ -1,8 +1,4 @@
-﻿// <copyright file="MemoryToolbarViewModel.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Debug.ViewModels
+﻿namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.Views;

@@ -1,8 +1,4 @@
-﻿// <copyright file="FPSToolbarView.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Debug.Views
+﻿namespace BovineLabs.Anchor.Debug.Views
 {
     using System;
     using BovineLabs.Anchor.Debug.ViewModels;

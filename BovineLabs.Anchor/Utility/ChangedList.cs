@@ -1,8 +1,4 @@
-﻿// <copyright file="ChangedList.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor
+﻿namespace BovineLabs.Anchor
 {
     using System.Collections.Generic;
     using BovineLabs.Core.Extensions;

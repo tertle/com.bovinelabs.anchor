@@ -1,7 +1,3 @@
-// <copyright file="RenderingToolbarView.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Debug.Views
 {
     using System;

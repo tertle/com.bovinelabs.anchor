@@ -1,8 +1,4 @@
-﻿// <copyright file="NavigationStateSystem.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor
+﻿namespace BovineLabs.Anchor
 {
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Core;

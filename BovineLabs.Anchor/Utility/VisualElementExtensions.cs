@@ -1,8 +1,4 @@
-﻿// <copyright file="VisualElementExtensions.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor
+﻿namespace BovineLabs.Anchor
 {
     using Unity.Properties;
     using UnityEngine.UIElements;

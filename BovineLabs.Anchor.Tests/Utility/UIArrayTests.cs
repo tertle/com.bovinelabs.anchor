@@ -1,7 +1,3 @@
-// <copyright file="UIArrayTests.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Tests.Utility
 {
     using System;

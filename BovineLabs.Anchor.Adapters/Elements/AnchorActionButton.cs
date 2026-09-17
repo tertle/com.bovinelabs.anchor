@@ -1,7 +1,3 @@
-// <copyright file="AnchorActionButton.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Elements
 {
     using System.Diagnostics.CodeAnalysis;

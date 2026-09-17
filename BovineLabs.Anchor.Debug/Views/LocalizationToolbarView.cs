@@ -1,8 +1,4 @@
-﻿// <copyright file="LocalizationToolbarView.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-#if UNITY_LOCALIZATION
+﻿#if UNITY_LOCALIZATION
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;

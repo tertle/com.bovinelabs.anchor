@@ -1,8 +1,4 @@
-﻿// <copyright file="IBindingObjectNotify`T.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Binding
+﻿namespace BovineLabs.Anchor.Binding
 {
     using System;
     using Unity.Collections.LowLevel.Unsafe;

@@ -1,7 +1,3 @@
-// <copyright file="SubSceneToolbarView.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 #if BL_NERVE
 namespace BovineLabs.Anchor.Debug.Views
 {

@@ -1,8 +1,4 @@
-﻿// <copyright file="SemanticModelExtensions.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.SystemPropertyGenerator.Extensions
+﻿namespace BovineLabs.SystemPropertyGenerator.Extensions
 {
     using System.Collections.Generic;
     using System.Linq;

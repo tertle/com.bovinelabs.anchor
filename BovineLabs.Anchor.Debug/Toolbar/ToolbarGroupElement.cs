@@ -1,8 +1,4 @@
-﻿// <copyright file="ToolbarGroupElement.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Debug.Toolbar
+﻿namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using UnityEngine.UIElements;
 

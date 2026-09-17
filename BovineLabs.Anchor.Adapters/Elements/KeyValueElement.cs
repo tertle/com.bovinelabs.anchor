@@ -1,8 +1,4 @@
-﻿// <copyright file="KeyValueElement.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Elements
+﻿namespace BovineLabs.Anchor.Elements
 {
     using Unity.AppUI.UI;
     using UnityEngine;

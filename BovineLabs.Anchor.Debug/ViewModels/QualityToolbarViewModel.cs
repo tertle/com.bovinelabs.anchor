@@ -1,8 +1,4 @@
-﻿// <copyright file="QualityToolbarViewModel.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Debug.ViewModels
+﻿namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
     using System.Linq;

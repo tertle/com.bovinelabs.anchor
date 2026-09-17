@@ -1,8 +1,4 @@
-﻿// <copyright file="ToolbarViewModel.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Debug.Toolbar
+﻿namespace BovineLabs.Anchor.Debug.Toolbar
 {
     using System.Collections.Generic;
     using System.ComponentModel;

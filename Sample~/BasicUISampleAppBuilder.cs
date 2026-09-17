@@ -1,7 +1,3 @@
-// <copyright file="BasicUISampleAppBuilder.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
 namespace BovineLabs.Anchor.Samples.BasicUI
 {
     using BovineLabs.Anchor.MVVM;

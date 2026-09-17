@@ -1,8 +1,4 @@
-﻿// <copyright file="FadeInAnimation.cs" company="BovineLabs">
-//     Copyright (c) BovineLabs. All rights reserved.
-// </copyright>
-
-namespace BovineLabs.Anchor.Nav.Animations
+﻿namespace BovineLabs.Anchor.Nav.Animations
 {
     using System;
     using UnityEngine.UIElements;
