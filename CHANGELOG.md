@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.3] - Unreleased
+## [2.0.0-pre.3] - 2026-09-18
 
 ### Added
 * Scoped App UI styling for Core's Bovine Works and The Curator themes in the Basic UI sample
