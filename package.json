@@ -1,7 +1,7 @@
 {
   "name": "com.bovinelabs.anchor",
   "description": "UI and toolkit framework based on Unity App UI",
-  "version": "2.0.0-pre.3",
+  "version": "2.0.0-pre.4",
   "unity": "6000.7",
   "unityRelease": "0b1",
   "displayName": "BovineLabs Anchor",
@@ -16,7 +16,7 @@
     "revision": "main"
   },
   "dependencies": {
-    "com.bovinelabs.core": "2.0.0-pre.3",
+    "com.bovinelabs.core": "2.0.0-pre.4",
     "com.unity.dt.app-ui": "3.0.0-pre.1",
     "com.unity.render-pipelines.universal": "17.7.0"
   },

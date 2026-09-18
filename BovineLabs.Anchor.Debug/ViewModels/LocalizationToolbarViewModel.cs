@@ -1,4 +1,4 @@
-﻿#if UNITY_LOCALIZATION
+#if UNITY_LOCALIZATION
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
     using System.Collections.Generic;
@@ -7,9 +7,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
     using Unity.Properties;
-    using UnityEngine.Localization;
-    using UnityEngine.Localization.Settings;
-    using UnityEngine.ResourceManagement.AsyncOperations;
+    using Unity.Localization;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
@@ -32,7 +30,9 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             {
                 if (this.SetProperty(ref this.selectedLocale, value) && LocalizationSettings.HasSettings)
                 {
-                    LocalizationSettings.SelectedLocale = this.SelectedLocale != -1 ? LocalizationSettings.AvailableLocales.Locales[this.SelectedLocale] : null;
+                    LocalizationSettings.SelectedLocale = this.SelectedLocale != -1
+                        ? LocalizationSettings.Instance.AvailableLocales[this.SelectedLocale]
+                        : null;
                 }
             }
         }
@@ -57,7 +57,11 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
 
             this.loaded = true;
-            LocalizationSettings.InitializationOperation.Completed += this.OnInitializationCompleted;
+            LocalizationSettings.InitializationCompleted += this.OnInitializationCompleted;
+            if (LocalizationSettings.Instance.IsInitialized)
+            {
+                this.OnInitializationCompleted();
+            }
         }
 
         public void Unload()
@@ -68,18 +72,18 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
 
             this.loaded = false;
-            LocalizationSettings.InitializationOperation.Completed -= this.OnInitializationCompleted;
+            LocalizationSettings.InitializationCompleted -= this.OnInitializationCompleted;
             LocalizationSettings.SelectedLocaleChanged -= this.OnSelectedLocaleChanged;
         }
 
-        private void OnInitializationCompleted(AsyncOperationHandle<LocalizationSettings> operation)
+        private void OnInitializationCompleted()
         {
             if (!this.loaded)
             {
                 return;
             }
 
-            this.Locales = new List<string>(LocalizationSettings.AvailableLocales.Locales.Select(s => s.ToString()));
+            this.Locales = new List<string>(LocalizationSettings.Instance.AvailableLocales.Select(s => s.ToString()));
 
             var locale = LocalizationSettings.SelectedLocale;
             this.SelectedLocale = locale != null ? this.Locales.IndexOf(locale.ToString()) : -1;

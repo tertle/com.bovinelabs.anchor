@@ -1,10 +1,10 @@
-﻿#if UNITY_LOCALIZATION
+#if UNITY_LOCALIZATION
 namespace BovineLabs.Anchor.Debug.Views
 {
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using Unity.Properties;
-    using UnityEngine.Localization.Settings;
+    using Unity.Localization;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 

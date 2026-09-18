@@ -16,6 +16,12 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.localizationruntime",
+            "expression": "",
+            "define": "UNITY_LOCALIZATION"
+        }
+    ],
     "noEngineReferences": false
 }

@@ -9,7 +9,6 @@
     "Unity.Burst",
     "Unity.Collections",
     "Unity.Entities",
-    "Unity.Localization",
     "Unity.Physics",
     "Unity.Physics.Hybrid",
     "Unity.RenderPipelines.Universal.Runtime",
@@ -31,7 +30,7 @@
       "define": "BL_QUILL"
     },
     {
-      "name": "com.unity.localization",
+      "name": "com.unity.modules.localizationruntime",
       "expression": "",
       "define": "UNITY_LOCALIZATION"
     },

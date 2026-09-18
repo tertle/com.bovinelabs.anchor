@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.0-pre.4] - Unreleased
+
+### Changed
+* Optional localization integration now targets the Localization Runtime module; App UI language contexts and the localization toolbar use module initialization, locales, and Smart Strings.
+
 ## [2.0.0-pre.3] - 2026-09-18
 
 ### Added
