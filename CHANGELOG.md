@@ -8,6 +8,11 @@
 ### Changed
 * The system property source generator now embeds CodeGenHelpers source instead of depending on a separate helper assembly
 * Updated the BovineLabs Core dependency to `2.0.0-pre.3`
+* Unity 6000.7.0b1 or newer is required
+
+### Fixed
+* Missing or null UXML templates now report a diagnostic and instantiate an empty element instead of throwing
+* Linear progress shaders no longer write to uniforms, fixing DXC compilation
 
 ## [2.0.0-pre.2] - 2026-09-04
 
