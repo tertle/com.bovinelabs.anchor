@@ -1,0 +1,5 @@
+{
+    "name": "BovineLabs.Anchor.Particles.Sample",
+    "references": ["BovineLabs.Anchor", "Unity.Collections", "Unity.Mathematics"],
+    "autoReferenced": true
+}

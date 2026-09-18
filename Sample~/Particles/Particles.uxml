@@ -1,0 +1,59 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:p="BovineLabs.Anchor.Particles.Sample">
+    <Style src="Particles.uss" />
+    <ui:VisualElement name="fixture" class="fixture">
+        <ui:Label text="Anchor native quad rendering — BL-299" class="title" />
+        <ui:VisualElement class="toolbar">
+            <ui:Button name="preview-step" text="Preview step" />
+            <ui:Button name="clear" text="Clear / last quad" />
+            <ui:Button name="rebuild" text="Regenerate tree" />
+            <ui:Button name="detach" text="Detach / attach" />
+            <ui:Button name="scale" text="Panel scale" />
+            <ui:Button name="resize" text="Resize / zero size" />
+            <ui:Button name="opacity" text="Parent opacity" />
+        </ui:VisualElement>
+        <ui:VisualElement name="cases" class="cases">
+            <ui:VisualElement class="case opaque">
+                <ui:Label text="Sibling order: quads behind button" />
+                <p:ParticleFixtureElement name="siblings" class="particles" count="12" />
+                <ui:Button text="Input remains available" class="front" />
+            </ui:VisualElement>
+            <ui:VisualElement class="case transparent">
+                <ui:Label text="Texture quadrants: R G above B W" />
+                <p:ParticleFixtureElement name="uv" class="particles" count="1" quad-size="110" overlap="true" />
+            </ui:VisualElement>
+            <ui:VisualElement class="case opaque rectangular">
+                <ui:Label text="Rectangular clipping" />
+                <p:ParticleFixtureElement class="particles" count="30" quad-size="90" />
+            </ui:VisualElement>
+            <ui:VisualElement class="case opaque rounded">
+                <ui:Label text="Rounded clipping" />
+                <p:ParticleFixtureElement class="particles" count="30" quad-size="90" />
+            </ui:VisualElement>
+            <ui:VisualElement class="case opaque">
+                <ui:Label text="ScrollView clips the drawing" />
+                <ui:ScrollView class="scroll">
+                    <p:ParticleFixtureElement class="scroll-particles" count="80" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+            <ui:VisualElement name="faded" class="case opaque faded">
+                <ui:Label text="Parent opacity 0.5 — applied once" />
+                <p:ParticleFixtureElement class="particles" count="12" />
+            </ui:VisualElement>
+            <ui:VisualElement class="case opaque">
+                <ui:Label text="Transformed parent / no texture" />
+                <ui:VisualElement name="transformed" class="particles">
+                    <p:ParticleFixtureElement class="particles" count="8" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="case opaque">
+                <ui:Label text="Zero alpha: no visible quads" />
+                <p:ParticleFixtureElement name="zero-alpha" class="particles" count="30" zero-alpha="true" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="overlay-origin">
+            <ui:Label text="Overlay origin" />
+            <p:ParticleFixtureElement name="overlay" class="overlay-particles" count="4" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="benchmark" class="benchmark" />
+</ui:UXML>

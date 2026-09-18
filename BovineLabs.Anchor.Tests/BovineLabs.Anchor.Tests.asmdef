@@ -10,6 +10,8 @@
     "Unity.AppUI",
     "Unity.Burst",
     "Unity.Collections",
+    "Unity.Mathematics",
+    "Unity.PerformanceTesting",
     "Unity.Entities",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
