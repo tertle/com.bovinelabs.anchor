@@ -30,12 +30,12 @@
     {
       "displayName": "Basic UI",
       "description": "A minimal Anchor app that opens a single UXML screen.",
-      "path": "Sample~"
+      "path": "Samples~/BasicUI"
     },
     {
       "displayName": "Native UI particles",
       "description": "Authoring presets, explicit overlay and clipped controls, preview and measurement fixtures.",
-      "path": "Sample~/Particles"
+      "path": "Samples~/Particles"
     }
   ]
 }

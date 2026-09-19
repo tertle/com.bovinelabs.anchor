@@ -55,7 +55,7 @@ Clear invalidates once to remove the last mesh. Decorations ignore picking and f
 
 ## Reproduction
 
-Import `Sample~/Particles` into the project's `Assets` as a single sample folder, preserving its metadata.
+Import `Samples~/Particles` into the project's `Assets` as a single sample folder, preserving its metadata.
 The isolated sample assembly requires Anchor, Collections and Mathematics. The existing Anchor test assembly stays Editor-only.
 Unity Performance Testing **6.7.0** is installed in this Shattered checkout (confirmed by its live package manifest and run metadata);
 only a test assembly reference was added. The transitive dependency request of 3.2.0 does not identify the installed built-in version.
