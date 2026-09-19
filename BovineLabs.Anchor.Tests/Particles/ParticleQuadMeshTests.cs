@@ -88,5 +88,30 @@ namespace BovineLabs.Anchor.Tests.Particles
 
             Assert.That(chunks, Is.EqualTo(expectedChunks));
         }
+
+        [Test]
+        public void PanelMeshTransformsEveryCornerAndKeepsNearDepth()
+        {
+            var quads = new NativeArray<ParticleQuad>(1, Allocator.Temp);
+            quads[0] = new ParticleQuad
+            {
+                Position = new float2(100, 200),
+                Size = new float2(4, 8),
+            };
+            var vertices = new NativeArray<Vertex>(4, Allocator.Temp);
+            var indices = new NativeArray<ushort>(6, Allocator.Temp);
+            var source = quads.Slice();
+            var output = vertices.Slice();
+            var triangles = indices.Slice();
+            ParticleQuadMesh.Fill(ref source, ref output, ref triangles);
+            var panelToLocal = math.inverse(float4x4.TRS(new float3(100, 200, 0), quaternion.RotateZ(math.PI / 2), new float3(2, 4, 1)));
+            ParticleQuadMesh.Transform(ref output, ref panelToLocal);
+            var expected = new[] { new float2(-2, 0.5f), new float2(-2, -0.5f), new float2(2, -0.5f), new float2(2, 0.5f) };
+            for (var i = 0; i < 4; i++)
+            {
+                Assert.That(math.distance(((float3)vertices[i].position).xy, expected[i]), Is.LessThan(0.00002));
+                Assert.That(vertices[i].position.z, Is.EqualTo(Vertex.nearZ));
+            }
+        }
     }
 }

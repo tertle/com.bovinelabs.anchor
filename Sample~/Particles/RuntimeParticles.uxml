@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements">
+    <Style src="RuntimeParticles.uss" />
+    <ui:VisualElement class="runtime-example">
+        <ui:Label text="Anchor particles — BL-300 runtime foundation" />
+        <ui:VisualElement class="runtime-toolbar">
+            <ui:Button name="play" text="Restart" />
+            <ui:Button name="stop" text="Stop emitting" />
+            <ui:Button name="pause" text="Pause" />
+            <ui:Button name="resume" text="Resume" />
+            <ui:Button name="clear" text="Clear" />
+            <ui:Button name="step" text="Step 1/60 s" />
+        </ui:VisualElement>
+        <a:AnchorParticles name="effect" class="runtime-particles" />
+    </ui:VisualElement>
+</ui:UXML>

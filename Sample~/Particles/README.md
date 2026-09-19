@@ -1,5 +1,10 @@
 # Native particle rendering fixture
 
+BL-300 adds a separate **Window > Anchor > Particle runtime example** after importing this folder. It composes a flash, sparks,
+and continuous ambient emitter in one in-memory effect. Restart, stop, pause, resume, clear and explicit 1/60-second stepping use
+the production `AnchorParticles` control. The original BL-299 fixture below remains unchanged. This is a runtime demonstration,
+not the asset inspector/preview planned for BL-301. Player visual/performance evidence remains deferred.
+
 BL-299 experiment: predefined quads, not a particle simulation. See `Documentation~/particles-benchmarks.md` for the contract,
 workload matrix and current build blocker. The visual and Player performance gate has **not passed**.
 

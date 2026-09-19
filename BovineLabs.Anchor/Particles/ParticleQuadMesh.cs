@@ -30,6 +30,11 @@ namespace BovineLabs.Anchor.Particles
 
         public static void Draw(MeshGenerationContext context, NativeSlice<ParticleQuad> quads, Texture texture = null)
         {
+            Draw(context, quads, texture, float4x4.identity, false);
+        }
+
+        internal static void Draw(MeshGenerationContext context, NativeSlice<ParticleQuad> quads, Texture texture, float4x4 transform, bool transformPositions)
+        {
             for (var offset = 0; offset < quads.Length;)
             {
                 var count = GetChunkSize(quads.Length - offset);
@@ -44,6 +49,10 @@ namespace BovineLabs.Anchor.Particles
                 using (FillMarker.Auto())
                 {
                     Fill(ref source, ref vertices, ref indices);
+                    if (transformPositions)
+                    {
+                        Transform(ref vertices, ref transform);
+                    }
                 }
 
                 using (SubmitMarker.Auto())
@@ -53,6 +62,18 @@ namespace BovineLabs.Anchor.Particles
 
                 // The renderer consumes these slices later. Only Unity owns/recycles their storage.
                 offset += count;
+            }
+        }
+
+        [BurstCompile]
+        internal static void Transform(ref NativeSlice<Vertex> vertices, ref float4x4 transform)
+        {
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                var vertex = vertices[i];
+                var point = math.transform(transform, new float3(vertex.position.x, vertex.position.y, 0));
+                vertex.position = new Vector3(point.x, point.y, Vertex.nearZ);
+                vertices[i] = vertex;
             }
         }
 

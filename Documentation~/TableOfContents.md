@@ -6,5 +6,6 @@
 - [Navigation](navigation.md)
 - [MVVM and binding](mvvm-and-binding.md)
 - [Adapter elements](adapter-elements.md)
+- [Particle runtime foundation](particles.md)
 - [Debug toolbar](debug-toolbar.md)
 - [Troubleshooting](troubleshooting.md)

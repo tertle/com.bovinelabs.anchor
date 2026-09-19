@@ -145,4 +145,6 @@ unity --non-interactive run <absolute-project-path> --timeout 1800 -- `
 
 No successful Player, Player timing table, screenshot, clipping/opacity pass, lifecycle pass or additive capability result is claimed.
 The sample contains those checks and capture paths, but they require the build blocker to be resolved before acceptance.
-Until that evidence is recorded, **the BL-299 core gate is not passed and BL-300 remains gated**.
+The BL-299 core gate remains unverified. On 19 September 2026 the user explicitly authorized BL-300 implementation and Editor
+validation while deferring Player testing and all builds. That override permits the runtime work; it does not supply the missing
+Player evidence. See [the runtime measurements](particles-runtime-benchmarks.md) for BL-300's separate Editor results.
