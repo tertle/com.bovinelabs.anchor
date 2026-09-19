@@ -11,5 +11,7 @@ namespace BovineLabs.Anchor.Particles
         public Color32 Tint;
         // Texture coordinates: bottom-left XY, top-right ZW. UI coordinates have Y pointing down.
         public float4 Uv;
+        // Additive to identity so ordinary authored quads need no transform initialization.
+        public float2x2 BasisOffset;
     }
 }

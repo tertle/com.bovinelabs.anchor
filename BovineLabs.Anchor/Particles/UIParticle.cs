@@ -12,5 +12,6 @@ namespace BovineLabs.Anchor.Particles
         public float Rotation;
         public float AngularVelocity;
         public float4 Tint;
+        public float2x2 Basis;
     }
 }

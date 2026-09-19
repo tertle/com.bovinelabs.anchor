@@ -47,6 +47,22 @@ namespace BovineLabs.Anchor.Particles
         public bool IsPlaying { get; private set; }
         public bool IsPaused { get; private set; }
 
+        public ulong DroppedCount
+        {
+            get
+            {
+                this.ThrowIfDisposed();
+                ulong count = 0;
+                for (var i = 0; i < this.States.Length; i++)
+                {
+                    var dropped = this.States[i].Dropped;
+                    count = dropped > ulong.MaxValue - count ? ulong.MaxValue : count + dropped;
+                }
+
+                return count;
+            }
+        }
+
         public int LiveCount
         {
             get

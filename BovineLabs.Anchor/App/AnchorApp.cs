@@ -5,6 +5,7 @@
 namespace BovineLabs.Anchor
 {
     using System;
+    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Toolbar;
     using BovineLabs.Core;
@@ -233,6 +234,8 @@ namespace BovineLabs.Anchor
 
         internal void ReleaseVisualGeneration()
         {
+            this.RootVisualElement?.Query<AnchorParticles>().ForEach(static particles => particles.ReleaseVisualGeneration());
+
             if (this.Panel != null)
             {
                 this.theme = this.Panel.Theme;

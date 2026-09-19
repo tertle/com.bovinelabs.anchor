@@ -168,6 +168,7 @@ namespace BovineLabs.Anchor.Particles
                 Rotation = random.NextFloat(settings.Rotation.x, settings.Rotation.y),
                 AngularVelocity = random.NextFloat(settings.AngularVelocity.x, settings.AngularVelocity.y),
                 Tint = math.lerp(settings.ColorMin, settings.ColorMax, random.NextFloat4()),
+                Basis = new float2x2(transform.c0.xy, transform.c1.xy),
             };
         }
 

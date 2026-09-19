@@ -4,62 +4,95 @@ namespace BovineLabs.Anchor.Particles.Sample
 
     public static class ParticleRuntimeExample
     {
-        public static UIParticleEffect CreateEffect()
+        public static UIParticleEffect CreateEffect(string preset, Texture2D texture)
         {
             var effect = ScriptableObject.CreateInstance<UIParticleEffect>();
-            effect.hideFlags = HideFlags.DontSave;
-            effect.Emitters.Clear();
-            effect.Emitters.Add(new UIParticleEmitterSettings
+            var emitter = effect.Emitters[0];
+            emitter.Texture = texture;
+            switch (preset)
             {
-                Offset = new Vector2(200, 160),
-                Lifetime = new Vector2(0.2f, 0.2f),
-                Speed = Vector2.zero,
-                Size = new Vector2(40, 40),
-                StartColorMin = new Color(1, 0.7f, 0.2f, 0.4f),
-                StartColorMax = new Color(1, 0.7f, 0.2f, 0.4f),
-                Bursts = new()
-                {
-                    new UIParticleBurst
+                case "Sparkle":
+                    emitter.Speed = new Vector2(15, 65);
+                    emitter.Size = new Vector2(6, 14);
+                    emitter.StartColorMin = new Color(1, 0.65f, 0.2f);
+                    emitter.StartColorMax = new Color(1, 1, 0.8f);
+                    break;
+                case "Confetti":
+                    emitter.MaxParticles = 256;
+                    emitter.Bursts[0] = new UIParticleBurst
+                    {
+                        Count = 100,
+                    };
+                    emitter.Speed = new Vector2(90, 180);
+                    emitter.Direction = -90;
+                    emitter.Spread = 95;
+                    emitter.Lifetime = new Vector2(1, 2);
+                    emitter.Size = new Vector2(4, 9);
+                    emitter.Acceleration = new Vector2(0, 160);
+                    emitter.AngularVelocity = new Vector2(-240, 240);
+                    emitter.StartColorMin = new Color(0.2f, 0.4f, 0.7f);
+                    emitter.StartColorMax = new Color(1, 0.8f, 1);
+                    break;
+                case "Dust":
+                    emitter.Looping = true;
+                    emitter.Bursts.Clear();
+                    emitter.Rate = 12;
+                    emitter.Shape = UIParticleShape.Rectangle;
+                    emitter.Dimensions = new Vector2(240, 160);
+                    emitter.Lifetime = new Vector2(2, 4);
+                    emitter.Speed = new Vector2(3, 8);
+                    emitter.Direction = -90;
+                    emitter.Spread = 25;
+                    emitter.Size = new Vector2(3, 6);
+                    emitter.StartColorMin = new Color(0.5f, 0.7f, 1, 0.25f);
+                    emitter.StartColorMax = new Color(0.8f, 0.9f, 1, 0.5f);
+                    break;
+                case "Layered":
+                    emitter.Bursts[0] = new UIParticleBurst
                     {
                         Count = 1,
-                    },
-                },
-            });
-            effect.Emitters.Add(new UIParticleEmitterSettings
-            {
-                Offset = new Vector2(200, 160),
-                Lifetime = new Vector2(0.6f, 1.2f),
-                Speed = new Vector2(40, 120),
-                Size = new Vector2(3, 8),
-                Acceleration = new Vector2(0, 40),
-                Drag = 0.5f,
-                AngularVelocity = new Vector2(-180, 180),
-                StartColorMin = new Color(0.6f, 0.3f, 0.1f, 0.5f),
-                StartColorMax = new Color(1, 0.8f, 0.4f, 0.8f),
-                Bursts = new()
-                {
-                    new UIParticleBurst
+                    };
+                    emitter.Speed = Vector2.zero;
+                    emitter.Size = new Vector2(70, 70);
+                    emitter.Lifetime = new Vector2(0.25f, 0.25f);
+                    emitter.StartColorMin = new Color(1, 0.65f, 0.3f, 0.5f);
+                    emitter.StartColorMax = emitter.StartColorMin;
+                    effect.Emitters.Add(new UIParticleEmitterSettings
                     {
-                        Count = 48,
-                    },
-                },
-            });
-            effect.Emitters.Add(new UIParticleEmitterSettings
-            {
-                Looping = true,
-                Rate = 32,
-                Shape = UIParticleShape.Rectangle,
-                Dimensions = new Vector2(320, 160),
-                Offset = new Vector2(200, 160),
-                Lifetime = new Vector2(1, 2),
-                Speed = new Vector2(5, 15),
-                Direction = -90,
-                Spread = 30,
-                Size = new Vector2(2, 4),
-                StartColorMin = new Color(0.3f, 0.6f, 1, 0.2f),
-                StartColorMax = new Color(0.5f, 0.8f, 1, 0.5f),
-                Bursts = new(),
-            });
+                        Texture = texture,
+                        Speed = new Vector2(70, 150),
+                        Size = new Vector2(4, 9),
+                        Acceleration = new Vector2(0, 45),
+                        Drag = 0.5f,
+                        Bursts = new()
+                        {
+                            new UIParticleBurst
+                            {
+                                Count = 48,
+                            },
+                        },
+                        StartColorMin = new Color(1, 0.4f, 0.1f),
+                        StartColorMax = new Color(1, 0.9f, 0.5f),
+                    });
+                    effect.Emitters.Add(new UIParticleEmitterSettings
+                    {
+                        Texture = texture,
+                        Shape = UIParticleShape.Circle,
+                        Dimensions = new Vector2(100, 100),
+                        Speed = Vector2.zero,
+                        StartDelay = 0.15f,
+                        Size = new Vector2(2, 5),
+                        Bursts = new()
+                        {
+                            new UIParticleBurst
+                            {
+                                Count = 32,
+                            },
+                        },
+                    });
+                    break;
+            }
+
             return effect;
         }
     }

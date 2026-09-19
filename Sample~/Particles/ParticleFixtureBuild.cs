@@ -32,6 +32,7 @@ namespace BovineLabs.Anchor.Particles.Sample
             var serialized = new SerializedObject(runner);
             serialized.FindProperty("fixture").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/Particles.uxml");
             serialized.FindProperty("theme").objectReferenceValue = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(folder + "/Particles.tss");
+            serialized.FindProperty("runtimeFixture").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml");
             serialized.ApplyModifiedPropertiesWithoutUndo();
             var scenePath = folder + "/ParticleFixture.unity";
             EditorSceneManager.SaveScene(scene, scenePath);

@@ -233,6 +233,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: BovineLabs.Anchor.Particles.Sample::BovineLabs.Anchor.Particles.Sample.ParticleFixtureRunner
   fixture: {fileID: 9197481963319205126, guid: eba56561871346dbb4e5f5b3af39ea7c, type: 3}
   theme: {fileID: -4733365628477956816, guid: bb698bbc74db48419e760e61c120bac0, type: 3}
+  runtimeFixture: {fileID: 9197481963319205126, guid: 0c5ff56b839348d08be0bfaa7a49439b, type: 3}
 --- !u!4 &1105059331
 Transform:
   m_ObjectHideFlags: 0

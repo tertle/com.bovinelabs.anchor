@@ -12,6 +12,8 @@ namespace BovineLabs.Anchor.Particles
         public List<UIParticleEmitterSettings> Emitters => this.emitters;
         public uint Revision { get; private set; }
 
+        private void OnValidate() => this.Invalidate();
+
         // Explicit authoring boundary: existing instances retain their immutable revision until disposal.
         public void Invalidate()
         {

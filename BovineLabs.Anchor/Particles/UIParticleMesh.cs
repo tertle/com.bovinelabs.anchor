@@ -38,6 +38,7 @@ namespace BovineLabs.Anchor.Particles
                         Angle = particle.Rotation,
                         Tint = new Color32((byte)bytes.x, (byte)bytes.y, (byte)bytes.z, (byte)bytes.w),
                         Uv = emitter.Uv,
+                        BasisOffset = particle.Basis - float2x2.identity,
                     };
                     count++;
                 }

@@ -60,6 +60,7 @@ Assign it through the panel settings used by the scene host, or provide an equiv
 
 ## Guides
 
+- [Native UI particles](particles.md)
 - [Getting started](getting-started.md)
 - [Application and services](app-and-services.md)
 - [Navigation](navigation.md)

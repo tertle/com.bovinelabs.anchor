@@ -1,15 +1,38 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements">
     <Style src="RuntimeParticles.uss" />
-    <ui:VisualElement class="runtime-example">
-        <ui:Label text="Anchor particles — BL-300 runtime foundation" />
-        <ui:VisualElement class="runtime-toolbar">
-            <ui:Button name="play" text="Restart" />
+    <ui:VisualElement class="particle-example">
+        <ui:Label text="Native UI particles" class="title" />
+        <ui:VisualElement class="particle-toolbar">
+            <ui:Button name="play" text="Play all" />
             <ui:Button name="stop" text="Stop emitting" />
             <ui:Button name="pause" text="Pause" />
             <ui:Button name="resume" text="Resume" />
             <ui:Button name="clear" text="Clear" />
             <ui:Button name="step" text="Step 1/60 s" />
+            <ui:Toggle name="effects-enabled" label="Effects enabled" value="true" />
+            <ui:Toggle name="hide" label="Hide cards" />
         </ui:VisualElement>
-        <a:AnchorParticles name="effect" class="runtime-particles" />
+        <ui:VisualElement name="cards" class="particle-cards">
+            <ui:VisualElement class="particle-card">
+                <ui:Label text="Button sparkle · local" />
+                <ui:Button name="sparkle-button" text="Sparkle" class="sparkle-button">
+                    <a:AnchorParticles name="sparkle" effect="project://database/Assets/Samples/AnchorParticles/Sparkle.asset?fileID=11400000&amp;guid=fb1c8804575550a43862c75110d2c07b&amp;type=2#Sparkle" play-on-attach="false" class="particle-fill" />
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement class="particle-card clipped-card">
+                <ui:Label text="Confetti · clipped card" />
+                <a:AnchorParticles name="confetti" effect="project://database/Assets/Samples/AnchorParticles/Confetti.asset?fileID=11400000&amp;guid=87304e4edab19ef4d90f11a3b2638ffc&amp;type=2#Confetti" play-on-attach="false" class="particle-fill" />
+            </ui:VisualElement>
+            <ui:VisualElement class="particle-card">
+                <ui:Label text="Ambient dust · hidden pause" />
+                <a:AnchorParticles name="dust" effect="project://database/Assets/Samples/AnchorParticles/Dust.asset?fileID=11400000&amp;guid=ca541cbe518250241ac449496ec943fe&amp;type=2#Dust" play-on-attach="false" class="particle-fill" />
+            </ui:VisualElement>
+            <ui:VisualElement class="particle-card">
+                <ui:Label text="Layered burst · explicit overlay" />
+                <ui:Button name="overlay-button" text="Burst from here" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <a:AnchorParticles name="layered" effect="project://database/Assets/Samples/AnchorParticles/Layered.asset?fileID=11400000&amp;guid=d2086f6f85a008342861d1ba00de9a68&amp;type=2#Layered" play-on-attach="false" simulation-space="Panel" class="particle-fill" />
+        <ui:Label name="completion" text="Effects start only when requested." />
     </ui:VisualElement>
 </ui:UXML>
