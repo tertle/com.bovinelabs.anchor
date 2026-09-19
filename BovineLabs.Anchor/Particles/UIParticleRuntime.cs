@@ -18,6 +18,7 @@ namespace BovineLabs.Anchor.Particles
         internal NativeArray<int> QuadCounts;
         private NativeArray<UIParticleEmissionStream> streams;
         private uint seed;
+        private float emissionScale = 1;
         private bool emitting;
         private bool disposed;
 
@@ -46,6 +47,38 @@ namespace BovineLabs.Anchor.Particles
         public uint Revision => this.Compiled.Revision;
         public bool IsPlaying { get; private set; }
         public bool IsPaused { get; private set; }
+
+        public float EmissionScale
+        {
+            get => this.emissionScale;
+            set
+            {
+                if (!float.IsFinite(value) || value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                this.emissionScale = value;
+            }
+        }
+
+        public UIParticleCounters Counters
+        {
+            get
+            {
+                this.ThrowIfDisposed();
+                var counters = new UIParticleCounters();
+                for (var i = 0; i < this.States.Length; i++)
+                {
+                    var state = this.States[i];
+                    counters.Attempted += Math.Min(state.Attempted, ulong.MaxValue - counters.Attempted);
+                    counters.Emitted += Math.Min(state.Emitted, ulong.MaxValue - counters.Emitted);
+                    counters.Dropped += Math.Min(state.Dropped, ulong.MaxValue - counters.Dropped);
+                }
+
+                return counters;
+            }
+        }
 
         public ulong DroppedCount
         {
@@ -114,6 +147,11 @@ namespace BovineLabs.Anchor.Particles
                 this.QuadCounts[e] = 0;
             }
 
+            for (var s = 0; s < this.streams.Length; s++)
+            {
+                this.streams[s] = default;
+            }
+
             this.IsPlaying = false;
             this.IsPaused = false;
             this.emitting = false;
@@ -146,7 +184,7 @@ namespace BovineLabs.Anchor.Particles
                 {
                     var delta = math.min(remaining, 1d / 60);
                     UIParticleSimulation.Step(ref data, ref this.Particles, ref this.States, ref this.streams, delta, this.seed,
-                        this.emitting, ref spawnTransform);
+                        this.emitting, ref spawnTransform, this.emissionScale);
                     remaining -= delta;
                     if (remaining <= 0)
                     {

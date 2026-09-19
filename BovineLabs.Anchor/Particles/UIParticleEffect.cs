@@ -21,6 +21,22 @@ namespace BovineLabs.Anchor.Particles
             this.compiled = null;
         }
 
+        internal int GetCapacity()
+        {
+            var capacity = 0;
+            foreach (var emitter in this.emitters)
+            {
+                if (emitter == null || emitter.MaxParticles <= 0)
+                {
+                    throw new System.ArgumentException("Emitter capacity must be positive.");
+                }
+
+                capacity = checked(capacity + emitter.MaxParticles);
+            }
+
+            return capacity;
+        }
+
         internal UIParticleCompiledEffect Acquire()
         {
             if (this.compiled == null || this.compiled.IsDisposed)

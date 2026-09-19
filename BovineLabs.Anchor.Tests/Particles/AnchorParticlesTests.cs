@@ -329,6 +329,61 @@ namespace BovineLabs.Anchor.Tests.Particles
             }
         }
 
+        [UnityTest]
+        public IEnumerator PausedPanelTransformRepaintsWithoutAdvancingParticles()
+        {
+            var repaints = 0;
+            this.particles.generateVisualContent += _ => repaints++;
+            this.particles.SimulationSpace = UIParticleSpace.Panel;
+            this.particles.Play();
+            this.particles.Pause();
+            yield return null;
+            yield return null;
+            var before = repaints;
+            this.particles.Advance(1);
+            yield return null;
+            yield return null;
+            Assert.That(repaints, Is.EqualTo(before));
+            this.parent.style.translate = new Translate(25, 10);
+            this.particles.Advance(1);
+            yield return null;
+            yield return null;
+            Assert.That(repaints, Is.GreaterThan(before));
+            Assert.That(this.particles.LiveCount, Is.EqualTo(16));
+            Assert.That(this.particles.IsPaused, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator PausedTintAndFinalDeathInvalidateButUnchangedEmptyStateDoesNot()
+        {
+            var repaints = 0;
+            this.particles.generateVisualContent += _ => repaints++;
+            this.particles.Play();
+            this.particles.Pause();
+            yield return null;
+            yield return null;
+            var before = repaints;
+            this.particles.Tint = Color.red;
+            yield return null;
+            yield return null;
+            Assert.That(repaints, Is.GreaterThan(before));
+            before = repaints;
+            this.particles.Resume();
+            this.particles.Advance(0.0625);
+            this.particles.Advance(0.0625);
+            Assert.That(this.particles.LiveCount, Is.Zero);
+            yield return null;
+            yield return null;
+            Assert.That(repaints, Is.GreaterThan(before));
+            before = repaints;
+            this.particles.Advance(1);
+            this.particles.Clear();
+            this.particles.Clear();
+            yield return null;
+            yield return null;
+            Assert.That(repaints, Is.EqualTo(before));
+        }
+
         private sealed class ParticlePanel : IAnchorPanel
         {
             public VisualElement RootVisualElement { get; } = new();

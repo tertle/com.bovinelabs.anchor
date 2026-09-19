@@ -35,22 +35,27 @@ hashing or polling. It releases native tables when the final runtime using a rev
 
 | Property | Default / behavior |
 | --- | --- |
-| Effect | Asset reference; replacement cancels the old run and releases its storage. An active request restarts with the replacement. |
+| Effect | Asset reference; an admitted replacement restarts an active request. A budget rejection preserves the old asset and run. |
 | PlayOnAttach | `true` in runtime panels; a fresh run waits for positive, resolved geometry. No automatic Editor playback. |
 | SimulationSpace | `Local`; `Panel` preserves birth position, size and orientation across subsequent source movement. |
 | TimeMode | `Unscaled`; `Scaled` follows game time. Manual preview supplies its own elapsed time. |
 | PlaybackSpeed | `1`; finite and nonnegative. Zero freezes time and does not consume the initial burst. |
+| EmissionScale | `1`; finite and nonnegative. Scales new rate/burst emission with fractional credit; existing particles continue unchanged. |
 | Seed | `1`; explicit deterministic replay seed. No automatic reseeding. |
 | Tint | White; multiplies start/lifetime tint, independently of inherited opacity. |
 | HiddenBehaviour | `Pause`; alternatives are `Continue` and `StopAndClear`. |
 | EffectsEnabled | `true`; false cancels/clears and suppresses playback. True alone does not replay missed effects. |
 
 The properties support binding and UXML attributes. Setters notify only on actual changes. `IsPlaying`, `IsPaused`, `LiveCount`
-and `DroppedCount` are read-only diagnostic snapshots; counts are not broadcast per particle or frame.
+and `DroppedCount` are read-only diagnostic snapshots; counts are not broadcast per particle or frame. `Counters` exposes
+attempted/emitted/dropped spawns for the current run, and `ReservedSlots` reports resident capacity.
 
-`Play()` restarts with Seed; `Play(seed)` also sets it. `StopEmitting()` lets survivors finish. `Pause()` is an explicit pause,
+`Play()` restarts with Seed; `Play(seed)` also sets it. `Play(effect, seed)` attempts a transactional asset replacement. Each returns
+`ParticlePlayResult`: Started, Deferred (waiting for attachment/layout/visibility), Suppressed, NoEffect or BudgetExceeded.
+`LastPlayResult` also exposes the result of deferred startup and property-driven replacement. Rejected requests are not retried
+automatically when capacity becomes available. `StopEmitting()` lets survivors finish. `Pause()` is an explicit pause,
 independent of visibility. `Resume()` resumes a paused run, not a cancelled or completed run. `Clear()` cancels, empties geometry,
-and cancels a pending layout start. Reattachment never restores old particles or wall time. Seed, space and time-mode changes
+releases storage and its panel reservation, and cancels a pending layout start. Reattachment never restores old particles or wall time. Seed, space and time-mode changes
 restart active requests with cleared state; they are not seamless remapping operations. Tint and speed changes apply live.
 
 `Completed` fires once after natural emission ends and its last survivor dies, including after StopEmitting. Clear, replacement,
@@ -61,8 +66,31 @@ release presenters when it ends. `AnchorApp.ReleaseVisualGeneration` and Dispose
 Hidden ancestors count, whether hidden by display or visibility. Hidden Pause performs a lightweight visibility watch but no
 particle simulation; explicit Pause does not watch unless StopAndClear must detect a hidden ancestor. Showing a hidden-paused run discards hidden time. Continue ages
 while hidden and skips mesh work. StopAndClear requires a new Play after showing. Clipping and offscreen position do not kill particles.
-Idle panels pause their particle scheduler; the final detach removes the coordinator. Editor/domain/play-mode lifecycle hooks clear
+Retained panel-space particles keep a lightweight renderer-transform watch even while paused: a changed renderer needs a fresh
+inverse conversion because UI Toolkit otherwise transforms cached local vertices itself. An unchanged paused effect does not repaint.
+Idle panels pause their particle scheduler; the final detach removes active coordinator ownership. Weak panel configuration survives
+reattachment without retaining a discarded panel. Editor/domain/play-mode lifecycle hooks clear
 registered ownership. Manually created `UIParticleRuntime` instances remain the caller's responsibility to Dispose.
+
+## Capacity and content quality
+
+Configure `UIParticleCoordinator.Get(panel).ParticleSlotBudget` before playback. The default is **16,384 resident particle slots per
+panel**, a memory/admission limit rather than a performance guarantee. It may be raised for deliberate content or stress tests.
+The budget counts allocated capacity, including paused live effects and completed effects retained for replay. It cannot be lowered
+below current `ReservedSlots`. Call Clear at an explicit content lifecycle boundary to reclaim inactive storage; detach and visual
+generation teardown also release it. There is no pool or automatic frame-time quality controller.
+
+Admission reserves the complete new capacity before compiling or allocating the effect. A replacement needs headroom for both
+the old and new allocations until it succeeds; a rejected replacement changes neither the old particles nor its seed/pause state.
+Replaying the same prepared revision reuses its existing reservation. Per-emitter capacities retain drop-new overload behavior.
+`LiveCount`, `ReservedSlots` and `RejectedPlays` on the coordinator are opt-in diagnostic reads, without per-frame binding notifications.
+Standalone `UIParticleRuntime` allocations are caller-owned and are not part of a panel's admission budget.
+
+EmissionScale does not resize storage. Continuous emission and each authored burst stream retain their own fractional credit across
+steps/loop repetitions. Changing scale affects future emission only; zero consumes emission time without accumulating suppressed
+births. Replay resets credit and counters. Existing lifetimes, motion and age are unaffected. Use EffectsEnabled for a full clear and
+suppression switch, or Pause to freeze existing particles. Author tighter texture margins and smaller translucent quads when fill rate
+dominates; more aggressive simulation batching cannot reduce their pixel cost.
 
 ## Coordinates, clipping and ordering
 
@@ -117,7 +145,10 @@ target-flight, GPU animation, scene collision, sub-emitter graph, ParticleSystem
 
 Tests live under `BovineLabs.Anchor.Tests.Particles`, including coordinate, lifecycle and shared-revision ownership contracts.
 Select correctness fixtures separately from explicit Performance tests when the connected test runner cannot combine filters.
-The sample fixture supports `--particle-runtime-results <directory>` for five repeated 1,000-particle / 32-emitter workloads:
-active, hidden visibility watching, explicit pause, idle and detach/reattach churn. Record CPU/GPU and engine GC separately from
+The sample fixture supports `--particle-runtime-results <directory>` for 64–20,000 particles, 1/32/100 emitters and a mostly-empty
+100-emitter case. Each runs active, hidden visibility watching, explicit pause, idle and detach/reattach churn with five repetitions,
+120 warmup frames and 600 captured frames. Hidden and paused populations are established before changing visibility/playback.
+Add `--particle-turnover` for deterministic full-population death/respawn at 1,000 particles across one and 32 emitters.
+Record CPU/GPU and engine GC separately from
 Anchor's focused allocation tests. See [BL-301 evidence](particles-release-evidence.md); older stage baselines are historical and
 must not be treated as current measurements of the larger birth-basis state.

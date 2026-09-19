@@ -1,49 +1,111 @@
 namespace BovineLabs.Anchor.Particles
 {
+    using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using BovineLabs.Anchor.Elements;
     using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    internal sealed class UIParticleCoordinator
+    public sealed class UIParticleCoordinator
     {
+        public const int DefaultParticleSlotBudget = 16384;
         [NoAutoStaticsCleanup]
-        private static readonly Dictionary<IPanel, UIParticleCoordinator> Coordinators = new();
+        private static readonly ConditionalWeakTable<IPanel, UIParticleCoordinator> Coordinators = new();
+        [NoAutoStaticsCleanup]
+        private static readonly List<UIParticleCoordinator> Active = new();
         private readonly List<AnchorParticles> elements = new();
         private readonly List<AnchorParticles> notifications = new();
-        private readonly IPanel panel;
         private readonly IVisualElementScheduledItem scheduled;
         private int lastFrame = -1;
+        private int particleSlotBudget = DefaultParticleSlotBudget;
 
         private UIParticleCoordinator(IPanel panel)
         {
-            this.panel = panel;
             this.scheduled = panel.visualTree.schedule.Execute(this.Update).Every(1);
             this.scheduled.Pause();
         }
 
-        internal static UIParticleCoordinator Register(IPanel panel, AnchorParticles element)
+        public int ParticleSlotBudget
         {
-            if (!Coordinators.TryGetValue(panel, out var coordinator))
+            get => this.particleSlotBudget;
+            set
             {
-                coordinator = new UIParticleCoordinator(panel);
-                Coordinators.Add(panel, coordinator);
+                if (value < this.ReservedSlots)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "Budget cannot be below resident capacity.");
+                }
+
+                this.particleSlotBudget = value;
+            }
+        }
+
+        public int ReservedSlots { get; private set; }
+        public ulong RejectedPlays { get; private set; }
+        public int LiveCount
+        {
+            get
+            {
+                var live = 0;
+                foreach (var element in this.elements)
+                {
+                    live += element.LiveCount;
+                }
+
+                return live;
+            }
+        }
+
+        // Weak ownership preserves panel configuration across its last detach without retaining a discarded panel.
+        public static UIParticleCoordinator Get(IPanel panel)
+        {
+            if (panel == null)
+            {
+                throw new ArgumentNullException(nameof(panel));
             }
 
+            return Coordinators.GetValue(panel, static p => new UIParticleCoordinator(p));
+        }
+
+        internal static UIParticleCoordinator Register(IPanel panel, AnchorParticles element)
+        {
+            var coordinator = Get(panel);
             if (!coordinator.elements.Contains(element))
             {
+                if (coordinator.elements.Count == 0)
+                {
+                    Active.Add(coordinator);
+                }
+
                 coordinator.elements.Add(element);
             }
 
             return coordinator;
         }
 
+        internal bool TryReserve(int capacity)
+        {
+            if (capacity > this.particleSlotBudget - this.ReservedSlots)
+            {
+                if (this.RejectedPlays != ulong.MaxValue)
+                {
+                    this.RejectedPlays++;
+                }
+
+                return false;
+            }
+
+            this.ReservedSlots += capacity;
+            return true;
+        }
+
+        internal void Release(int capacity) => this.ReservedSlots -= capacity;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         internal static void Reset()
         {
-            var coordinators = new List<UIParticleCoordinator>(Coordinators.Values);
-            foreach (var coordinator in coordinators)
+            foreach (var coordinator in Active.ToArray())
             {
                 coordinator.scheduled.Pause();
                 foreach (var element in coordinator.elements.ToArray())
@@ -51,10 +113,10 @@ namespace BovineLabs.Anchor.Particles
                     element.ReleaseVisualGeneration();
                 }
 
-                coordinator.elements.Clear();
                 coordinator.notifications.Clear();
             }
 
+            Active.Clear();
             Coordinators.Clear();
         }
 
@@ -68,15 +130,10 @@ namespace BovineLabs.Anchor.Particles
 
         internal void Unregister(AnchorParticles element)
         {
-            if (!this.elements.Remove(element))
-            {
-                return;
-            }
-
-            if (this.elements.Count == 0)
+            if (this.elements.Remove(element) && this.elements.Count == 0)
             {
                 this.scheduled.Pause();
-                Coordinators.Remove(this.panel);
+                Active.Remove(this);
             }
         }
 

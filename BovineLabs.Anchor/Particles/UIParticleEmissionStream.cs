@@ -6,5 +6,8 @@ namespace BovineLabs.Anchor.Particles
         public double Time;
         public double Cycle;
         public int InBurst;
+        public double Credit;
+        public double InitialCredit;
+        public double ScaledCount;
     }
 }

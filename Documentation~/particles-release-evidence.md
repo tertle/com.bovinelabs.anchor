@@ -1,5 +1,10 @@
 # BL-301 release evidence
 
+Historical measurement correction: BL-302 found that the Player harness's capacity-one profiler recorders omitted wraparound.
+The profiler-marker and engine-GC values below therefore describe frozen initial samples, not complete per-frame distributions.
+FrameTimingManager CPU/GPU timings, screenshots and automated tests are unaffected. Use the corrected
+[BL-302 performance baseline](particles-performance-baseline.md) for current marker/allocation evidence.
+
 Validation date: 2026-09-19. Unity 6000.7.0b1, Windows, Anchor basic alpha-particle feature.
 These are development measurements on one workstation, not production budgets or cross-platform guarantees.
 

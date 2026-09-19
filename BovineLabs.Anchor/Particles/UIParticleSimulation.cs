@@ -10,7 +10,8 @@ namespace BovineLabs.Anchor.Particles
         [BurstCompile]
         internal static void Step(
             ref UIParticleCompiledData data, ref NativeArray<UIParticle> particles, ref NativeArray<UIParticleEmitterState> states,
-            ref NativeArray<UIParticleEmissionStream> streams, double delta, uint seed, bool emitting, ref float4x4 spawnTransform)
+            ref NativeArray<UIParticleEmissionStream> streams, double delta, uint seed, bool emitting, ref float4x4 spawnTransform,
+            float emissionScale = 1)
         {
             for (var e = 0; e < data.Emitters.Length; e++)
             {
@@ -43,27 +44,35 @@ namespace BovineLabs.Anchor.Particles
                     var first = !state.Started;
                     state.Started = true;
                     var streamOffset = settings.BurstOffset + e;
-                    var continuousBefore = math.floor(from * settings.Rate);
-                    var continuousAfter = math.floor(to * settings.Rate);
-                    var attempted = continuousAfter - continuousBefore;
+                    var rate = (double)settings.Rate * emissionScale;
+                    var previousCredit = streams[streamOffset].Credit;
+                    var credit = previousCredit + ((to - from) * rate);
+                    var attempted = math.floor(credit);
                     streams[streamOffset] = new UIParticleEmissionStream
                     {
                         Remaining = attempted,
-                        Time = settings.Rate > 0 ? (continuousBefore + 1) / settings.Rate : double.PositiveInfinity,
-                        Cycle = continuousBefore + 1,
+                        Time = rate > 0 ? from + ((1 - previousCredit) / rate) : double.PositiveInfinity,
+                        Credit = credit - attempted,
                     };
                     for (var b = 0; b < settings.BurstCount; b++)
                     {
                         var burst = data.Bursts[settings.BurstOffset + b];
                         var before = first ? 0 : Occurrences(from, burst.Time, settings.Duration, settings.Looping);
                         var after = Occurrences(to, burst.Time, settings.Duration, settings.Looping);
-                        var count = (after - before) * burst.Count;
+                        var scaledCount = (double)burst.Count * emissionScale;
+                        var initialCredit = streams[streamOffset + b + 1].Credit;
+                        var burstCredit = initialCredit + ((after - before) * scaledCount);
+                        var count = math.floor(burstCredit);
+                        var firstCycle = scaledCount > 0 ? math.max(0, math.ceil((1 - initialCredit) / scaledCount) - 1) : 0;
                         attempted += count;
                         streams[streamOffset + b + 1] = new UIParticleEmissionStream
                         {
                             Remaining = count,
-                            Time = (before * settings.Duration) + burst.Time,
+                            Time = ((before + firstCycle) * settings.Duration) + burst.Time,
                             Cycle = before,
+                            Credit = burstCredit - count,
+                            InitialCredit = initialCredit,
+                            ScaledCount = scaledCount,
                         };
                     }
 
@@ -87,18 +96,15 @@ namespace BovineLabs.Anchor.Particles
                         stream.Remaining--;
                         if (selected == 0)
                         {
-                            stream.Cycle++;
-                            stream.Time = stream.Cycle / settings.Rate;
+                            stream.Time += 1 / rate;
                         }
                         else
                         {
                             var burst = data.Bursts[settings.BurstOffset + selected - 1];
-                            if (++stream.InBurst == burst.Count)
-                            {
-                                stream.InBurst = 0;
-                                stream.Cycle++;
-                                stream.Time = (stream.Cycle * settings.Duration) + burst.Time;
-                            }
+                            stream.InBurst++;
+                            // Skip suppressed occurrences analytically; work stays bounded by admitted capacity even at tiny scales.
+                            var cycle = math.max(0, math.ceil(((double)stream.InBurst + 1 - stream.InitialCredit) / stream.ScaledCount) - 1);
+                            stream.Time = ((stream.Cycle + cycle) * settings.Duration) + burst.Time;
                         }
 
                         streams[streamOffset + selected] = stream;

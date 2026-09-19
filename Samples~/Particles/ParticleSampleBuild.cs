@@ -70,7 +70,7 @@ namespace BovineLabs.Anchor.Particles.Sample
                 var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
                 {
                     scenes = new[] { scenePath },
-                    locationPathName = "Temp/AnchorParticles/Player/AnchorParticles.exe",
+                    locationPathName = "Artifacts/AnchorParticles/Player/AnchorParticles.exe",
                     target = BuildTarget.StandaloneWindows64,
                     subtarget = (int)StandaloneBuildSubtarget.Player,
                     options = BuildOptions.Development | BuildOptions.StrictMode,
