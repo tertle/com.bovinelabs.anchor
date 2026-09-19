@@ -11,7 +11,7 @@ namespace BovineLabs.Anchor.Particles.Sample
         private IVisualElementScheduledItem clock;
         private double lastTime;
 
-        [MenuItem("Window/Anchor/Particle runtime example")]
+        [MenuItem("BovineLabs/Samples/Anchor Particles")]
         private static void Open() => GetWindow<ParticleRuntimePreview>("UI particles");
 
         private void CreateGUI()

@@ -11,12 +11,12 @@ namespace BovineLabs.Anchor.Particles.Sample
     using UnityEngine.Rendering;
     using UnityEngine.UIElements;
 
-    public static class ParticleFixtureBuild
+    public static class ParticleSampleBuild
     {
         // Run from an imported sample. Generates its scene as an explicit authoring operation, never from tests.
         public static void Build()
         {
-            var script = AssetDatabase.FindAssets("ParticleFixtureRunner t:MonoScript", new[] { "Assets" });
+            var script = AssetDatabase.FindAssets("ParticleSampleRunner t:MonoScript", new[] { "Assets" });
             if (script.Length != 1)
             {
                 throw new InvalidOperationException("Import exactly one copy of the particle sample before building.");
@@ -28,13 +28,12 @@ namespace BovineLabs.Anchor.Particles.Sample
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.04f, 0.05f, 0.08f, 1);
             camera.cullingMask = 0;
-            var runner = new GameObject("Particle fixture").AddComponent<ParticleFixtureRunner>();
+            var runner = new GameObject("Particle sample").AddComponent<ParticleSampleRunner>();
             var serialized = new SerializedObject(runner);
-            serialized.FindProperty("fixture").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/Particles.uxml");
-            serialized.FindProperty("theme").objectReferenceValue = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(folder + "/Particles.tss");
-            serialized.FindProperty("runtimeFixture").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml");
+            serialized.FindProperty("theme").objectReferenceValue = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(folder + "/ParticleSample.tss");
+            serialized.FindProperty("visualTree").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml");
             serialized.ApplyModifiedPropertiesWithoutUndo();
-            var scenePath = folder + "/ParticleFixture.unity";
+            var scenePath = folder + "/ParticleSample.unity";
             EditorSceneManager.SaveScene(scene, scenePath);
 
             var oldAPIs = PlayerSettings.GetGraphicsAPIs(BuildTarget.StandaloneWindows64);
@@ -79,7 +78,7 @@ namespace BovineLabs.Anchor.Particles.Sample
                 });
                 if (report.summary.result != BuildResult.Succeeded)
                 {
-                    throw new InvalidOperationException($"Particle fixture build failed: {report.summary.result}");
+                    throw new InvalidOperationException($"Particle sample build failed: {report.summary.result}");
                 }
             }
             finally

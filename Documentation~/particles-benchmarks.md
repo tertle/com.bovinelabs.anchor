@@ -1,4 +1,6 @@
-# Native quad rendering experiment (BL-299)
+# Historical native quad rendering experiment (BL-299)
+
+> Archived evidence: the static-quad fixture and its scripts have been removed. Commands and type names below describe the historical implementation, not the current sample. Use [the animated particle sample](../Samples~/Particles/README.md) for current entry points.
 
 This is a rendering and measurement fixture, not the particle simulation or a released `AnchorParticles` control.
 The sample's types are experimental. `ParticleQuad` and `ParticleQuadMesh` are the shared unmanaged input and mesh conversion.
