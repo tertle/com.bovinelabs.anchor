@@ -4,6 +4,9 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     using BovineLabs.Core;
     using Unity.Entities;
 
+    /// <summary>
+    /// Runs debug toolbar systems only while the toolbar is available and restarts them when it is replaced.
+    /// </summary>
     [WorldSystemFilter(WorldSystemFilterFlags.Default | Worlds.Service)]
     [UpdateInGroup(typeof(DebugSystemGroup))]
     public partial class ToolbarSystemGroup : ComponentSystemGroup
