@@ -16,8 +16,6 @@ namespace BovineLabs.Anchor.Elements
 
         public const string FillTextureUssPropertyName = "--bl-anchor-linear-progress-fill-texture";
 
-        private const string ShaderResourcePath = "BovineLabs.Anchor/AnchorLinearProgress";
-
         [NoAutoStaticsCleanup]
         private static readonly CustomStyleProperty<Texture2D> FillTextureStyleProperty = new(FillTextureUssPropertyName);
 
@@ -206,7 +204,7 @@ namespace BovineLabs.Anchor.Elements
                 return true;
             }
 
-            var shader = Resources.Load<Shader>(ShaderResourcePath);
+            var shader = AnchorSettings.I.LinearProgressShader;
             if (!shader)
             {
                 return false;

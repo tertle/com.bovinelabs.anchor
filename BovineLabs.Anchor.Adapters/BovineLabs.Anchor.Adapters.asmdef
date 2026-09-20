@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "BovineLabs.Anchor",
+        "BovineLabs.Core",
         "Unity.AppUI"
     ],
     "includePlatforms": [],

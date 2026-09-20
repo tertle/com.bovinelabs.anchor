@@ -8,6 +8,9 @@ Unity converts C# camel-case `[UxmlAttribute]` names to kebab case. For example,
 
 ## Directional, textured, and masked progress
 
+The custom progress renderer uses `AnchorSettings.LinearProgressShader`. New settings default to the shader in `BovineLabs.Anchor.Adapters/Shaders`.
+When upgrading from Resources-based loading, assign `AnchorLinearProgress.shader` to this field on existing Anchor settings assets.
+
 `AnchorLinearProgress` preserves AppUI progress properties such as `value`, `buffer-value`, `variant`, `size`, `color-override`, and
 `rounded-progress-corners`, then adds a selectable progress axis, an optional fill texture, and an optional alpha mask. It intentionally does not use AppUI's
 `appui-linear-progress` root class, so the theme does not impose bar dimensions; set both width and height through caller USS or inline UXML styles.

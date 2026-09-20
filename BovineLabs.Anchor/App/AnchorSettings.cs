@@ -7,12 +7,18 @@
     using BovineLabs.Core.Settings;
     using UnityEngine;
     using UnityEngine.UIElements;
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
 
     [SettingsGroup("Anchor")]
     public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
         [SerializeField]
         private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
+
+        [SerializeField]
+        private Shader linearProgressShader;
 
         [Header("Views")]
         [SerializeField]
@@ -42,6 +48,16 @@
         public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
 
         public AnchorAudioSettings Audio => this.audio;
+
+        public Shader LinearProgressShader => this.linearProgressShader;
+
+#if UNITY_EDITOR
+        private void Reset()
+        {
+            this.linearProgressShader = AssetDatabase.LoadAssetAtPath<Shader>(
+                "Packages/com.bovinelabs.anchor/BovineLabs.Anchor.Adapters/Shaders/AnchorLinearProgress.shader");
+        }
+#endif
 
         [Serializable]
         public class KeyUXML
