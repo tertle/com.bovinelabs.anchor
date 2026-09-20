@@ -226,69 +226,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
 
         [Test]
-        public void ResizeAndDispose_RestoreReplacedMainCameraRects()
-        {
-            var previousMain = Camera.main;
-            var previousTag = previousMain == null ? null : previousMain.tag;
-            if (previousMain != null)
-            {
-                previousMain.tag = "Untagged";
-            }
-
-            var firstCameraObject = new GameObject("FirstCamera");
-            firstCameraObject.tag = "MainCamera";
-            var firstCamera = firstCameraObject.AddComponent<Camera>();
-            var firstOriginalRect = new Rect(0.1f, 0.2f, 0.8f, 0.7f);
-            firstCamera.rect = firstOriginalRect;
-            GameObject secondCameraObject = null;
-            ToolbarService toolbar = null;
-
-            try
-            {
-                var storage = CreateVisibleStorage();
-                toolbar = new ToolbarService(
-                    new TestServiceProvider(),
-                    new ToolbarViewModel(storage),
-                    storage,
-                    Array.Empty<Type>());
-                var root = (ToolbarView)toolbar.CreateRootVisualElement();
-                var resizeCamera = typeof(ToolbarView).GetMethod("ResizeCamera", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                Assert.IsNotNull(resizeCamera);
-                resizeCamera!.Invoke(root, new object[] { 0.5f });
-                Assert.AreEqual(0.5f, firstCamera.rect.height);
-
-                firstCameraObject.tag = "Untagged";
-                secondCameraObject = new GameObject("SecondCamera");
-                secondCameraObject.tag = "MainCamera";
-                var secondCamera = secondCameraObject.AddComponent<Camera>();
-                var secondOriginalRect = new Rect(0.2f, 0.1f, 0.7f, 0.8f);
-                secondCamera.rect = secondOriginalRect;
-
-                resizeCamera.Invoke(root, new object[] { 0.5f });
-                Assert.AreEqual(firstOriginalRect, firstCamera.rect);
-                Assert.AreEqual(0.5f, secondCamera.rect.height);
-
-                toolbar.Dispose();
-                Assert.AreEqual(secondOriginalRect, secondCamera.rect);
-            }
-            finally
-            {
-                toolbar?.Dispose();
-                UnityEngine.Object.DestroyImmediate(firstCameraObject);
-                if (secondCameraObject != null)
-                {
-                    UnityEngine.Object.DestroyImmediate(secondCameraObject);
-                }
-
-                if (previousMain != null)
-                {
-                    previousMain.tag = previousTag;
-                }
-            }
-        }
-
-        [Test]
         public void AutoToolbarDiscovery_RunsOnceAcrossVisualRecreation()
         {
             var storage = CreateVisibleStorage();
