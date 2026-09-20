@@ -50,7 +50,6 @@ namespace BovineLabs.Anchor.Nav
         private AnchorStackStrategy stackStrategy;
 
         [SerializeField]
-        [FormerlySerializedAs("popUpToDestination")]
         [Tooltip("Destination key used by PopToSpecificDestination.")]
         private string popupToDestination;
 
