@@ -7,9 +7,9 @@ namespace BovineLabs.Anchor
     {
         public AnchorScreenMetrics(int screenWidth, int screenHeight, Rect safeArea)
         {
-            this.ScreenWidth = screenWidth;
-            this.ScreenHeight = screenHeight;
-            this.SafeArea = safeArea;
+            ScreenWidth = screenWidth;
+            ScreenHeight = screenHeight;
+            SafeArea = safeArea;
         }
 
         public int ScreenWidth { get; }
@@ -28,23 +28,23 @@ namespace BovineLabs.Anchor
 
         public bool Equals(AnchorScreenMetrics other)
         {
-            return this.ScreenWidth == other.ScreenWidth &&
-                   this.ScreenHeight == other.ScreenHeight &&
-                   this.SafeArea.Equals(other.SafeArea);
+            return ScreenWidth == other.ScreenWidth &&
+                   ScreenHeight == other.ScreenHeight &&
+                   SafeArea.Equals(other.SafeArea);
         }
 
         public override bool Equals(object obj)
         {
-            return obj is AnchorScreenMetrics other && this.Equals(other);
+            return obj is AnchorScreenMetrics other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = this.ScreenWidth;
-                hashCode = (hashCode * 397) ^ this.ScreenHeight;
-                return (hashCode * 397) ^ this.SafeArea.GetHashCode();
+                var hashCode = ScreenWidth;
+                hashCode = (hashCode * 397) ^ ScreenHeight;
+                return (hashCode * 397) ^ SafeArea.GetHashCode();
             }
         }
     }

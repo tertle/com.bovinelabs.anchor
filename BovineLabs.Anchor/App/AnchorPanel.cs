@@ -15,31 +15,31 @@ namespace BovineLabs.Anchor
 #if UNITY_LOCALIZATION
         public AnchorPanel()
         {
-            this.RegisterCallback<AttachToPanelEvent>(this.OnLocalizationAttached);
-            this.RegisterCallback<DetachFromPanelEvent>(this.OnLocalizationDetached);
+            RegisterCallback<AttachToPanelEvent>(OnLocalizationAttached);
+            RegisterCallback<DetachFromPanelEvent>(OnLocalizationDetached);
         }
 
         private void OnLocalizationAttached(AttachToPanelEvent evt)
         {
-            LocalizationSettings.InitializationCompleted += this.OnLocalizationInitialized;
-            LocalizationSettings.SelectedLocaleChanged += this.OnLocaleChanged;
-            this.OnLocalizationInitialized();
+            LocalizationSettings.InitializationCompleted += OnLocalizationInitialized;
+            LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+            OnLocalizationInitialized();
         }
 
         private void OnLocalizationDetached(DetachFromPanelEvent evt)
         {
-            LocalizationSettings.InitializationCompleted -= this.OnLocalizationInitialized;
-            LocalizationSettings.SelectedLocaleChanged -= this.OnLocaleChanged;
+            LocalizationSettings.InitializationCompleted -= OnLocalizationInitialized;
+            LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         }
 
         private void OnLocalizationInitialized()
         {
-            this.OnLocaleChanged(LocalizationSettings.SelectedLocale);
+            OnLocaleChanged(LocalizationSettings.SelectedLocale);
         }
 
         private void OnLocaleChanged(Locale locale)
         {
-            this.ProvideContext(new LangContext(locale?.Identifier.Code ?? this.lang)
+            this.ProvideContext(new LangContext(locale?.Identifier.Code ?? lang)
             {
                 GetLocalizedStringAsyncFunc = GetLocalizedStringAsync,
             });
@@ -69,14 +69,14 @@ namespace BovineLabs.Anchor
 
         public string Theme
         {
-            get => this.theme;
-            set => this.theme = value;
+            get => theme;
+            set => theme = value;
         }
 
         public string Scale
         {
-            get => this.scale;
-            set => this.scale = value;
+            get => scale;
+            set => scale = value;
         }
     }
 }

@@ -33,83 +33,83 @@
         private const float RestoreClickResetSeconds = 1f;
         private const int CameraRefreshMilliseconds = 250;
 
-        private readonly List<Transform> transformList = new();
-        private readonly List<Camera> cameraList = new();
-        private readonly Dictionary<Camera, Rect> originalCameraRects = new();
-        private readonly Dictionary<string, ToolbarGroup> toolbarTabs = new();
-        private readonly Dictionary<int, ToolbarGroup.Tab> toolbarGroups = new();
-        private readonly Toolbar toolbar;
-        private readonly ToolbarViewModel viewModel;
+        private readonly List<Transform> _transformList = new();
+        private readonly List<Camera> _cameraList = new();
+        private readonly Dictionary<Camera, Rect> _originalCameraRects = new();
+        private readonly Dictionary<string, ToolbarGroup> _toolbarTabs = new();
+        private readonly Dictionary<int, ToolbarGroup.Tab> _toolbarGroups = new();
+        private readonly Toolbar _toolbar;
+        private readonly ToolbarViewModel _viewModel;
 
-        private readonly VisualElement menuContainer;
-        private readonly Dropdown filterButton;
-        private readonly Button showButton;
-        private readonly IVisualElementScheduledItem cameraRefresh;
+        private readonly VisualElement _menuContainer;
+        private readonly Dropdown _filterButton;
+        private readonly Button _showButton;
+        private readonly IVisualElementScheduledItem _cameraRefresh;
 
-        private ToolbarGroup activeGroup;
-        private AnchorApp anchorApp;
-        private VisualElement panelRoot;
+        private ToolbarGroup _activeGroup;
+        private AnchorApp _anchorApp;
+        private VisualElement _panelRoot;
 
-        private Vector2 uiSize;
-        private float cameraHeightNormalized;
-        private bool toolbarHidden;
-        private bool hasCameraHeight;
-        private bool compositionCompleted;
-        private bool disposed;
-        private int restoreClickCount;
-        private float lastRestoreClickTime;
+        private Vector2 _uiSize;
+        private float _cameraHeightNormalized;
+        private bool _toolbarHidden;
+        private bool _hasCameraHeight;
+        private bool _compositionCompleted;
+        private bool _disposed;
+        private int _restoreClickCount;
+        private float _lastRestoreClickTime;
 
         internal ToolbarView(Toolbar toolbar, ToolbarViewModel viewModel)
         {
-            this.toolbar = toolbar;
-            this.viewModel = viewModel;
-            this.dataSource = viewModel;
+            _toolbar = toolbar;
+            _viewModel = viewModel;
+            dataSource = viewModel;
 
-            this.AddToClassList(UssClassName);
+            AddToClassList(UssClassName);
 
             var menu = new VisualElement();
             menu.AddToClassList(MenuUssClassName);
 
-            this.showButton = this.CreateShowButton();
-            this.filterButton = this.CreateFilterButton();
-            var hideButton = this.CreateHideButton();
+            _showButton = CreateShowButton();
+            _filterButton = CreateFilterButton();
+            var hideButton = CreateHideButton();
 
-            this.menuContainer = new VisualElement();
-            this.menuContainer.AddToClassList(MenuContainerUssClassName);
+            _menuContainer = new VisualElement();
+            _menuContainer.AddToClassList(MenuContainerUssClassName);
 
-            menu.Add(this.showButton);
-            menu.Add(this.filterButton);
-            menu.Add(this.menuContainer);
+            menu.Add(_showButton);
+            menu.Add(_filterButton);
+            menu.Add(_menuContainer);
             menu.Add(hideButton);
 
-            this.Add(menu);
+            Add(menu);
 
             DisableKeyboardNavigation(menu);
 
-            this.RegisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged, this);
-            this.viewModel.PropertyChanged += this.OnPropertyChanged;
+            RegisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged, this);
+            _viewModel.PropertyChanged += OnPropertyChanged;
 
-            if (this.toolbar.IsToolbarHidden)
+            if (_toolbar.IsToolbarHidden)
             {
-                this.HideToolbar();
+                HideToolbar();
             }
 
-            this.RegisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
-            this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
-            this.cameraRefresh = this.schedule.Execute(this.RefreshCameraRects).Every(CameraRefreshMilliseconds);
+            RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
+            _cameraRefresh = schedule.Execute(RefreshCameraRects).Every(CameraRefreshMilliseconds);
         }
 
-        public bool ToolbarHidden => this.toolbarHidden;
+        public bool ToolbarHidden => _toolbarHidden;
 
         private bool IsRibbonVisible
         {
-            get => this.toolbar.IsRibbonVisible;
-            set => this.toolbar.SetRibbonVisible(value);
+            get => _toolbar.IsRibbonVisible;
+            set => _toolbar.SetRibbonVisible(value);
         }
 
         internal void AddRegistration(int id, string tabName, string elementName, VisualElement element)
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(ToolbarView));
             }
@@ -124,16 +124,16 @@
                 throw new ArgumentException("Toolbar elements must be unattached when registered.", nameof(element));
             }
 
-            if (!this.toolbarTabs.TryGetValue(tabName, out var tab))
+            if (!_toolbarTabs.TryGetValue(tabName, out var tab))
             {
-                tab = this.toolbarTabs[tabName] = this.CreateTab(tabName);
+                tab = _toolbarTabs[tabName] = CreateTab(tabName);
             }
 
             var container = new ToolbarTabElement(elementName);
             container.Add(element);
 
             var group = new ToolbarGroup.Tab(id, elementName, container, tab, element);
-            this.toolbarGroups.Add(id, group);
+            _toolbarGroups.Add(id, group);
 
             tab.Groups.Add(group);
             tab.Groups.Sort(static (t1, t2) =>
@@ -142,83 +142,83 @@
                 return nameComparison != 0 ? nameComparison : t1.ID.CompareTo(t2.ID);
             });
 
-            if (!this.viewModel.SelectionsHidden.Contains(group.Name))
+            if (!_viewModel.SelectionsHidden.Contains(group.Name))
             {
-                this.ShowTab(group);
+                ShowTab(group);
             }
 
             DisableKeyboardNavigation(element);
 
-            if (this.compositionCompleted)
+            if (_compositionCompleted)
             {
-                this.EnsureActiveGroup();
+                EnsureActiveGroup();
             }
         }
 
         internal void RemoveRegistration(int id)
         {
-            if (!this.toolbarGroups.Remove(id, out var group))
+            if (!_toolbarGroups.Remove(id, out var group))
             {
                 return;
             }
 
-            this.HideTab(group);
+            HideTab(group);
             group.Group.Groups.Remove(group);
             ReleaseVisualElement(group.View);
 
-            if (this.compositionCompleted)
+            if (_compositionCompleted)
             {
-                this.EnsureActiveGroup();
+                EnsureActiveGroup();
             }
         }
 
         internal void CompleteComposition()
         {
-            this.compositionCompleted = true;
-            this.EnsureActiveGroup();
+            _compositionCompleted = true;
+            EnsureActiveGroup();
         }
 
         public void Dispose()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            this.disposed = true;
-            this.compositionCompleted = false;
-            this.cameraRefresh.Pause();
+            _disposed = true;
+            _compositionCompleted = false;
+            _cameraRefresh.Pause();
 
-            this.viewModel.PropertyChanged -= this.OnPropertyChanged;
+            _viewModel.PropertyChanged -= OnPropertyChanged;
 
-            if (!this.resourcesReleased)
+            if (!resourcesReleased)
             {
-                this.UnregisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged);
-                this.UnregisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
-                this.UnregisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
+                UnregisterCallback<GeometryChangedEvent, ToolbarView>(OnToolbarGeometryChanged);
+                UnregisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+                UnregisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
             }
 
-            this.UnregisterPanelRoot();
+            UnregisterPanelRoot();
 
-            foreach (var group in this.toolbarGroups.Values)
+            foreach (var group in _toolbarGroups.Values)
             {
                 ReleaseVisualElement(group.View);
             }
 
-            this.toolbarGroups.Clear();
-            this.toolbarTabs.Clear();
-            this.activeGroup = null;
+            _toolbarGroups.Clear();
+            _toolbarTabs.Clear();
+            _activeGroup = null;
 
-            if (this.resourcesReleased)
+            if (resourcesReleased)
             {
-                this.dataSource = null;
-                this.filterButton.dataSource = null;
+                dataSource = null;
+                _filterButton.dataSource = null;
             }
             else
             {
-                this.RemoveFromHierarchy();
+                RemoveFromHierarchy();
                 ClearBindingsAndDataSources(this);
-                this.Clear();
+                Clear();
             }
         }
 
@@ -226,58 +226,58 @@
         {
             if (show)
             {
-                this.showButton.Q<Icon>(ShowIconTargetClassName).RemoveFromClassList(ShowHiddenUssClassName);
+                _showButton.Q<Icon>(ShowIconTargetClassName).RemoveFromClassList(ShowHiddenUssClassName);
 
-                if (this.activeGroup != null)
+                if (_activeGroup != null)
                 {
-                    if (this.activeGroup.Parent.parent == null)
+                    if (_activeGroup.Parent.parent == null)
                     {
-                        this.activeGroup.Parent.AddToTab(this);
+                        _activeGroup.Parent.AddToTab(this);
                     }
                     else
                     {
-                        Assert.IsTrue(this == this.activeGroup.Parent.parent);
+                        Assert.IsTrue(this == _activeGroup.Parent.parent);
                     }
                 }
             }
             else
             {
-                this.showButton.Q<Icon>(ShowIconTargetClassName).AddToClassList(ShowHiddenUssClassName);
+                _showButton.Q<Icon>(ShowIconTargetClassName).AddToClassList(ShowHiddenUssClassName);
 
-                if (this.activeGroup?.Parent.parent != null)
+                if (_activeGroup?.Parent.parent != null)
                 {
-                    Assert.IsTrue(this.activeGroup.Parent.parent == this);
-                    this.activeGroup.Parent.RemoveFromTab();
+                    Assert.IsTrue(_activeGroup.Parent.parent == this);
+                    _activeGroup.Parent.RemoveFromTab();
                 }
             }
 
-            this.IsRibbonVisible = show;
+            IsRibbonVisible = show;
         }
 
         public void HideToolbar()
         {
-            if (this.toolbarHidden)
+            if (_toolbarHidden)
             {
                 return;
             }
 
-            this.style.display = DisplayStyle.None;
-            this.toolbarHidden = true;
-            this.toolbar.SetToolbarHidden(true);
-            this.ResetRestoreClickState();
+            style.display = DisplayStyle.None;
+            _toolbarHidden = true;
+            _toolbar.SetToolbarHidden(true);
+            ResetRestoreClickState();
         }
 
         public void RestoreToolbar()
         {
-            if (!this.toolbarHidden)
+            if (!_toolbarHidden)
             {
                 return;
             }
 
-            this.style.display = DisplayStyle.Flex;
-            this.toolbarHidden = false;
-            this.toolbar.SetToolbarHidden(false);
-            this.ResetRestoreClickState();
+            style.display = DisplayStyle.Flex;
+            _toolbarHidden = false;
+            _toolbar.SetToolbarHidden(false);
+            ResetRestoreClickState();
         }
 
         private static void DisableKeyboardNavigation(VisualElement root)
@@ -352,12 +352,12 @@
 
         private void OnAttachToPanel(AttachToPanelEvent evt)
         {
-            this.RegisterPanelRoot(evt.destinationPanel?.visualTree);
+            RegisterPanelRoot(evt.destinationPanel?.visualTree);
         }
 
         private void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
-            this.UnregisterPanelRoot();
+            UnregisterPanelRoot();
         }
 
         private void ShowTab(ToolbarGroup.Tab tab)
@@ -376,7 +376,7 @@
             // If this tab is hidden, show it
             if (group.Button.parent == null)
             {
-                this.menuContainer.Add(group.Button);
+                _menuContainer.Add(group.Button);
             }
         }
 
@@ -395,90 +395,90 @@
             {
                 group.Button.RemoveFromHierarchy();
 
-                if (this.activeGroup == group)
+                if (_activeGroup == group)
                 {
-                    this.SetToolbarActive(null);
+                    SetToolbarActive(null);
                 }
             }
         }
 
         private void RegisterPanelRoot(VisualElement root)
         {
-            if (ReferenceEquals(this.panelRoot, root))
+            if (ReferenceEquals(_panelRoot, root))
             {
-                this.UpdatePanelSize();
+                UpdatePanelSize();
                 return;
             }
 
-            this.UnregisterPanelRoot();
-            this.panelRoot = root;
+            UnregisterPanelRoot();
+            _panelRoot = root;
 
-            if (this.panelRoot == null)
+            if (_panelRoot == null)
             {
-                this.anchorApp = null;
-                this.uiSize = Vector2.zero;
+                _anchorApp = null;
+                _uiSize = Vector2.zero;
                 return;
             }
 
-            this.anchorApp = AnchorApp.Current;
-            this.panelRoot.RegisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
-            this.panelRoot.RegisterCallback<PointerDownEvent>(this.OnRootPointerDown);
-            if (this.anchorApp != null)
+            _anchorApp = AnchorApp.Current;
+            _panelRoot.RegisterCallback<GeometryChangedEvent>(OnPanelRootGeometryChanged);
+            _panelRoot.RegisterCallback<PointerDownEvent>(OnRootPointerDown);
+            if (_anchorApp != null)
             {
-                this.anchorApp.ScreenMetricsChanged += this.OnScreenMetricsChanged;
+                _anchorApp.ScreenMetricsChanged += OnScreenMetricsChanged;
             }
 
-            this.UpdatePanelSize();
-            this.ResizeViewRect(this.contentRect);
+            UpdatePanelSize();
+            ResizeViewRect(contentRect);
         }
 
         private void UnregisterPanelRoot()
         {
-            if (this.anchorApp != null)
+            if (_anchorApp != null)
             {
-                this.anchorApp.ScreenMetricsChanged -= this.OnScreenMetricsChanged;
+                _anchorApp.ScreenMetricsChanged -= OnScreenMetricsChanged;
             }
 
-            if (this.panelRoot != null && !this.panelRoot.resourcesReleased)
+            if (_panelRoot != null && !_panelRoot.resourcesReleased)
             {
-                this.panelRoot.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
-                this.panelRoot.UnregisterCallback<PointerDownEvent>(this.OnRootPointerDown);
+                _panelRoot.UnregisterCallback<GeometryChangedEvent>(OnPanelRootGeometryChanged);
+                _panelRoot.UnregisterCallback<PointerDownEvent>(OnRootPointerDown);
             }
 
-            this.ResetCanvasOffsets();
-            this.hasCameraHeight = false;
-            this.ResetCameraRects();
+            ResetCanvasOffsets();
+            _hasCameraHeight = false;
+            ResetCameraRects();
 
-            if (!this.resourcesReleased)
+            if (!resourcesReleased)
             {
-                AnchorSafeAreaUtility.ResetPadding(this.style);
+                AnchorSafeAreaUtility.ResetPadding(style);
             }
 
-            this.anchorApp = null;
-            this.panelRoot = null;
-            this.uiSize = Vector2.zero;
+            _anchorApp = null;
+            _panelRoot = null;
+            _uiSize = Vector2.zero;
         }
 
         private void OnPanelRootGeometryChanged(GeometryChangedEvent evt)
         {
-            this.UpdatePanelSize();
-            this.ResizeViewRect(this.contentRect);
+            UpdatePanelSize();
+            ResizeViewRect(contentRect);
         }
 
         private void OnScreenMetricsChanged(AnchorScreenMetrics metrics)
         {
-            this.UpdatePanelSize();
-            this.ResizeViewRect(this.contentRect);
+            UpdatePanelSize();
+            ResizeViewRect(contentRect);
         }
 
         private void UpdatePanelSize()
         {
-            this.uiSize = this.GetPanelUiSize();
+            _uiSize = GetPanelUiSize();
         }
 
         private Vector2 GetPanelUiSize()
         {
-            var layoutSize = this.panel.visualTree.layout.size;
+            var layoutSize = panel.visualTree.layout.size;
             if (float.IsNaN(layoutSize.x) || float.IsNaN(layoutSize.y))
             {
                 return Vector2.zero;
@@ -489,7 +489,7 @@
 
         private Button CreateShowButton()
         {
-            var button = new Button(() => this.ShowRibbon(!this.IsRibbonVisible)) { trailingIcon = "caret-down" };
+            var button = new Button(() => ShowRibbon(!IsRibbonVisible)) { trailingIcon = "caret-down" };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
@@ -506,14 +506,14 @@
         {
             var dropdown = new Dropdown
             {
-                dataSource = this.viewModel,
-                sourceItems = this.viewModel.FilterItems,
+                dataSource = _viewModel,
+                sourceItems = _viewModel.FilterItems,
                 selectionType = PickerSelectionType.Multiple,
                 closeOnSelection = false,
                 defaultMessage = string.Empty,
                 bindTitle = (item, _) => item.labelElement.text = string.Empty,
-                bindItem = (item, i) => item.label = this.viewModel.FilterItems[i],
-                value = this.viewModel.FilterValues,
+                bindItem = (item, i) => item.label = _viewModel.FilterItems[i],
+                value = _viewModel.FilterValues,
             };
 
             dropdown.SetBinding(nameof(Dropdown.value), new DataBinding
@@ -531,7 +531,7 @@
 
         private Button CreateHideButton()
         {
-            var button = new Button(this.HideToolbar) { trailingIcon = "x" };
+            var button = new Button(HideToolbar) { trailingIcon = "x" };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
@@ -542,24 +542,24 @@
 
         private void ResetRestoreClickState()
         {
-            this.restoreClickCount = 0;
-            this.lastRestoreClickTime = 0f;
+            _restoreClickCount = 0;
+            _lastRestoreClickTime = 0f;
         }
 
         private void OnRootPointerDown(PointerDownEvent evt)
         {
             // Only track restoration clicks when the toolbar is hidden from view.
-            var isHidden = this.toolbarHidden || this.resolvedStyle.display == DisplayStyle.None;
-            this.toolbarHidden = isHidden;
+            var isHidden = _toolbarHidden || resolvedStyle.display == DisplayStyle.None;
+            _toolbarHidden = isHidden;
 
             if (!isHidden)
             {
-                this.ResetRestoreClickState();
+                ResetRestoreClickState();
                 return;
             }
 
-            var width = this.uiSize.x;
-            var height = this.uiSize.y;
+            var width = _uiSize.x;
+            var height = _uiSize.y;
 
             var hotspotHeight = Screen.height * RestoreHotspotPercent;
             var hotspotWidth = hotspotHeight;
@@ -578,7 +578,7 @@
 
             if (width <= 0 || position.x < width - hotspotWidth || position.y > hotspotHeight)
             {
-                this.ResetRestoreClickState();
+                ResetRestoreClickState();
                 return;
             }
 
@@ -589,20 +589,20 @@
 
             var time = Time.realtimeSinceStartup;
 
-            if (time - this.lastRestoreClickTime > RestoreClickResetSeconds)
+            if (time - _lastRestoreClickTime > RestoreClickResetSeconds)
             {
-                this.restoreClickCount = 0;
+                _restoreClickCount = 0;
             }
 
-            this.lastRestoreClickTime = time;
-            this.restoreClickCount++;
+            _lastRestoreClickTime = time;
+            _restoreClickCount++;
 
-            if (this.restoreClickCount < RestoreClickThreshold)
+            if (_restoreClickCount < RestoreClickThreshold)
             {
                 return;
             }
 
-            this.RestoreToolbar();
+            RestoreToolbar();
             evt.StopPropagation();
         }
 
@@ -622,11 +622,11 @@
 
             button.clicked += () =>
             {
-                this.SetToolbarActive(toolbarTab);
+                SetToolbarActive(toolbarTab);
 
-                if (!this.IsRibbonVisible)
+                if (!IsRibbonVisible)
                 {
-                    this.ShowRibbon(true);
+                    ShowRibbon(true);
                 }
             };
 
@@ -635,103 +635,103 @@
 
         private void SetToolbarActive(ToolbarGroup group, bool updateState = true)
         {
-            if (group == this.activeGroup)
+            if (group == _activeGroup)
             {
                 if (updateState)
                 {
-                    this.toolbar.SetActiveTab(group?.Name);
+                    _toolbar.SetActiveTab(group?.Name);
                 }
 
-                if (this.IsRibbonVisible)
+                if (IsRibbonVisible)
                 {
-                    this.ShowRibbon(true);
+                    ShowRibbon(true);
                 }
 
                 return;
             }
 
-            if (this.activeGroup != null)
+            if (_activeGroup != null)
             {
-                this.activeGroup.Button.variant = ButtonVariant.Default;
+                _activeGroup.Button.variant = ButtonVariant.Default;
 
                 // something else has already removed it or moved it
-                if (this.activeGroup.Parent.parent == this)
+                if (_activeGroup.Parent.parent == this)
                 {
-                    this.activeGroup.Parent.RemoveFromTab();
+                    _activeGroup.Parent.RemoveFromTab();
                 }
 
-                this.activeGroup = null;
+                _activeGroup = null;
             }
 
             if (group == null)
             {
                 if (updateState)
                 {
-                    this.toolbar.SetActiveTab(string.Empty);
+                    _toolbar.SetActiveTab(string.Empty);
                 }
 
                 return;
             }
 
-            this.activeGroup = group;
+            _activeGroup = group;
             group.Button.variant = ButtonVariant.Accent;
 
             if (updateState)
             {
-                this.toolbar.SetActiveTab(group.Name);
+                _toolbar.SetActiveTab(group.Name);
             }
 
-            if (this.IsRibbonVisible)
+            if (IsRibbonVisible)
             {
-                this.ShowRibbon(true);
+                ShowRibbon(true);
             }
         }
 
         private void EnsureActiveGroup()
         {
-            if (this.activeGroup?.Button.parent != null)
+            if (_activeGroup?.Button.parent != null)
             {
                 return;
             }
 
-            if (this.toolbarTabs.TryGetValue(this.toolbar.ActiveTabName, out var storedGroup) && storedGroup.Button.parent != null)
+            if (_toolbarTabs.TryGetValue(_toolbar.ActiveTabName, out var storedGroup) && storedGroup.Button.parent != null)
             {
-                this.SetToolbarActive(storedGroup, false);
+                SetToolbarActive(storedGroup, false);
                 return;
             }
 
-            this.SetDefaultGroup();
+            SetDefaultGroup();
         }
 
         private void SetDefaultGroup()
         {
-            this.SetToolbarActive(null, false);
+            SetToolbarActive(null, false);
 
-            if (this.menuContainer.childCount == 0)
+            if (_menuContainer.childCount == 0)
             {
-                this.toolbar.SetActiveTab(string.Empty);
+                _toolbar.SetActiveTab(string.Empty);
                 return;
             }
 
-            var firstButton = (Button)this.menuContainer.contentContainer.Children().First();
-            var group = this.toolbarTabs.First(g => g.Value.Button == firstButton);
-            this.SetToolbarActive(group.Value);
+            var firstButton = (Button)_menuContainer.contentContainer.Children().First();
+            var group = _toolbarTabs.First(g => g.Value.Button == firstButton);
+            SetToolbarActive(group.Value);
         }
 
         private void ResizeViewRect(Rect uiRect)
         {
-            if (this.uiSize.y == 0 || float.IsNaN(uiRect.height))
+            if (_uiSize.y == 0 || float.IsNaN(uiRect.height))
             {
                 return;
             }
 
-            Check.Assume(!float.IsNaN(this.uiSize.y));
+            Check.Assume(!float.IsNaN(_uiSize.y));
 
-            AnchorSafeAreaUtility.ApplyPadding(this, this, this.panelRoot, AnchorSafeAreaEdges.Top | AnchorSafeAreaEdges.Left | AnchorSafeAreaEdges.Right);
+            AnchorSafeAreaUtility.ApplyPadding(this, this, _panelRoot, AnchorSafeAreaEdges.Top | AnchorSafeAreaEdges.Left | AnchorSafeAreaEdges.Right);
 
-            var cameraHeightNormalized = (this.uiSize.y - uiRect.height) / this.uiSize.y;
-            this.ResizeCamera(cameraHeightNormalized);
-            this.ResizeCanvas(cameraHeightNormalized);
+            var cameraHeightNormalized = (_uiSize.y - uiRect.height) / _uiSize.y;
+            ResizeCamera(cameraHeightNormalized);
+            ResizeCanvas(cameraHeightNormalized);
 
             // if (AnchorApp.current.PopupContainer != null)
             // {
@@ -751,20 +751,20 @@
 
         private void ResizeCamera(float cameraHeightNormalized)
         {
-            this.cameraHeightNormalized = cameraHeightNormalized;
-            this.hasCameraHeight = true;
+            _cameraHeightNormalized = cameraHeightNormalized;
+            _hasCameraHeight = true;
 
             var cam = Camera.main;
-            this.cameraList.Clear();
+            _cameraList.Clear();
 
             if (cam == null)
             {
-                this.ResetCameraRects();
+                ResetCameraRects();
                 return;
             }
 
-            this.cameraList.Add(cam);
-            var rect = this.GetOriginalCameraRect(cam);
+            _cameraList.Add(cam);
+            var rect = GetOriginalCameraRect(cam);
             rect.height = cameraHeightNormalized;
             cam.rect = rect;
 
@@ -778,8 +778,8 @@
                         continue;
                     }
 
-                    this.cameraList.Add(camera);
-                    this.GetOriginalCameraRect(camera);
+                    _cameraList.Add(camera);
+                    GetOriginalCameraRect(camera);
 
                     if (camera.rect != rect)
                     {
@@ -788,29 +788,29 @@
                 }
             }
 
-            foreach (var camera in this.originalCameraRects.Keys.ToArray())
+            foreach (var camera in _originalCameraRects.Keys.ToArray())
             {
-                if (camera == null || !this.cameraList.Contains(camera))
+                if (camera == null || !_cameraList.Contains(camera))
                 {
-                    this.RestoreCameraRect(camera);
+                    RestoreCameraRect(camera);
                 }
             }
         }
 
         private void RefreshCameraRects()
         {
-            if (this.hasCameraHeight)
+            if (_hasCameraHeight)
             {
-                this.ResizeCamera(this.cameraHeightNormalized);
+                ResizeCamera(_cameraHeightNormalized);
             }
         }
 
         private Rect GetOriginalCameraRect(Camera camera)
         {
-            if (!this.originalCameraRects.TryGetValue(camera, out var rect))
+            if (!_originalCameraRects.TryGetValue(camera, out var rect))
             {
                 rect = camera.rect;
-                this.originalCameraRects.Add(camera, rect);
+                _originalCameraRects.Add(camera, rect);
             }
 
             return rect;
@@ -818,18 +818,18 @@
 
         private void ResetCameraRects()
         {
-            foreach (var camera in this.originalCameraRects.Keys.ToArray())
+            foreach (var camera in _originalCameraRects.Keys.ToArray())
             {
-                this.RestoreCameraRect(camera);
+                RestoreCameraRect(camera);
             }
 
-            this.cameraList.Clear();
+            _cameraList.Clear();
         }
 
         private void RestoreCameraRect(Camera camera)
         {
-            var rect = this.originalCameraRects[camera];
-            this.originalCameraRects.Remove(camera);
+            var rect = _originalCameraRects[camera];
+            _originalCameraRects.Remove(camera);
 
             if (camera != null)
             {
@@ -852,8 +852,8 @@
                     continue;
                 }
 
-                var offset = this.GetOrCreateToolbarOffset(canvas);
-                this.MoveCanvasChildrenToOffset(canvas, offset);
+                var offset = GetOrCreateToolbarOffset(canvas);
+                MoveCanvasChildrenToOffset(canvas, offset);
 
                 var scaleFactor = canvas.scaleFactor;
                 if (scaleFactor <= 0f)
@@ -887,17 +887,17 @@
         {
             var offsetTransform = offset.transform;
 
-            this.transformList.Clear();
+            _transformList.Clear();
             for (var i = 0; i < canvas.transform.childCount; i++)
             {
                 var child = canvas.transform.GetChild(i);
                 if (child != offsetTransform)
                 {
-                    this.transformList.Add(child);
+                    _transformList.Add(child);
                 }
             }
 
-            foreach (var child in this.transformList)
+            foreach (var child in _transformList)
             {
                 child.SetParent(offsetTransform, true);
             }
@@ -918,20 +918,20 @@
                     continue;
                 }
 
-                var offset = this.TryGetToolbarOffset(canvas);
+                var offset = TryGetToolbarOffset(canvas);
                 if (offset == null)
                 {
                     continue;
                 }
 
                 var offsetTransform = offset.transform;
-                this.transformList.Clear();
+                _transformList.Clear();
                 for (var i = 0; i < offsetTransform.childCount; i++)
                 {
-                    this.transformList.Add(offsetTransform.GetChild(i));
+                    _transformList.Add(offsetTransform.GetChild(i));
                 }
 
-                foreach (var child in this.transformList)
+                foreach (var child in _transformList)
                 {
                     child.SetParent(canvas.transform, true);
                 }
@@ -958,29 +958,29 @@
         {
             if (e.PropertyName == nameof(ToolbarViewModel.FilterItems))
             {
-                this.filterButton.value = this.viewModel.FilterValues; // Can't rely on binding to have updated in time
-                this.filterButton.Refresh();
+                _filterButton.value = _viewModel.FilterValues; // Can't rely on binding to have updated in time
+                _filterButton.Refresh();
             }
             else if (e.PropertyName == nameof(ToolbarViewModel.FilterValues))
             {
-                foreach (var tabGroup in this.toolbarTabs.ToArray())
+                foreach (var tabGroup in _toolbarTabs.ToArray())
                 {
                     foreach (var t in tabGroup.Value.Groups)
                     {
-                        if (this.viewModel.SelectionsHidden.Contains(t.Name))
+                        if (_viewModel.SelectionsHidden.Contains(t.Name))
                         {
-                            this.HideTab(t);
+                            HideTab(t);
                         }
                         else
                         {
-                            this.ShowTab(t);
+                            ShowTab(t);
                         }
                     }
                 }
 
-                if (this.compositionCompleted)
+                if (_compositionCompleted)
                 {
-                    this.EnsureActiveGroup();
+                    EnsureActiveGroup();
                 }
             }
         }

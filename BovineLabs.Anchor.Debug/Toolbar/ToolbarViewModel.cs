@@ -14,80 +14,80 @@
     {
         private const string SelectionKey = "bl.toolbarmanager.filter.selections";
 
-        private readonly ILocalStorageService storageService;
-        private readonly Dictionary<string, int> selectionsCount = new();
-        private readonly HashSet<string> selectionsHidden = new();
-        private readonly List<int> filterValuesPrevious = new();
-        private readonly List<int> filterValues = new();
+        private readonly ILocalStorageService _storageService;
+        private readonly Dictionary<string, int> _selectionsCount = new();
+        private readonly HashSet<string> _selectionsHidden = new();
+        private readonly List<int> _filterValuesPrevious = new();
+        private readonly List<int> _filterValues = new();
 
         [Preserve]
         public ToolbarViewModel(ILocalStorageService storageService)
         {
-            this.storageService = storageService;
+            _storageService = storageService;
 
             var selectionSaved = storageService.GetValue(SelectionKey, string.Empty);
             var selectionArray = selectionSaved.Split(",");
-            this.selectionsHidden.UnionWith(selectionArray);
-            this.selectionsHidden.Remove(string.Empty);
+            _selectionsHidden.UnionWith(selectionArray);
+            _selectionsHidden.Remove(string.Empty);
         }
 
-        public IReadOnlyCollection<string> SelectionsHidden => this.selectionsHidden;
+        public IReadOnlyCollection<string> SelectionsHidden => _selectionsHidden;
 
         public List<string> FilterItems { get; } = new();
 
         [CreateProperty]
         public IEnumerable<int> FilterValues
         {
-            get => this.filterValues;
+            get => _filterValues;
             set
             {
-                if (SequenceComparer.Int.Equals(this.filterValues, value))
+                if (SequenceComparer.Int.Equals(_filterValues, value))
                 {
                     return;
                 }
 
-                this.OnPropertyChanging();
+                OnPropertyChanging();
 
-                this.filterValues.Clear();
-                this.filterValues.AddRange(value);
+                _filterValues.Clear();
+                _filterValues.AddRange(value);
 
-                foreach (var oldValue in this.filterValuesPrevious.Where(oldValue => !this.filterValues.Contains(oldValue)))
+                foreach (var oldValue in _filterValuesPrevious.Where(oldValue => !_filterValues.Contains(oldValue)))
                 {
-                    this.selectionsHidden.Add(this.FilterItems[oldValue]);
+                    _selectionsHidden.Add(FilterItems[oldValue]);
                 }
 
-                foreach (var newValue in this.filterValues.Where(newValue => !this.filterValuesPrevious.Contains(newValue)))
+                foreach (var newValue in _filterValues.Where(newValue => !_filterValuesPrevious.Contains(newValue)))
                 {
-                    this.selectionsHidden.Remove(this.FilterItems[newValue]);
+                    _selectionsHidden.Remove(FilterItems[newValue]);
                 }
 
-                var serializedString = string.Join(",", this.selectionsHidden);
-                this.storageService.SetValue(SelectionKey, serializedString);
+                var serializedString = string.Join(",", _selectionsHidden);
+                _storageService.SetValue(SelectionKey, serializedString);
 
-                this.filterValuesPrevious.Clear();
-                this.filterValuesPrevious.AddRange(this.filterValues);
+                _filterValuesPrevious.Clear();
+                _filterValuesPrevious.AddRange(_filterValues);
 
-                this.OnPropertyChanged();
+                OnPropertyChanged();
             }
         }
 
         public void AddSelection(string filterName)
         {
-            this.selectionsCount.TryGetValue(filterName, out var count);
+            _selectionsCount.TryGetValue(filterName, out var count);
             if (count == 0)
             {
-                this.FilterItems.Add(filterName);
-                this.FilterItems.Sort();
+                FilterItems.Add(filterName);
+                FilterItems.Sort();
 
-                this.RefreshItems();
+                RefreshItems();
             }
 
-            this.selectionsCount[filterName] = count + 1;
+            _selectionsCount[filterName] = count + 1;
         }
 
         public void RemoveSelection(string filterName)
         {
-            if (!this.selectionsCount.TryGetValue(filterName, out var currentValue))
+            if (!_selectionsCount.TryGetValue(filterName, out var currentValue))
             {
                 return;
             }
@@ -95,35 +95,35 @@
             currentValue--;
             if (currentValue == 0)
             {
-                this.selectionsCount.Remove(filterName);
-                this.FilterItems.Remove(filterName);
+                _selectionsCount.Remove(filterName);
+                FilterItems.Remove(filterName);
 
-                this.RefreshItems();
+                RefreshItems();
             }
             else
             {
-                this.selectionsCount[filterName] = currentValue;
+                _selectionsCount[filterName] = currentValue;
             }
         }
 
         private void RefreshItems()
         {
             // Override the previous so that when tabs are removed it doesn't add them to hidden list thus avoiding disabling them
-            this.filterValuesPrevious.Clear();
+            _filterValuesPrevious.Clear();
 
-            for (var index = 0; index < this.FilterItems.Count; index++)
+            for (var index = 0; index < FilterItems.Count; index++)
             {
-                var filter = this.FilterItems[index];
-                if (!this.SelectionsHidden.Contains(filter))
+                var filter = FilterItems[index];
+                if (!SelectionsHidden.Contains(filter))
                 {
-                    this.filterValuesPrevious.Add(index);
+                    _filterValuesPrevious.Add(index);
                 }
             }
 
-            this.filterValues.Clear();
-            this.filterValues.AddRange(this.filterValuesPrevious);
+            _filterValues.Clear();
+            _filterValues.AddRange(_filterValuesPrevious);
 
-            this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.FilterItems)));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(FilterItems)));
         }
     }
 }

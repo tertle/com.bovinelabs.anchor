@@ -276,9 +276,6 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-#pragma warning disable SA1502
-#pragma warning disable SA1516
-#pragma warning disable SA1515
 // @formatter:off
             public struct NavigateType { }
             public struct ToggleType { }
@@ -294,9 +291,6 @@ namespace BovineLabs.Anchor.Nav
             public struct SaveStateType { }
             public struct ReleaseStateType { }
 // @formatter:on
-#pragma warning restore SA1515
-#pragma warning restore SA1516
-#pragma warning restore SA1502
         }
     }
 }

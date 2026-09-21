@@ -11,9 +11,9 @@
     public struct MultiContainer<T>
         where T : unmanaged, IEquatable<T>
     {
-        private ContainerType type;
-        private NativeArray<T>.ReadOnly array;
-        private NativeHashSet<T>.ReadOnly hashSet;
+        private ContainerType _type;
+        private NativeArray<T>.ReadOnly _array;
+        private NativeHashSet<T>.ReadOnly _hashSet;
 
         private enum ContainerType
         {
@@ -22,10 +22,10 @@
             HashSet = 2,
         }
 
-        public bool IsCreated => this.type switch
+        public bool IsCreated => _type switch
         {
-            ContainerType.Array => this.array.IsCreated,
-            ContainerType.HashSet => this.hashSet.IsCreated,
+            ContainerType.Array => _array.IsCreated,
+            ContainerType.HashSet => _hashSet.IsCreated,
             _ => throw new ArgumentOutOfRangeException(),
         };
 
@@ -33,8 +33,8 @@
         {
             get
             {
-                Debug.Assert(this.type == ContainerType.Array, "Length used on non array");
-                return this.array.Length;
+                Debug.Assert(_type == ContainerType.Array, "Length used on non array");
+                return _array.Length;
             }
         }
 
@@ -42,8 +42,8 @@
         {
             get
             {
-                Debug.Assert(this.type == ContainerType.Array, "Indexer used on non array");
-                return this.array[index];
+                Debug.Assert(_type == ContainerType.Array, "Indexer used on non array");
+                return _array[index];
             }
         }
 
@@ -51,8 +51,8 @@
         {
             return new MultiContainer<T>
             {
-                type = ContainerType.Array,
-                array = array.AsReadOnly(),
+                _type = ContainerType.Array,
+                _array = array.AsReadOnly(),
             };
         }
 
@@ -60,8 +60,8 @@
         {
             return new MultiContainer<T>
             {
-                type = ContainerType.Array,
-                array = array,
+                _type = ContainerType.Array,
+                _array = array,
             };
         }
 
@@ -69,8 +69,8 @@
         {
             return new MultiContainer<T>
             {
-                type = ContainerType.Array,
-                array = list.AsReadOnly(),
+                _type = ContainerType.Array,
+                _array = list.AsReadOnly(),
             };
         }
 
@@ -78,8 +78,8 @@
         {
             return new MultiContainer<T>
             {
-                type = ContainerType.Array,
-                array = list.AsNativeArray().AsReadOnly(),
+                _type = ContainerType.Array,
+                _array = list.AsNativeArray().AsReadOnly(),
             };
         }
 
@@ -87,8 +87,8 @@
         {
             return new MultiContainer<T>
             {
-                type = ContainerType.HashSet,
-                hashSet = hashSet.AsReadOnly(),
+                _type = ContainerType.HashSet,
+                _hashSet = hashSet.AsReadOnly(),
             };
         }
 
@@ -96,30 +96,30 @@
         {
             return new MultiContainer<T>
             {
-                type = ContainerType.HashSet,
-                hashSet = hashSet,
+                _type = ContainerType.HashSet,
+                _hashSet = hashSet,
             };
         }
 
         public NativeArray<T>.ReadOnly AsArray()
         {
-            Debug.Assert(this.type == ContainerType.Array, "AsArray used on non array");
-            return this.array;
+            Debug.Assert(_type == ContainerType.Array, "AsArray used on non array");
+            return _array;
         }
 
         internal bool ArraysEqual(NativeArray<T> other)
         {
-            switch (this.type)
+            switch (_type)
             {
                 case ContainerType.Array:
-                    if (this.array.Length != other.Length)
+                    if (_array.Length != other.Length)
                     {
                         return false;
                     }
 
-                    for (var i = 0; i != this.array.Length; i++)
+                    for (var i = 0; i != _array.Length; i++)
                     {
-                        if (!this.array[i].Equals(other[i]))
+                        if (!_array[i].Equals(other[i]))
                         {
                             return false;
                         }
@@ -129,14 +129,14 @@
 
                 case ContainerType.HashSet:
 
-                    if (other.Length != this.hashSet.Count)
+                    if (other.Length != _hashSet.Count)
                     {
                         return false;
                     }
 
                     foreach (var l in other)
                     {
-                        if (!this.hashSet.Contains(l))
+                        if (!_hashSet.Contains(l))
                         {
                             return false;
                         }
@@ -150,10 +150,10 @@
 
         internal unsafe (IntPtr Ptr, int Length) GetAsTempArray()
         {
-            return this.type switch
+            return _type switch
             {
-                ContainerType.Array => ((IntPtr)this.array.GetUnsafeReadOnlyPtr(), this.array.Length),
-                ContainerType.HashSet => ((IntPtr)this.hashSet.ToNativeArray(Allocator.Temp).GetUnsafeReadOnlyPtr(), this.hashSet.Count),
+                ContainerType.Array => ((IntPtr)_array.GetUnsafeReadOnlyPtr(), _array.Length),
+                ContainerType.HashSet => ((IntPtr)_hashSet.ToNativeArray(Allocator.Temp).GetUnsafeReadOnlyPtr(), _hashSet.Count),
                 _ => throw new ArgumentOutOfRangeException(),
             };
         }
@@ -161,9 +161,9 @@
         [Conditional("ENABLE_UNITY_COLLECTIONS_CHECKS")]
         internal unsafe void ThrowContainersMatch(NativeList<T> list)
         {
-            if (this.type == ContainerType.Array)
+            if (_type == ContainerType.Array)
             {
-                if (this.array.GetUnsafeReadOnlyPtr() == list.GetUnsafeReadOnlyPtr())
+                if (_array.GetUnsafeReadOnlyPtr() == list.GetUnsafeReadOnlyPtr())
                 {
                     throw new InvalidOperationException("Containers match");
                 }

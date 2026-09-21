@@ -16,11 +16,11 @@ namespace BovineLabs.Anchor.Particles
         internal NativeArray<UIParticleEmitterState> States;
         internal NativeArray<ParticleQuad> Quads;
         internal NativeArray<int> QuadCounts;
-        private NativeArray<UIParticleEmissionStream> streams;
-        private uint seed;
-        private float emissionScale = 1;
-        private bool emitting;
-        private bool disposed;
+        private NativeArray<UIParticleEmissionStream> _streams;
+        private uint _seed;
+        private float _emissionScale = 1;
+        private bool _emitting;
+        private bool _disposed;
 
         public UIParticleRuntime(UIParticleEffect effect)
         {
@@ -29,28 +29,28 @@ namespace BovineLabs.Anchor.Particles
                 throw new ArgumentNullException(nameof(effect));
             }
 
-            this.Compiled = effect.Acquire();
-            this.Particles = new NativeArray<UIParticle>(this.Compiled.Capacity, Allocator.Persistent);
-            this.States = new NativeArray<UIParticleEmitterState>(this.Compiled.Data.Emitters.Length, Allocator.Persistent);
-            this.Quads = new NativeArray<ParticleQuad>(this.Compiled.Capacity, Allocator.Persistent);
-            this.QuadCounts = new NativeArray<int>(this.States.Length, Allocator.Persistent);
-            this.streams = new NativeArray<UIParticleEmissionStream>(this.Compiled.Data.Bursts.Length + this.States.Length, Allocator.Persistent);
+            Compiled = effect.Acquire();
+            Particles = new NativeArray<UIParticle>(Compiled.Capacity, Allocator.Persistent);
+            States = new NativeArray<UIParticleEmitterState>(Compiled.Data.Emitters.Length, Allocator.Persistent);
+            Quads = new NativeArray<ParticleQuad>(Compiled.Capacity, Allocator.Persistent);
+            QuadCounts = new NativeArray<int>(States.Length, Allocator.Persistent);
+            _streams = new NativeArray<UIParticleEmissionStream>(Compiled.Data.Bursts.Length + States.Length, Allocator.Persistent);
         }
 
         public static int ParticleStride => UnsafeUtility.SizeOf<UIParticle>();
-        public int Capacity => this.Compiled.Capacity;
-        public long ParticleCapacityBytes => (long)this.Capacity * ParticleStride;
-        public long NativeBytes => this.ParticleCapacityBytes + ((long)this.Quads.Length * UnsafeUtility.SizeOf<ParticleQuad>()) +
-            ((long)this.States.Length * (UnsafeUtility.SizeOf<UIParticleEmitterState>() + sizeof(int))) +
-            ((long)this.streams.Length * UnsafeUtility.SizeOf<UIParticleEmissionStream>());
-        public long SharedCompiledBytes => this.Compiled.NativeBytes;
-        public uint Revision => this.Compiled.Revision;
+        public int Capacity => Compiled.Capacity;
+        public long ParticleCapacityBytes => (long)Capacity * ParticleStride;
+        public long NativeBytes => ParticleCapacityBytes + ((long)Quads.Length * UnsafeUtility.SizeOf<ParticleQuad>()) +
+            ((long)States.Length * (UnsafeUtility.SizeOf<UIParticleEmitterState>() + sizeof(int))) +
+            ((long)_streams.Length * UnsafeUtility.SizeOf<UIParticleEmissionStream>());
+        public long SharedCompiledBytes => Compiled.NativeBytes;
+        public uint Revision => Compiled.Revision;
         public bool IsPlaying { get; private set; }
         public bool IsPaused { get; private set; }
 
         public float EmissionScale
         {
-            get => this.emissionScale;
+            get => _emissionScale;
             set
             {
                 if (!float.IsFinite(value) || value < 0)
@@ -58,7 +58,7 @@ namespace BovineLabs.Anchor.Particles
                     throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
-                this.emissionScale = value;
+                _emissionScale = value;
             }
         }
 
@@ -66,11 +66,11 @@ namespace BovineLabs.Anchor.Particles
         {
             get
             {
-                this.ThrowIfDisposed();
+                ThrowIfDisposed();
                 var counters = new UIParticleCounters();
-                for (var i = 0; i < this.States.Length; i++)
+                for (var i = 0; i < States.Length; i++)
                 {
-                    var state = this.States[i];
+                    var state = States[i];
                     counters.Attempted += Math.Min(state.Attempted, ulong.MaxValue - counters.Attempted);
                     counters.Emitted += Math.Min(state.Emitted, ulong.MaxValue - counters.Emitted);
                     counters.Dropped += Math.Min(state.Dropped, ulong.MaxValue - counters.Dropped);
@@ -84,11 +84,11 @@ namespace BovineLabs.Anchor.Particles
         {
             get
             {
-                this.ThrowIfDisposed();
+                ThrowIfDisposed();
                 ulong count = 0;
-                for (var i = 0; i < this.States.Length; i++)
+                for (var i = 0; i < States.Length; i++)
                 {
-                    var dropped = this.States[i].Dropped;
+                    var dropped = States[i].Dropped;
                     count = dropped > ulong.MaxValue - count ? ulong.MaxValue : count + dropped;
                 }
 
@@ -100,11 +100,11 @@ namespace BovineLabs.Anchor.Particles
         {
             get
             {
-                this.ThrowIfDisposed();
+                ThrowIfDisposed();
                 var count = 0;
-                for (var i = 0; i < this.States.Length; i++)
+                for (var i = 0; i < States.Length; i++)
                 {
-                    count += this.States[i].Count;
+                    count += States[i].Count;
                 }
 
                 return count;
@@ -113,65 +113,65 @@ namespace BovineLabs.Anchor.Particles
 
         public void Play(uint seed = 1)
         {
-            this.Clear();
-            this.seed = seed;
-            this.emitting = true;
-            this.IsPlaying = this.States.Length != 0;
+            Clear();
+            _seed = seed;
+            _emitting = true;
+            IsPlaying = States.Length != 0;
         }
 
         public void StopEmitting()
         {
-            this.ThrowIfDisposed();
-            this.emitting = false;
-            this.UpdatePlaying();
+            ThrowIfDisposed();
+            _emitting = false;
+            UpdatePlaying();
         }
 
         public void Pause()
         {
-            this.ThrowIfDisposed();
-            this.IsPaused = this.IsPlaying;
+            ThrowIfDisposed();
+            IsPaused = IsPlaying;
         }
 
         public void Resume()
         {
-            this.ThrowIfDisposed();
-            this.IsPaused = false;
+            ThrowIfDisposed();
+            IsPaused = false;
         }
 
         public void Clear()
         {
-            this.ThrowIfDisposed();
-            for (var e = 0; e < this.States.Length; e++)
+            ThrowIfDisposed();
+            for (var e = 0; e < States.Length; e++)
             {
-                this.States[e] = default;
-                this.QuadCounts[e] = 0;
+                States[e] = default;
+                QuadCounts[e] = 0;
             }
 
-            for (var s = 0; s < this.streams.Length; s++)
+            for (var s = 0; s < _streams.Length; s++)
             {
-                this.streams[s] = default;
+                _streams[s] = default;
             }
 
-            this.IsPlaying = false;
-            this.IsPaused = false;
-            this.emitting = false;
+            IsPlaying = false;
+            IsPaused = false;
+            _emitting = false;
         }
 
         public bool Advance(double elapsed)
         {
             var identity = float4x4.identity;
-            return this.Advance(elapsed, ref identity);
+            return Advance(elapsed, ref identity);
         }
 
         internal bool Advance(double elapsed, ref float4x4 spawnTransform)
         {
-            this.ThrowIfDisposed();
+            ThrowIfDisposed();
             if (!math.isfinite(elapsed) || elapsed < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(elapsed));
             }
 
-            if (!this.IsPlaying || this.IsPaused)
+            if (!IsPlaying || IsPaused)
             {
                 return false;
             }
@@ -179,12 +179,12 @@ namespace BovineLabs.Anchor.Particles
             using (SimulationMarker.Auto())
             {
                 var remaining = math.min(elapsed, 4d / 60);
-                var data = this.Compiled.Data;
+                var data = Compiled.Data;
                 for (var step = 0; step < 4; step++)
                 {
                     var delta = math.min(remaining, 1d / 60);
-                    UIParticleSimulation.Step(ref data, ref this.Particles, ref this.States, ref this.streams, delta, this.seed,
-                        this.emitting, ref spawnTransform, this.emissionScale);
+                    UIParticleSimulation.Step(ref data, ref Particles, ref States, ref _streams, delta, _seed,
+                        _emitting, ref spawnTransform, _emissionScale);
                     remaining -= delta;
                     if (remaining <= 0)
                     {
@@ -193,33 +193,33 @@ namespace BovineLabs.Anchor.Particles
                 }
             }
 
-            this.UpdatePlaying();
+            UpdatePlaying();
             return true;
         }
 
         internal void PrepareMesh(float4 tint)
         {
-            this.ThrowIfDisposed();
+            ThrowIfDisposed();
             using (AppearanceMarker.Auto())
             {
-                var data = this.Compiled.Data;
-                UIParticleMesh.Fill(ref data, ref this.Particles, ref this.States, ref this.Quads, ref this.QuadCounts, ref tint);
+                var data = Compiled.Data;
+                UIParticleMesh.Fill(ref data, ref Particles, ref States, ref Quads, ref QuadCounts, ref tint);
             }
         }
 
         internal void Draw(MeshGenerationContext context, ref float4x4 simulationToLocal, bool panelSpace)
         {
             var offset = 0;
-            for (var e = 0; e < this.QuadCounts.Length;)
+            for (var e = 0; e < QuadCounts.Length;)
             {
-                var texture = this.Compiled.Textures[e];
-                var count = this.QuadCounts[e++];
-                while (e < this.QuadCounts.Length && this.Compiled.Textures[e] == texture)
+                var texture = Compiled.Textures[e];
+                var count = QuadCounts[e++];
+                while (e < QuadCounts.Length && Compiled.Textures[e] == texture)
                 {
-                    count = checked(count + this.QuadCounts[e++]);
+                    count = checked(count + QuadCounts[e++]);
                 }
 
-                var quads = this.Quads.Slice(offset, count);
+                var quads = Quads.Slice(offset, count);
                 ParticleQuadMesh.Draw(context, quads, texture, simulationToLocal, panelSpace);
                 offset += count;
             }
@@ -227,42 +227,42 @@ namespace BovineLabs.Anchor.Particles
 
         public void Dispose()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            this.Particles.Dispose();
-            this.States.Dispose();
-            this.Quads.Dispose();
-            this.QuadCounts.Dispose();
-            this.streams.Dispose();
-            this.Compiled.Release();
-            this.disposed = true;
-            this.IsPlaying = false;
-            this.IsPaused = false;
+            Particles.Dispose();
+            States.Dispose();
+            Quads.Dispose();
+            QuadCounts.Dispose();
+            _streams.Dispose();
+            Compiled.Release();
+            _disposed = true;
+            IsPlaying = false;
+            IsPaused = false;
         }
 
         private void UpdatePlaying()
         {
             var active = false;
-            for (var e = 0; e < this.States.Length; e++)
+            for (var e = 0; e < States.Length; e++)
             {
-                var state = this.States[e];
-                var settings = this.Compiled.Data.Emitters[e];
-                active |= state.Count != 0 || (this.emitting && (settings.Looping || state.Time < settings.Delay + settings.Duration));
+                var state = States[e];
+                var settings = Compiled.Data.Emitters[e];
+                active |= state.Count != 0 || (_emitting && (settings.Looping || state.Time < settings.Delay + settings.Duration));
             }
 
-            this.IsPlaying = active;
+            IsPlaying = active;
             if (!active)
             {
-                this.IsPaused = false;
+                IsPaused = false;
             }
         }
 
         private void ThrowIfDisposed()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(UIParticleRuntime));
             }

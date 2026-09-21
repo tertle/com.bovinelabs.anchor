@@ -15,13 +15,13 @@
         [Preserve]
         public FPSToolbarView(FPSToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
             TypeConverter<int, string> fpsConverter = (ref int value) => $"{value} fps";
             TypeConverter<float, string> timeConverter = (ref float value) => $"{value:0.0} ms";
 
-            this.Add(KeyValueGroup.Create(viewModel,
+            Add(KeyValueGroup.Create(viewModel,
                 new (string, string, Action<DataBinding>)[]
                 {
                     ("FPS", nameof(FPSToolbarViewModel.CurrentFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
@@ -31,14 +31,14 @@
                     ("Max", nameof(FPSToolbarViewModel.MaxFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
                 }));
 
-            this.schedule.Execute(this.UpdateModel).Every(1);
+            schedule.Execute(UpdateModel).Every(1);
         }
 
-        private FPSToolbarViewModel Model => (FPSToolbarViewModel)this.dataSource;
+        private FPSToolbarViewModel Model => (FPSToolbarViewModel)dataSource;
 
         private void UpdateModel()
         {
-            this.Model.Update();
+            Model.Update();
         }
     }
 }

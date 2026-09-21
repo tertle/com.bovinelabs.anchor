@@ -6,25 +6,25 @@ namespace BovineLabs.Anchor.Particles
     [CreateAssetMenu(menuName = "BovineLabs/Anchor/Particle Effect")]
     public sealed class UIParticleEffect : ScriptableObject
     {
-        [SerializeField] private List<UIParticleEmitterSettings> emitters = new() { new UIParticleEmitterSettings() };
-        private UIParticleCompiledEffect compiled;
+        [SerializeField] private List<UIParticleEmitterSettings> _emitters = new() { new UIParticleEmitterSettings() };
+        private UIParticleCompiledEffect _compiled;
 
-        public List<UIParticleEmitterSettings> Emitters => this.emitters;
+        public List<UIParticleEmitterSettings> Emitters => _emitters;
         public uint Revision { get; private set; }
 
-        private void OnValidate() => this.Invalidate();
+        private void OnValidate() => Invalidate();
 
         // Explicit authoring boundary: existing instances retain their immutable revision until disposal.
         public void Invalidate()
         {
-            this.Revision++;
-            this.compiled = null;
+            Revision++;
+            _compiled = null;
         }
 
         internal int GetCapacity()
         {
             var capacity = 0;
-            foreach (var emitter in this.emitters)
+            foreach (var emitter in _emitters)
             {
                 if (emitter == null || emitter.MaxParticles <= 0)
                 {
@@ -39,13 +39,13 @@ namespace BovineLabs.Anchor.Particles
 
         internal UIParticleCompiledEffect Acquire()
         {
-            if (this.compiled == null || this.compiled.IsDisposed)
+            if (_compiled == null || _compiled.IsDisposed)
             {
-                this.compiled = new UIParticleCompiledEffect(this);
+                _compiled = new UIParticleCompiledEffect(this);
             }
 
-            this.compiled.Retain();
-            return this.compiled;
+            _compiled.Retain();
+            return _compiled;
         }
     }
 }

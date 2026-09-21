@@ -17,7 +17,7 @@
         public const string LeftUssClassName = UssClassName + "__left";
         public const string RightUssClassName = UssClassName + "__right";
 
-        private readonly List<KeyValueElement> elements = new();
+        private readonly List<KeyValueElement> _elements = new();
 
         [UsedImplicitly]
         public KeyValueGroup()
@@ -27,16 +27,16 @@
 
         public KeyValueGroup(IEnumerable<string> keys)
         {
-            this.AddToClassList(UssClassName);
-            this.style.flexDirection = FlexDirection.Row;
+            AddToClassList(UssClassName);
+            style.flexDirection = FlexDirection.Row;
 
             var left = new VisualElement();
             left.AddToClassList(LeftUssClassName);
-            this.Add(left);
+            Add(left);
 
             var right = new VisualElement();
             right.AddToClassList(RightUssClassName);
-            this.Add(right);
+            Add(right);
 
             if (keys == null)
             {
@@ -50,11 +50,11 @@
                 left.Add(e.KeyLabel);
                 right.Add(e.ValueLabel);
 
-                this.elements.Add(e);
+                _elements.Add(e);
             }
         }
 
-        public IReadOnlyList<KeyValueElement> Elements => this.elements;
+        public IReadOnlyList<KeyValueElement> Elements => _elements;
 
         public static KeyValueGroup Create(
             object viewModel, (string Key, string Path)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
@@ -64,7 +64,7 @@
 
             for (var i = 0; i < fields.Length; i++)
             {
-                var element = group.elements[i];
+                var element = group._elements[i];
                 var valuePath = fields[i].Path;
                 var db = new DataBinding
                 {
@@ -100,7 +100,7 @@
 
                 fields[i].BindCallback?.Invoke(db);
 
-                var element = group.elements[i];
+                var element = group._elements[i];
                 element.ValueLabel.dataSource = viewModel;
                 element.ValueLabel.SetBinding(nameof(Text.text), db);
             }

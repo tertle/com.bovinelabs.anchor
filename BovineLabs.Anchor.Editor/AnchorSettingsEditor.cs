@@ -13,8 +13,8 @@ namespace BovineLabs.Anchor.Editor
         {
             return property.name switch
             {
-                "actions" => new AssetCreator<AnchorAction>(this.serializedObject, property).Element,
-                "animations" => new AssetCreator<AnchorNavAnimation>(this.serializedObject, property).Element,
+                "_actions" => new AssetCreator<AnchorAction>(serializedObject, property).Element,
+                "_animations" => new AssetCreator<AnchorNavAnimation>(serializedObject, property).Element,
                 _ => CreatePropertyField(property),
             };
         }

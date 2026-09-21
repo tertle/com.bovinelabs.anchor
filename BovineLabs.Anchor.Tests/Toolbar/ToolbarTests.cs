@@ -304,10 +304,10 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         public sealed class TestBindingModel : IToolbarElement, IBindingObjectNotify<TestBindingModel.Data>, ILoadable
         {
             [SerializeField]
-            private DataBox data = new();
+            private DataBox _data = new();
 
             [NonSerialized]
-            private GCHandle pin;
+            private GCHandle _pin;
 
             public event Action Changed;
 
@@ -329,31 +329,31 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
             public int PersistentValue
             {
-                get => this.data.Value.PersistentValue;
-                set => this.data.Value.PersistentValue = value;
+                get => _data.Value.PersistentValue;
+                set => _data.Value.PersistentValue = value;
             }
 
-            public ref Data Value => ref this.data.Value;
+            public ref Data Value => ref _data.Value;
 
             public VisualElement CreateElement()
             {
-                this.ElementCreateCalls++;
+                ElementCreateCalls++;
                 return new TestToolbarElement(this);
             }
 
             public void Load()
             {
-                this.LoadCalls++;
+                LoadCalls++;
             }
 
             public void Unload()
             {
-                this.UnloadCalls++;
+                UnloadCalls++;
             }
 
             public void RaiseChanged()
             {
-                this.Changed?.Invoke();
+                Changed?.Invoke();
             }
 
             public void OnPropertyChanging(in FixedString64Bytes property)
@@ -362,20 +362,20 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
             public void OnPropertyChanged(in FixedString64Bytes property)
             {
-                this.propertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(property.ToString()));
+                propertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(property.ToString()));
             }
 
             void IBindingObjectNotify<Data>.Pin()
             {
-                this.pin = GCHandle.Alloc(this.data, GCHandleType.Pinned);
-                this.PinCalls++;
+                _pin = GCHandle.Alloc(_data, GCHandleType.Pinned);
+                PinCalls++;
             }
 
             void IBindingObjectNotify<Data>.Unpin()
             {
-                this.pin.Free();
-                this.pin = default;
-                this.UnpinCalls++;
+                _pin.Free();
+                _pin = default;
+                UnpinCalls++;
             }
 
             [Serializable]
@@ -393,30 +393,30 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
         public sealed class TestToolbarElement : VisualElement, IDisposable
         {
-            private TestBindingModel model;
+            private TestBindingModel _model;
 
             public TestToolbarElement(TestBindingModel model)
             {
-                this.model = model;
-                this.model.Changed += this.OnChanged;
-                this.model.ActiveSubscriptions++;
+                _model = model;
+                _model.Changed += OnChanged;
+                _model.ActiveSubscriptions++;
             }
 
             public void Dispose()
             {
-                if (this.model == null)
+                if (_model == null)
                 {
                     return;
                 }
 
-                this.model.Changed -= this.OnChanged;
-                this.model.ActiveSubscriptions--;
-                this.model = null;
+                _model.Changed -= OnChanged;
+                _model.ActiveSubscriptions--;
+                _model = null;
             }
 
             private void OnChanged()
             {
-                this.model.VisualCallbackCalls++;
+                _model.VisualCallbackCalls++;
             }
         }
 
@@ -436,59 +436,59 @@ namespace BovineLabs.Anchor.Tests.Toolbar
 
             public VisualElement CreateElement()
             {
-                this.ElementCreateCalls++;
-                this.SchedulesCreated++;
+                ElementCreateCalls++;
+                SchedulesCreated++;
                 return new TestScheduledToolbarElement<T>();
             }
 
             public void Load()
             {
-                this.LoadCalls++;
+                LoadCalls++;
             }
 
             public void Unload()
             {
-                this.UnloadCalls++;
+                UnloadCalls++;
             }
         }
 
         private sealed class TestScheduledToolbarElement<T> : VisualElement, IDisposable
         {
-            private readonly IVisualElementScheduledItem scheduledItem;
+            private readonly IVisualElementScheduledItem _scheduledItem;
 
             public TestScheduledToolbarElement()
             {
-                this.scheduledItem = this.schedule.Execute(this.UpdateModel).Every(1);
+                _scheduledItem = schedule.Execute(UpdateModel).Every(1);
             }
 
             public void Dispose()
             {
-                this.scheduledItem.Pause();
+                _scheduledItem.Pause();
             }
 
             private void UpdateModel()
             {
-                _ = ((TestAutoToolbarModel<T>)this.dataSource).State;
+                _ = ((TestAutoToolbarModel<T>)dataSource).State;
             }
         }
 
         private sealed class TestServiceProvider : IServiceProvider
         {
-            private readonly Dictionary<Type, object> services = new();
+            private readonly Dictionary<Type, object> _services = new();
 
             public int ResolveCalls { get; private set; }
 
             public object GetService(Type serviceType)
             {
-                this.ResolveCalls++;
-                this.services.TryGetValue(serviceType, out var service);
+                ResolveCalls++;
+                _services.TryGetValue(serviceType, out var service);
                 return service;
             }
 
             public void Add<T>(T service)
                 where T : class
             {
-                this.services.Add(typeof(T), service);
+                _services.Add(typeof(T), service);
             }
         }
 

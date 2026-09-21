@@ -10,30 +10,30 @@ namespace BovineLabs.Anchor.Nav
         [NoAutoStaticsCleanup]
         private static readonly AnchorNavStackSnapshot EmptyInstance = new(Array.Empty<AnchorNavStackItem>());
 
-        private readonly List<AnchorNavStackItem> items;
+        private readonly List<AnchorNavStackItem> _items;
 
         public AnchorNavStackSnapshot(IEnumerable<AnchorNavStackItem> items)
         {
-            this.items = new List<AnchorNavStackItem>(items ?? Array.Empty<AnchorNavStackItem>());
+            _items = new List<AnchorNavStackItem>(items ?? Array.Empty<AnchorNavStackItem>());
         }
 
         public static AnchorNavStackSnapshot Empty => EmptyInstance;
 
-        public IReadOnlyList<AnchorNavStackItem> Items => this.items;
+        public IReadOnlyList<AnchorNavStackItem> Items => _items;
 
-        public AnchorNavStackItem Top => this.items.Count > 0 ? this.items[^1] : null;
+        public AnchorNavStackItem Top => _items.Count > 0 ? _items[^1] : null;
 
-        public bool HasPopups => this.items.Any(i => i.IsPopup);
+        public bool HasPopups => _items.Any(i => i.IsPopup);
 
         public AnchorNavStackSnapshot WithoutPopups()
         {
-            if (!this.HasPopups)
+            if (!HasPopups)
             {
                 return this;
             }
 
-            var filtered = new List<AnchorNavStackItem>(this.items.Count);
-            foreach (var item in this.items)
+            var filtered = new List<AnchorNavStackItem>(_items.Count);
+            foreach (var item in _items)
             {
                 if (!item.IsPopup)
                 {

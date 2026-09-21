@@ -13,20 +13,20 @@
     [AutoToolbar("Time")]
     public class TimeToolbarViewModel : ObservableObject, IToolbarElement
     {
-        private float timescale;
-        private long unscaledSeconds;
-        private long seconds;
+        private float _timescale;
+        private long _unscaledSeconds;
+        private long _seconds;
 
         [CreateProperty]
         public float TimeScale
         {
-            get => this.timescale;
+            get => _timescale;
             set
             {
                 value = Mathf.Clamp(value, 0, 100);
-                if (this.SetProperty(ref this.timescale, value))
+                if (SetProperty(ref _timescale, value))
                 {
-                    Time.timeScale = this.TimeScale;
+                    Time.timeScale = TimeScale;
                 }
             }
         }
@@ -34,15 +34,15 @@
         [CreateProperty(ReadOnly = true)]
         public long UnscaledSeconds
         {
-            get => this.unscaledSeconds;
-            set => this.SetProperty(ref this.unscaledSeconds, value);
+            get => _unscaledSeconds;
+            set => SetProperty(ref _unscaledSeconds, value);
         }
 
         [CreateProperty(ReadOnly = true)]
         public long Seconds
         {
-            get => this.seconds;
-            set => this.SetProperty(ref this.seconds, value);
+            get => _seconds;
+            set => SetProperty(ref _seconds, value);
         }
 
         public VisualElement CreateElement()
@@ -52,9 +52,9 @@
 
         public void Update()
         {
-            this.TimeScale = Time.timeScale;
-            this.UnscaledSeconds = (long)Time.unscaledTimeAsDouble;
-            this.Seconds = (long)Time.timeAsDouble;
+            TimeScale = Time.timeScale;
+            UnscaledSeconds = (long)Time.unscaledTimeAsDouble;
+            Seconds = (long)Time.timeAsDouble;
         }
 
         public static float TimescaleToUI(float value)

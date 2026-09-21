@@ -8,13 +8,13 @@ namespace BovineLabs.Anchor.Nav
     public class AnchorNavAction
     {
         [SerializeField]
-        private string destination = string.Empty;
+        private string _destination = string.Empty;
 
         [SerializeField]
-        private List<AnchorNavArgument> defaultArguments = new();
+        private List<AnchorNavArgument> _defaultArguments = new();
 
         [SerializeField]
-        private AnchorNavOptions options = new();
+        private AnchorNavOptions _options = new();
 
         public AnchorNavAction()
         {
@@ -22,33 +22,33 @@ namespace BovineLabs.Anchor.Nav
 
         public AnchorNavAction(string destination, AnchorNavOptions options, IEnumerable<AnchorNavArgument> defaultArguments = null)
         {
-            this.destination = destination;
-            this.options = options != null ? options.Clone() : new AnchorNavOptions();
-            this.defaultArguments = defaultArguments != null ? new List<AnchorNavArgument>(defaultArguments) : new List<AnchorNavArgument>();
+            _destination = destination;
+            _options = options != null ? options.Clone() : new AnchorNavOptions();
+            _defaultArguments = defaultArguments != null ? new List<AnchorNavArgument>(defaultArguments) : new List<AnchorNavArgument>();
         }
 
         public string Destination
         {
-            get => this.destination;
-            set => this.destination = value;
+            get => _destination;
+            set => _destination = value;
         }
 
         public AnchorNavOptions Options
         {
-            get => this.options ??= new AnchorNavOptions();
-            set => this.options = value ?? new AnchorNavOptions();
+            get => _options ??= new AnchorNavOptions();
+            set => _options = value ?? new AnchorNavOptions();
         }
 
         public IList<AnchorNavArgument> DefaultArguments
         {
-            get => this.defaultArguments ??= new List<AnchorNavArgument>();
-            set => this.defaultArguments = value != null ? new List<AnchorNavArgument>(value) : new List<AnchorNavArgument>();
+            get => _defaultArguments ??= new List<AnchorNavArgument>();
+            set => _defaultArguments = value != null ? new List<AnchorNavArgument>(value) : new List<AnchorNavArgument>();
         }
 
         public AnchorNavArgument[] MergeArguments(AnchorNavArgument[] arguments = null)
         {
             arguments ??= Array.Empty<AnchorNavArgument>();
-            var mergedArguments = new List<AnchorNavArgument>(this.DefaultArguments);
+            var mergedArguments = new List<AnchorNavArgument>(DefaultArguments);
 
             foreach (var arg in arguments)
             {

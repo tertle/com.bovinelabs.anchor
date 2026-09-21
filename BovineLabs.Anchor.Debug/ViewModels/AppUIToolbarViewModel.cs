@@ -18,23 +18,23 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private const string ThemeKey = "bl.options.ui.theme";
         private const string ScaleKey = "bl.options.ui-scale";
 
-        private readonly ILocalStorageService localStorageService;
+        private readonly ILocalStorageService _localStorageService;
 
-        private readonly List<string> themes = new();
-        private readonly List<string> scales = new();
+        private readonly List<string> _themes = new();
+        private readonly List<string> _scales = new();
 
-        private bool loaded;
-        private int themeValue = -1;
-        private int scaleValue = -1;
+        private bool _loaded;
+        private int _themeValue = -1;
+        private int _scaleValue = -1;
 
         [Preserve]
         public AppUIToolbarViewModel(ILocalStorageService localStorageService)
         {
-            this.localStorageService = localStorageService;
+            _localStorageService = localStorageService;
 
-            this.PopulateTheme();
-            this.PopulateScale();
-            this.LoadStoredValue();
+            PopulateTheme();
+            PopulateScale();
+            LoadStoredValue();
         }
 
         [CreateProperty(ReadOnly = true)]
@@ -43,12 +43,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public int ThemeValue
         {
-            get => this.themeValue;
+            get => _themeValue;
             set
             {
-                if (this.SetProperty(ref this.themeValue, value))
+                if (SetProperty(ref _themeValue, value))
                 {
-                    this.SetTheme(this.themes[this.themeValue]);
+                    SetTheme(_themes[_themeValue]);
                 }
             }
         }
@@ -59,12 +59,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public int ScaleValue
         {
-            get => this.scaleValue;
+            get => _scaleValue;
             set
             {
-                if (this.SetProperty(ref this.scaleValue, value))
+                if (SetProperty(ref _scaleValue, value))
                 {
-                    this.SetScale(this.scales[this.scaleValue]);
+                    SetScale(_scales[_scaleValue]);
                 }
             }
         }
@@ -76,29 +76,29 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public void Load()
         {
-            if (this.loaded)
+            if (_loaded)
             {
                 return;
             }
 
-            this.loaded = true;
-            this.RefreshSystemThemeSubscription();
+            _loaded = true;
+            RefreshSystemThemeSubscription();
         }
 
         public void Unload()
         {
-            this.loaded = false;
-            Platform.darkModeChanged -= this.OnSystemThemeChanged;
+            _loaded = false;
+            Platform.darkModeChanged -= OnSystemThemeChanged;
         }
 
         private void SetTheme(string theme)
         {
-            Platform.darkModeChanged -= this.OnSystemThemeChanged;
+            Platform.darkModeChanged -= OnSystemThemeChanged;
             if (theme == "system")
             {
-                if (this.loaded)
+                if (_loaded)
                 {
-                    Platform.darkModeChanged += this.OnSystemThemeChanged;
+                    Platform.darkModeChanged += OnSystemThemeChanged;
                 }
 
                 AnchorApp.Current.Theme = Platform.darkMode ? "dark" : "light";
@@ -108,22 +108,22 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 AnchorApp.Current.Theme = theme;
             }
 
-            this.localStorageService.SetValue(ThemeKey, theme);
+            _localStorageService.SetValue(ThemeKey, theme);
         }
 
         private void RefreshSystemThemeSubscription()
         {
-            Platform.darkModeChanged -= this.OnSystemThemeChanged;
-            if (this.themeValue != -1 && this.themes[this.themeValue] == "system")
+            Platform.darkModeChanged -= OnSystemThemeChanged;
+            if (_themeValue != -1 && _themes[_themeValue] == "system")
             {
-                Platform.darkModeChanged += this.OnSystemThemeChanged;
+                Platform.darkModeChanged += OnSystemThemeChanged;
             }
         }
 
         private void SetScale(string scale)
         {
             AnchorApp.Current.Scale = scale;
-            this.localStorageService.SetValue(ScaleKey, scale);
+            _localStorageService.SetValue(ScaleKey, scale);
         }
 
         private void OnSystemThemeChanged(bool darkMode)
@@ -133,44 +133,44 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void PopulateTheme()
         {
-            this.Themes.Add("System");
-            this.themes.Add("system");
+            Themes.Add("System");
+            _themes.Add("system");
 
-            this.Themes.Add("Dark");
-            this.themes.Add("dark");
+            Themes.Add("Dark");
+            _themes.Add("dark");
 
-            this.Themes.Add("Light");
-            this.themes.Add("light");
+            Themes.Add("Light");
+            _themes.Add("light");
 
-            this.Themes.Add("Editor Dark");
-            this.themes.Add("editor-dark");
+            Themes.Add("Editor Dark");
+            _themes.Add("editor-dark");
 
-            this.Themes.Add("Editor Light");
-            this.themes.Add("editor-light");
+            Themes.Add("Editor Light");
+            _themes.Add("editor-light");
         }
 
         private void PopulateScale()
         {
-            this.Scales.Add("Small");
-            this.scales.Add("small");
+            Scales.Add("Small");
+            _scales.Add("small");
 
-            this.Scales.Add("Medium");
-            this.scales.Add("medium");
+            Scales.Add("Medium");
+            _scales.Add("medium");
 
-            this.Scales.Add("Large");
-            this.scales.Add("large");
+            Scales.Add("Large");
+            _scales.Add("large");
         }
 
         private void LoadStoredValue()
         {
-            var theme = this.localStorageService.GetValue(ThemeKey, "system");
-            var scale = this.localStorageService.GetValue(ScaleKey, "medium");
+            var theme = _localStorageService.GetValue(ThemeKey, "system");
+            var scale = _localStorageService.GetValue(ScaleKey, "medium");
 
-            var themeIndex = this.themes.IndexOf(theme);
-            this.ThemeValue = themeIndex != -1 ? themeIndex : 0;
+            var themeIndex = _themes.IndexOf(theme);
+            ThemeValue = themeIndex != -1 ? themeIndex : 0;
 
-            var scaleIndex = this.scales.IndexOf(scale);
-            this.ScaleValue = scaleIndex != -1 ? scaleIndex : 1;
+            var scaleIndex = _scales.IndexOf(scale);
+            ScaleValue = scaleIndex != -1 ? scaleIndex : 1;
         }
     }
 }

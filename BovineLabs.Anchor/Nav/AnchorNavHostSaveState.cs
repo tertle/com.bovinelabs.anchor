@@ -10,11 +10,11 @@ namespace BovineLabs.Anchor.Nav
             string currentDestination, AnchorNavAnimation currentPopEnterAnimation, AnchorNavAnimation currentPopExitAnimation,
             IReadOnlyList<StackItem> activeStack, IReadOnlyList<BackStackEntry> backStack)
         {
-            this.CurrentDestination = currentDestination;
-            this.CurrentPopEnterAnimation = currentPopEnterAnimation;
-            this.CurrentPopExitAnimation = currentPopExitAnimation;
-            this.ActiveStack = activeStack ?? Array.Empty<StackItem>();
-            this.BackStack = backStack ?? Array.Empty<BackStackEntry>();
+            CurrentDestination = currentDestination;
+            CurrentPopEnterAnimation = currentPopEnterAnimation;
+            CurrentPopExitAnimation = currentPopExitAnimation;
+            ActiveStack = activeStack ?? Array.Empty<StackItem>();
+            BackStack = backStack ?? Array.Empty<BackStackEntry>();
         }
 
         public string CurrentDestination { get; }
@@ -31,10 +31,10 @@ namespace BovineLabs.Anchor.Nav
         {
             public StackItem(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, bool isPopup)
             {
-                this.Destination = destination;
-                this.Options = options?.Clone();
-                this.Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
-                this.IsPopup = isPopup;
+                Destination = destination;
+                Options = options?.Clone();
+                Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
+                IsPopup = isPopup;
             }
 
             public string Destination { get; }
@@ -50,10 +50,10 @@ namespace BovineLabs.Anchor.Nav
         {
             public BackStackEntry(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, IReadOnlyList<StackItem> snapshot)
             {
-                this.Destination = destination;
-                this.Options = options?.Clone();
-                this.Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
-                this.Snapshot = snapshot ?? Array.Empty<StackItem>();
+                Destination = destination;
+                Options = options?.Clone();
+                Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
+                Snapshot = snapshot ?? Array.Empty<StackItem>();
             }
 
             public string Destination { get; }

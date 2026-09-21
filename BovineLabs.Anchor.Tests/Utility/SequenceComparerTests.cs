@@ -42,44 +42,44 @@ namespace BovineLabs.Anchor.Tests.Utility
 
         private sealed class FixedHashSequence<T> : IEnumerable<T>
         {
-            private readonly IEnumerable<T> values;
-            private readonly int hashCode;
+            private readonly IEnumerable<T> _values;
+            private readonly int _hashCode;
 
             public FixedHashSequence(IEnumerable<T> values, int hashCode)
             {
-                this.values = values;
-                this.hashCode = hashCode;
+                _values = values;
+                _hashCode = hashCode;
             }
 
             public IEnumerator<T> GetEnumerator()
             {
-                return this.values.GetEnumerator();
+                return _values.GetEnumerator();
             }
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return this.GetEnumerator();
+                return GetEnumerator();
             }
 
             public override int GetHashCode()
             {
-                return this.hashCode;
+                return _hashCode;
             }
         }
 
         private sealed class FixedHashList<T> : List<T>
         {
-            private readonly int hashCode;
+            private readonly int _hashCode;
 
             public FixedHashList(IEnumerable<T> values, int hashCode)
                 : base(values)
             {
-                this.hashCode = hashCode;
+                _hashCode = hashCode;
             }
 
             public override int GetHashCode()
             {
-                return this.hashCode;
+                return _hashCode;
             }
         }
     }

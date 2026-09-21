@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Debug.Views
         [Preserve]
         public PauseToolbarView(PauseToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
+            dataSource = viewModel;
 
             var pauseToggle = new Toggle
             {
@@ -27,7 +27,7 @@ namespace BovineLabs.Anchor.Debug.Views
                 dataSourcePath = new PropertyPath(nameof(PauseToolbarViewModel.Pause)),
             });
 
-            this.Add(pauseToggle);
+            Add(pauseToggle);
         }
     }
 }

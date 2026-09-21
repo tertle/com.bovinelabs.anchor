@@ -7,10 +7,10 @@ namespace BovineLabs.Anchor.Nav
     {
         public AnchorNavStackItem(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, bool isPopup)
         {
-            this.Destination = destination;
-            this.Options = options ?? new AnchorNavOptions();
-            this.Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
-            this.IsPopup = isPopup;
+            Destination = destination;
+            Options = options ?? new AnchorNavOptions();
+            Arguments = arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>();
+            IsPopup = isPopup;
         }
 
         public string Destination { get; }

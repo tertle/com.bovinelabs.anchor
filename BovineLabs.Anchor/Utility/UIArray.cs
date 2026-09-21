@@ -10,14 +10,14 @@
     public class UIArray<T> : IList
         where T : unmanaged, IEquatable<T>
     {
-        private NativeArray<T>.ReadOnly array;
+        private NativeArray<T>.ReadOnly _array;
 
         public UIArray(MultiContainer<T> array)
         {
-            this.array = array.AsArray();
+            _array = array.AsArray();
         }
 
-        public int Count => this.array.IsCreated ? this.array.Length : 0;
+        public int Count => _array.IsCreated ? _array.Length : 0;
 
         public bool IsSynchronized => true;
 
@@ -29,7 +29,7 @@
 
         public object this[int index]
         {
-            get => this.array[index];
+            get => _array[index];
             set => throw new InvalidOperationException("Write not supported");
         }
 
@@ -40,7 +40,7 @@
 
         public IEnumerator GetEnumerator()
         {
-            return this.array.GetEnumerator();
+            return _array.GetEnumerator();
         }
 
         public void CopyTo(Array array, int index)
@@ -60,16 +60,16 @@
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            if (index > array.Length || array.Length - index < this.Count)
+            if (index > array.Length || array.Length - index < Count)
             {
                 throw new ArgumentException("The destination array does not have enough available space.", nameof(array));
             }
 
             try
             {
-                for (var i = 0; i < this.Count; i++)
+                for (var i = 0; i < Count; i++)
                 {
-                    array.SetValue(this.array[i], index + i);
+                    array.SetValue(_array[i], index + i);
                 }
             }
             catch (InvalidCastException exception)
@@ -99,7 +99,7 @@
                 return false;
             }
 
-            return this.array.Contains(t);
+            return _array.Contains(t);
         }
 
         public int IndexOf(object value)
@@ -109,7 +109,7 @@
                 return -1;
             }
 
-            return this.array.IndexOf(t);
+            return _array.IndexOf(t);
         }
 
         public void Insert(int index, object value)

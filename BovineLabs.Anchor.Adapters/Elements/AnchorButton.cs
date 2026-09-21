@@ -10,8 +10,6 @@ namespace BovineLabs.Anchor.Elements
 
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "UITK Standard")]
     public partial class AnchorButton : Button
     {
         private static readonly BindingId CommandWithEventInfoProperty = nameof(commandWithEventInfo);
@@ -21,31 +19,31 @@ namespace BovineLabs.Anchor.Elements
         private static readonly BindingId ActivateAudioModeProperty = nameof(activateAudioMode);
         private static readonly BindingId ActivateAudioClipProperty = nameof(activateAudioClip);
 
-        private ICommand m_commandWithEventInfo;
-        private string m_audioProfile = AnchorAudioSettings.DefaultProfileKey;
-        private AnchorAudioOverrideMode m_hoverAudioMode;
-        private AudioClip m_hoverAudioClip;
-        private AnchorAudioOverrideMode m_activateAudioMode;
-        private AudioClip m_activateAudioClip;
+        private ICommand _commandWithEventInfo;
+        private string _audioProfile = AnchorAudioSettings.DefaultProfileKey;
+        private AnchorAudioOverrideMode _hoverAudioMode;
+        private AudioClip _hoverAudioClip;
+        private AnchorAudioOverrideMode _activateAudioMode;
+        private AudioClip _activateAudioClip;
 
         public AnchorButton()
             : base(null)
         {
-            this.clickable.clickedWithEventInfo += this.OnClickedWithEventInfo;
-            this.clicked += this.OnAudioActivated;
-            this.RegisterCallback<PointerEnterEvent>(this.OnAudioPointerEnter);
+            clickable.clickedWithEventInfo += OnClickedWithEventInfo;
+            clicked += OnAudioActivated;
+            RegisterCallback<PointerEnterEvent>(OnAudioPointerEnter);
         }
 
         [CreateProperty]
         public ICommand commandWithEventInfo
         {
-            get => this.m_commandWithEventInfo;
+            get => _commandWithEventInfo;
             set
             {
-                if (this.m_commandWithEventInfo != value)
+                if (_commandWithEventInfo != value)
                 {
-                    this.m_commandWithEventInfo = value;
-                    this.NotifyPropertyChanged(in CommandWithEventInfoProperty);
+                    _commandWithEventInfo = value;
+                    NotifyPropertyChanged(in CommandWithEventInfoProperty);
                 }
             }
         }
@@ -54,14 +52,14 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public string audioProfile
         {
-            get => this.m_audioProfile;
+            get => _audioProfile;
             set
             {
                 value ??= string.Empty;
-                if (this.m_audioProfile != value)
+                if (_audioProfile != value)
                 {
-                    this.m_audioProfile = value;
-                    this.NotifyPropertyChanged(in AudioProfileProperty);
+                    _audioProfile = value;
+                    NotifyPropertyChanged(in AudioProfileProperty);
                 }
             }
         }
@@ -70,13 +68,13 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public AnchorAudioOverrideMode hoverAudioMode
         {
-            get => this.m_hoverAudioMode;
+            get => _hoverAudioMode;
             set
             {
-                if (this.m_hoverAudioMode != value)
+                if (_hoverAudioMode != value)
                 {
-                    this.m_hoverAudioMode = value;
-                    this.NotifyPropertyChanged(in HoverAudioModeProperty);
+                    _hoverAudioMode = value;
+                    NotifyPropertyChanged(in HoverAudioModeProperty);
                 }
             }
         }
@@ -85,13 +83,13 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public AudioClip hoverAudioClip
         {
-            get => this.m_hoverAudioClip;
+            get => _hoverAudioClip;
             set
             {
-                if (this.m_hoverAudioClip != value)
+                if (_hoverAudioClip != value)
                 {
-                    this.m_hoverAudioClip = value;
-                    this.NotifyPropertyChanged(in HoverAudioClipProperty);
+                    _hoverAudioClip = value;
+                    NotifyPropertyChanged(in HoverAudioClipProperty);
                 }
             }
         }
@@ -100,13 +98,13 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public AnchorAudioOverrideMode activateAudioMode
         {
-            get => this.m_activateAudioMode;
+            get => _activateAudioMode;
             set
             {
-                if (this.m_activateAudioMode != value)
+                if (_activateAudioMode != value)
                 {
-                    this.m_activateAudioMode = value;
-                    this.NotifyPropertyChanged(in ActivateAudioModeProperty);
+                    _activateAudioMode = value;
+                    NotifyPropertyChanged(in ActivateAudioModeProperty);
                 }
             }
         }
@@ -115,25 +113,25 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public AudioClip activateAudioClip
         {
-            get => this.m_activateAudioClip;
+            get => _activateAudioClip;
             set
             {
-                if (this.m_activateAudioClip != value)
+                if (_activateAudioClip != value)
                 {
-                    this.m_activateAudioClip = value;
-                    this.NotifyPropertyChanged(in ActivateAudioClipProperty);
+                    _activateAudioClip = value;
+                    NotifyPropertyChanged(in ActivateAudioClipProperty);
                 }
             }
         }
 
         private void OnClickedWithEventInfo(EventBase evt)
         {
-            this.commandWithEventInfo?.Execute(evt);
+            commandWithEventInfo?.Execute(evt);
         }
 
         private void OnAudioPointerEnter(PointerEnterEvent evt)
         {
-            if (!this.enabledInHierarchy)
+            if (!enabledInHierarchy)
             {
                 return;
             }
@@ -143,12 +141,12 @@ namespace BovineLabs.Anchor.Elements
                 return;
             }
 
-            AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Hover, new AnchorAudioCueOverride(this.m_hoverAudioMode, this.m_hoverAudioClip));
+            AnchorAudio.Play(_audioProfile, AnchorAudioCue.Hover, new AnchorAudioCueOverride(_hoverAudioMode, _hoverAudioClip));
         }
 
         private void OnAudioActivated()
         {
-            AnchorAudio.Play(this.m_audioProfile, AnchorAudioCue.Activate, new AnchorAudioCueOverride(this.m_activateAudioMode, this.m_activateAudioClip));
+            AnchorAudio.Play(_audioProfile, AnchorAudioCue.Activate, new AnchorAudioCueOverride(_activateAudioMode, _activateAudioClip));
         }
     }
 }

@@ -16,7 +16,7 @@ namespace BovineLabs.Anchor.Nav
                 throw new ArgumentException("Action name cannot be null or whitespace.", nameof(name));
             }
 
-            this.Name = name;
+            Name = name;
         }
 
         public string Name { get; }

@@ -8,23 +8,23 @@ namespace BovineLabs.Anchor.Particles.Sample
 
     public sealed class ParticleSampleRunner : MonoBehaviour
     {
-        [SerializeField] private VisualTreeAsset visualTree;
-        [SerializeField] private ThemeStyleSheet theme;
-        private ParticleSamplePresenter presenter;
-        private UIDocument document;
-        private PanelSettings settings;
+        [SerializeField] private VisualTreeAsset _visualTree;
+        [SerializeField] private ThemeStyleSheet _theme;
+        private ParticleSamplePresenter _presenter;
+        private UIDocument _document;
+        private PanelSettings _settings;
 
         private void Awake()
         {
-            this.settings = ScriptableObject.CreateInstance<PanelSettings>();
-            this.settings.themeStyleSheet = this.theme;
-            this.settings.scaleMode = PanelScaleMode.ConstantPixelSize;
-            this.settings.clearColor = true;
-            this.settings.colorClearValue = new Color(0.04f, 0.05f, 0.08f, 1);
-            this.document = this.gameObject.AddComponent<UIDocument>();
-            this.document.panelSettings = this.settings;
-            this.document.visualTreeAsset = this.visualTree;
-            this.presenter = new ParticleSamplePresenter(this.document.rootVisualElement);
+            _settings = ScriptableObject.CreateInstance<PanelSettings>();
+            _settings.themeStyleSheet = _theme;
+            _settings.scaleMode = PanelScaleMode.ConstantPixelSize;
+            _settings.clearColor = true;
+            _settings.colorClearValue = new Color(0.04f, 0.05f, 0.08f, 1);
+            _document = gameObject.AddComponent<UIDocument>();
+            _document.panelSettings = _settings;
+            _document.visualTreeAsset = _visualTree;
+            _presenter = new ParticleSamplePresenter(_document.rootVisualElement);
         }
 
         private IEnumerator Start()
@@ -44,7 +44,7 @@ namespace BovineLabs.Anchor.Particles.Sample
                 yield return null;
             }
 
-            var button = this.document.rootVisualElement.Q<Button>("play");
+            var button = _document.rootVisualElement.Q<Button>("play");
             using (var submit = NavigationSubmitEvent.GetPooled())
             {
                 submit.target = button;
@@ -57,22 +57,22 @@ namespace BovineLabs.Anchor.Particles.Sample
             ScreenCapture.CaptureScreenshot(Path.Combine(output, "runtime-samples.png"));
             yield return null;
             yield return null;
-            this.presenter.Dispose();
-            this.presenter = null;
-            yield return ParticleRuntimeMeasurements.Run(this.document.rootVisualElement, output);
+            _presenter.Dispose();
+            _presenter = null;
+            yield return ParticleRuntimeMeasurements.Run(_document.rootVisualElement, output);
             Application.Quit();
         }
 
         private void OnDestroy()
         {
-            this.presenter?.Dispose();
+            _presenter?.Dispose();
             // UIDocument can already have detached its tree during GameObject destruction.
-            if (this.document != null)
+            if (_document != null)
             {
-                this.document.rootVisualElement?.Clear();
+                _document.rootVisualElement?.Clear();
             }
 
-            Destroy(this.settings);
+            Destroy(_settings);
         }
     }
 }

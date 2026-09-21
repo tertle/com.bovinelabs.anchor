@@ -8,38 +8,38 @@ namespace BovineLabs.Anchor.Audio
     {
         [HideInInspector]
         [SerializeField]
-        private string key = string.Empty;
+        private string _key = string.Empty;
 
         [SerializeField]
-        private AudioClip hoverClip;
+        private AudioClip _hoverClip;
 
         [SerializeField]
-        private AudioClip activateClip;
+        private AudioClip _activateClip;
 
         public string Key
         {
-            get => this.key;
-            set => this.key = value ?? string.Empty;
+            get => _key;
+            set => _key = value ?? string.Empty;
         }
 
         public AudioClip HoverClip
         {
-            get => this.hoverClip;
-            set => this.hoverClip = value;
+            get => _hoverClip;
+            set => _hoverClip = value;
         }
 
         public AudioClip ActivateClip
         {
-            get => this.activateClip;
-            set => this.activateClip = value;
+            get => _activateClip;
+            set => _activateClip = value;
         }
 
         internal AudioClip GetClip(AnchorAudioCue cue)
         {
             return cue switch
             {
-                AnchorAudioCue.Hover => this.hoverClip,
-                AnchorAudioCue.Activate => this.activateClip,
+                AnchorAudioCue.Hover => _hoverClip,
+                AnchorAudioCue.Activate => _activateClip,
                 _ => null,
             };
         }

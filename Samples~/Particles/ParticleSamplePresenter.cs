@@ -9,45 +9,45 @@ namespace BovineLabs.Anchor.Particles.Sample
     // Create once in OnVisualGenerationInitialized; Dispose in OnVisualGenerationShuttingDown.
     public sealed class ParticleSamplePresenter : IDisposable
     {
-        private readonly AnchorParticles[] particles;
-        private readonly Button[] buttons;
-        private readonly RelayCommand[] commands;
-        private readonly Toggle enabled;
-        private readonly Toggle hide;
-        private readonly VisualElement cards;
-        private readonly Label completion;
-        private bool disposed;
+        private readonly AnchorParticles[] _particles;
+        private readonly Button[] _buttons;
+        private readonly RelayCommand[] _commands;
+        private readonly Toggle _enabled;
+        private readonly Toggle _hide;
+        private readonly VisualElement _cards;
+        private readonly Label _completion;
+        private bool _disposed;
 
         public ParticleSamplePresenter(VisualElement root)
         {
-            this.cards = root.Q("cards");
-            this.completion = root.Q<Label>("completion");
-            this.particles = new[]
+            _cards = root.Q("cards");
+            _completion = root.Q<Label>("completion");
+            _particles = new[]
             {
                 root.Q<AnchorParticles>("sparkle"), root.Q<AnchorParticles>("confetti"),
                 root.Q<AnchorParticles>("dust"), root.Q<AnchorParticles>("layered"),
             };
-            this.buttons = new[]
+            _buttons = new[]
             {
                 root.Q<Button>("play"), root.Q<Button>("stop"), root.Q<Button>("pause"), root.Q<Button>("resume"),
                 root.Q<Button>("clear"), root.Q<Button>("step"), root.Q<Button>("sparkle-button"), root.Q<Button>("overlay-button"),
             };
-            this.commands = new[]
+            _commands = new[]
             {
-                new RelayCommand(this.Play), new RelayCommand(this.Stop), new RelayCommand(this.Pause), new RelayCommand(this.Resume),
-                new RelayCommand(this.Clear), new RelayCommand(() => this.Advance(1d / 60)),
-                new RelayCommand(() => this.PlayAt(0, this.buttons[6])), new RelayCommand(() => this.PlayAt(3, this.buttons[7])),
+                new RelayCommand(Play), new RelayCommand(Stop), new RelayCommand(Pause), new RelayCommand(Resume),
+                new RelayCommand(Clear), new RelayCommand(() => Advance(1d / 60)),
+                new RelayCommand(() => PlayAt(0, _buttons[6])), new RelayCommand(() => PlayAt(3, _buttons[7])),
             };
-            for (var i = 0; i < this.buttons.Length; i++)
+            for (var i = 0; i < _buttons.Length; i++)
             {
-                this.buttons[i].clicked += this.commands[i].Execute;
+                _buttons[i].clicked += _commands[i].Execute;
             }
 
-            this.enabled = root.Q<Toggle>("effects-enabled");
-            this.hide = root.Q<Toggle>("hide");
-            this.enabled.RegisterValueChangedCallback(this.EnabledChanged);
-            this.hide.RegisterValueChangedCallback(this.HideChanged);
-            this.particles[3].Completed += this.Completed;
+            _enabled = root.Q<Toggle>("effects-enabled");
+            _hide = root.Q<Toggle>("hide");
+            _enabled.RegisterValueChangedCallback(EnabledChanged);
+            _hide.RegisterValueChangedCallback(HideChanged);
+            _particles[3].Completed += Completed;
         }
 
         public void Advance(double elapsed)
@@ -57,7 +57,7 @@ namespace BovineLabs.Anchor.Particles.Sample
                 return;
             }
 
-            foreach (var particle in this.particles)
+            foreach (var particle in _particles)
             {
                 particle.Advance(elapsed);
             }
@@ -65,22 +65,22 @@ namespace BovineLabs.Anchor.Particles.Sample
 
         public void Dispose()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            this.disposed = true;
-            for (var i = 0; i < this.buttons.Length; i++)
+            _disposed = true;
+            for (var i = 0; i < _buttons.Length; i++)
             {
-                this.buttons[i].clicked -= this.commands[i].Execute;
+                _buttons[i].clicked -= _commands[i].Execute;
             }
 
-            this.enabled.UnregisterValueChangedCallback(this.EnabledChanged);
-            this.hide.UnregisterValueChangedCallback(this.HideChanged);
-            this.particles[3].Completed -= this.Completed;
-            this.Clear();
-            foreach (var particle in this.particles)
+            _enabled.UnregisterValueChangedCallback(EnabledChanged);
+            _hide.UnregisterValueChangedCallback(HideChanged);
+            _particles[3].Completed -= Completed;
+            Clear();
+            foreach (var particle in _particles)
             {
                 particle.ResetSourcePoint();
             }
@@ -88,21 +88,21 @@ namespace BovineLabs.Anchor.Particles.Sample
 
         private void Play()
         {
-            this.PlayAt(0, this.buttons[6]);
-            this.PlayAt(1, this.particles[1]);
-            this.PlayAt(2, this.particles[2]);
-            this.PlayAt(3, this.buttons[7]);
+            PlayAt(0, _buttons[6]);
+            PlayAt(1, _particles[1]);
+            PlayAt(2, _particles[2]);
+            PlayAt(3, _buttons[7]);
         }
 
         private void PlayAt(int index, VisualElement source)
         {
-            this.particles[index].SetSourcePoint(source, source.contentRect.center);
-            this.particles[index].Play(7);
+            _particles[index].SetSourcePoint(source, source.contentRect.center);
+            _particles[index].Play(7);
         }
 
         private void Stop()
         {
-            foreach (var particle in this.particles)
+            foreach (var particle in _particles)
             {
                 particle.StopEmitting();
             }
@@ -110,7 +110,7 @@ namespace BovineLabs.Anchor.Particles.Sample
 
         private void Pause()
         {
-            foreach (var particle in this.particles)
+            foreach (var particle in _particles)
             {
                 particle.Pause();
             }
@@ -118,7 +118,7 @@ namespace BovineLabs.Anchor.Particles.Sample
 
         private void Resume()
         {
-            foreach (var particle in this.particles)
+            foreach (var particle in _particles)
             {
                 particle.Resume();
             }
@@ -126,7 +126,7 @@ namespace BovineLabs.Anchor.Particles.Sample
 
         private void Clear()
         {
-            foreach (var particle in this.particles)
+            foreach (var particle in _particles)
             {
                 particle.Clear();
             }
@@ -134,13 +134,13 @@ namespace BovineLabs.Anchor.Particles.Sample
 
         private void EnabledChanged(ChangeEvent<bool> evt)
         {
-            foreach (var particle in this.particles)
+            foreach (var particle in _particles)
             {
                 particle.EffectsEnabled = evt.newValue;
             }
         }
 
-        private void HideChanged(ChangeEvent<bool> evt) => this.cards.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
-        private void Completed() => this.completion.text = "Layered burst completed naturally.";
+        private void HideChanged(ChangeEvent<bool> evt) => _cards.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
+        private void Completed() => _completion.text = "Layered burst completed naturally.";
     }
 }

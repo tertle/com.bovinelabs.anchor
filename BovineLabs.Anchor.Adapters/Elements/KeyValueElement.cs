@@ -12,14 +12,14 @@
 
         public KeyValueElement(string keyText = "", string valueText = "")
         {
-            this.KeyLabel = new Text();
-            this.KeyLabel.AddToClassList(KeyUssClassName);
-            this.ValueLabel = new Text();
-            this.ValueLabel.AddToClassList(ValueUssClassName);
-            this.ValueLabel.style.unityTextAlign = TextAnchor.UpperRight;
+            KeyLabel = new Text();
+            KeyLabel.AddToClassList(KeyUssClassName);
+            ValueLabel = new Text();
+            ValueLabel.AddToClassList(ValueUssClassName);
+            ValueLabel.style.unityTextAlign = TextAnchor.UpperRight;
 
-            this.KeyLabel.text = keyText;
-            this.ValueLabel.text = valueText;
+            KeyLabel.text = keyText;
+            ValueLabel.text = valueText;
         }
 
         public Text KeyLabel { get; }

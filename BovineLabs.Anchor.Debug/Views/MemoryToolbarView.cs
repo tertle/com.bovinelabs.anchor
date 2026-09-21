@@ -15,12 +15,12 @@
         [Preserve]
         public MemoryToolbarView(MemoryToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
             TypeConverter<int, string> typeConverter = (ref int value) => FormatMemory(value);
 
-            this.Add(KeyValueGroup.Create(viewModel,
+            Add(KeyValueGroup.Create(viewModel,
                 new (string, string, Action<DataBinding>)[]
                 {
                     ("Allocated", nameof(MemoryToolbarViewModel.TotalAllocatedMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
@@ -29,10 +29,10 @@
                     ("Textures", nameof(MemoryToolbarViewModel.TextureMemoryMB), db => db.sourceToUiConverters.AddConverter(typeConverter)),
                 }));
 
-            this.schedule.Execute(this.UpdateModel).Every(1);
+            schedule.Execute(UpdateModel).Every(1);
         }
 
-        private MemoryToolbarViewModel Model => (MemoryToolbarViewModel)this.dataSource;
+        private MemoryToolbarViewModel Model => (MemoryToolbarViewModel)dataSource;
 
         private static string FormatMemory(int value)
         {
@@ -41,7 +41,7 @@
 
         private void UpdateModel()
         {
-            this.Model.Update();
+            Model.Update();
         }
     }
 }

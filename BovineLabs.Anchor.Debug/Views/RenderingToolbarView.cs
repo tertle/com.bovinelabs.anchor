@@ -15,12 +15,12 @@ namespace BovineLabs.Anchor.Debug.Views
         [Preserve]
         public RenderingToolbarView(RenderingToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
             TypeConverter<long, string> countConverter = (ref long value) => FormatCount(value);
 
-            this.Add(KeyValueGroup.Create(viewModel,
+            Add(KeyValueGroup.Create(viewModel,
                 new (string, string, Action<DataBinding>)[]
                 {
                     ("Triangles", nameof(RenderingToolbarViewModel.Triangles), db => db.sourceToUiConverters.AddConverter(countConverter)),
@@ -30,10 +30,10 @@ namespace BovineLabs.Anchor.Debug.Views
                     ("Instances", nameof(RenderingToolbarViewModel.Instances), db => db.sourceToUiConverters.AddConverter(countConverter)),
                 }));
 
-            this.schedule.Execute(this.UpdateModel).Every(1);
+            schedule.Execute(UpdateModel).Every(1);
         }
 
-        private RenderingToolbarViewModel Model => (RenderingToolbarViewModel)this.dataSource;
+        private RenderingToolbarViewModel Model => (RenderingToolbarViewModel)dataSource;
 
         private static string FormatCount(long value)
         {
@@ -52,7 +52,7 @@ namespace BovineLabs.Anchor.Debug.Views
 
         private void UpdateModel()
         {
-            this.Model.Update();
+            Model.Update();
         }
     }
 }

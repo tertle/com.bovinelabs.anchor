@@ -16,43 +16,43 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool DrawColliderEdges
         {
-            get => this.Value.DrawColliderEdges;
-            set => this.Value.DrawColliderEdges = value;
+            get => Value.DrawColliderEdges;
+            set => Value.DrawColliderEdges = value;
         }
 
         [CreateProperty]
         public bool DrawColliderAabbs
         {
-            get => this.Value.DrawColliderAabbs;
-            set => this.Value.DrawColliderAabbs = value;
+            get => Value.DrawColliderAabbs;
+            set => Value.DrawColliderAabbs = value;
         }
 
         [CreateProperty]
         public bool DrawCollisionEvents
         {
-            get => this.Value.DrawCollisionEvents;
-            set => this.Value.DrawCollisionEvents = value;
+            get => Value.DrawCollisionEvents;
+            set => Value.DrawCollisionEvents = value;
         }
 
         [CreateProperty]
         public bool DrawTriggerEvents
         {
-            get => this.Value.DrawTriggerEvents;
-            set => this.Value.DrawTriggerEvents = value;
+            get => Value.DrawTriggerEvents;
+            set => Value.DrawTriggerEvents = value;
         }
 
         [CreateProperty]
         public bool DrawMeshColliderEdges
         {
-            get => this.Value.DrawMeshColliderEdges;
-            set => this.Value.DrawMeshColliderEdges = value;
+            get => Value.DrawMeshColliderEdges;
+            set => Value.DrawMeshColliderEdges = value;
         }
 
         [CreateProperty]
         public bool DrawTerrainColliderEdges
         {
-            get => this.Value.DrawTerrainColliderEdges;
-            set => this.Value.DrawTerrainColliderEdges = value;
+            get => Value.DrawTerrainColliderEdges;
+            set => Value.DrawTerrainColliderEdges = value;
         }
 
         public VisualElement CreateElement()
@@ -65,27 +65,27 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         {
             [SerializeField]
             [SystemProperty]
-            private bool drawColliderEdges;
+            private bool _drawColliderEdges;
 
             [SerializeField]
             [SystemProperty]
-            private bool drawColliderAabbs;
+            private bool _drawColliderAabbs;
 
             [SerializeField]
             [SystemProperty]
-            private bool drawCollisionEvents;
+            private bool _drawCollisionEvents;
 
             [SerializeField]
             [SystemProperty]
-            private bool drawTriggerEvents;
+            private bool _drawTriggerEvents;
 
             [SerializeField]
             [SystemProperty]
-            private bool drawMeshColliderEdges;
+            private bool _drawMeshColliderEdges;
 
             [SerializeField]
             [SystemProperty]
-            private bool drawTerrainColliderEdges;
+            private bool _drawTerrainColliderEdges;
         }
     }
 }

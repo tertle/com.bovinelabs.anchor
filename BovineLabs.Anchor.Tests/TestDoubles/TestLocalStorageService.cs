@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
     internal sealed class TestLocalStorageService : ILocalStorageService
     {
-        private readonly Dictionary<string, string> values = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> _values = new(StringComparer.Ordinal);
 
         public int SetStringValueCount { get; private set; }
 
@@ -16,46 +16,46 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public bool HasKey(string key)
         {
-            return this.values.ContainsKey(key);
+            return _values.ContainsKey(key);
         }
 
         public void DeleteKey(string key)
         {
-            this.values.Remove(key);
+            _values.Remove(key);
         }
 
         public string GetValue(string key, string defaultValue = null)
         {
-            return this.values.TryGetValue(key, out var value) ? value : defaultValue;
+            return _values.TryGetValue(key, out var value) ? value : defaultValue;
         }
 
         public void SetValue(string key, string value)
         {
             var stored = value ?? string.Empty;
-            this.values[key] = stored;
-            this.SetStringValueCount++;
-            this.LastSetStringKey = key;
-            this.LastSetStringValue = stored;
+            _values[key] = stored;
+            SetStringValueCount++;
+            LastSetStringKey = key;
+            LastSetStringValue = stored;
         }
 
         public int GetValue(string key, int defaultValue)
         {
-            return this.values.TryGetValue(key, out var value) && int.TryParse(value, out var parsed) ? parsed : defaultValue;
+            return _values.TryGetValue(key, out var value) && int.TryParse(value, out var parsed) ? parsed : defaultValue;
         }
 
         public void SetValue(string key, int value)
         {
-            this.values[key] = value.ToString();
+            _values[key] = value.ToString();
         }
 
         public bool GetValue(string key, bool defaultValue)
         {
-            return this.values.TryGetValue(key, out var value) && bool.TryParse(value, out var parsed) ? parsed : defaultValue;
+            return _values.TryGetValue(key, out var value) && bool.TryParse(value, out var parsed) ? parsed : defaultValue;
         }
 
         public void SetValue(string key, bool value)
         {
-            this.values[key] = value.ToString();
+            _values[key] = value.ToString();
         }
     }
 }

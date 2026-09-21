@@ -10,19 +10,19 @@
         where TM : class, IToolbarElement, IBindingObjectNotify<TD>, new()
         where TD : unmanaged
     {
-        private readonly FixedString32Bytes tabName;
-        private readonly FixedString32Bytes groupName;
+        private readonly FixedString32Bytes _tabName;
+        private readonly FixedString32Bytes _groupName;
 
-        private ToolbarRegistrationHandle handle;
+        private ToolbarRegistrationHandle _handle;
 
-        private TD* data;
+        private TD* _data;
 
         public ToolbarHelper(FixedString32Bytes tabName, FixedString32Bytes groupName)
         {
-            this.tabName = tabName;
-            this.groupName = groupName;
-            this.data = null;
-            this.handle = default;
+            _tabName = tabName;
+            _groupName = groupName;
+            _data = null;
+            _handle = default;
         }
 
         public ToolbarHelper(ref SystemState state, FixedString32Bytes groupName)
@@ -30,32 +30,32 @@
         {
         }
 
-        public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
+        public ref TD Binding => ref UnsafeUtility.AsRef<TD>(_data);
 
         public void Load()
         {
-            this.handle = Toolbar.GetRequired().Register<TM, TD>(
-                this.tabName.ToString(),
-                this.groupName.ToString(),
-                out this.data);
+            _handle = Toolbar.GetRequired().Register<TM, TD>(
+                _tabName.ToString(),
+                _groupName.ToString(),
+                out _data);
         }
 
         public void Unload()
         {
             try
             {
-                Toolbar.Current?.Remove(this.handle);
+                Toolbar.Current?.Remove(_handle);
             }
             finally
             {
-                this.handle = default;
-                this.data = null;
+                _handle = default;
+                _data = null;
             }
         }
 
         public bool IsVisible()
         {
-            return ToolbarViewData.ActiveTab.Data == this.tabName;
+            return ToolbarViewData.ActiveTab.Data == _tabName;
         }
 
         private static string FormatWorld(World world)

@@ -14,42 +14,42 @@
     [AutoToolbar("Memory")]
     public class MemoryToolbarViewModel : ObservableObject, IToolbarElement
     {
-        private float timeToTriggerUpdatesPassed;
+        private float _timeToTriggerUpdatesPassed;
 
-        private int totalAllocatedMemoryMB;
+        private int _totalAllocatedMemoryMB;
 
-        private int totalReservedMemoryMB;
+        private int _totalReservedMemoryMB;
 
-        private int textureMemoryMB;
+        private int _textureMemoryMB;
 
-        private int allocatedMemoryForGraphicsMB;
+        private int _allocatedMemoryForGraphicsMB;
 
         [CreateProperty]
         public int TotalAllocatedMemoryMB
         {
-            get => this.totalAllocatedMemoryMB;
-            set => this.SetProperty(ref this.totalAllocatedMemoryMB, value);
+            get => _totalAllocatedMemoryMB;
+            set => SetProperty(ref _totalAllocatedMemoryMB, value);
         }
 
         [CreateProperty]
         public int TotalReservedMemoryMB
         {
-            get => this.totalReservedMemoryMB;
-            set => this.SetProperty(ref this.totalReservedMemoryMB, value);
+            get => _totalReservedMemoryMB;
+            set => SetProperty(ref _totalReservedMemoryMB, value);
         }
 
         [CreateProperty]
         public int TextureMemoryMB
         {
-            get => this.textureMemoryMB;
-            set => this.SetProperty(ref this.textureMemoryMB, value);
+            get => _textureMemoryMB;
+            set => SetProperty(ref _textureMemoryMB, value);
         }
 
         [CreateProperty]
         public int AllocatedMemoryForGraphicsMB
         {
-            get => this.allocatedMemoryForGraphicsMB;
-            set => this.SetProperty(ref this.allocatedMemoryForGraphicsMB, value);
+            get => _allocatedMemoryForGraphicsMB;
+            set => SetProperty(ref _allocatedMemoryForGraphicsMB, value);
         }
 
         public VisualElement CreateElement()
@@ -60,21 +60,21 @@
         public void Update()
         {
             var unscaledDeltaTime = Time.unscaledDeltaTime;
-            this.timeToTriggerUpdatesPassed += unscaledDeltaTime;
+            _timeToTriggerUpdatesPassed += unscaledDeltaTime;
 
-            if (this.timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
+            if (_timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
             {
                 return;
             }
 
-            this.timeToTriggerUpdatesPassed = 0;
+            _timeToTriggerUpdatesPassed = 0;
 
             const float megaByte = 1024 * 1024;
 
-            this.TotalAllocatedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalAllocatedMemoryLong() / megaByte);
-            this.TotalReservedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalReservedMemoryLong() / megaByte);
-            this.AllocatedMemoryForGraphicsMB = Mathf.CeilToInt(Profiler.GetAllocatedMemoryForGraphicsDriver() / megaByte);
-            this.TextureMemoryMB = Mathf.CeilToInt(Texture.currentTextureMemory / megaByte);
+            TotalAllocatedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalAllocatedMemoryLong() / megaByte);
+            TotalReservedMemoryMB = Mathf.CeilToInt(Profiler.GetTotalReservedMemoryLong() / megaByte);
+            AllocatedMemoryForGraphicsMB = Mathf.CeilToInt(Profiler.GetAllocatedMemoryForGraphicsDriver() / megaByte);
+            TextureMemoryMB = Mathf.CeilToInt(Texture.currentTextureMemory / megaByte);
         }
     }
 }

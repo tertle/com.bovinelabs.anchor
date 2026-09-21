@@ -16,23 +16,23 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     public partial class SubSceneToolbarViewModel : SystemObservableObject<SubSceneToolbarViewModel.Data>, ILoadable, IToolbarElement
     {
         [CreateProperty]
-        public UIArray<Data.SubSceneName> SubScenes => this.Value.SubScenes;
+        public UIArray<Data.SubSceneName> SubScenes => Value.SubScenes;
 
         [CreateProperty]
         public IEnumerable<int> SubSceneValues
         {
-            get => this.Value.SubSceneValues.Value.AsArray();
-            set => this.SetProperty(this.Value.SubSceneValues, value);
+            get => Value.SubSceneValues.Value.AsArray();
+            set => SetProperty(Value.SubSceneValues, value);
         }
 
         public void Load()
         {
-            this.Value.Initialize();
+            Value.Initialize();
         }
 
         public void Unload()
         {
-            this.Value.Dispose();
+            Value.Dispose();
         }
 
         public VisualElement CreateElement()
@@ -45,7 +45,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             const string scenePrefix = "Scene: ";
             const string sceneSectionPrefix = "SceneSection: ";
 
-            var name = this.Value.SubScenes[index].Name.ToString();
+            var name = Value.SubScenes[index].Name.ToString();
 
             var sceneIndex = name.IndexOf(scenePrefix, StringComparison.Ordinal);
             if (sceneIndex != -1)
@@ -65,21 +65,21 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         public partial struct Data
         {
             [SystemProperty]
-            private ChangedList<int> subSceneValues;
+            private ChangedList<int> _subSceneValues;
 
             [SystemProperty]
-            private NativeList<SubSceneName> subScenes;
+            private NativeList<SubSceneName> _subScenes;
 
             internal void Initialize()
             {
-                this.subSceneValues = new NativeList<int>(Allocator.Persistent);
-                this.subScenes = new NativeList<SubSceneName>(Allocator.Persistent);
+                _subSceneValues = new NativeList<int>(Allocator.Persistent);
+                _subScenes = new NativeList<SubSceneName>(Allocator.Persistent);
             }
 
             internal void Dispose()
             {
-                this.subSceneValues.Value.Dispose();
-                this.subScenes.Dispose();
+                _subSceneValues.Value.Dispose();
+                _subScenes.Dispose();
             }
 
             public struct SubSceneName : IComparable<SubSceneName>, IEquatable<SubSceneName>
@@ -89,19 +89,19 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
                 public int CompareTo(SubSceneName other)
                 {
-                    return this.Name.CompareTo(other.Name);
+                    return Name.CompareTo(other.Name);
                 }
 
                 public bool Equals(SubSceneName other)
                 {
-                    return this.Entity.Equals(other.Entity) && this.Name.Equals(other.Name);
+                    return Entity.Equals(other.Entity) && Name.Equals(other.Name);
                 }
 
                 public override int GetHashCode()
                 {
                     unchecked
                     {
-                        return (this.Entity.GetHashCode() * 397) ^ this.Name.GetHashCode();
+                        return (Entity.GetHashCode() * 397) ^ Name.GetHashCode();
                     }
                 }
             }

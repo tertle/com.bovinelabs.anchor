@@ -18,33 +18,33 @@
         where T : unmanaged
     {
         [SerializeField]
-        private DataBox data = new();
+        private DataBox _data = new();
 
-        private GCHandle pin;
+        private GCHandle _pin;
 
-        public ref T Value => ref this.data.Value;
+        public ref T Value => ref _data.Value;
 
         void IBindingObjectNotify<T>.Pin()
         {
-            Check.Assume(!this.pin.IsAllocated);
-            this.pin = GCHandle.Alloc(this.data, GCHandleType.Pinned);
+            Check.Assume(!_pin.IsAllocated);
+            _pin = GCHandle.Alloc(_data, GCHandleType.Pinned);
         }
 
         void IBindingObjectNotify<T>.Unpin()
         {
-            Check.Assume(this.pin.IsAllocated);
-            this.pin.Free();
-            this.pin = default;
+            Check.Assume(_pin.IsAllocated);
+            _pin.Free();
+            _pin = default;
         }
 
         public void OnPropertyChanging(in FixedString64Bytes property)
         {
-            this.OnPropertyChanging(new PropertyChangingEventArgs(property.ToString()));
+            OnPropertyChanging(new PropertyChangingEventArgs(property.ToString()));
         }
 
         public void OnPropertyChanged(in FixedString64Bytes property)
         {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(property.ToString()));
+            OnPropertyChanged(new PropertyChangedEventArgs(property.ToString()));
         }
 
         protected bool SetProperty<TV>(ChangedList<TV> oldValue, IEnumerable<TV> newValue, [CallerMemberName] string propertyName = null)
@@ -55,9 +55,9 @@
                 return false;
             }
 
-            this.OnPropertyChanging(propertyName);
+            OnPropertyChanging(propertyName);
             oldValue.SetValue(newValue);
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
 

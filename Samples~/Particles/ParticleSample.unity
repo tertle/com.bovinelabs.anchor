@@ -231,8 +231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1bdaf5999e94750b9a8889565e63a06, type: 3}
   m_Name:
   m_EditorClassIdentifier: BovineLabs.Anchor.Particles.Sample::BovineLabs.Anchor.Particles.Sample.ParticleSampleRunner
-  theme: {fileID: -4733365628477956816, guid: bb698bbc74db48419e760e61c120bac0, type: 3}
-  visualTree: {fileID: 9197481963319205126, guid: 0c5ff56b839348d08be0bfaa7a49439b, type: 3}
+  _theme: {fileID: -4733365628477956816, guid: bb698bbc74db48419e760e61c120bac0, type: 3}
+  _visualTree: {fileID: 9197481963319205126, guid: 0c5ff56b839348d08be0bfaa7a49439b, type: 3}
 --- !u!4 &1105059331
 Transform:
   m_ObjectHideFlags: 0

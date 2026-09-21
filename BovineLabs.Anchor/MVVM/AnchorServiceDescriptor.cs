@@ -14,11 +14,11 @@ namespace BovineLabs.Anchor.MVVM
         private AnchorServiceDescriptor(
             Type serviceType, Type implementationType, AnchorServiceLifetime lifetime, object implementationInstance, Type aliasType)
         {
-            this.ServiceType = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
-            this.ImplementationType = implementationType;
-            this.Lifetime = lifetime;
-            this.ImplementationInstance = implementationInstance;
-            this.AliasType = aliasType;
+            ServiceType = serviceType ?? throw new ArgumentNullException(nameof(serviceType));
+            ImplementationType = implementationType;
+            Lifetime = lifetime;
+            ImplementationInstance = implementationInstance;
+            AliasType = aliasType;
         }
 
         public Type ServiceType { get; }
@@ -31,9 +31,9 @@ namespace BovineLabs.Anchor.MVVM
 
         public Type AliasType { get; }
 
-        public bool IsAlias => this.AliasType != null;
+        public bool IsAlias => AliasType != null;
 
-        public bool IsInstance => this.ImplementationInstance != null;
+        public bool IsInstance => ImplementationInstance != null;
 
         public static AnchorServiceDescriptor Singleton(Type serviceType, Type implementationType)
         {

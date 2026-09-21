@@ -6,10 +6,10 @@ namespace BovineLabs.Anchor.Nav
     {
         internal AnchorNavBackStackEntry(string destination, AnchorNavOptions options, AnchorNavArgument[] arguments, AnchorNavStackSnapshot snapshot = null)
         {
-            this.Destination = destination;
-            this.Options = options ?? new AnchorNavOptions();
-            this.Arguments = arguments ?? Array.Empty<AnchorNavArgument>();
-            this.Snapshot = snapshot ?? AnchorNavStackSnapshot.Empty;
+            Destination = destination;
+            Options = options ?? new AnchorNavOptions();
+            Arguments = arguments ?? Array.Empty<AnchorNavArgument>();
+            Snapshot = snapshot ?? AnchorNavStackSnapshot.Empty;
         }
 
         public string Destination { get; }

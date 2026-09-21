@@ -9,10 +9,10 @@ namespace BovineLabs.Anchor
         {
             public Padding(float left, float top, float right, float bottom)
             {
-                this.Left = left;
-                this.Top = top;
-                this.Right = right;
-                this.Bottom = bottom;
+                Left = left;
+                Top = top;
+                Right = right;
+                Bottom = bottom;
             }
 
             public float Left { get; }

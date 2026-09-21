@@ -13,8 +13,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public bool Pause
         {
-            get => this.Value.Pause;
-            set => this.SetProperty(ref this.Value.Pause, value);
+            get => Value.Pause;
+            set => SetProperty(ref Value.Pause, value);
         }
 
         public VisualElement CreateElement()

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Reflection;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
@@ -17,20 +16,19 @@
     {
     }
 
-    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Base implementation")]
     [RequireComponent(typeof(PanelRenderer))]
     public abstract class AnchorAppBuilder<T> : MonoBehaviour
         where T : AnchorApp, new()
     {
-        private PanelRenderer panelRenderer;
+        private PanelRenderer _panelRenderer;
 
-        private AnchorServiceProvider serviceProvider;
-        private T anchorApp;
-        private VisualElement hostRootVisualElement;
-        private VisualElement appRootVisualElement;
-        private IAnchorNavHostReloadState pendingNavigationState;
-        private bool visualGenerationActive;
-        private int lastPanelVersion = -1;
+        private AnchorServiceProvider _serviceProvider;
+        private T _anchorApp;
+        private VisualElement _hostRootVisualElement;
+        private VisualElement _appRootVisualElement;
+        private IAnchorNavHostReloadState _pendingNavigationState;
+        private bool _visualGenerationActive;
+        private int _lastPanelVersion = -1;
 
         protected IReadOnlyList<StyleSheet> DebugStyleSheets => AnchorSettings.I.DebugStyleSheets;
 
@@ -49,51 +47,51 @@
 
         private void Awake()
         {
-            this.panelRenderer = this.GetComponent<PanelRenderer>();
+            _panelRenderer = GetComponent<PanelRenderer>();
         }
 
         private void OnEnable()
         {
-            this.hostRootVisualElement = null;
-            this.panelRenderer.RegisterUIReloadCallback(this.OnPanelRendererReload);
-            ((IPanelComponent)this.panelRenderer).PerformValidation(true);
+            _hostRootVisualElement = null;
+            _panelRenderer.RegisterUIReloadCallback(OnPanelRendererReload);
+            ((IPanelComponent)_panelRenderer).PerformValidation(true);
         }
 
         private void OnDisable()
         {
-            this.panelRenderer.UnregisterUIReloadCallback(this.OnPanelRendererReload);
-            this.lastPanelVersion = -1;
+            _panelRenderer.UnregisterUIReloadCallback(OnPanelRendererReload);
+            _lastPanelVersion = -1;
 
             try
             {
-                this.ReleaseCurrentVisualGeneration();
+                ReleaseCurrentVisualGeneration();
             }
             finally
             {
-                this.hostRootVisualElement = null;
+                _hostRootVisualElement = null;
             }
         }
 
         private void OnDestroy()
         {
-            this.panelRenderer.UnregisterUIReloadCallback(this.OnPanelRendererReload);
-            this.ShutdownApp();
+            _panelRenderer.UnregisterUIReloadCallback(OnPanelRendererReload);
+            ShutdownApp();
         }
 
         private void Update()
         {
-            this.anchorApp?.Update();
+            _anchorApp?.Update();
         }
 
         protected virtual void OnConfigureServices(AnchorServiceCollection services)
         {
-            services.AddSingleton(typeof(ILocalStorageService), this.LocalStorageService);
-            services.AddSingleton(typeof(IViewModelService), this.ViewModelService);
-            services.AddSingleton(typeof(IAudioService), this.AudioService);
+            services.AddSingleton(typeof(ILocalStorageService), LocalStorageService);
+            services.AddSingleton(typeof(IViewModelService), ViewModelService);
+            services.AddSingleton(typeof(IAudioService), AudioService);
 
-            if (this.UXMLService != null)
+            if (UXMLService != null)
             {
-                services.AddSingleton(typeof(IUXMLService), this.UXMLService);
+                services.AddSingleton(typeof(IUXMLService), UXMLService);
             }
 
             // Register all services
@@ -123,7 +121,7 @@
         protected virtual void OnVisualGenerationInitialized(T app)
         {
 #if UNITY_INCLUDE_INSTRUMENTATION
-            foreach (var style in this.DebugStyleSheets)
+            foreach (var style in DebugStyleSheets)
             {
                 app.RootVisualElement.styleSheets.Add(style);
             }
@@ -144,39 +142,39 @@
         private void InitializeApp()
         {
             var services = new AnchorServiceCollection();
-            this.OnConfigureServices(services);
+            OnConfigureServices(services);
 
-            this.serviceProvider = services.BuildServiceProvider();
-            this.anchorApp = new T();
+            _serviceProvider = services.BuildServiceProvider();
+            _anchorApp = new T();
 
             try
             {
-                this.anchorApp.Initialize(this.serviceProvider);
-                this.OnAppInitialized(this.anchorApp);
+                _anchorApp.Initialize(_serviceProvider);
+                OnAppInitialized(_anchorApp);
             }
             catch
             {
-                this.anchorApp.Dispose();
-                this.serviceProvider.Dispose();
-                this.anchorApp = null;
-                this.serviceProvider = null;
+                _anchorApp.Dispose();
+                _serviceProvider.Dispose();
+                _anchorApp = null;
+                _serviceProvider = null;
                 throw;
             }
         }
 
         private IAnchorPanel CreatePanel()
         {
-            var panelType = this.PanelType ?? typeof(AnchorPanel);
+            var panelType = PanelType ?? typeof(AnchorPanel);
             if (!typeof(IAnchorPanel).IsAssignableFrom(panelType))
             {
                 throw new InvalidOperationException(
-                    $"{nameof(this.PanelType)} '{panelType.FullName}' must implement {nameof(IAnchorPanel)}.");
+                    $"{nameof(PanelType)} '{panelType.FullName}' must implement {nameof(IAnchorPanel)}.");
             }
 
             if (panelType.GetConstructor(Type.EmptyTypes) == null)
             {
                 throw new InvalidOperationException(
-                    $"{nameof(this.PanelType)} '{panelType.FullName}' must have a public parameterless constructor.");
+                    $"{nameof(PanelType)} '{panelType.FullName}' must have a public parameterless constructor.");
             }
 
             return (IAnchorPanel)Activator.CreateInstance(panelType);
@@ -184,44 +182,44 @@
 
         private void InitializeVisualGeneration(IAnchorNavHostReloadState navigationState)
         {
-            var panel = this.CreatePanel();
+            var panel = CreatePanel();
             var root = panel.RootVisualElement ??
                 throw new InvalidOperationException($"{panel.GetType().FullName} returned a null root visual element.");
 
-            this.appRootVisualElement = root;
+            _appRootVisualElement = root;
 
             try
             {
                 root.pickingMode = PickingMode.Ignore;
-                this.anchorApp.SetPanel(panel);
-                this.AttachAppRootToHost();
-                this.visualGenerationActive = true;
+                _anchorApp.SetPanel(panel);
+                AttachAppRootToHost();
+                _visualGenerationActive = true;
 
-                this.anchorApp.RestoringNavigationState = navigationState != null;
+                _anchorApp.RestoringNavigationState = navigationState != null;
                 try
                 {
-                    this.OnVisualGenerationInitialized(this.anchorApp);
+                    OnVisualGenerationInitialized(_anchorApp);
                 }
                 finally
                 {
-                    this.anchorApp.RestoringNavigationState = false;
+                    _anchorApp.RestoringNavigationState = false;
                 }
 
                 if (navigationState != null)
                 {
-                    if (this.anchorApp.NavHost == null)
+                    if (_anchorApp.NavHost == null)
                     {
                         throw new InvalidOperationException("The visual generation did not initialize a navigation host.");
                     }
 
-                    this.anchorApp.NavHost.RestoreReloadState(navigationState);
+                    _anchorApp.NavHost.RestoreReloadState(navigationState);
                 }
 
-                this.anchorApp.RefreshScreenMetrics();
+                _anchorApp.RefreshScreenMetrics();
             }
             catch
             {
-                this.ReleaseVisualGeneration();
+                ReleaseVisualGeneration();
                 throw;
             }
         }
@@ -230,36 +228,36 @@
         {
             try
             {
-                if (this.anchorApp != null)
+                if (_anchorApp != null)
                 {
                     try
                     {
-                        this.InvokeVisualGenerationShuttingDown();
+                        InvokeVisualGenerationShuttingDown();
                     }
                     finally
                     {
                         try
                         {
-                            this.OnAppShuttingDown(this.anchorApp);
+                            OnAppShuttingDown(_anchorApp);
                         }
                         finally
                         {
-                            this.appRootVisualElement?.RemoveFromHierarchy();
-                            this.anchorApp.Dispose();
+                            _appRootVisualElement?.RemoveFromHierarchy();
+                            _anchorApp.Dispose();
                         }
                     }
                 }
             }
             finally
             {
-                this.serviceProvider?.Dispose();
+                _serviceProvider?.Dispose();
 
-                this.anchorApp = null;
-                this.serviceProvider = null;
-                this.appRootVisualElement = null;
-                this.hostRootVisualElement = null;
-                this.pendingNavigationState = null;
-                this.visualGenerationActive = false;
+                _anchorApp = null;
+                _serviceProvider = null;
+                _appRootVisualElement = null;
+                _hostRootVisualElement = null;
+                _pendingNavigationState = null;
+                _visualGenerationActive = false;
             }
         }
 
@@ -267,89 +265,89 @@
         {
             try
             {
-                this.InvokeVisualGenerationShuttingDown();
+                InvokeVisualGenerationShuttingDown();
             }
             finally
             {
                 try
                 {
-                    this.appRootVisualElement?.RemoveFromHierarchy();
-                    this.anchorApp.ReleaseVisualGeneration();
+                    _appRootVisualElement?.RemoveFromHierarchy();
+                    _anchorApp.ReleaseVisualGeneration();
                 }
                 finally
                 {
-                    this.appRootVisualElement = null;
+                    _appRootVisualElement = null;
                 }
             }
         }
 
         private void ReleaseCurrentVisualGeneration()
         {
-            if (this.anchorApp?.RootVisualElement == null)
+            if (_anchorApp?.RootVisualElement == null)
             {
                 return;
             }
 
-            this.CaptureNavigationState();
-            this.ReleaseVisualGeneration();
+            CaptureNavigationState();
+            ReleaseVisualGeneration();
         }
 
         private void CaptureNavigationState()
         {
-            if (this.pendingNavigationState != null)
+            if (_pendingNavigationState != null)
             {
                 return;
             }
 
-            var navHost = this.anchorApp.NavHost ??
+            var navHost = _anchorApp.NavHost ??
                 throw new InvalidOperationException("The current visual generation does not have a navigation host.");
-            this.pendingNavigationState = navHost.CaptureReloadState() ??
+            _pendingNavigationState = navHost.CaptureReloadState() ??
                 throw new InvalidOperationException($"{navHost.GetType().FullName} returned a null navigation reload state.");
         }
 
         private void InvokeVisualGenerationShuttingDown()
         {
-            if (!this.visualGenerationActive)
+            if (!_visualGenerationActive)
             {
                 return;
             }
 
-            this.visualGenerationActive = false;
-            this.OnVisualGenerationShuttingDown(this.anchorApp);
+            _visualGenerationActive = false;
+            OnVisualGenerationShuttingDown(_anchorApp);
         }
 
         private void AttachAppRootToHost()
         {
-            if (this.hostRootVisualElement == null || this.appRootVisualElement == null)
+            if (_hostRootVisualElement == null || _appRootVisualElement == null)
             {
                 return;
             }
 
-            this.hostRootVisualElement.Clear();
-            this.hostRootVisualElement.Add(this.appRootVisualElement);
+            _hostRootVisualElement.Clear();
+            _hostRootVisualElement.Add(_appRootVisualElement);
         }
 
         private void OnPanelRendererReload(PanelRenderer renderer, VisualElement rootElement, int version)
         {
-            if (version == this.lastPanelVersion)
+            if (version == _lastPanelVersion)
             {
                 return;
             }
 
-            this.hostRootVisualElement = rootElement ?? throw new ArgumentNullException(nameof(rootElement));
+            _hostRootVisualElement = rootElement ?? throw new ArgumentNullException(nameof(rootElement));
 
             try
             {
-                if (this.anchorApp == null)
+                if (_anchorApp == null)
                 {
-                    this.InitializeApp();
+                    InitializeApp();
                 }
 
-                this.ReleaseCurrentVisualGeneration();
+                ReleaseCurrentVisualGeneration();
 
-                this.InitializeVisualGeneration(this.pendingNavigationState);
-                this.pendingNavigationState = null;
-                this.lastPanelVersion = version;
+                InitializeVisualGeneration(_pendingNavigationState);
+                _pendingNavigationState = null;
+                _lastPanelVersion = version;
             }
             catch (Exception ex)
             {

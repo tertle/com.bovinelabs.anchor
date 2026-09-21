@@ -236,47 +236,47 @@ namespace BovineLabs.Anchor.Tests.App
 
         private sealed class TestViewModel : ObservableObject
         {
-            private int value;
-            private int otherValue;
+            private int _value;
+            private int _otherValue;
 
             public int Value
             {
-                get => this.value;
-                set => this.SetProperty(ref this.value, value);
+                get => _value;
+                set => SetProperty(ref _value, value);
             }
 
             public int OtherValue
             {
-                get => this.otherValue;
-                set => this.SetProperty(ref this.otherValue, value);
+                get => _otherValue;
+                set => SetProperty(ref _otherValue, value);
             }
 
             public void SetBackingValue(int value)
             {
-                this.value = value;
+                _value = value;
             }
         }
 
         public partial class GeneratedCanExecuteViewModel
         {
-            private bool allowExecute;
+            private bool _allowExecute;
 
             [ICommand(CanExecuteMethod = nameof(CanExecuteIncrement))]
             private void Increment()
             {
-                this.ExecuteCount++;
+                ExecuteCount++;
             }
 
             public int ExecuteCount { get; private set; }
 
             public void SetAllowExecute(bool allowExecute)
             {
-                this.allowExecute = allowExecute;
+                _allowExecute = allowExecute;
             }
 
             private bool CanExecuteIncrement()
             {
-                return this.allowExecute;
+                return _allowExecute;
             }
         }
 
@@ -285,7 +285,7 @@ namespace BovineLabs.Anchor.Tests.App
             [ICommand(CanExecuteMethod = nameof(CanSetValue))]
             private void SetValue(int value)
             {
-                this.Value = value;
+                Value = value;
             }
 
             public int Value { get; private set; }
@@ -298,22 +298,22 @@ namespace BovineLabs.Anchor.Tests.App
 
         public partial class GeneratedCanExecutePropertyViewModel
         {
-            private bool allowExecute;
+            private bool _allowExecute;
 
             [ICommand(CanExecuteProperty = nameof(CanIncrement))]
             private void Increment()
             {
-                this.ExecuteCount++;
+                ExecuteCount++;
             }
 
             [CreateProperty(ReadOnly = true)]
-            public bool CanIncrement => this.allowExecute;
+            public bool CanIncrement => _allowExecute;
 
             public int ExecuteCount { get; private set; }
 
             public void SetAllowExecute(bool allowExecute)
             {
-                this.allowExecute = allowExecute;
+                _allowExecute = allowExecute;
             }
         }
 
@@ -322,7 +322,7 @@ namespace BovineLabs.Anchor.Tests.App
             [ICommand]
             private void Increment()
             {
-                this.ExecuteCount++;
+                ExecuteCount++;
             }
 
             public int ExecuteCount { get; private set; }
@@ -331,44 +331,44 @@ namespace BovineLabs.Anchor.Tests.App
         public partial class GeneratedObservablePropertyViewModel : ObservableObject
         {
             [ObservableProperty]
-            private int test;
+            private int _test;
         }
 
         public partial class GeneratedDependsOnViewModel : ObservableObject
         {
             [ObservableProperty]
-            private bool hasSave;
+            private bool _hasSave;
 
             [DependsOn(nameof(HasSave))]
-            public bool CanLoad => this.HasSave;
+            public bool CanLoad => HasSave;
 
             [DependsOn(nameof(CanLoad))]
-            public bool CanContinue => this.CanLoad;
+            public bool CanContinue => CanLoad;
         }
 
         public partial class GeneratedFieldDependsOnViewModel : ObservableObject
         {
             [ObservableProperty]
-            private int test;
+            private int _test;
 
             [CreateProperty]
-            [DependsOn(nameof(test))]
-            public bool HasTest => this.test != 0;
+            [DependsOn(nameof(_test))]
+            public bool HasTest => _test != 0;
         }
 
         public partial class GeneratedCommandDependsOnViewModel : ObservableObject
         {
             [ObservableProperty]
-            private bool hasSave;
+            private bool _hasSave;
 
             [ICommand(CanExecuteProperty = nameof(CanContinue))]
             private void Continue()
             {
-                this.ExecuteCount++;
+                ExecuteCount++;
             }
 
             [DependsOn(nameof(HasSave))]
-            private bool CanContinue => this.HasSave;
+            private bool CanContinue => HasSave;
 
             public int ExecuteCount { get; private set; }
         }
@@ -377,22 +377,22 @@ namespace BovineLabs.Anchor.Tests.App
         {
             [ObservableProperty]
             [AlsoNotifyChangeFor(nameof(Test2))]
-            private int test;
+            private int _test;
 
-            public int Test2 => this.Test * 2;
+            public int Test2 => Test * 2;
         }
 
         public partial class GeneratedAlsoExecuteViewModel : ObservableObject
         {
             [ObservableProperty]
             [AlsoExecute(nameof(OnTestChanged))]
-            private int test;
+            private int _test;
 
             public int ExecuteCount { get; private set; }
 
             private void OnTestChanged()
             {
-                this.ExecuteCount++;
+                ExecuteCount++;
             }
         }
 
@@ -401,15 +401,15 @@ namespace BovineLabs.Anchor.Tests.App
             [ObservableProperty]
             [AlsoNotifyChangeFor(nameof(Test2))]
             [AlsoExecute(nameof(OnTestChanged))]
-            private int test;
+            private int _test;
 
             public List<string> Log { get; } = new List<string>();
 
-            public int Test2 => this.Test + 1;
+            public int Test2 => Test + 1;
 
             private void OnTestChanged()
             {
-                this.Log.Add("execute");
+                Log.Add("execute");
             }
         }
     }

@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Samples.BasicUI
         private const string Destination = "anchor-basic-ui";
 
         [SerializeField]
-        private VisualTreeAsset view;
+        private VisualTreeAsset _view;
 
         protected override void OnConfigureServices(AnchorServiceCollection services)
         {
@@ -26,12 +26,12 @@ namespace BovineLabs.Anchor.Samples.BasicUI
 
         public VisualTreeAsset GetAsset(string assetName)
         {
-            return this.view;
+            return _view;
         }
 
         public VisualElement Instantiate(string assetName)
         {
-            return this.view.Instantiate();
+            return _view.Instantiate();
         }
     }
 }

@@ -33,7 +33,7 @@ namespace BovineLabs.Anchor.Editor.Particles
                 long capacity = 0;
                 try
                 {
-                    foreach (var item in this.targets)
+                    foreach (var item in targets)
                     {
                         var compiled = new UIParticleCompiledEffect((UIParticleEffect)item);
                         compiled.Retain();
@@ -60,9 +60,9 @@ namespace BovineLabs.Anchor.Editor.Particles
             }
 
             Validate();
-            if (!this.MultiEditing)
+            if (!MultiEditing)
             {
-                var asset = (UIParticleEffect)this.target;
+                var asset = (UIParticleEffect)target;
                 var tools = new VisualElement();
                 tools.style.flexDirection = FlexDirection.Row;
                 root.Add(tools);
@@ -158,7 +158,7 @@ namespace BovineLabs.Anchor.Editor.Particles
                 });
             }
 
-            root.TrackSerializedObjectValue(this.serializedObject, _ =>
+            root.TrackSerializedObjectValue(serializedObject, _ =>
             {
                 var restart = running;
                 Stop();

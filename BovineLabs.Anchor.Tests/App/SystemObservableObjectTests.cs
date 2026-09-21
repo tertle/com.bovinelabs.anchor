@@ -74,7 +74,7 @@ namespace BovineLabs.Anchor.Tests.App
         {
             public bool InvokeSetProperty(ChangedList<int> oldValue, IEnumerable<int> newValue, string propertyName)
             {
-                return this.SetProperty(oldValue, newValue, propertyName);
+                return SetProperty(oldValue, newValue, propertyName);
             }
         }
 

@@ -10,32 +10,32 @@
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     internal partial struct EntitiesToolbarSystem : ISystem, ISystemStartStop
     {
-        private ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> toolbar;
+        private ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data> _toolbar;
 
         public void OnCreate(ref SystemState state)
         {
-            this.toolbar = new ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
+            _toolbar = new ToolbarHelper<EntitiesToolbarViewModel, EntitiesToolbarViewModel.Data>(ref state, "Entities");
         }
 
         public void OnStartRunning(ref SystemState state)
         {
-            this.toolbar.Load();
+            _toolbar.Load();
         }
 
         public void OnStopRunning(ref SystemState state)
         {
-            this.toolbar.Unload();
+            _toolbar.Unload();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!this.toolbar.IsVisible())
+            if (!_toolbar.IsVisible())
             {
                 return;
             }
 
-            ref var data = ref this.toolbar.Binding;
+            ref var data = ref _toolbar.Binding;
             data.Entities = state.EntityManager.UniversalQuery.CalculateEntityCountWithoutFiltering();
             data.Archetypes = state.EntityManager.NumberOfArchetype();
             data.Chunks = state.EntityManager.UniversalQuery.CalculateChunkCountWithoutFiltering();

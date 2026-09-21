@@ -16,19 +16,19 @@ namespace BovineLabs.Anchor.Debug.Views
         [Preserve]
         public LocalizationToolbarView(LocalizationToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
             if (!LocalizationSettings.HasSettings)
             {
-                this.Add(new Text("No LocalizationSettings"));
+                Add(new Text("No LocalizationSettings"));
                 return;
             }
 
             var dropdownField = new Dropdown
             {
                 defaultMessage = string.Empty,
-                bindItem = (item, i) => item.label = this.Model.Locales[i],
+                bindItem = (item, i) => item.label = Model.Locales[i],
             };
 
             dropdownField.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -40,10 +40,10 @@ namespace BovineLabs.Anchor.Debug.Views
             dropdownField.SetBinding(nameof(Dropdown.selectedIndex),
                 new DataBinding { dataSourcePath = new PropertyPath(nameof(LocalizationToolbarViewModel.SelectedLocale)) });
 
-            this.Add(dropdownField);
+            Add(dropdownField);
         }
 
-        private LocalizationToolbarViewModel Model => (LocalizationToolbarViewModel)this.dataSource;
+        private LocalizationToolbarViewModel Model => (LocalizationToolbarViewModel)dataSource;
     }
 }
 #endif

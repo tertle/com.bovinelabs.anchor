@@ -10,9 +10,9 @@ namespace BovineLabs.Anchor.Elements
         private static readonly BindingId CommandProperty = nameof(command);
         private static readonly BindingId IntervalProperty = nameof(interval);
 
-        private ICommand m_command;
-        private long m_interval;
-        private IVisualElementScheduledItem m_scheduledItem;
+        private ICommand _command;
+        private long _interval;
+        private IVisualElementScheduledItem _scheduledItem;
 
         /// <summary>
         /// Interval in milliseconds; zero disables scheduling.
@@ -21,22 +21,22 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public long interval
         {
-            get => this.m_interval;
+            get => _interval;
             set
             {
-                if (this.m_interval != value)
+                if (_interval != value)
                 {
-                    this.m_interval = value;
+                    _interval = value;
 
-                    this.m_scheduledItem?.Pause();
-                    this.m_scheduledItem = null;
+                    _scheduledItem?.Pause();
+                    _scheduledItem = null;
 
                     if (value > 0)
                     {
-                        this.m_scheduledItem = this.schedule.Execute(_ => this.command?.Execute(null)).Every(value);
+                        _scheduledItem = schedule.Execute(_ => command?.Execute(null)).Every(value);
                     }
 
-                    this.NotifyPropertyChanged(in IntervalProperty);
+                    NotifyPropertyChanged(in IntervalProperty);
                 }
             }
         }
@@ -44,13 +44,13 @@ namespace BovineLabs.Anchor.Elements
         [CreateProperty]
         public ICommand command
         {
-            get => this.m_command;
+            get => _command;
             set
             {
-                if (this.m_command != value)
+                if (_command != value)
                 {
-                    this.m_command = value;
-                    this.NotifyPropertyChanged(in CommandProperty);
+                    _command = value;
+                    NotifyPropertyChanged(in CommandProperty);
                 }
             }
         }

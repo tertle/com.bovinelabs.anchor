@@ -10,13 +10,13 @@
     public partial class EntitiesToolbarViewModel : SystemObservableObject<EntitiesToolbarViewModel.Data>, IToolbarElement
     {
         [CreateProperty(ReadOnly = true)]
-        public int Entities => this.Value.Entities;
+        public int Entities => Value.Entities;
 
         [CreateProperty(ReadOnly = true)]
-        public int Archetypes => this.Value.Archetypes;
+        public int Archetypes => Value.Archetypes;
 
         [CreateProperty(ReadOnly = true)]
-        public int Chunks => this.Value.Chunks;
+        public int Chunks => Value.Chunks;
 
         public VisualElement CreateElement()
         {
@@ -26,13 +26,13 @@
         public partial struct Data
         {
             [SystemProperty]
-            private int entities;
+            private int _entities;
 
             [SystemProperty]
-            private int archetypes;
+            private int _archetypes;
 
             [SystemProperty]
-            private int chunks;
+            private int _chunks;
         }
     }
 }

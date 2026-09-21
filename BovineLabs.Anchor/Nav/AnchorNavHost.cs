@@ -14,39 +14,39 @@ namespace BovineLabs.Anchor.Nav
 
         private const string ContainerUssClassName = USSClassName + "__container";
 
-        private readonly VisualElement container;
+        private readonly VisualElement _container;
 
-        private readonly Stack<AnchorNavBackStackEntry> backStack = new();
-        private readonly Dictionary<string, AnchorNavAction> actions = new();
-        private readonly Dictionary<int, AnchorNavAnimation> animations = new();
-        private readonly List<AnchorNavActiveEntry> activeStack = new();
-        private readonly List<AnchorNavAnimationHandle> runningAnimations = new();
+        private readonly Stack<AnchorNavBackStackEntry> _backStack = new();
+        private readonly Dictionary<string, AnchorNavAction> _actions = new();
+        private readonly Dictionary<int, AnchorNavAnimation> _animations = new();
+        private readonly List<AnchorNavActiveEntry> _activeStack = new();
+        private readonly List<AnchorNavAnimationHandle> _runningAnimations = new();
 
-        private string currentDestination;
+        private string _currentDestination;
 
-        private AnchorNavAnimation currentPopExitAnimation;
-        private AnchorNavAnimation currentPopEnterAnimation;
+        private AnchorNavAnimation _currentPopExitAnimation;
+        private AnchorNavAnimation _currentPopEnterAnimation;
 
         public AnchorNavHost(IEnumerable<AnchorAction> actions, IEnumerable<AnchorNavAnimation> animations)
             : this()
         {
-            this.RegisterActions(actions);
-            this.RegisterAnimations(animations);
+            RegisterActions(actions);
+            RegisterAnimations(animations);
         }
 
         public AnchorNavHost()
         {
-            this.AddToClassList(USSClassName);
+            AddToClassList(USSClassName);
 
-            this.style.flexGrow = 1;
-            this.pickingMode = PickingMode.Ignore;
-            this.container = new VisualElement();
-            this.container.AddToClassList(ContainerUssClassName);
-            this.container.pickingMode = PickingMode.Ignore;
-            this.container.StretchToParentSize();
-            this.hierarchy.Add(this.container);
+            style.flexGrow = 1;
+            pickingMode = PickingMode.Ignore;
+            _container = new VisualElement();
+            _container.AddToClassList(ContainerUssClassName);
+            _container.pickingMode = PickingMode.Ignore;
+            _container.StretchToParentSize();
+            hierarchy.Add(_container);
 
-            this.RegisterAllActions();
+            RegisterAllActions();
         }
 
         public event Action<AnchorNavHost, VisualElement, AnchorNavArgument[]> EnteredDestination;
@@ -63,31 +63,31 @@ namespace BovineLabs.Anchor.Nav
             set => base.focusable = value;
         }
 
-        public bool CanGoBack => this.backStack.Count > 0;
+        public bool CanGoBack => _backStack.Count > 0;
 
-        public bool HasActivePopups => this.activeStack.Any(e => e.IsPopup);
+        public bool HasActivePopups => _activeStack.Any(e => e.IsPopup);
 
         /// <summary>
         /// Setting this value does not navigate or update either stack.
         /// </summary>
         public string CurrentDestination
         {
-            get => this.currentDestination;
+            get => _currentDestination;
             set
             {
-                if (this.currentDestination == value)
+                if (_currentDestination == value)
                 {
                     return;
                 }
 
-                this.currentDestination = value;
-                this.DestinationChanged?.Invoke(this, this.currentDestination);
+                _currentDestination = value;
+                DestinationChanged?.Invoke(this, _currentDestination);
             }
         }
 
-        public override VisualElement contentContainer => this.container.contentContainer;
+        public override VisualElement contentContainer => _container.contentContainer;
 
-        private AnchorNavBackStackEntry CurrentBackStackEntry => this.backStack.TryPeek(out var entry) ? entry : null;
+        private AnchorNavBackStackEntry CurrentBackStackEntry => _backStack.TryPeek(out var entry) ? entry : null;
 
         public bool TryGetAnimation(int id, out AnchorNavAnimation animation)
         {
@@ -97,7 +97,7 @@ namespace BovineLabs.Anchor.Nav
                 return true;
             }
 
-            return this.animations.TryGetValue(id, out animation);
+            return _animations.TryGetValue(id, out animation);
         }
 
         private void RegisterAnimation(AnchorNavAnimation animation)
@@ -107,7 +107,7 @@ namespace BovineLabs.Anchor.Nav
                 return;
             }
 
-            if (!this.animations.TryAdd(animation.ID, animation))
+            if (!_animations.TryAdd(animation.ID, animation))
             {
                 BLGlobalLogger.LogError($"AnchorNavAnimation id {animation.ID} on '{animation.name}' is already registered.");
             }
@@ -135,7 +135,7 @@ namespace BovineLabs.Anchor.Nav
                     continue;
                 }
 
-                if (this.actions.ContainsKey(attribute.Name))
+                if (_actions.ContainsKey(attribute.Name))
                 {
                     BLGlobalLogger.LogError($"AnchorNavAction '{attribute.Name}' is already registered; duplicate found on {method.DeclaringType?.FullName}.{method.Name}.");
                     continue;
@@ -158,7 +158,7 @@ namespace BovineLabs.Anchor.Nav
                     continue;
                 }
 
-                this.actions.Add(attribute.Name, action);
+                _actions.Add(attribute.Name, action);
             }
         }
 
@@ -182,13 +182,13 @@ namespace BovineLabs.Anchor.Nav
                     continue;
                 }
 
-                if (this.actions.ContainsKey(action.ActionName))
+                if (_actions.ContainsKey(action.ActionName))
                 {
                     BLGlobalLogger.LogError($"AnchorNavAction '{action.ActionName}' is already registered.");
                     continue;
                 }
 
-                this.actions.Add(action.ActionName, action.Action);
+                _actions.Add(action.ActionName, action.Action);
             }
         }
 
@@ -201,7 +201,7 @@ namespace BovineLabs.Anchor.Nav
 
             foreach (var animation in allAnimations)
             {
-                this.RegisterAnimation(animation);
+                RegisterAnimation(animation);
             }
         }
     }

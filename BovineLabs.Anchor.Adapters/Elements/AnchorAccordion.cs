@@ -8,69 +8,67 @@ namespace BovineLabs.Anchor.Elements
 
     [UxmlElement]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "UITK Standard")]
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1308:Variable names should not be prefixed", Justification = "UITK Standard")]
-    [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "UITK Standard")]
     public partial class AnchorAccordion : Accordion
     {
         public static readonly BindingId ItemTemplateProperty = (BindingId)nameof(itemTemplate);
         public static readonly BindingId ItemsSourceProperty = (BindingId)nameof(itemsSource);
 
-        private VisualTreeAsset m_ItemTemplate;
-        private IList m_ItemsSource;
+        private VisualTreeAsset _itemTemplate;
+        private IList _itemsSource;
 
         [CreateProperty]
         [UxmlAttribute]
         public VisualTreeAsset itemTemplate
         {
-            get => this.m_ItemTemplate;
+            get => _itemTemplate;
             set
             {
-                if (this.m_ItemTemplate == value)
+                if (_itemTemplate == value)
                 {
                     return;
                 }
 
-                this.m_ItemTemplate = value;
-                this.Rebuild();
-                this.NotifyPropertyChanged(ItemTemplateProperty);
+                _itemTemplate = value;
+                Rebuild();
+                NotifyPropertyChanged(ItemTemplateProperty);
             }
         }
 
         [CreateProperty]
         public IList itemsSource
         {
-            get => this.m_ItemsSource;
+            get => _itemsSource;
             set
             {
-                if (ReferenceEquals(this.m_ItemsSource, value))
+                if (ReferenceEquals(_itemsSource, value))
                 {
                     return;
                 }
 
-                this.m_ItemsSource = value;
-                this.Rebuild();
-                this.NotifyPropertyChanged(ItemsSourceProperty);
+                _itemsSource = value;
+                Rebuild();
+                NotifyPropertyChanged(ItemsSourceProperty);
             }
         }
 
         private void Rebuild()
         {
-            this.Clear();
+            Clear();
 
-            if (this.itemTemplate == null || this.itemsSource == null)
+            if (itemTemplate == null || itemsSource == null)
             {
                 return;
             }
 
-            for (var index = 0; index < this.itemsSource.Count; index++)
+            for (var index = 0; index < itemsSource.Count; index++)
             {
-                this.itemTemplate.CloneTree(this);
+                itemTemplate.CloneTree(this);
             }
 
             var i = 0;
             foreach (var item in this.Query<AccordionItem>().Build())
             {
-                item.dataSource = this.itemsSource[i++];
+                item.dataSource = itemsSource[i++];
             }
         }
     }

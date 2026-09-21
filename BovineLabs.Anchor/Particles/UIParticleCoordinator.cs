@@ -15,29 +15,29 @@ namespace BovineLabs.Anchor.Particles
         private static readonly ConditionalWeakTable<IPanel, UIParticleCoordinator> Coordinators = new();
         [NoAutoStaticsCleanup]
         private static readonly List<UIParticleCoordinator> Active = new();
-        private readonly List<AnchorParticles> elements = new();
-        private readonly List<AnchorParticles> notifications = new();
-        private readonly IVisualElementScheduledItem scheduled;
-        private int lastFrame = -1;
-        private int particleSlotBudget = DefaultParticleSlotBudget;
+        private readonly List<AnchorParticles> _elements = new();
+        private readonly List<AnchorParticles> _notifications = new();
+        private readonly IVisualElementScheduledItem _scheduled;
+        private int _lastFrame = -1;
+        private int _particleSlotBudget = DefaultParticleSlotBudget;
 
         private UIParticleCoordinator(IPanel panel)
         {
-            this.scheduled = panel.visualTree.schedule.Execute(this.Update).Every(1);
-            this.scheduled.Pause();
+            _scheduled = panel.visualTree.schedule.Execute(Update).Every(1);
+            _scheduled.Pause();
         }
 
         public int ParticleSlotBudget
         {
-            get => this.particleSlotBudget;
+            get => _particleSlotBudget;
             set
             {
-                if (value < this.ReservedSlots)
+                if (value < ReservedSlots)
                 {
                     throw new ArgumentOutOfRangeException(nameof(value), "Budget cannot be below resident capacity.");
                 }
 
-                this.particleSlotBudget = value;
+                _particleSlotBudget = value;
             }
         }
 
@@ -48,7 +48,7 @@ namespace BovineLabs.Anchor.Particles
             get
             {
                 var live = 0;
-                foreach (var element in this.elements)
+                foreach (var element in _elements)
                 {
                     live += element.LiveCount;
                 }
@@ -71,14 +71,14 @@ namespace BovineLabs.Anchor.Particles
         internal static UIParticleCoordinator Register(IPanel panel, AnchorParticles element)
         {
             var coordinator = Get(panel);
-            if (!coordinator.elements.Contains(element))
+            if (!coordinator._elements.Contains(element))
             {
-                if (coordinator.elements.Count == 0)
+                if (coordinator._elements.Count == 0)
                 {
                     Active.Add(coordinator);
                 }
 
-                coordinator.elements.Add(element);
+                coordinator._elements.Add(element);
             }
 
             return coordinator;
@@ -86,34 +86,34 @@ namespace BovineLabs.Anchor.Particles
 
         internal bool TryReserve(int capacity)
         {
-            if (capacity > this.particleSlotBudget - this.ReservedSlots)
+            if (capacity > _particleSlotBudget - ReservedSlots)
             {
-                if (this.RejectedPlays != ulong.MaxValue)
+                if (RejectedPlays != ulong.MaxValue)
                 {
-                    this.RejectedPlays++;
+                    RejectedPlays++;
                 }
 
                 return false;
             }
 
-            this.ReservedSlots += capacity;
+            ReservedSlots += capacity;
             return true;
         }
 
-        internal void Release(int capacity) => this.ReservedSlots -= capacity;
+        internal void Release(int capacity) => ReservedSlots -= capacity;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         internal static void Reset()
         {
             foreach (var coordinator in Active.ToArray())
             {
-                coordinator.scheduled.Pause();
-                foreach (var element in coordinator.elements.ToArray())
+                coordinator._scheduled.Pause();
+                foreach (var element in coordinator._elements.ToArray())
                 {
                     element.ReleaseVisualGeneration();
                 }
 
-                coordinator.notifications.Clear();
+                coordinator._notifications.Clear();
             }
 
             Active.Clear();
@@ -124,46 +124,46 @@ namespace BovineLabs.Anchor.Particles
         {
             if (Application.isPlaying)
             {
-                this.scheduled.Resume();
+                _scheduled.Resume();
             }
         }
 
         internal void Unregister(AnchorParticles element)
         {
-            if (this.elements.Remove(element) && this.elements.Count == 0)
+            if (_elements.Remove(element) && _elements.Count == 0)
             {
-                this.scheduled.Pause();
+                _scheduled.Pause();
                 Active.Remove(this);
             }
         }
 
         private void Update()
         {
-            if (!Application.isPlaying || this.lastFrame == Time.frameCount)
+            if (!Application.isPlaying || _lastFrame == Time.frameCount)
             {
                 return;
             }
 
-            this.lastFrame = Time.frameCount;
+            _lastFrame = Time.frameCount;
             var unscaled = (double)Time.unscaledDeltaTime;
             var scaled = (double)Time.deltaTime;
-            foreach (var element in this.elements)
+            foreach (var element in _elements)
             {
                 if (!element.ManualClock && element.NeedsUpdate)
                 {
                     element.Tick(element.TimeMode == UIParticleTimeMode.Scaled ? scaled : unscaled);
-                    this.notifications.Add(element);
+                    _notifications.Add(element);
                 }
             }
 
             // Handlers may detach controls, replace assets, or restart this or another run.
-            for (var i = 0; i < this.notifications.Count; i++)
+            for (var i = 0; i < _notifications.Count; i++)
             {
-                this.notifications[i].DispatchCompletion();
+                _notifications[i].DispatchCompletion();
             }
 
-            this.notifications.Clear();
-            foreach (var element in this.elements)
+            _notifications.Clear();
+            foreach (var element in _elements)
             {
                 if (!element.ManualClock && element.NeedsUpdate)
                 {
@@ -171,7 +171,7 @@ namespace BovineLabs.Anchor.Particles
                 }
             }
 
-            this.scheduled.Pause();
+            _scheduled.Pause();
         }
     }
 }

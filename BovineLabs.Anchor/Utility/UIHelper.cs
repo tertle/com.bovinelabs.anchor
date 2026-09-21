@@ -13,8 +13,8 @@ namespace BovineLabs.Anchor
         where TM : class, IBindingObjectNotify<TD>
         where TD : unmanaged
     {
-        private TD* data;
-        private IntPtr bindingHandle;
+        private TD* _data;
+        private IntPtr _bindingHandle;
 
         public UIHelper(ref SystemState state, ComponentType requiredComponent)
         {
@@ -38,11 +38,11 @@ namespace BovineLabs.Anchor
         {
         }
 
-        public ref TD Binding => ref UnsafeUtility.AsRef<TD>(this.data);
+        public ref TD Binding => ref UnsafeUtility.AsRef<TD>(_data);
 
         public void Bind()
         {
-            if (this.bindingHandle != IntPtr.Zero)
+            if (_bindingHandle != IntPtr.Zero)
             {
                 throw new InvalidOperationException($"{nameof(UIHelper<TM, TD>)} is already bound.");
             }
@@ -63,9 +63,9 @@ namespace BovineLabs.Anchor
                     loaded = true;
                 }
 
-                this.data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
+                _data = (TD*)UnsafeUtility.AddressOf(ref viewModel.Value);
                 var handle = GCHandle.Alloc(new BindingContext(viewModelService, viewModel));
-                this.bindingHandle = GCHandle.ToIntPtr(handle);
+                _bindingHandle = GCHandle.ToIntPtr(handle);
             }
             catch
             {
@@ -80,20 +80,20 @@ namespace BovineLabs.Anchor
                 }
 
                 viewModelService.Unload<TM>();
-                this.data = null;
+                _data = null;
                 throw;
             }
         }
 
         public void Unbind()
         {
-            if (this.bindingHandle == IntPtr.Zero)
+            if (_bindingHandle == IntPtr.Zero)
             {
-                this.data = null;
+                _data = null;
                 return;
             }
 
-            var handle = GCHandle.FromIntPtr(this.bindingHandle);
+            var handle = GCHandle.FromIntPtr(_bindingHandle);
             var context = (BindingContext)handle.Target;
 
             try
@@ -123,8 +123,8 @@ namespace BovineLabs.Anchor
             finally
             {
                 handle.Free();
-                this.bindingHandle = IntPtr.Zero;
-                this.data = null;
+                _bindingHandle = IntPtr.Zero;
+                _data = null;
             }
         }
 
@@ -132,8 +132,8 @@ namespace BovineLabs.Anchor
         {
             public BindingContext(IViewModelService viewModelService, TM viewModel)
             {
-                this.ViewModelService = viewModelService;
-                this.ViewModel = viewModel;
+                ViewModelService = viewModelService;
+                ViewModel = viewModel;
             }
 
             public IViewModelService ViewModelService { get; }

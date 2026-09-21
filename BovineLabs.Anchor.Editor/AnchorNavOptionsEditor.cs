@@ -13,28 +13,28 @@ namespace BovineLabs.Anchor.Editor
 
         protected override VisualElement CreateElement(SerializedProperty property)
         {
-            var cache = this.Cache<Cache>();
+            var cache = Cache<Cache>();
 
             switch (property.name)
             {
-                case "stackStrategy":
+                case "_stackStrategy":
                     cache.StackStrategyProperty = property;
                     return cache.StackStrategyField = CreatePropertyField(property);
 
-                case "popupToDestination":
+                case "_popupToDestination":
                     return cache.PopupToDestinationField = CreatePropertyField(property);
 
-                case "popupStrategy":
+                case "_popupStrategy":
                     cache.PopupStrategyProperty = property;
                     return cache.PopupStrategyField = CreatePropertyField(property);
 
-                case "popupBaseDestination":
+                case "_popupBaseDestination":
                     return cache.PopupBaseDestinationField = CreatePropertyField(property);
 
-                case "popupBaseArguments":
+                case "_popupBaseArguments":
                     return cache.PopupBaseArgumentsField = CreatePropertyField(property);
 
-                case "popupExistingStrategy":
+                case "_popupExistingStrategy":
                     return cache.PopupExistingStrategyField = CreatePropertyField(property);
             }
 
@@ -43,7 +43,7 @@ namespace BovineLabs.Anchor.Editor
 
         protected override void PostElementCreation(VisualElement root, bool createdElements)
         {
-            var cache = this.Cache<Cache>();
+            var cache = Cache<Cache>();
             cache.StackStrategyField.RegisterValueChangeCallback(_ => UpdateStackStrategy(cache));
             cache.PopupStrategyField.RegisterValueChangeCallback(_ => UpdatePopupStrategy(cache));
 

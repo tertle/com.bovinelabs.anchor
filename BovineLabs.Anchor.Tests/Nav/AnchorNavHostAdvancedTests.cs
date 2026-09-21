@@ -233,19 +233,19 @@ namespace BovineLabs.Anchor.Tests.Nav
 
         private sealed class HostContext : IDisposable
         {
-            private readonly TestAnchorAppScope scope;
+            private readonly TestAnchorAppScope _scope;
 
             public HostContext(IEnumerable<AnchorAction> actions = null, IEnumerable<AnchorNavAnimation> animations = null)
             {
-                this.scope = new TestAnchorAppScope(static services =>
+                _scope = new TestAnchorAppScope(static services =>
                 {
                     services.AddSingleton(typeof(TestVisualElementFactory));
                     services.AddSingleton(typeof(IUXMLService), typeof(TestUxmlService));
                 });
 
-                this.Factory = this.scope.ServiceProvider.GetRequiredService<TestVisualElementFactory>();
-                this.Host = new AnchorNavHost(actions, animations);
-                this.scope.App.NavHost = this.Host;
+                Factory = _scope.ServiceProvider.GetRequiredService<TestVisualElementFactory>();
+                Host = new AnchorNavHost(actions, animations);
+                _scope.App.NavHost = Host;
             }
 
             public AnchorNavHost Host { get; }
@@ -256,7 +256,7 @@ namespace BovineLabs.Anchor.Tests.Nav
             {
                 var receiver = new TestNavigationScreenReceiver();
 
-                this.Factory.Register(destination, () =>
+                Factory.Register(destination, () =>
                 {
                     var root = new VisualElement { name = destination };
                     root.Add(new VisualElement { dataSource = receiver });
@@ -268,7 +268,7 @@ namespace BovineLabs.Anchor.Tests.Nav
 
             public void Dispose()
             {
-                this.scope.Dispose();
+                _scope.Dispose();
             }
         }
     }

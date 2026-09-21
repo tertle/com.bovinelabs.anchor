@@ -15,46 +15,46 @@
     public class AnchorSettings : SettingsSingleton<AnchorSettings>
     {
         [SerializeField]
-        private StyleSheet[] debugStyleSheets = Array.Empty<StyleSheet>();
+        private StyleSheet[] _debugStyleSheets = Array.Empty<StyleSheet>();
 
         [SerializeField]
-        private Shader linearProgressShader;
+        private Shader _linearProgressShader;
 
         [Header("Views")]
         [SerializeField]
-        private string startDestination = string.Empty;
+        private string _startDestination = string.Empty;
 
         [SerializeField]
-        private KeyUXML[] views = Array.Empty<KeyUXML>();
+        private KeyUXML[] _views = Array.Empty<KeyUXML>();
 
         [SerializeField]
-        private List<AnchorAction> actions = new();
+        private List<AnchorAction> _actions = new();
 
         [SerializeField]
-        private List<AnchorNavAnimation> animations = new();
+        private List<AnchorNavAnimation> _animations = new();
 
         [Header("Audio")]
         [SerializeField]
-        private AnchorAudioSettings audio = new();
+        private AnchorAudioSettings _audio = new();
 
-        public KeyUXML[] Views => this.views;
+        public KeyUXML[] Views => _views;
 
-        public string StartDestination => this.startDestination;
+        public string StartDestination => _startDestination;
 
-        public IReadOnlyList<AnchorAction> Actions => this.actions;
+        public IReadOnlyList<AnchorAction> Actions => _actions;
 
-        public IReadOnlyList<AnchorNavAnimation> Animations => this.animations;
+        public IReadOnlyList<AnchorNavAnimation> Animations => _animations;
 
-        public IReadOnlyList<StyleSheet> DebugStyleSheets => this.debugStyleSheets;
+        public IReadOnlyList<StyleSheet> DebugStyleSheets => _debugStyleSheets;
 
-        public AnchorAudioSettings Audio => this.audio;
+        public AnchorAudioSettings Audio => _audio;
 
-        public Shader LinearProgressShader => this.linearProgressShader;
+        public Shader LinearProgressShader => _linearProgressShader;
 
 #if UNITY_EDITOR
         private void Reset()
         {
-            this.linearProgressShader = AssetDatabase.LoadAssetAtPath<Shader>(
+            _linearProgressShader = AssetDatabase.LoadAssetAtPath<Shader>(
                 "Packages/com.bovinelabs.anchor/BovineLabs.Anchor.Adapters/Shaders/AnchorLinearProgress.shader");
         }
 #endif

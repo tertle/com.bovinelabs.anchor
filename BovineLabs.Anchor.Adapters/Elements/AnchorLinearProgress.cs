@@ -43,18 +43,18 @@ namespace BovineLabs.Anchor.Elements
         [NoAutoStaticsCleanup]
         private static Material s_material;
 
-        private Direction m_direction;
-        private Texture2D m_fillTexture;
-        private Texture2D m_fillTextureFromStyle;
-        private Texture2D m_maskTexture;
+        private Direction _direction;
+        private Texture2D _fillTexture;
+        private Texture2D _fillTextureFromStyle;
+        private Texture2D _maskTexture;
 
         public AnchorLinearProgress()
         {
-            this.RemoveFromClassList(LinearProgress.ussClassName);
-            this.AddToClassList(UssClassName);
-            this.AddToClassList(GetDirectionUssClassName(this.m_direction));
-            this.RegisterContextChangedCallback<DirContext>(this.OnLayoutDirectionChanged);
-            this.RegisterCallback<CustomStyleResolvedEvent>(this.OnCustomStylesResolved);
+            RemoveFromClassList(LinearProgress.ussClassName);
+            AddToClassList(UssClassName);
+            AddToClassList(GetDirectionUssClassName(_direction));
+            this.RegisterContextChangedCallback<DirContext>(OnLayoutDirectionChanged);
+            RegisterCallback<CustomStyleResolvedEvent>(OnCustomStylesResolved);
         }
 
         /// <summary>
@@ -64,19 +64,19 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public Direction direction
         {
-            get => this.m_direction;
+            get => _direction;
             set
             {
-                if (this.m_direction == value)
+                if (_direction == value)
                 {
                     return;
                 }
 
-                this.RemoveFromClassList(GetDirectionUssClassName(this.m_direction));
-                this.m_direction = value;
-                this.AddToClassList(GetDirectionUssClassName(this.m_direction));
-                this.m_Image.MarkDirtyRepaint();
-                this.NotifyPropertyChanged(in DirectionProperty);
+                RemoveFromClassList(GetDirectionUssClassName(_direction));
+                _direction = value;
+                AddToClassList(GetDirectionUssClassName(_direction));
+                m_Image.MarkDirtyRepaint();
+                NotifyPropertyChanged(in DirectionProperty);
             }
         }
 
@@ -84,23 +84,23 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public Texture2D fillTexture
         {
-            get => this.m_fillTexture ? this.m_fillTexture : this.m_fillTextureFromStyle;
+            get => _fillTexture ? _fillTexture : _fillTextureFromStyle;
             set
             {
-                if (this.m_fillTexture == value)
+                if (_fillTexture == value)
                 {
                     return;
                 }
 
-                var previous = this.fillTexture;
-                this.m_fillTexture = value;
-                if (previous == this.fillTexture)
+                var previous = fillTexture;
+                _fillTexture = value;
+                if (previous == fillTexture)
                 {
                     return;
                 }
 
-                this.m_Image.MarkDirtyRepaint();
-                this.NotifyPropertyChanged(in FillTextureProperty);
+                m_Image.MarkDirtyRepaint();
+                NotifyPropertyChanged(in FillTextureProperty);
             }
         }
 
@@ -108,23 +108,23 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public Texture2D maskTexture
         {
-            get => this.m_maskTexture;
+            get => _maskTexture;
             set
             {
-                if (this.m_maskTexture == value)
+                if (_maskTexture == value)
                 {
                     return;
                 }
 
-                this.m_maskTexture = value;
-                this.m_Image.MarkDirtyRepaint();
-                this.NotifyPropertyChanged(in MaskTextureProperty);
+                _maskTexture = value;
+                m_Image.MarkDirtyRepaint();
+                NotifyPropertyChanged(in MaskTextureProperty);
             }
         }
 
         protected override void GenerateTextures()
         {
-            if (this.direction == Direction.Horizontal && !this.fillTexture && !this.maskTexture)
+            if (direction == Direction.Horizontal && !fillTexture && !maskTexture)
             {
                 base.GenerateTextures();
                 return;
@@ -132,14 +132,14 @@ namespace BovineLabs.Anchor.Elements
 
             if (!EnsureMaterial())
             {
-                this.ReleaseTextures();
+                ReleaseTextures();
                 return;
             }
 
-            var rect = this.contentRect;
+            var rect = contentRect;
             if (!rect.IsValid())
             {
-                this.ReleaseTextures();
+                ReleaseTextures();
                 return;
             }
 
@@ -147,43 +147,43 @@ namespace BovineLabs.Anchor.Elements
             var rectSize = rect.size * dpi;
             if (!rectSize.IsValidForTextureSize())
             {
-                this.ReleaseTextures();
+                ReleaseTextures();
                 return;
             }
 
-            if (this.m_RT && (Mathf.Abs(this.m_RT.width - rectSize.x) > 1 || Mathf.Abs(this.m_RT.height - rectSize.y) > 1))
+            if (m_RT && (Mathf.Abs(m_RT.width - rectSize.x) > 1 || Mathf.Abs(m_RT.height - rectSize.y) > 1))
             {
-                this.ReleaseTextures();
+                ReleaseTextures();
             }
 
-            if (!this.m_RT)
+            if (!m_RT)
             {
-                this.m_RT = RenderTexture.GetTemporary((int)rectSize.x, (int)rectSize.y, 24);
+                m_RT = RenderTexture.GetTemporary((int)rectSize.x, (int)rectSize.y, 24);
             }
 
-            var vertical = this.direction == Direction.Vertical;
+            var vertical = direction == Direction.Vertical;
             var reverse = vertical && (this.GetContext<DirContext>()?.dir ?? Dir.Ltr) == Dir.Rtl;
             var axisLength = vertical ? rectSize.y : rectSize.x;
             var crossLength = vertical ? rectSize.x : rectSize.y;
 
-            s_material.SetColor(ColorProperty, this.colorOverride);
-            s_material.SetInt(RoundedProperty, this.roundedProgressCorners ? 1 : 0);
+            s_material.SetColor(ColorProperty, colorOverride);
+            s_material.SetInt(RoundedProperty, roundedProgressCorners ? 1 : 0);
             s_material.SetFloat(StartProperty, 0);
-            s_material.SetFloat(EndProperty, this.value);
+            s_material.SetFloat(EndProperty, value);
             s_material.SetFloat(BufferStartProperty, 0);
-            s_material.SetFloat(BufferEndProperty, this.bufferValue);
-            s_material.SetFloat(BufferOpacityProperty, this.bufferOpacity);
+            s_material.SetFloat(BufferEndProperty, bufferValue);
+            s_material.SetFloat(BufferOpacityProperty, bufferOpacity);
             s_material.SetFloat(AntiAliasingProperty, 2f / axisLength);
             s_material.SetVector(PhaseProperty, GetCurrentTimeVector());
             s_material.SetFloat(RatioProperty, axisLength / crossLength);
-            s_material.SetFloat(PaddingProperty, this.roundedProgressCorners ? crossLength * 0.5f / axisLength : 0);
+            s_material.SetFloat(PaddingProperty, roundedProgressCorners ? crossLength * 0.5f / axisLength : 0);
             s_material.SetInt(VerticalProperty, vertical ? 1 : 0);
             s_material.SetInt(ReverseProperty, reverse ? 1 : 0);
-            s_material.SetTexture(FillTextureShaderProperty, this.fillTexture ? this.fillTexture : Texture2D.whiteTexture);
-            s_material.SetInt(UseFillTextureProperty, this.fillTexture ? 1 : 0);
-            s_material.SetTexture(MaskTextureShaderProperty, this.maskTexture ? this.maskTexture : Texture2D.whiteTexture);
+            s_material.SetTexture(FillTextureShaderProperty, fillTexture ? fillTexture : Texture2D.whiteTexture);
+            s_material.SetInt(UseFillTextureProperty, fillTexture ? 1 : 0);
+            s_material.SetTexture(MaskTextureShaderProperty, maskTexture ? maskTexture : Texture2D.whiteTexture);
 
-            if (this.variant == Variant.Indeterminate)
+            if (variant == Variant.Indeterminate)
             {
                 s_material.EnableKeyword("ANCHOR_PROGRESS_INDETERMINATE");
             }
@@ -193,7 +193,7 @@ namespace BovineLabs.Anchor.Elements
             }
 
             var previousRenderTexture = RenderTexture.active;
-            Graphics.Blit(null, this.m_RT, s_material);
+            Graphics.Blit(null, m_RT, s_material);
             RenderTexture.active = previousRenderTexture;
         }
 
@@ -231,29 +231,29 @@ namespace BovineLabs.Anchor.Elements
 
         private void OnLayoutDirectionChanged(ContextChangedEvent<DirContext> _)
         {
-            if (this.direction == Direction.Vertical)
+            if (direction == Direction.Vertical)
             {
-                this.m_Image.MarkDirtyRepaint();
+                m_Image.MarkDirtyRepaint();
             }
         }
 
         private void OnCustomStylesResolved(CustomStyleResolvedEvent evt)
         {
             evt.customStyle.TryGetValue(FillTextureStyleProperty, out var texture);
-            if (this.m_fillTextureFromStyle == texture)
+            if (_fillTextureFromStyle == texture)
             {
                 return;
             }
 
-            var previous = this.fillTexture;
-            this.m_fillTextureFromStyle = texture;
-            if (previous == this.fillTexture)
+            var previous = fillTexture;
+            _fillTextureFromStyle = texture;
+            if (previous == fillTexture)
             {
                 return;
             }
 
-            this.m_Image.MarkDirtyRepaint();
-            this.NotifyPropertyChanged(in FillTextureProperty);
+            m_Image.MarkDirtyRepaint();
+            NotifyPropertyChanged(in FillTextureProperty);
         }
     }
 }

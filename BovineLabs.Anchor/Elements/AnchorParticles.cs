@@ -12,37 +12,37 @@ namespace BovineLabs.Anchor.Elements
     public partial class AnchorParticles : VisualElement
     {
         public const string UssClassName = "bl-anchor-particles";
-        private UIParticleEffect effect;
-        private UIParticleRuntime runtime;
-        private UIParticleCoordinator coordinator;
-        private UIParticleSpace simulationSpace;
-        private UIParticleTimeMode timeMode;
-        private UIParticleHiddenBehaviour hiddenBehaviour;
-        private Color tint = Color.white;
-        private bool playOnAttach = true;
-        private bool effectsEnabled = true;
-        private float playbackSpeed = 1;
-        private float emissionScale = 1;
-        private uint seed = 1;
-        private bool requested;
-        private bool pending;
-        private bool explicitlyPaused;
-        private bool hiddenPaused;
-        private bool completionPending;
-        private VisualElement source;
-        private Vector2 sourcePoint;
-        private Matrix4x4 renderTransform;
-        private readonly List<VisualElement> ancestry = new();
+        private UIParticleEffect _effect;
+        private UIParticleRuntime _runtime;
+        private UIParticleCoordinator _coordinator;
+        private UIParticleSpace _simulationSpace;
+        private UIParticleTimeMode _timeMode;
+        private UIParticleHiddenBehaviour _hiddenBehaviour;
+        private Color _tint = Color.white;
+        private bool _playOnAttach = true;
+        private bool _effectsEnabled = true;
+        private float _playbackSpeed = 1;
+        private float _emissionScale = 1;
+        private uint _seed = 1;
+        private bool _requested;
+        private bool _pending;
+        private bool _explicitlyPaused;
+        private bool _hiddenPaused;
+        private bool _completionPending;
+        private VisualElement _source;
+        private Vector2 _sourcePoint;
+        private Matrix4x4 _renderTransform;
+        private readonly List<VisualElement> _ancestry = new();
 
         public AnchorParticles()
         {
-            this.AddToClassList(UssClassName);
-            this.pickingMode = PickingMode.Ignore;
-            this.focusable = false;
-            this.generateVisualContent += this.Draw;
-            this.RegisterCallback<AttachToPanelEvent>(this.Attach);
-            this.RegisterCallback<DetachFromPanelEvent>(this.Detach);
-            this.RegisterCallback<GeometryChangedEvent>(this.GeometryChanged);
+            AddToClassList(UssClassName);
+            pickingMode = PickingMode.Ignore;
+            focusable = false;
+            generateVisualContent += Draw;
+            RegisterCallback<AttachToPanelEvent>(Attach);
+            RegisterCallback<DetachFromPanelEvent>(Detach);
+            RegisterCallback<GeometryChangedEvent>(GeometryChanged);
         }
 
         public event Action Completed;
@@ -50,81 +50,81 @@ namespace BovineLabs.Anchor.Elements
         [CreateProperty, UxmlAttribute]
         public UIParticleEffect Effect
         {
-            get => this.effect;
+            get => _effect;
             set
             {
-                if (this.effect == value)
+                if (_effect == value)
                 {
                     return;
                 }
 
-                if (this.requested && value != null)
+                if (_requested && value != null)
                 {
-                    this.Play(value, this.seed);
+                    Play(value, _seed);
                     return;
                 }
 
-                this.Release();
-                this.effect = value;
+                Release();
+                _effect = value;
 
-                this.NotifyPropertyChanged(nameof(this.Effect));
+                NotifyPropertyChanged(nameof(Effect));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public bool PlayOnAttach
         {
-            get => this.playOnAttach;
+            get => _playOnAttach;
             set
             {
-                if (this.playOnAttach == value)
+                if (_playOnAttach == value)
                 {
                     return;
                 }
 
-                this.playOnAttach = value;
-                this.NotifyPropertyChanged(nameof(this.PlayOnAttach));
+                _playOnAttach = value;
+                NotifyPropertyChanged(nameof(PlayOnAttach));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public UIParticleSpace SimulationSpace
         {
-            get => this.simulationSpace;
+            get => _simulationSpace;
             set
             {
-                if (this.simulationSpace == value)
+                if (_simulationSpace == value)
                 {
                     return;
                 }
 
-                this.simulationSpace = value;
-                this.RestartRequested();
-                this.NotifyPropertyChanged(nameof(this.SimulationSpace));
+                _simulationSpace = value;
+                RestartRequested();
+                NotifyPropertyChanged(nameof(SimulationSpace));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public UIParticleTimeMode TimeMode
         {
-            get => this.timeMode;
+            get => _timeMode;
             set
             {
-                if (this.timeMode == value)
+                if (_timeMode == value)
                 {
                     return;
                 }
 
-                this.timeMode = value;
-                this.RestartRequested();
-                this.NotifyPropertyChanged(nameof(this.TimeMode));
+                _timeMode = value;
+                RestartRequested();
+                NotifyPropertyChanged(nameof(TimeMode));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public float PlaybackSpeed
         {
-            get => this.playbackSpeed;
+            get => _playbackSpeed;
             set
             {
                 if (!float.IsFinite(value) || value < 0)
@@ -132,21 +132,21 @@ namespace BovineLabs.Anchor.Elements
                     throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
-                if (this.playbackSpeed == value)
+                if (_playbackSpeed == value)
                 {
                     return;
                 }
 
-                this.playbackSpeed = value;
-                this.coordinator?.Wake();
-                this.NotifyPropertyChanged(nameof(this.PlaybackSpeed));
+                _playbackSpeed = value;
+                _coordinator?.Wake();
+                NotifyPropertyChanged(nameof(PlaybackSpeed));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public float EmissionScale
         {
-            get => this.emissionScale;
+            get => _emissionScale;
             set
             {
                 if (!float.IsFinite(value) || value < 0)
@@ -154,180 +154,180 @@ namespace BovineLabs.Anchor.Elements
                     throw new ArgumentOutOfRangeException(nameof(value));
                 }
 
-                if (this.emissionScale == value)
+                if (_emissionScale == value)
                 {
                     return;
                 }
 
-                this.emissionScale = value;
-                if (this.runtime != null)
+                _emissionScale = value;
+                if (_runtime != null)
                 {
-                    this.runtime.EmissionScale = value;
+                    _runtime.EmissionScale = value;
                 }
 
-                this.NotifyPropertyChanged(nameof(this.EmissionScale));
+                NotifyPropertyChanged(nameof(EmissionScale));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public uint Seed
         {
-            get => this.seed;
+            get => _seed;
             set
             {
-                if (this.seed == value)
+                if (_seed == value)
                 {
                     return;
                 }
 
-                this.seed = value;
-                this.RestartRequested();
-                this.NotifyPropertyChanged(nameof(this.Seed));
+                _seed = value;
+                RestartRequested();
+                NotifyPropertyChanged(nameof(Seed));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public Color Tint
         {
-            get => this.tint;
+            get => _tint;
             set
             {
-                if (this.tint == value)
+                if (_tint == value)
                 {
                     return;
                 }
 
-                this.tint = value;
-                if (this.LiveCount != 0)
+                _tint = value;
+                if (LiveCount != 0)
                 {
-                    this.MarkDirtyRepaint();
+                    MarkDirtyRepaint();
                 }
 
-                this.NotifyPropertyChanged(nameof(this.Tint));
+                NotifyPropertyChanged(nameof(Tint));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public UIParticleHiddenBehaviour HiddenBehaviour
         {
-            get => this.hiddenBehaviour;
+            get => _hiddenBehaviour;
             set
             {
-                if (this.hiddenBehaviour == value)
+                if (_hiddenBehaviour == value)
                 {
                     return;
                 }
 
-                this.hiddenBehaviour = value;
-                this.coordinator?.Wake();
-                this.NotifyPropertyChanged(nameof(this.HiddenBehaviour));
+                _hiddenBehaviour = value;
+                _coordinator?.Wake();
+                NotifyPropertyChanged(nameof(HiddenBehaviour));
             }
         }
 
         [CreateProperty, UxmlAttribute]
         public bool EffectsEnabled
         {
-            get => this.effectsEnabled;
+            get => _effectsEnabled;
             set
             {
-                if (this.effectsEnabled == value)
+                if (_effectsEnabled == value)
                 {
                     return;
                 }
 
-                this.effectsEnabled = value;
+                _effectsEnabled = value;
                 if (!value)
                 {
-                    this.Clear();
+                    Clear();
                 }
 
-                this.NotifyPropertyChanged(nameof(this.EffectsEnabled));
+                NotifyPropertyChanged(nameof(EffectsEnabled));
             }
         }
 
-        [CreateProperty] public bool IsPlaying => this.pending || (this.runtime?.IsPlaying ?? false);
-        [CreateProperty] public bool IsPaused => this.explicitlyPaused || this.hiddenPaused;
-        public int LiveCount => this.runtime?.LiveCount ?? 0;
-        public ulong DroppedCount => this.runtime?.DroppedCount ?? 0;
-        public UIParticleCounters Counters => this.runtime?.Counters ?? default;
-        public int ReservedSlots => this.runtime?.Capacity ?? 0;
+        [CreateProperty] public bool IsPlaying => _pending || (_runtime?.IsPlaying ?? false);
+        [CreateProperty] public bool IsPaused => _explicitlyPaused || _hiddenPaused;
+        public int LiveCount => _runtime?.LiveCount ?? 0;
+        public ulong DroppedCount => _runtime?.DroppedCount ?? 0;
+        public UIParticleCounters Counters => _runtime?.Counters ?? default;
+        public int ReservedSlots => _runtime?.Capacity ?? 0;
         public ParticlePlayResult LastPlayResult { get; private set; }
-        internal bool NeedsUpdate => (this.simulationSpace == UIParticleSpace.Panel && this.LiveCount != 0) || this.completionPending || (this.IsPlaying &&
-            ((!this.explicitlyPaused && this.playbackSpeed > 0) || this.hiddenBehaviour == UIParticleHiddenBehaviour.StopAndClear));
+        internal bool NeedsUpdate => (_simulationSpace == UIParticleSpace.Panel && LiveCount != 0) || _completionPending || (IsPlaying &&
+            ((!_explicitlyPaused && _playbackSpeed > 0) || _hiddenBehaviour == UIParticleHiddenBehaviour.StopAndClear));
         internal bool ManualClock { get; set; }
 
-        public ParticlePlayResult Play(uint seed) => this.Play(this.effect, seed);
+        public ParticlePlayResult Play(uint seed) => Play(_effect, seed);
 
-        public ParticlePlayResult Play() => this.Play(this.effect, this.seed);
+        public ParticlePlayResult Play() => Play(_effect, _seed);
 
         public ParticlePlayResult Play(UIParticleEffect effect, uint seed)
         {
-            if (!this.effectsEnabled)
+            if (!_effectsEnabled)
             {
-                return this.LastPlayResult = ParticlePlayResult.Suppressed;
+                return LastPlayResult = ParticlePlayResult.Suppressed;
             }
 
             if (effect == null)
             {
-                this.Clear();
-                return this.LastPlayResult = ParticlePlayResult.NoEffect;
+                Clear();
+                return LastPlayResult = ParticlePlayResult.NoEffect;
             }
 
-            var hadParticles = this.LiveCount != 0;
-            if (this.panel != null)
+            var hadParticles = LiveCount != 0;
+            if (panel != null)
             {
-                this.coordinator = UIParticleCoordinator.Register(this.panel, this);
-                if (!this.TryPrepare(effect))
+                _coordinator = UIParticleCoordinator.Register(panel, this);
+                if (!TryPrepare(effect))
                 {
-                    return this.LastPlayResult = ParticlePlayResult.BudgetExceeded;
+                    return LastPlayResult = ParticlePlayResult.BudgetExceeded;
                 }
             }
 
-            var effectChanged = this.effect != effect;
-            var seedChanged = this.seed != seed;
-            this.effect = effect;
-            this.seed = seed;
+            var effectChanged = _effect != effect;
+            var seedChanged = _seed != seed;
+            _effect = effect;
+            _seed = seed;
             if (effectChanged)
             {
-                this.ResetSourcePoint();
+                ResetSourcePoint();
             }
 
-            this.runtime?.Clear();
-            this.requested = true;
-            this.pending = true;
-            this.completionPending = false;
-            this.explicitlyPaused = false;
-            this.hiddenPaused = false;
-            this.LastPlayResult = ParticlePlayResult.Deferred;
-            this.coordinator?.Wake();
-            this.Tick(0);
-            if (hadParticles && (this.pending || this.LiveCount == 0))
+            _runtime?.Clear();
+            _requested = true;
+            _pending = true;
+            _completionPending = false;
+            _explicitlyPaused = false;
+            _hiddenPaused = false;
+            LastPlayResult = ParticlePlayResult.Deferred;
+            _coordinator?.Wake();
+            Tick(0);
+            if (hadParticles && (_pending || LiveCount == 0))
             {
-                this.MarkDirtyRepaint();
+                MarkDirtyRepaint();
             }
 
             if (effectChanged)
             {
-                this.NotifyPropertyChanged(nameof(this.Effect));
+                NotifyPropertyChanged(nameof(Effect));
             }
 
             if (seedChanged)
             {
-                this.NotifyPropertyChanged(nameof(this.Seed));
+                NotifyPropertyChanged(nameof(Seed));
             }
 
-            return this.LastPlayResult;
+            return LastPlayResult;
         }
 
         private bool TryPrepare(UIParticleEffect effect)
         {
-            if (this.runtime != null && this.effect == effect && this.runtime.Revision == effect.Revision)
+            if (_runtime != null && _effect == effect && _runtime.Revision == effect.Revision)
             {
                 return true;
             }
 
             var capacity = effect.GetCapacity();
-            if (!this.coordinator.TryReserve(capacity))
+            if (!_coordinator.TryReserve(capacity))
             {
                 return false;
             }
@@ -342,27 +342,27 @@ namespace BovineLabs.Anchor.Elements
             {
                 if (replacement == null)
                 {
-                    this.coordinator.Release(capacity);
+                    _coordinator.Release(capacity);
                 }
             }
 
-            this.ReleaseStorage();
-            this.runtime = replacement;
-            this.runtime.EmissionScale = this.emissionScale;
+            ReleaseStorage();
+            _runtime = replacement;
+            _runtime.EmissionScale = _emissionScale;
             return true;
         }
 
         private void ReleaseStorage()
         {
-            if (this.runtime == null)
+            if (_runtime == null)
             {
                 return;
             }
 
-            var capacity = this.runtime.Capacity;
-            this.runtime.Dispose();
-            this.runtime = null;
-            this.coordinator.Release(capacity);
+            var capacity = _runtime.Capacity;
+            _runtime.Dispose();
+            _runtime = null;
+            _coordinator.Release(capacity);
         }
 
         // Source is a coordinate input for future births, not a target or a reparenting instruction.
@@ -373,7 +373,7 @@ namespace BovineLabs.Anchor.Elements
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if (this.panel == null || source.panel != this.panel)
+            if (panel == null || source.panel != panel)
             {
                 throw new ArgumentException("Particle source and renderer must belong to the same panel.", nameof(source));
             }
@@ -383,63 +383,63 @@ namespace BovineLabs.Anchor.Elements
                 throw new ArgumentOutOfRangeException(nameof(localPoint));
             }
 
-            this.source = source;
-            this.sourcePoint = localPoint;
+            _source = source;
+            _sourcePoint = localPoint;
         }
 
         public void ResetSourcePoint()
         {
-            this.source = null;
-            this.sourcePoint = default;
+            _source = null;
+            _sourcePoint = default;
         }
 
         public void StopEmitting()
         {
-            if (this.pending)
+            if (_pending)
             {
-                this.Clear();
+                Clear();
                 return;
             }
 
-            this.pending = false;
-            this.runtime?.StopEmitting();
-            this.CheckCompletion();
-            this.coordinator?.Wake();
+            _pending = false;
+            _runtime?.StopEmitting();
+            CheckCompletion();
+            _coordinator?.Wake();
         }
 
         public void Pause()
         {
-            this.explicitlyPaused = this.IsPlaying;
-            this.runtime?.Pause();
+            _explicitlyPaused = IsPlaying;
+            _runtime?.Pause();
         }
 
         public void Resume()
         {
-            this.explicitlyPaused = false;
-            this.runtime?.Resume();
-            this.coordinator?.Wake();
+            _explicitlyPaused = false;
+            _runtime?.Resume();
+            _coordinator?.Wake();
         }
 
         public new void Clear()
         {
-            var hadParticles = this.LiveCount != 0;
-            this.requested = false;
-            this.pending = false;
-            this.completionPending = false;
-            this.explicitlyPaused = false;
-            this.hiddenPaused = false;
-            this.ReleaseStorage();
+            var hadParticles = LiveCount != 0;
+            _requested = false;
+            _pending = false;
+            _completionPending = false;
+            _explicitlyPaused = false;
+            _hiddenPaused = false;
+            ReleaseStorage();
             if (hadParticles)
             {
-                this.MarkDirtyRepaint();
+                MarkDirtyRepaint();
             }
         }
 
         // Editor previews call this explicitly. Player panels are advanced by their coordinator instead.
         public void Advance(double elapsed)
         {
-            this.Tick(elapsed);
-            this.DispatchCompletion();
+            Tick(elapsed);
+            DispatchCompletion();
         }
 
         internal void Tick(double elapsed)
@@ -449,33 +449,33 @@ namespace BovineLabs.Anchor.Elements
                 throw new ArgumentOutOfRangeException(nameof(elapsed));
             }
 
-            if (!this.NeedsUpdate || this.panel == null)
+            if (!NeedsUpdate || panel == null)
             {
                 return;
             }
 
             // UI Toolkit transforms retained vertices without regenerating them. Panel-space vertices need a new inverse conversion.
-            if (this.simulationSpace == UIParticleSpace.Panel && this.LiveCount != 0 && this.renderTransform != this.worldTransform)
+            if (_simulationSpace == UIParticleSpace.Panel && LiveCount != 0 && _renderTransform != worldTransform)
             {
-                this.renderTransform = this.worldTransform;
-                this.MarkDirtyRepaint();
+                _renderTransform = worldTransform;
+                MarkDirtyRepaint();
             }
 
-            var hidden = this.IsHidden();
-            if (hidden && this.hiddenBehaviour == UIParticleHiddenBehaviour.StopAndClear)
+            var hidden = IsHidden();
+            if (hidden && _hiddenBehaviour == UIParticleHiddenBehaviour.StopAndClear)
             {
-                this.Clear();
+                Clear();
                 return;
             }
 
-            if (this.explicitlyPaused || this.playbackSpeed == 0)
+            if (_explicitlyPaused || _playbackSpeed == 0)
             {
                 return;
             }
 
-            var wasHiddenPaused = this.hiddenPaused;
-            this.hiddenPaused = hidden && this.hiddenBehaviour == UIParticleHiddenBehaviour.Pause;
-            if (this.hiddenPaused || !this.TryGetTransforms(out var spawn, out _))
+            var wasHiddenPaused = _hiddenPaused;
+            _hiddenPaused = hidden && _hiddenBehaviour == UIParticleHiddenBehaviour.Pause;
+            if (_hiddenPaused || !TryGetTransforms(out var spawn, out _))
             {
                 return;
             }
@@ -485,89 +485,89 @@ namespace BovineLabs.Anchor.Elements
                 elapsed = 0;
             }
 
-            if (this.pending)
+            if (_pending)
             {
-                if (!this.TryPrepare(this.effect))
+                if (!TryPrepare(_effect))
                 {
-                    this.Clear();
-                    this.LastPlayResult = ParticlePlayResult.BudgetExceeded;
+                    Clear();
+                    LastPlayResult = ParticlePlayResult.BudgetExceeded;
                     return;
                 }
 
-                this.runtime.Play(this.seed);
-                this.pending = false;
-                this.LastPlayResult = ParticlePlayResult.Started;
+                _runtime.Play(_seed);
+                _pending = false;
+                LastPlayResult = ParticlePlayResult.Started;
                 elapsed = 0;
             }
 
-            if (this.runtime == null)
+            if (_runtime == null)
             {
                 return;
             }
 
-            var hadParticles = this.runtime.LiveCount != 0;
-            if (this.runtime.Advance(elapsed * this.playbackSpeed, ref spawn) && !hidden && (hadParticles || this.runtime.LiveCount != 0))
+            var hadParticles = _runtime.LiveCount != 0;
+            if (_runtime.Advance(elapsed * _playbackSpeed, ref spawn) && !hidden && (hadParticles || _runtime.LiveCount != 0))
             {
-                this.MarkDirtyRepaint();
+                MarkDirtyRepaint();
             }
 
-            this.CheckCompletion();
+            CheckCompletion();
         }
 
         internal void DispatchCompletion()
         {
-            if (!this.completionPending)
+            if (!_completionPending)
             {
                 return;
             }
 
-            this.completionPending = false;
-            this.Completed?.Invoke();
+            _completionPending = false;
+            Completed?.Invoke();
         }
 
         internal void Release()
         {
-            this.Clear();
-            this.ResetSourcePoint();
-            this.ancestry.Clear();
+            Clear();
+            ResetSourcePoint();
+            _ancestry.Clear();
         }
 
         private void CheckCompletion()
         {
-            if (this.requested && !this.pending && this.runtime != null && !this.runtime.IsPlaying)
+            if (_requested && !_pending && _runtime != null && !_runtime.IsPlaying)
             {
-                this.requested = false;
-                this.completionPending = true;
+                _requested = false;
+                _completionPending = true;
             }
         }
 
         private void RestartRequested()
         {
-            if (this.requested)
+            if (_requested)
             {
-                this.Play();
+                Play();
             }
         }
 
         private bool IsHidden()
         {
-            var rebuild = this.ancestry.Count == 0;
-            for (var i = 0; i < this.ancestry.Count && !rebuild; i++)
+            var rebuild = _ancestry.Count == 0;
+            for (var i = 0; i < _ancestry.Count && !rebuild; i++)
             {
-                var parent = i + 1 < this.ancestry.Count ? this.ancestry[i + 1] : null;
-                rebuild = this.ancestry[i].parent != parent;
+                var parent = i + 1 < _ancestry.Count ? _ancestry[i + 1] : null;
+                rebuild = _ancestry[i].parent != parent;
             }
 
             if (rebuild)
             {
-                this.ancestry.Clear();
+                _ancestry.Clear();
                 for (var element = (VisualElement)this; element != null; element = element.parent)
                 {
-                    this.ancestry.Add(element);
+                    _ancestry.Add(element);
                 }
             }
 
-            foreach (var element in this.ancestry)
+            foreach (var element in _ancestry)
             {
                 if (element.resolvedStyle.display == DisplayStyle.None || element.resolvedStyle.visibility == Visibility.Hidden)
                 {
@@ -582,13 +582,13 @@ namespace BovineLabs.Anchor.Elements
         {
             spawn = float4x4.identity;
             render = float4x4.identity;
-            if (this.pending && (!float.IsFinite(this.layout.width) || !float.IsFinite(this.layout.height) ||
-                this.layout.width <= 0 || this.layout.height <= 0))
+            if (_pending && (!float.IsFinite(layout.width) || !float.IsFinite(layout.height) ||
+                layout.width <= 0 || layout.height <= 0))
             {
                 return false;
             }
 
-            var world = this.worldTransform;
+            var world = worldTransform;
             var determinant = (world.m00 * world.m11) - (world.m01 * world.m10);
             if (!float.IsFinite(determinant) || Mathf.Abs(determinant) < 0.000001f)
             {
@@ -596,15 +596,15 @@ namespace BovineLabs.Anchor.Elements
             }
 
             var sourceWorld = world;
-            if (this.source != null)
+            if (_source != null)
             {
                 // A source removed independently is a documented stale coordinate request; suspend until replaced.
-                if (this.source.panel != this.panel)
+                if (_source.panel != panel)
                 {
                     return false;
                 }
 
-                sourceWorld = this.source.worldTransform * Matrix4x4.Translate(this.sourcePoint);
+                sourceWorld = _source.worldTransform * Matrix4x4.Translate(_sourcePoint);
                 determinant = (sourceWorld.m00 * sourceWorld.m11) - (sourceWorld.m01 * sourceWorld.m10);
                 if (!float.IsFinite(determinant) || Mathf.Abs(determinant) < 0.000001f)
                 {
@@ -612,12 +612,12 @@ namespace BovineLabs.Anchor.Elements
                 }
             }
 
-            if (this.simulationSpace == UIParticleSpace.Panel)
+            if (_simulationSpace == UIParticleSpace.Panel)
             {
                 spawn = sourceWorld;
                 render = world.inverse;
             }
-            else if (this.source != null)
+            else if (_source != null)
             {
                 spawn = world.inverse * sourceWorld;
             }
@@ -627,48 +627,48 @@ namespace BovineLabs.Anchor.Elements
 
         private void Attach(AttachToPanelEvent evt)
         {
-            this.coordinator = UIParticleCoordinator.Register(evt.destinationPanel, this);
-            if (this.effectsEnabled && this.playOnAttach && Application.isPlaying)
+            _coordinator = UIParticleCoordinator.Register(evt.destinationPanel, this);
+            if (_effectsEnabled && _playOnAttach && Application.isPlaying)
             {
-                this.Play();
+                Play();
             }
-            else if (this.requested)
+            else if (_requested)
             {
-                this.coordinator.Wake();
+                _coordinator.Wake();
             }
         }
 
         private void Detach(DetachFromPanelEvent evt)
         {
-            this.ReleaseVisualGeneration();
+            ReleaseVisualGeneration();
         }
 
         internal void ReleaseVisualGeneration()
         {
-            this.Release();
-            this.coordinator?.Unregister(this);
-            this.coordinator = null;
-            this.Completed = null;
+            Release();
+            _coordinator?.Unregister(this);
+            _coordinator = null;
+            Completed = null;
         }
 
         private void GeometryChanged(GeometryChangedEvent evt)
         {
-            if (this.pending)
+            if (_pending)
             {
-                this.Advance(0);
+                Advance(0);
             }
         }
 
         private void Draw(MeshGenerationContext context)
         {
-            if (this.runtime == null || this.runtime.LiveCount == 0 || this.IsHidden() || !this.TryGetTransforms(out _, out var render))
+            if (_runtime == null || _runtime.LiveCount == 0 || IsHidden() || !TryGetTransforms(out _, out var render))
             {
                 return;
             }
 
-            this.runtime.PrepareMesh(new float4(this.tint.r, this.tint.g, this.tint.b, this.tint.a));
-            this.runtime.Draw(context, ref render, this.simulationSpace == UIParticleSpace.Panel);
-            this.renderTransform = this.worldTransform;
+            _runtime.PrepareMesh(new float4(_tint.r, _tint.g, _tint.b, _tint.a));
+            _runtime.Draw(context, ref render, _simulationSpace == UIParticleSpace.Panel);
+            _renderTransform = worldTransform;
         }
     }
 }

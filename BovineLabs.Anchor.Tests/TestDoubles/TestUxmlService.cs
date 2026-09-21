@@ -5,11 +5,11 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
     internal sealed class TestUxmlService : IUXMLService
     {
-        private readonly TestVisualElementFactory visualElementFactory;
+        private readonly TestVisualElementFactory _visualElementFactory;
 
         public TestUxmlService(TestVisualElementFactory visualElementFactory)
         {
-            this.visualElementFactory = visualElementFactory;
+            _visualElementFactory = visualElementFactory;
         }
 
         public VisualTreeAsset GetAsset(string assetName)
@@ -19,7 +19,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public VisualElement Instantiate(string assetName)
         {
-            return this.visualElementFactory.Create(assetName);
+            return _visualElementFactory.Create(assetName);
         }
     }
 }

@@ -8,7 +8,7 @@
         where T : unmanaged
     {
         public NativeList<T> Value;
-        private bool changed;
+        private bool _changed;
 
         /// <summary>
         /// Conversion marks the list as changed.
@@ -18,21 +18,21 @@
             return new ChangedList<T>
             {
                 Value = value,
-                changed = true,
+                _changed = true,
             };
         }
 
         public void SetValue(IEnumerable<T> values)
         {
-            this.Value.Clear();
-            this.Value.AddRange(values);
-            this.changed = true;
+            Value.Clear();
+            Value.AddRange(values);
+            _changed = true;
         }
 
         public void Add(T value)
         {
-            this.Value.Add(value);
-            this.changed = true;
+            Value.Add(value);
+            _changed = true;
         }
 
         /// <summary>
@@ -40,11 +40,11 @@
         /// </summary>
         public bool GetIfChanged(out NativeList<T> value)
         {
-            value = this.Value;
+            value = Value;
 
-            if (this.changed)
+            if (_changed)
             {
-                this.changed = false;
+                _changed = false;
                 return true;
             }
 

@@ -7,46 +7,46 @@ namespace BovineLabs.Anchor.Tests.Services
 
     public class LocalStoragePlayerPrefsServiceTests
     {
-        private readonly List<string> keysToCleanup = new();
-        private LocalStoragePlayerPrefsService service;
+        private readonly List<string> _keysToCleanup = new();
+        private LocalStoragePlayerPrefsService _service;
 
         [SetUp]
         public void SetUp()
         {
-            this.service = new LocalStoragePlayerPrefsService();
+            _service = new LocalStoragePlayerPrefsService();
         }
 
         [TearDown]
         public void TearDown()
         {
-            foreach (var key in this.keysToCleanup)
+            foreach (var key in _keysToCleanup)
             {
-                this.service.DeleteKey(key);
+                _service.DeleteKey(key);
             }
 
-            this.keysToCleanup.Clear();
+            _keysToCleanup.Clear();
         }
 
         [Test]
         public void PrimitiveValues_RoundTripStringIntAndBool()
         {
-            var stringKey = this.NewKey();
-            var intKey = this.NewKey();
-            var boolKey = this.NewKey();
+            var stringKey = NewKey();
+            var intKey = NewKey();
+            var boolKey = NewKey();
 
-            this.service.SetValue(stringKey, "hello");
-            this.service.SetValue(intKey, 123);
-            this.service.SetValue(boolKey, true);
+            _service.SetValue(stringKey, "hello");
+            _service.SetValue(intKey, 123);
+            _service.SetValue(boolKey, true);
 
-            Assert.AreEqual("hello", this.service.GetValue(stringKey, "fallback"));
-            Assert.AreEqual(123, this.service.GetValue(intKey, 0));
-            Assert.IsTrue(this.service.GetValue(boolKey, false));
+            Assert.AreEqual("hello", _service.GetValue(stringKey, "fallback"));
+            Assert.AreEqual(123, _service.GetValue(intKey, 0));
+            Assert.IsTrue(_service.GetValue(boolKey, false));
         }
 
         private string NewKey()
         {
             var key = $"anchor-tests-{Guid.NewGuid():N}";
-            this.keysToCleanup.Add(key);
+            _keysToCleanup.Add(key);
             return key;
         }
     }

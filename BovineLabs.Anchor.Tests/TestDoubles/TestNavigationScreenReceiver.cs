@@ -14,14 +14,14 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public void OnEnter(AnchorNavArgument[] args)
         {
-            this.EnterCount++;
-            this.LastEnterArguments = args;
+            EnterCount++;
+            LastEnterArguments = args;
         }
 
         public void OnExit(AnchorNavArgument[] args)
         {
-            this.ExitCount++;
-            this.LastExitArguments = args;
+            ExitCount++;
+            LastExitArguments = args;
         }
     }
 }

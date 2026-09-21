@@ -34,7 +34,7 @@ namespace BovineLabs.Anchor.Services
 
         public VisualElement Instantiate(string assetName)
         {
-            var asset = this.GetAsset(assetName);
+            var asset = GetAsset(assetName);
             if (asset == null)
             {
                 return new VisualElement();

@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Particles
     internal sealed class UIParticleCompiledEffect
     {
         public const int SampleCount = 128;
-        private int owners;
+        private int _owners;
 
         public UIParticleCompiledEffect(UIParticleEffect effect)
         {
@@ -18,16 +18,16 @@ namespace BovineLabs.Anchor.Particles
             var bursts = new List<UIParticleBurst>();
             var samples = new List<UIParticleSample>();
             var steps = new List<UIParticleColorStep>();
-            this.Textures = new Texture2D[effect.Emitters.Count];
-            this.Revision = effect.Revision;
+            Textures = new Texture2D[effect.Emitters.Count];
+            Revision = effect.Revision;
 
             foreach (var settings in effect.Emitters)
             {
                 Validate(settings);
-                var capacity = checked(this.Capacity + settings.MaxParticles);
+                var capacity = checked(Capacity + settings.MaxParticles);
                 var emitter = new UIParticleEmitter
                 {
-                    Offset = this.Capacity,
+                    Offset = Capacity,
                     Capacity = settings.MaxParticles,
                     BurstOffset = bursts.Count,
                     BurstCount = settings.Bursts.Count,
@@ -112,20 +112,20 @@ namespace BovineLabs.Anchor.Particles
                     emitter.StepCount = steps.Count - emitter.StepOffset;
                 }
 
-                this.Textures[emitters.Count] = settings.Texture;
+                Textures[emitters.Count] = settings.Texture;
                 emitters.Add(emitter);
-                this.Capacity = capacity;
+                Capacity = capacity;
             }
 
             // All authoring validation and checked capacity arithmetic precede native allocation.
-            this.Data = new UIParticleCompiledData
+            Data = new UIParticleCompiledData
             {
                 Emitters = new NativeArray<UIParticleEmitter>(emitters.ToArray(), Allocator.Persistent),
                 Bursts = new NativeArray<UIParticleBurst>(bursts.ToArray(), Allocator.Persistent),
                 Samples = new NativeArray<UIParticleSample>(samples.ToArray(), Allocator.Persistent),
                 Steps = new NativeArray<UIParticleColorStep>(steps.ToArray(), Allocator.Persistent),
             };
-            this.NativeBytes = (long)emitters.Count * UnsafeUtility.SizeOf<UIParticleEmitter>() +
+            NativeBytes = (long)emitters.Count * UnsafeUtility.SizeOf<UIParticleEmitter>() +
                 ((long)bursts.Count * UnsafeUtility.SizeOf<UIParticleBurst>()) +
                 ((long)samples.Count * UnsafeUtility.SizeOf<UIParticleSample>()) + ((long)steps.Count * UnsafeUtility.SizeOf<UIParticleColorStep>());
         }
@@ -137,20 +137,20 @@ namespace BovineLabs.Anchor.Particles
         public long NativeBytes { get; }
         public bool IsDisposed { get; private set; }
 
-        public void Retain() => this.owners++;
+        public void Retain() => _owners++;
 
         public void Release()
         {
-            if (--this.owners != 0)
+            if (--_owners != 0)
             {
                 return;
             }
 
-            this.Data.Emitters.Dispose();
-            this.Data.Bursts.Dispose();
-            this.Data.Samples.Dispose();
-            this.Data.Steps.Dispose();
-            this.IsDisposed = true;
+            Data.Emitters.Dispose();
+            Data.Bursts.Dispose();
+            Data.Samples.Dispose();
+            Data.Steps.Dispose();
+            IsDisposed = true;
         }
 
         private static void Validate(UIParticleEmitterSettings s)

@@ -6,25 +6,25 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine;
     using UnityEngine.UIElements;
 
-    [AutoRef("AnchorSettings", "animations", nameof(AnchorNavAnimation), "UI/Animations")]
+    [AutoRef("AnchorSettings", "_animations", nameof(AnchorNavAnimation), "UI/Animations")]
     public abstract class AnchorNavAnimation : ScriptableObject, IUID
     {
         [InspectorReadOnly]
         [SerializeField]
-        private int id;
+        private int _id;
 
         [Min(0)]
         [Tooltip("Animation time in milliseconds")]
         [SerializeField]
-        private int duration;
+        private int _duration;
 
         int IUID.ID
         {
-            get => this.ID;
-            set => this.id = value;
+            get => ID;
+            set => _id = value;
         }
 
-        public int ID => this.id;
+        public int ID => _id;
 
         protected abstract Func<float, float> EasingFunction { get; }
 
@@ -36,15 +36,15 @@ namespace BovineLabs.Anchor.Nav
         {
             return new AnimationDescription
             {
-                Easing = this.EasingFunction,
-                DurationMs = this.duration,
-                Callback = this.Callback,
+                Easing = EasingFunction,
+                DurationMs = _duration,
+                Callback = Callback,
             };
         }
 
         protected virtual void Reset()
         {
-            this.duration = this.DefaultDuration;
+            _duration = DefaultDuration;
         }
     }
 }

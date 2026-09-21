@@ -30,12 +30,12 @@ namespace BovineLabs.Anchor
         private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<AnchorApp, SafeAreaType>();
 #endif
 
-        private bool disposed;
-        private bool hasScreenMetrics;
-        private AnchorScreenMetrics lastScreenMetrics;
-        private IAnchorToolbarHost toolbarHost;
-        private string theme;
-        private string scale;
+        private bool _disposed;
+        private bool _hasScreenMetrics;
+        private AnchorScreenMetrics _lastScreenMetrics;
+        private IAnchorToolbarHost _toolbarHost;
+        private string _theme;
+        private string _scale;
 
         internal bool RestoringNavigationState { get; set; }
 
@@ -54,28 +54,28 @@ namespace BovineLabs.Anchor
 
         public string Theme
         {
-            get => this.Panel?.Theme ?? this.theme;
+            get => Panel?.Theme ?? _theme;
             set
             {
-                this.theme = value;
+                _theme = value;
 
-                if (this.Panel != null)
+                if (Panel != null)
                 {
-                    this.Panel.Theme = value;
+                    Panel.Theme = value;
                 }
             }
         }
 
         public string Scale
         {
-            get => this.Panel?.Scale ?? this.scale;
+            get => Panel?.Scale ?? _scale;
             set
             {
-                this.scale = value;
+                _scale = value;
 
-                if (this.Panel != null)
+                if (Panel != null)
                 {
-                    this.Panel.Scale = value;
+                    Panel.Scale = value;
                 }
             }
         }
@@ -97,73 +97,73 @@ namespace BovineLabs.Anchor
                 throw new ArgumentNullException(nameof(provider));
             }
 
-            if (this.disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(AnchorApp));
             }
 
             SetCurrentApp(this);
-            this.Services = provider;
+            Services = provider;
         }
 
         internal void SetPanel(IAnchorPanel panel)
         {
-            if (this.Services == null)
+            if (Services == null)
             {
                 throw new InvalidOperationException($"{nameof(AnchorApp)} must be initialized before assigning a panel.");
             }
 
-            if (this.disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(AnchorApp));
             }
 
-            this.Panel = panel ?? throw new ArgumentNullException(nameof(panel));
-            this.RootVisualElement = panel.RootVisualElement ??
+            Panel = panel ?? throw new ArgumentNullException(nameof(panel));
+            RootVisualElement = panel.RootVisualElement ??
                 throw new InvalidOperationException($"{panel.GetType().FullName} returned a null root visual element.");
 
-            if (this.theme == null)
+            if (_theme == null)
             {
-                this.theme = panel.Theme;
+                _theme = panel.Theme;
             }
             else
             {
-                panel.Theme = this.theme;
+                panel.Theme = _theme;
             }
 
-            if (this.scale == null)
+            if (_scale == null)
             {
-                this.scale = panel.Scale;
+                _scale = panel.Scale;
             }
             else
             {
-                panel.Scale = this.scale;
+                panel.Scale = _scale;
             }
 
-            this.hasScreenMetrics = false;
-            this.lastScreenMetrics = default;
+            _hasScreenMetrics = false;
+            _lastScreenMetrics = default;
         }
 
         public void Dispose()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            this.ReleaseVisualGeneration();
-            this.toolbarHost = null;
-            this.Services = null;
-            this.theme = null;
-            this.scale = null;
-            this.ScreenMetricsChanged = null;
+            ReleaseVisualGeneration();
+            _toolbarHost = null;
+            Services = null;
+            _theme = null;
+            _scale = null;
+            ScreenMetricsChanged = null;
 
             if (ReferenceEquals(Current, this))
             {
                 SetCurrentApp(null);
             }
 
-            this.disposed = true;
+            _disposed = true;
         }
 
         private static Rect GetSafeArea()
@@ -180,100 +180,100 @@ namespace BovineLabs.Anchor
 
         public virtual void Initialize()
         {
-            this.RootVisualElement.pickingMode = PickingMode.Ignore;
+            RootVisualElement.pickingMode = PickingMode.Ignore;
 
             var navHost = new AnchorNavHost(AnchorSettings.I.Actions, AnchorSettings.I.Animations);
-            this.NavHost = navHost;
-            this.RootVisualElement.Add(navHost);
+            NavHost = navHost;
+            RootVisualElement.Add(navHost);
 
-            if (!this.RestoringNavigationState && !string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
+            if (!RestoringNavigationState && !string.IsNullOrWhiteSpace(AnchorSettings.I.StartDestination))
             {
-                this.NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());
+                NavHost.Navigate(AnchorSettings.I.StartDestination, new AnchorNavOptions());
             }
 
-            this.PopupContainer = this.RootVisualElement.Q<VisualElement>("popup-container");
-            this.NotificationContainer = this.RootVisualElement.Q<VisualElement>("notification-container");
-            this.TooltipContainer = this.RootVisualElement.Q<VisualElement>("tooltip-container");
+            PopupContainer = RootVisualElement.Q<VisualElement>("popup-container");
+            NotificationContainer = RootVisualElement.Q<VisualElement>("notification-container");
+            TooltipContainer = RootVisualElement.Q<VisualElement>("tooltip-container");
         }
 
         public void InitializeToolbar()
         {
-            if (this.RootVisualElement == null)
+            if (RootVisualElement == null)
             {
                 throw new InvalidOperationException("A panel must be assigned before initializing the toolbar.");
             }
 
-            this.toolbarHost ??= this.Services.GetService(typeof(IAnchorToolbarHost)) as IAnchorToolbarHost;
-            if (this.toolbarHost != null)
+            _toolbarHost ??= Services.GetService(typeof(IAnchorToolbarHost)) as IAnchorToolbarHost;
+            if (_toolbarHost != null)
             {
-                this.RootVisualElement.Insert(0, this.toolbarHost.CreateRootVisualElement());
+                RootVisualElement.Insert(0, _toolbarHost.CreateRootVisualElement());
             }
         }
 
         internal void Update()
         {
-            if (this.Panel != null)
+            if (Panel != null)
             {
-                this.theme = this.Panel.Theme;
-                this.scale = this.Panel.Scale;
+                _theme = Panel.Theme;
+                _scale = Panel.Scale;
             }
 
-            if (this.RootVisualElement == null)
+            if (RootVisualElement == null)
             {
                 return;
             }
 
-            this.UpdateScreenMetrics(AnchorScreenMetrics.Current());
+            UpdateScreenMetrics(AnchorScreenMetrics.Current());
         }
 
         internal void RefreshScreenMetrics()
         {
-            this.hasScreenMetrics = false;
-            this.UpdateScreenMetrics(AnchorScreenMetrics.Current());
+            _hasScreenMetrics = false;
+            UpdateScreenMetrics(AnchorScreenMetrics.Current());
         }
 
         internal void ReleaseVisualGeneration()
         {
-            this.RootVisualElement?.Query<AnchorParticles>().ForEach(static particles => particles.ReleaseVisualGeneration());
+            RootVisualElement?.Query<AnchorParticles>().ForEach(static particles => particles.ReleaseVisualGeneration());
 
-            if (this.Panel != null)
+            if (Panel != null)
             {
-                this.theme = this.Panel.Theme;
-                this.scale = this.Panel.Scale;
+                _theme = Panel.Theme;
+                _scale = Panel.Scale;
             }
 
             try
             {
-                this.toolbarHost?.ReleaseRootVisualElement();
+                _toolbarHost?.ReleaseRootVisualElement();
             }
             finally
             {
-                this.PopupContainer = null;
-                this.NotificationContainer = null;
-                this.TooltipContainer = null;
-                this.NavHost = null;
-                this.Panel = null;
-                this.RootVisualElement = null;
-                this.hasScreenMetrics = false;
-                this.lastScreenMetrics = default;
+                PopupContainer = null;
+                NotificationContainer = null;
+                TooltipContainer = null;
+                NavHost = null;
+                Panel = null;
+                RootVisualElement = null;
+                _hasScreenMetrics = false;
+                _lastScreenMetrics = default;
             }
         }
 
         internal bool UpdateScreenMetrics(AnchorScreenMetrics metrics)
         {
-            if (this.RootVisualElement == null)
+            if (RootVisualElement == null)
             {
                 return false;
             }
 
-            if (this.hasScreenMetrics && this.lastScreenMetrics.Equals(metrics))
+            if (_hasScreenMetrics && _lastScreenMetrics.Equals(metrics))
             {
                 return false;
             }
 
-            this.hasScreenMetrics = true;
-            this.lastScreenMetrics = metrics;
-            this.ScreenMetricsChanged?.Invoke(metrics);
+            _hasScreenMetrics = true;
+            _lastScreenMetrics = metrics;
+            ScreenMetricsChanged?.Invoke(metrics);
             return true;
         }
 

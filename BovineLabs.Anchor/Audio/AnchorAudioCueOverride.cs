@@ -7,15 +7,15 @@ namespace BovineLabs.Anchor.Audio
     public struct AnchorAudioCueOverride : IEquatable<AnchorAudioCueOverride>
     {
         [SerializeField]
-        private AnchorAudioOverrideMode mode;
+        private AnchorAudioOverrideMode _mode;
 
         [SerializeField]
-        private AudioClip clip;
+        private AudioClip _clip;
 
         public AnchorAudioCueOverride(AnchorAudioOverrideMode mode, AudioClip clip = null)
         {
-            this.mode = mode;
-            this.clip = clip;
+            _mode = mode;
+            _clip = clip;
         }
 
         public static AnchorAudioCueOverride Inherit => new(AnchorAudioOverrideMode.Inherit);
@@ -24,14 +24,14 @@ namespace BovineLabs.Anchor.Audio
 
         public AnchorAudioOverrideMode Mode
         {
-            get => this.mode;
-            set => this.mode = value;
+            get => _mode;
+            set => _mode = value;
         }
 
         public AudioClip Clip
         {
-            get => this.clip;
-            set => this.clip = value;
+            get => _clip;
+            set => _clip = value;
         }
 
         public static AnchorAudioCueOverride Custom(AudioClip clip)
@@ -41,19 +41,19 @@ namespace BovineLabs.Anchor.Audio
 
         public bool Equals(AnchorAudioCueOverride other)
         {
-            return this.mode == other.mode && this.clip == other.clip;
+            return _mode == other._mode && _clip == other._clip;
         }
 
         public override bool Equals(object obj)
         {
-            return obj is AnchorAudioCueOverride other && this.Equals(other);
+            return obj is AnchorAudioCueOverride other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((int)this.mode * 397) ^ (this.clip != null ? this.clip.GetHashCode() : 0);
+                return ((int)_mode * 397) ^ (_clip != null ? _clip.GetHashCode() : 0);
             }
         }
     }

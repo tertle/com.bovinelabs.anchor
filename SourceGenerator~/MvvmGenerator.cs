@@ -1154,11 +1154,11 @@ namespace BovineLabs.SystemPropertyGenerator
                 INamedTypeSymbol typeSymbol, ImmutableArray<ObservablePropertyData> observableProperties, ImmutableArray<CommandData> commands,
                 ImmutableArray<PropertyDependencyData> propertyDependencies, ImmutableArray<Diagnostic> diagnostics)
             {
-                this.TypeSymbol = typeSymbol;
-                this.ObservableProperties = observableProperties;
-                this.Commands = commands;
-                this.PropertyDependencies = propertyDependencies;
-                this.Diagnostics = diagnostics;
+                TypeSymbol = typeSymbol;
+                ObservableProperties = observableProperties;
+                Commands = commands;
+                PropertyDependencies = propertyDependencies;
+                Diagnostics = diagnostics;
             }
 
             public INamedTypeSymbol TypeSymbol { get; }
@@ -1176,11 +1176,11 @@ namespace BovineLabs.SystemPropertyGenerator
         {
             public TypeGenerationModel(INamedTypeSymbol typeSymbol)
             {
-                this.TypeSymbol = typeSymbol;
-                this.ObservableProperties = new Dictionary<string, ObservablePropertyData>(StringComparer.Ordinal);
-                this.Commands = new Dictionary<string, CommandData>(StringComparer.Ordinal);
-                this.PropertyDependencies = new Dictionary<string, ImmutableArray<string>.Builder>(StringComparer.Ordinal);
-                this.Diagnostics = new List<Diagnostic>();
+                TypeSymbol = typeSymbol;
+                ObservableProperties = new Dictionary<string, ObservablePropertyData>(StringComparer.Ordinal);
+                Commands = new Dictionary<string, CommandData>(StringComparer.Ordinal);
+                PropertyDependencies = new Dictionary<string, ImmutableArray<string>.Builder>(StringComparer.Ordinal);
+                Diagnostics = new List<Diagnostic>();
             }
 
             public INamedTypeSymbol TypeSymbol { get; }
@@ -1200,11 +1200,11 @@ namespace BovineLabs.SystemPropertyGenerator
                 string fieldName, string fieldTypeName, string propertyName, ImmutableArray<string> additionalNotifications,
                 ImmutableArray<IMethodSymbol> additionalMethods)
             {
-                this.FieldName = fieldName;
-                this.FieldTypeName = fieldTypeName;
-                this.PropertyName = propertyName;
-                this.AdditionalNotifications = additionalNotifications;
-                this.AdditionalMethods = additionalMethods;
+                FieldName = fieldName;
+                FieldTypeName = fieldTypeName;
+                PropertyName = propertyName;
+                AdditionalNotifications = additionalNotifications;
+                AdditionalMethods = additionalMethods;
             }
 
             public string FieldName { get; }
@@ -1222,10 +1222,10 @@ namespace BovineLabs.SystemPropertyGenerator
         {
             public CommandData(IMethodSymbol methodSymbol, string propertyName, IMethodSymbol canExecuteMethod, IPropertySymbol canExecuteProperty)
             {
-                this.MethodSymbol = methodSymbol;
-                this.PropertyName = propertyName;
-                this.CanExecuteMethod = canExecuteMethod;
-                this.CanExecuteProperty = canExecuteProperty;
+                MethodSymbol = methodSymbol;
+                PropertyName = propertyName;
+                CanExecuteMethod = canExecuteMethod;
+                CanExecuteProperty = canExecuteProperty;
             }
 
             public IMethodSymbol MethodSymbol { get; }
@@ -1241,8 +1241,8 @@ namespace BovineLabs.SystemPropertyGenerator
         {
             public PropertyDependencyData(string propertyName, ImmutableArray<string> dependencies)
             {
-                this.PropertyName = propertyName;
-                this.Dependencies = dependencies;
+                PropertyName = propertyName;
+                Dependencies = dependencies;
             }
 
             public string PropertyName { get; }

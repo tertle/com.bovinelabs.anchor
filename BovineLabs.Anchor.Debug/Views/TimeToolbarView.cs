@@ -19,13 +19,13 @@
         [Preserve]
         public TimeToolbarView(TimeToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
             TypeConverter<long, string> timeConverter = static (ref long value) => $"{ToFormattedString(TimeSpan.FromSeconds(value))}";
             TypeConverter<float, string> timescaleConverter = static (ref float value) => $"{value:0.00}x";
 
-            this.Add(KeyValueGroup.Create(viewModel,
+            Add(KeyValueGroup.Create(viewModel,
                 new (string, string, Action<DataBinding>)[]
                 {
                     ("Real", nameof(TimeToolbarViewModel.UnscaledSeconds), db => db.sourceToUiConverters.AddConverter(timeConverter)),
@@ -64,16 +64,16 @@
             timescale.SetBindingTwoWay(nameof(FloatField.value), nameof(TimeToolbarViewModel.TimeScale),
                 static (ref float value) => TimeToolbarViewModel.TimescaleToUI(value), static (ref float value) => TimeToolbarViewModel.UIToTimeScale(value));
 
-            this.Add(timescale);
+            Add(timescale);
 
-            this.schedule.Execute(this.UpdateModel).Every(1);
+            schedule.Execute(UpdateModel).Every(1);
         }
 
-        private TimeToolbarViewModel Model => (TimeToolbarViewModel)this.dataSource;
+        private TimeToolbarViewModel Model => (TimeToolbarViewModel)dataSource;
 
         private void UpdateModel()
         {
-            this.Model.Update();
+            Model.Update();
         }
 
         private static string ToFormattedString(TimeSpan ts)

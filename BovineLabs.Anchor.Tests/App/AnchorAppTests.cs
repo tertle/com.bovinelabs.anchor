@@ -265,14 +265,14 @@ namespace BovineLabs.Anchor.Tests.App
         {
             public ConstructorSelectionTarget()
             {
-                this.ConstructorParameterCount = 0;
+                ConstructorParameterCount = 0;
             }
 
             public ConstructorSelectionTarget(ConstructorDependency dependency, IServiceProvider provider)
             {
-                this.Dependency = dependency;
-                this.Provider = provider;
-                this.ConstructorParameterCount = 2;
+                Dependency = dependency;
+                Provider = provider;
+                ConstructorParameterCount = 2;
             }
 
             public ConstructorDependency Dependency { get; }
@@ -286,12 +286,12 @@ namespace BovineLabs.Anchor.Tests.App
         {
             public FallbackConstructorSelectionTarget()
             {
-                this.ConstructorParameterCount = 0;
+                ConstructorParameterCount = 0;
             }
 
             public FallbackConstructorSelectionTarget(UnresolvableNestedDependency dependency)
             {
-                this.ConstructorParameterCount = 1;
+                ConstructorParameterCount = 1;
             }
 
             public int ConstructorParameterCount { get; }
@@ -320,12 +320,12 @@ namespace BovineLabs.Anchor.Tests.App
         {
             public AliasCycleConstructorSelectionTarget()
             {
-                this.ConstructorParameterCount = 0;
+                ConstructorParameterCount = 0;
             }
 
             public AliasCycleConstructorSelectionTarget(IAliasCycleA dependency)
             {
-                this.ConstructorParameterCount = 1;
+                ConstructorParameterCount = 1;
             }
 
             public int ConstructorParameterCount { get; }
@@ -335,12 +335,12 @@ namespace BovineLabs.Anchor.Tests.App
         {
             public CircularConstructorSelectionTarget()
             {
-                this.ConstructorParameterCount = 0;
+                ConstructorParameterCount = 0;
             }
 
             public CircularConstructorSelectionTarget(CircularConstructorDependency dependency)
             {
-                this.ConstructorParameterCount = 1;
+                ConstructorParameterCount = 1;
             }
 
             public int ConstructorParameterCount { get; }
@@ -355,49 +355,49 @@ namespace BovineLabs.Anchor.Tests.App
 
         private sealed class DisposableDependency : IDisposable
         {
-            private readonly List<string> disposalOrder;
+            private readonly List<string> _disposalOrder;
 
             public DisposableDependency(List<string> disposalOrder)
             {
-                this.disposalOrder = disposalOrder;
+                _disposalOrder = disposalOrder;
             }
 
             public void Dispose()
             {
-                this.disposalOrder.Add("dependency");
+                _disposalOrder.Add("dependency");
             }
         }
 
         private sealed class DisposableDependent : IDisposable
         {
-            private readonly List<string> disposalOrder;
+            private readonly List<string> _disposalOrder;
 
             public DisposableDependent(DisposableDependency dependency, List<string> disposalOrder)
             {
-                this.Dependency = dependency;
-                this.disposalOrder = disposalOrder;
+                Dependency = dependency;
+                _disposalOrder = disposalOrder;
             }
 
             public DisposableDependency Dependency { get; }
 
             public void Dispose()
             {
-                this.disposalOrder.Add("dependent");
+                _disposalOrder.Add("dependent");
             }
         }
 
         private sealed class RecordingDisposable : IDisposable
         {
-            private readonly List<string> disposalOrder;
+            private readonly List<string> _disposalOrder;
 
             public RecordingDisposable(List<string> disposalOrder)
             {
-                this.disposalOrder = disposalOrder;
+                _disposalOrder = disposalOrder;
             }
 
             public void Dispose()
             {
-                this.disposalOrder.Add("recording");
+                _disposalOrder.Add("recording");
             }
         }
 
@@ -411,21 +411,21 @@ namespace BovineLabs.Anchor.Tests.App
 
         private sealed class ThrowingDisposable : IFirstThrowingDisposable, ISecondThrowingDisposable
         {
-            private readonly List<string> disposalOrder;
-            private readonly Exception exception;
-            private readonly string name;
+            private readonly List<string> _disposalOrder;
+            private readonly Exception _exception;
+            private readonly string _name;
 
             public ThrowingDisposable(List<string> disposalOrder, Exception exception, string name = "throwing")
             {
-                this.disposalOrder = disposalOrder;
-                this.exception = exception;
-                this.name = name;
+                _disposalOrder = disposalOrder;
+                _exception = exception;
+                _name = name;
             }
 
             public void Dispose()
             {
-                this.disposalOrder.Add(this.name);
-                throw this.exception;
+                _disposalOrder.Add(_name);
+                throw _exception;
             }
         }
 

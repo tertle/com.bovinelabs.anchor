@@ -8,18 +8,18 @@ namespace BovineLabs.Anchor.Elements
     [UxmlElement]
     public partial class AnchorTouchSliderFloat : TouchSliderFloat, INotifyBindablePropertyChanged
     {
-        private readonly VisualElement progressElement;
+        private readonly VisualElement _progressElement;
         private event EventHandler<BindablePropertyChangedEventArgs> BindingPropertyChanged;
 
         event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
         {
-            add => this.BindingPropertyChanged += value;
-            remove => this.BindingPropertyChanged -= value;
+            add => BindingPropertyChanged += value;
+            remove => BindingPropertyChanged -= value;
         }
 
         public AnchorTouchSliderFloat()
         {
-            this.progressElement = this.Q<VisualElement>(TouchSlider<float>.progressUssClassName);
+            _progressElement = this.Q<VisualElement>(TouchSlider<float>.progressUssClassName);
             AnchorTouchSlider.Initialize(this);
         }
 
@@ -34,7 +34,7 @@ namespace BovineLabs.Anchor.Elements
                 }
 
                 base.size = value;
-                this.NotifyBindingPropertyChanged(in AnchorTouchSlider.SizeProperty);
+                NotifyBindingPropertyChanged(in AnchorTouchSlider.SizeProperty);
             }
         }
 
@@ -49,31 +49,31 @@ namespace BovineLabs.Anchor.Elements
                 }
 
                 base.label = value;
-                this.NotifyBindingPropertyChanged(in AnchorTouchSlider.LabelProperty);
+                NotifyBindingPropertyChanged(in AnchorTouchSlider.LabelProperty);
             }
         }
 
         public override void SetValueWithoutNotify(float newValue)
         {
             base.SetValueWithoutNotify(newValue);
-            this.RefreshProgress();
+            RefreshProgress();
         }
 
         protected override void SetOrientation(Direction newValue)
         {
             base.SetOrientation(newValue);
-            this.RefreshProgress();
+            RefreshProgress();
         }
 
         private void RefreshProgress()
         {
-            AnchorTouchSlider.RefreshProgress(this, this.progressElement, this.orientation, this.m_CurrentDirection);
+            AnchorTouchSlider.RefreshProgress(this, _progressElement, orientation, m_CurrentDirection);
         }
 
         private void NotifyBindingPropertyChanged(in BindingId property)
         {
-            this.NotifyPropertyChanged(in property);
-            this.BindingPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(property));
+            NotifyPropertyChanged(in property);
+            BindingPropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(property));
         }
     }
 }

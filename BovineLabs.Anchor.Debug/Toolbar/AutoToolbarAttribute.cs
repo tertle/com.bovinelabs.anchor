@@ -13,8 +13,8 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 throw new ArgumentException("Element name cannot be null or whitespace.", nameof(elementName));
             }
 
-            this.ElementName = elementName;
-            this.TabName = tabName;
+            ElementName = elementName;
+            TabName = tabName;
         }
 
         public string ElementName { get; }

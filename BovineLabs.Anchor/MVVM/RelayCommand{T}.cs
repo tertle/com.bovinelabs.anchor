@@ -5,9 +5,9 @@ namespace BovineLabs.Anchor.MVVM
 
     public sealed class RelayCommand<T> : IRelayCommand<T>
     {
-        private readonly Action<T> execute;
-        private readonly Predicate<T> canExecute;
-        private readonly string[] observedProperties;
+        private readonly Action<T> _execute;
+        private readonly Predicate<T> _canExecute;
+        private readonly string[] _observedProperties;
 
         public RelayCommand(Action<T> execute)
             : this(execute, null)
@@ -21,13 +21,13 @@ namespace BovineLabs.Anchor.MVVM
 
         public RelayCommand(Action<T> execute, Predicate<T> canExecute, INotifyPropertyChanged propertyChangedSource, params string[] observedProperties)
         {
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            this.canExecute = canExecute;
-            this.observedProperties = observedProperties ?? Array.Empty<string>();
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+            _observedProperties = observedProperties ?? Array.Empty<string>();
 
-            if (propertyChangedSource != null && this.observedProperties.Length != 0)
+            if (propertyChangedSource != null && _observedProperties.Length != 0)
             {
-                propertyChangedSource.PropertyChanged += this.OnPropertyChanged;
+                propertyChangedSource.PropertyChanged += OnPropertyChanged;
             }
         }
 
@@ -40,12 +40,12 @@ namespace BovineLabs.Anchor.MVVM
                 return false;
             }
 
-            return this.CanExecute(typed);
+            return CanExecute(typed);
         }
 
         public bool CanExecute(T parameter)
         {
-            return this.canExecute?.Invoke(parameter) ?? true;
+            return _canExecute?.Invoke(parameter) ?? true;
         }
 
         public void Execute(object parameter)
@@ -55,29 +55,29 @@ namespace BovineLabs.Anchor.MVVM
                 throw new InvalidOperationException("Invalid parameter type.");
             }
 
-            this.Execute(typed);
+            Execute(typed);
         }
 
         public void Execute(T parameter)
         {
-            if (!this.CanExecute(parameter))
+            if (!CanExecute(parameter))
             {
                 return;
             }
 
-            this.execute(parameter);
+            _execute(parameter);
         }
 
         public void NotifyCanExecuteChanged()
         {
-            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.PropertyName) || Array.IndexOf(this.observedProperties, e.PropertyName) >= 0)
+            if (string.IsNullOrEmpty(e.PropertyName) || Array.IndexOf(_observedProperties, e.PropertyName) >= 0)
             {
-                this.NotifyCanExecuteChanged();
+                NotifyCanExecuteChanged();
             }
         }
 

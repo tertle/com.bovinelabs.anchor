@@ -5,8 +5,8 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
     internal sealed class TestAppServiceScope : IDisposable
     {
-        private readonly AnchorApp app;
-        private readonly AnchorServiceProvider serviceProvider;
+        private readonly AnchorApp _app;
+        private readonly AnchorServiceProvider _serviceProvider;
 
         public TestAppServiceScope(params Type[] singletonServiceTypes)
         {
@@ -21,16 +21,16 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
                 services.AddSingleton(singletonType);
             }
 
-            this.serviceProvider = services.BuildServiceProvider();
-            this.app = new AnchorApp();
-            this.app.Initialize(this.serviceProvider);
-            this.app.SetPanel(new AnchorPanel());
+            _serviceProvider = services.BuildServiceProvider();
+            _app = new AnchorApp();
+            _app.Initialize(_serviceProvider);
+            _app.SetPanel(new AnchorPanel());
         }
 
         public void Dispose()
         {
-            this.app.Dispose();
-            this.serviceProvider.Dispose();
+            _app.Dispose();
+            _serviceProvider.Dispose();
         }
     }
 }

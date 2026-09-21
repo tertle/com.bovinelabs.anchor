@@ -13,7 +13,7 @@ namespace BovineLabs.Anchor.Tests.App
         public void Initialize_WhenRestoringNavigationState_DoesNotEnterStartDestination()
         {
             const string startDestination = "start";
-            var field = typeof(AnchorSettings).GetField("startDestination", BindingFlags.Instance | BindingFlags.NonPublic);
+            var field = typeof(AnchorSettings).GetField("_startDestination", BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.IsNotNull(field);
 
             var settings = AnchorSettings.I;

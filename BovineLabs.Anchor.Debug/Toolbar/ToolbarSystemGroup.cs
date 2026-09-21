@@ -11,36 +11,36 @@ namespace BovineLabs.Anchor.Debug.Toolbar
     [UpdateInGroup(typeof(DebugSystemGroup))]
     public partial class ToolbarSystemGroup : ComponentSystemGroup
     {
-        private readonly HashSet<SystemHandle> suspendedSystems = new();
-        private Toolbar currentToolbar;
+        private readonly HashSet<SystemHandle> _suspendedSystems = new();
+        private Toolbar _currentToolbar;
 
         protected override void OnUpdate()
         {
-            this.SortSystems();
-            using var systems = this.GetAllSystems();
+            SortSystems();
+            using var systems = GetAllSystems();
             var toolbar = Toolbar.Current;
             var available = toolbar != null && AnchorApp.Current != null;
 
-            if (available && !ReferenceEquals(this.currentToolbar, toolbar))
+            if (available && !ReferenceEquals(_currentToolbar, toolbar))
             {
-                this.SuspendSystems(systems);
+                SuspendSystems(systems);
                 base.OnUpdate();
 
-                this.ResumeSystems(systems);
-                this.currentToolbar = toolbar;
+                ResumeSystems(systems);
+                _currentToolbar = toolbar;
                 base.OnUpdate();
                 return;
             }
 
             if (available)
             {
-                this.ResumeSystems(systems);
-                this.currentToolbar = toolbar;
+                ResumeSystems(systems);
+                _currentToolbar = toolbar;
             }
             else
             {
-                this.SuspendSystems(systems);
-                this.currentToolbar = null;
+                SuspendSystems(systems);
+                _currentToolbar = null;
             }
 
             base.OnUpdate();
@@ -51,12 +51,12 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             for (var i = 0; i < systems.Length; i++)
             {
                 var handle = systems[i];
-                ref var state = ref this.World.Unmanaged.ResolveSystemStateRef(handle);
+                ref var state = ref World.Unmanaged.ResolveSystemStateRef(handle);
 
                 if (state.Enabled)
                 {
                     state.Enabled = false;
-                    this.suspendedSystems.Add(handle);
+                    _suspendedSystems.Add(handle);
                 }
             }
         }
@@ -66,14 +66,14 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             for (var i = 0; i < systems.Length; i++)
             {
                 var handle = systems[i];
-                if (this.suspendedSystems.Remove(handle))
+                if (_suspendedSystems.Remove(handle))
                 {
-                    ref var state = ref this.World.Unmanaged.ResolveSystemStateRef(handle);
+                    ref var state = ref World.Unmanaged.ResolveSystemStateRef(handle);
                     state.Enabled = true;
                 }
             }
 
-            this.suspendedSystems.Clear();
+            _suspendedSystems.Clear();
         }
     }
 }

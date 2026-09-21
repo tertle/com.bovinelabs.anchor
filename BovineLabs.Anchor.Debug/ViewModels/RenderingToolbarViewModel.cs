@@ -39,52 +39,52 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             "Null Geometry Indirect Instances Count",
         };
 
-        private ProfilerRecorderGroup trianglesRecorder;
-        private ProfilerRecorderGroup verticesRecorder;
-        private ProfilerRecorderGroup setPassCallsRecorder;
-        private ProfilerRecorderGroup drawCallsRecorder;
-        private ProfilerRecorderGroup instancesRecorder;
+        private ProfilerRecorderGroup _trianglesRecorder;
+        private ProfilerRecorderGroup _verticesRecorder;
+        private ProfilerRecorderGroup _setPassCallsRecorder;
+        private ProfilerRecorderGroup _drawCallsRecorder;
+        private ProfilerRecorderGroup _instancesRecorder;
 
-        private float timeToTriggerUpdatesPassed;
-        private long triangles;
-        private long vertices;
-        private long drawCalls;
-        private long setPassCalls;
-        private long instances;
+        private float _timeToTriggerUpdatesPassed;
+        private long _triangles;
+        private long _vertices;
+        private long _drawCalls;
+        private long _setPassCalls;
+        private long _instances;
 
         [CreateProperty]
         public long Triangles
         {
-            get => this.triangles;
-            set => this.SetProperty(ref this.triangles, value);
+            get => _triangles;
+            set => SetProperty(ref _triangles, value);
         }
 
         [CreateProperty]
         public long Vertices
         {
-            get => this.vertices;
-            set => this.SetProperty(ref this.vertices, value);
+            get => _vertices;
+            set => SetProperty(ref _vertices, value);
         }
 
         [CreateProperty]
         public long DrawCalls
         {
-            get => this.drawCalls;
-            set => this.SetProperty(ref this.drawCalls, value);
+            get => _drawCalls;
+            set => SetProperty(ref _drawCalls, value);
         }
 
         [CreateProperty]
         public long SetPassCalls
         {
-            get => this.setPassCalls;
-            set => this.SetProperty(ref this.setPassCalls, value);
+            get => _setPassCalls;
+            set => SetProperty(ref _setPassCalls, value);
         }
 
         [CreateProperty]
         public long Instances
         {
-            get => this.instances;
-            set => this.SetProperty(ref this.instances, value);
+            get => _instances;
+            set => SetProperty(ref _instances, value);
         }
 
         public VisualElement CreateElement()
@@ -94,37 +94,37 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public void Load()
         {
-            this.trianglesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Triangles Count");
-            this.verticesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Vertices Count");
-            this.setPassCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "SetPass Calls Count");
-            this.drawCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, DrawCallCounterNames);
-            this.instancesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, InstanceCounterNames);
+            _trianglesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Triangles Count");
+            _verticesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Vertices Count");
+            _setPassCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "SetPass Calls Count");
+            _drawCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, DrawCallCounterNames);
+            _instancesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, InstanceCounterNames);
         }
 
         public void Unload()
         {
-            this.trianglesRecorder.Dispose();
-            this.verticesRecorder.Dispose();
-            this.setPassCallsRecorder.Dispose();
-            this.drawCallsRecorder.Dispose();
-            this.instancesRecorder.Dispose();
+            _trianglesRecorder.Dispose();
+            _verticesRecorder.Dispose();
+            _setPassCallsRecorder.Dispose();
+            _drawCallsRecorder.Dispose();
+            _instancesRecorder.Dispose();
         }
 
         public void Update()
         {
-            this.timeToTriggerUpdatesPassed += Time.unscaledDeltaTime;
+            _timeToTriggerUpdatesPassed += Time.unscaledDeltaTime;
 
-            if (this.timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
+            if (_timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
             {
                 return;
             }
 
-            this.timeToTriggerUpdatesPassed = 0;
-            this.Triangles = this.trianglesRecorder.LastValue;
-            this.Vertices = this.verticesRecorder.LastValue;
-            this.SetPassCalls = this.setPassCallsRecorder.LastValue;
-            this.DrawCalls = this.drawCallsRecorder.LastValue;
-            this.Instances = this.instancesRecorder.LastValue;
+            _timeToTriggerUpdatesPassed = 0;
+            Triangles = _trianglesRecorder.LastValue;
+            Vertices = _verticesRecorder.LastValue;
+            SetPassCalls = _setPassCallsRecorder.LastValue;
+            DrawCalls = _drawCallsRecorder.LastValue;
+            Instances = _instancesRecorder.LastValue;
         }
     }
 }

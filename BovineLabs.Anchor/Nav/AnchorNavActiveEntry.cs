@@ -7,11 +7,11 @@ namespace BovineLabs.Anchor.Nav
     {
         public AnchorNavActiveEntry(string destination, AnchorNavArgument[] arguments, bool isPopup, AnchorNavOptions options, VisualElement element)
         {
-            this.Destination = destination;
-            this.Arguments = arguments ?? Array.Empty<AnchorNavArgument>();
-            this.IsPopup = isPopup;
-            this.Options = options ?? new AnchorNavOptions();
-            this.Element = element ?? throw new ArgumentNullException(nameof(element));
+            Destination = destination;
+            Arguments = arguments ?? Array.Empty<AnchorNavArgument>();
+            IsPopup = isPopup;
+            Options = options ?? new AnchorNavOptions();
+            Element = element ?? throw new ArgumentNullException(nameof(element));
         }
 
         public string Destination { get; }
@@ -26,8 +26,8 @@ namespace BovineLabs.Anchor.Nav
 
         public void Update(AnchorNavStackItem item)
         {
-            this.Options = item.Options;
-            this.Arguments = item.Arguments;
+            Options = item.Options;
+            Arguments = item.Arguments;
         }
     }
 }

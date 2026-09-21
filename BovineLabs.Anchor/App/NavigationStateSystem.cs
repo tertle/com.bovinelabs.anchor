@@ -10,20 +10,20 @@
     [UpdateInGroup(typeof(UISystemGroup))]
     public partial struct NavigationStateSystem : ISystem
     {
-        private FixedString32Bytes previous;
+        private FixedString32Bytes _previous;
 
-        private NativeHashMap<FixedString32Bytes, ComponentType> statesMap;
+        private NativeHashMap<FixedString32Bytes, ComponentType> _statesMap;
 
         public void OnCreate(ref SystemState state)
         {
-            this.statesMap = new NativeHashMap<FixedString32Bytes, ComponentType>(16, Allocator.Persistent);
+            _statesMap = new NativeHashMap<FixedString32Bytes, ComponentType>(16, Allocator.Persistent);
 
             var e = UISystemTypes.Enumerator();
             while (e.MoveNext())
             {
                 var component = ComponentType.FromTypeIndex(TypeManager.GetTypeIndexFromStableTypeHash(e.Current.Value));
 
-                if (!this.statesMap.TryAdd(e.Current.Name, component))
+                if (!_statesMap.TryAdd(e.Current.Name, component))
                 {
                     BLGlobalLogger.LogErrorString($"Navigation state '{e.Current.Name}' has already been registered.");
                 }
@@ -32,7 +32,7 @@
 
         public void OnDestroy(ref SystemState state)
         {
-            this.statesMap.Dispose();
+            _statesMap.Dispose();
         }
 
         [BurstCompile]
@@ -40,17 +40,17 @@
         {
             var current = AnchorNavHost.Burst.CurrentDestination();
 
-            if (this.previous == current)
+            if (_previous == current)
             {
                 return;
             }
 
-            var hasPrevious = this.statesMap.TryGetValue(this.previous, out var previousComponent);
-            var hasCurrent = this.statesMap.TryGetValue(current, out var currentComponent);
+            var hasPrevious = _statesMap.TryGetValue(_previous, out var previousComponent);
+            var hasCurrent = _statesMap.TryGetValue(current, out var currentComponent);
 
             if (hasPrevious && hasCurrent && previousComponent == currentComponent)
             {
-                this.previous = current;
+                _previous = current;
                 return;
             }
 
@@ -64,7 +64,7 @@
                 state.EntityManager.AddComponent(state.SystemHandle, currentComponent);
             }
 
-            this.previous = current;
+            _previous = current;
         }
     }
 }

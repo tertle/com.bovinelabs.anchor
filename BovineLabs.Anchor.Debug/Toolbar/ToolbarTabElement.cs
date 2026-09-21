@@ -8,22 +8,22 @@
         private const string UssClassName = "bl-toolbar-tab";
         private const string NameClass = UssClassName + "__name";
 
-        private readonly VisualElement content;
+        private readonly VisualElement _content;
 
         public ToolbarTabElement(string label)
         {
-            this.AddToClassList(UssClassName);
+            AddToClassList(UssClassName);
 
-            this.content = new VisualElement();
-            this.hierarchy.Add(this.content);
+            _content = new VisualElement();
+            hierarchy.Add(_content);
 
             var groupLabel = new Heading(label) { size = HeadingSize.XXS };
             groupLabel.AddToClassList(NameClass);
-            this.hierarchy.Add(groupLabel);
+            hierarchy.Add(groupLabel);
 
-            this.focusable = false;
+            focusable = false;
         }
 
-        public override VisualElement contentContainer => this.content;
+        public override VisualElement contentContainer => _content;
     }
 }

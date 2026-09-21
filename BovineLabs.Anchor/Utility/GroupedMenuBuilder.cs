@@ -354,11 +354,11 @@ namespace BovineLabs.Anchor
         {
             public Entry(T item, int index, string label, string normalizedLabel, string primaryGroupKey)
             {
-                this.Item = item;
-                this.Index = index;
-                this.Label = label;
-                this.NormalizedLabel = normalizedLabel;
-                this.PrimaryGroupKey = primaryGroupKey;
+                Item = item;
+                Index = index;
+                Label = label;
+                NormalizedLabel = normalizedLabel;
+                PrimaryGroupKey = primaryGroupKey;
             }
 
             public T Item { get; }
@@ -374,16 +374,16 @@ namespace BovineLabs.Anchor
 
         private sealed class EntryComparer<T> : IComparer<Entry<T>>
         {
-            private readonly IComparer<string> groupComparer;
+            private readonly IComparer<string> _groupComparer;
 
             public EntryComparer(IComparer<string> groupComparer)
             {
-                this.groupComparer = groupComparer;
+                _groupComparer = groupComparer;
             }
 
             public int Compare(Entry<T> x, Entry<T> y)
             {
-                var result = this.groupComparer.Compare(x.PrimaryGroupKey, y.PrimaryGroupKey);
+                var result = _groupComparer.Compare(x.PrimaryGroupKey, y.PrimaryGroupKey);
                 if (result != 0)
                 {
                     return result;
@@ -404,8 +404,8 @@ namespace BovineLabs.Anchor
         {
             public Bucket(string key, int nextPrefixLength)
             {
-                this.Key = key;
-                this.NextPrefixLength = nextPrefixLength;
+                Key = key;
+                NextPrefixLength = nextPrefixLength;
             }
 
             public string Key { get; }

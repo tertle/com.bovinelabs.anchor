@@ -6,16 +6,16 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
     internal sealed class TestVisualElementFactory
     {
-        private readonly Dictionary<string, Func<VisualElement>> factories = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, Func<VisualElement>> _factories = new(StringComparer.Ordinal);
 
         public void Register(string destination, Func<VisualElement> factory)
         {
-            this.factories[destination] = factory;
+            _factories[destination] = factory;
         }
 
         public VisualElement Create(string destination)
         {
-            if (this.factories.TryGetValue(destination, out var factory))
+            if (_factories.TryGetValue(destination, out var factory))
             {
                 return factory.Invoke();
             }

@@ -8,9 +8,9 @@
     {
         public ToolbarGroup(string name, Button button, ToolbarGroupElement parent)
         {
-            this.Name = name;
-            this.Button = button;
-            this.Parent = parent;
+            Name = name;
+            Button = button;
+            Parent = parent;
         }
 
         public string Name { get; }
@@ -25,11 +25,11 @@
         {
             public Tab(int id, string name, ToolbarTabElement container, ToolbarGroup group, VisualElement view)
             {
-                this.Name = name;
-                this.ID = id;
-                this.Container = container;
-                this.Group = group;
-                this.View = view;
+                Name = name;
+                ID = id;
+                Container = container;
+                Group = group;
+                View = view;
             }
 
             public string Name { get; }

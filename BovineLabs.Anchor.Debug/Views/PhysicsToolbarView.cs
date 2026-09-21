@@ -17,15 +17,15 @@ namespace BovineLabs.Anchor.Debug.Views
         [Preserve]
         public PhysicsToolbarView(PhysicsToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
-            this.style.flexDirection = FlexDirection.Row;
+            style.flexDirection = FlexDirection.Row;
 
             var left = new VisualElement();
             var right = new VisualElement();
-            this.Add(left);
-            this.Add(right);
+            Add(left);
+            Add(right);
 
             var colliders = new Toggle
             {

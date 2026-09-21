@@ -11,107 +11,107 @@ namespace BovineLabs.Anchor.Elements
     {
         public const string UssClassName = "bl-anchor-safe-area";
 
-        private AnchorApp anchorApp;
-        private VisualElement panelRoot;
-        private AnchorSafeAreaEdges safeAreaEdges = AnchorSafeAreaEdges.All;
+        private AnchorApp _anchorApp;
+        private VisualElement _panelRoot;
+        private AnchorSafeAreaEdges _safeAreaEdges = AnchorSafeAreaEdges.All;
 
         public AnchorSafeArea()
         {
-            this.AddToClassList(UssClassName);
+            AddToClassList(UssClassName);
 
-            this.RegisterCallback<AttachToPanelEvent>(this.OnAttachToPanel);
-            this.RegisterCallback<DetachFromPanelEvent>(this.OnDetachFromPanel);
-            this.RegisterCallback<GeometryChangedEvent>(this.OnGeometryChanged);
+            RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
+            RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
         }
 
         [UxmlAttribute("edges")]
         [CreateProperty]
         public AnchorSafeAreaEdges Edges
         {
-            get => this.safeAreaEdges;
+            get => _safeAreaEdges;
             set
             {
-                if (this.safeAreaEdges == value)
+                if (_safeAreaEdges == value)
                 {
                     return;
                 }
 
-                this.safeAreaEdges = value;
-                this.UpdateSafeArea();
+                _safeAreaEdges = value;
+                UpdateSafeArea();
             }
         }
 
         private void OnAttachToPanel(AttachToPanelEvent evt)
         {
-            this.RegisterPanelRoot(evt.destinationPanel?.visualTree);
+            RegisterPanelRoot(evt.destinationPanel?.visualTree);
         }
 
         private void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
-            this.UnregisterPanelRoot();
+            UnregisterPanelRoot();
         }
 
         private void OnGeometryChanged(GeometryChangedEvent evt)
         {
-            this.UpdateSafeArea();
+            UpdateSafeArea();
         }
 
         private void RegisterPanelRoot(VisualElement root)
         {
-            if (ReferenceEquals(this.panelRoot, root))
+            if (ReferenceEquals(_panelRoot, root))
             {
-                this.UpdateSafeArea();
+                UpdateSafeArea();
                 return;
             }
 
-            this.UnregisterPanelRoot();
-            this.panelRoot = root;
+            UnregisterPanelRoot();
+            _panelRoot = root;
 
-            if (this.panelRoot == null)
+            if (_panelRoot == null)
             {
-                this.anchorApp = null;
-                AnchorSafeAreaUtility.ResetPadding(this.style);
+                _anchorApp = null;
+                AnchorSafeAreaUtility.ResetPadding(style);
                 return;
             }
 
-            this.panelRoot.RegisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
+            _panelRoot.RegisterCallback<GeometryChangedEvent>(OnPanelRootGeometryChanged);
 
-            this.anchorApp = AnchorApp.Current;
-            if (this.anchorApp != null)
+            _anchorApp = AnchorApp.Current;
+            if (_anchorApp != null)
             {
-                this.anchorApp.ScreenMetricsChanged += this.OnScreenMetricsChanged;
+                _anchorApp.ScreenMetricsChanged += OnScreenMetricsChanged;
             }
 
-            this.UpdateSafeArea();
+            UpdateSafeArea();
         }
 
         private void UnregisterPanelRoot()
         {
-            if (this.anchorApp != null)
+            if (_anchorApp != null)
             {
-                this.anchorApp.ScreenMetricsChanged -= this.OnScreenMetricsChanged;
+                _anchorApp.ScreenMetricsChanged -= OnScreenMetricsChanged;
             }
 
-            this.panelRoot?.UnregisterCallback<GeometryChangedEvent>(this.OnPanelRootGeometryChanged);
+            _panelRoot?.UnregisterCallback<GeometryChangedEvent>(OnPanelRootGeometryChanged);
 
-            this.anchorApp = null;
-            this.panelRoot = null;
-            AnchorSafeAreaUtility.ResetPadding(this.style);
+            _anchorApp = null;
+            _panelRoot = null;
+            AnchorSafeAreaUtility.ResetPadding(style);
         }
 
         private void OnPanelRootGeometryChanged(GeometryChangedEvent evt)
         {
-            this.UpdateSafeArea();
+            UpdateSafeArea();
         }
 
         private void OnScreenMetricsChanged(AnchorScreenMetrics metrics)
         {
-            this.UpdateSafeArea();
+            UpdateSafeArea();
         }
 
         private void UpdateSafeArea()
         {
-            AnchorSafeAreaUtility.ApplyPadding(this, this, this.panelRoot, this.safeAreaEdges);
+            AnchorSafeAreaUtility.ApplyPadding(this, this, _panelRoot, _safeAreaEdges);
         }
     }
 }

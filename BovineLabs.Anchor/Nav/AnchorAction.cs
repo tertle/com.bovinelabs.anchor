@@ -5,17 +5,17 @@ namespace BovineLabs.Anchor.Nav
     using UnityEngine;
 
     [Serializable]
-    [AutoRef("AnchorSettings", "actions", nameof(AnchorAction), "UI/Actions")]
+    [AutoRef("AnchorSettings", "_actions", nameof(AnchorAction), "UI/Actions")]
     public class AnchorAction : ScriptableObject
     {
         [SerializeField]
-        private string actionName = string.Empty;
+        private string _actionName = string.Empty;
 
         [SerializeField]
-        private AnchorNavAction action = new();
+        private AnchorNavAction _action = new();
 
-        public string ActionName => this.actionName;
+        public string ActionName => _actionName;
 
-        public AnchorNavAction Action => this.action ??= new AnchorNavAction();
+        public AnchorNavAction Action => _action ??= new AnchorNavAction();
     }
 }

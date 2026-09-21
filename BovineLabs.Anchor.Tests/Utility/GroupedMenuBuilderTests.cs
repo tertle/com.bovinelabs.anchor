@@ -147,17 +147,17 @@ namespace BovineLabs.Anchor.Tests.Utility
 
         private sealed class GroupOrderComparer : IComparer<string>
         {
-            private readonly IReadOnlyList<string> order;
+            private readonly IReadOnlyList<string> _order;
 
             public GroupOrderComparer(params string[] order)
             {
-                this.order = order;
+                _order = order;
             }
 
             public int Compare(string x, string y)
             {
-                var xIndex = this.IndexOf(x);
-                var yIndex = this.IndexOf(y);
+                var xIndex = IndexOf(x);
+                var yIndex = IndexOf(y);
                 if (xIndex != yIndex)
                 {
                     return xIndex.CompareTo(yIndex);
@@ -168,9 +168,9 @@ namespace BovineLabs.Anchor.Tests.Utility
 
             private int IndexOf(string value)
             {
-                for (var i = 0; i < this.order.Count; i++)
+                for (var i = 0; i < _order.Count; i++)
                 {
-                    if (string.Equals(this.order[i], value, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(_order[i], value, StringComparison.OrdinalIgnoreCase))
                     {
                         return i;
                     }
@@ -184,9 +184,9 @@ namespace BovineLabs.Anchor.Tests.Utility
         {
             public TestItem(string label, string group = null, int id = 0)
             {
-                this.Label = label;
-                this.Group = group;
-                this.Id = id;
+                Label = label;
+                Group = group;
+                Id = id;
             }
 
             public string Label { get; }

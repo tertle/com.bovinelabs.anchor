@@ -22,19 +22,19 @@ namespace BovineLabs.Anchor.Collections
             }
 
             var snapshot = new List<T>(items);
-            if (this.Items.Count == 0 && snapshot.Count == 0)
+            if (Items.Count == 0 && snapshot.Count == 0)
             {
                 return;
             }
 
-            this.Items.Clear();
+            Items.Clear();
 
             foreach (var item in snapshot)
             {
-                this.Items.Add(item);
+                Items.Add(item);
             }
 
-            this.OnBulkCollectionChanged();
+            OnBulkCollectionChanged();
         }
 
         /// <summary>
@@ -55,17 +55,17 @@ namespace BovineLabs.Anchor.Collections
 
             foreach (var item in snapshot)
             {
-                this.Items.Add(item);
+                Items.Add(item);
             }
 
-            this.OnBulkCollectionChanged();
+            OnBulkCollectionChanged();
         }
 
         private void OnBulkCollectionChanged()
         {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.Count)));
-            this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(Count)));
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
     }
 }

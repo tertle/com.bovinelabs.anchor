@@ -5,9 +5,9 @@ namespace BovineLabs.Anchor.MVVM
 
     public sealed class RelayCommand : IRelayCommand
     {
-        private readonly Action execute;
-        private readonly Func<bool> canExecute;
-        private readonly string[] observedProperties;
+        private readonly Action _execute;
+        private readonly Func<bool> _canExecute;
+        private readonly string[] _observedProperties;
 
         public RelayCommand(Action execute)
             : this(execute, null)
@@ -21,13 +21,13 @@ namespace BovineLabs.Anchor.MVVM
 
         public RelayCommand(Action execute, Func<bool> canExecute, INotifyPropertyChanged propertyChangedSource, params string[] observedProperties)
         {
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            this.canExecute = canExecute;
-            this.observedProperties = observedProperties ?? Array.Empty<string>();
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+            _observedProperties = observedProperties ?? Array.Empty<string>();
 
-            if (propertyChangedSource != null && this.observedProperties.Length != 0)
+            if (propertyChangedSource != null && _observedProperties.Length != 0)
             {
-                propertyChangedSource.PropertyChanged += this.OnPropertyChanged;
+                propertyChangedSource.PropertyChanged += OnPropertyChanged;
             }
         }
 
@@ -35,39 +35,39 @@ namespace BovineLabs.Anchor.MVVM
 
         public bool CanExecute(object parameter)
         {
-            return this.canExecute?.Invoke() ?? true;
+            return _canExecute?.Invoke() ?? true;
         }
 
         public bool CanExecute()
         {
-            return this.CanExecute(null);
+            return CanExecute(null);
         }
 
         public void Execute(object parameter)
         {
-            if (!this.CanExecute(parameter))
+            if (!CanExecute(parameter))
             {
                 return;
             }
 
-            this.execute();
+            _execute();
         }
 
         public void Execute()
         {
-            this.Execute(null);
+            Execute(null);
         }
 
         public void NotifyCanExecuteChanged()
         {
-            this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (string.IsNullOrEmpty(e.PropertyName) || Array.IndexOf(this.observedProperties, e.PropertyName) >= 0)
+            if (string.IsNullOrEmpty(e.PropertyName) || Array.IndexOf(_observedProperties, e.PropertyName) >= 0)
             {
-                this.NotifyCanExecuteChanged();
+                NotifyCanExecuteChanged();
             }
         }
     }

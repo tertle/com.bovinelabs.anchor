@@ -17,54 +17,54 @@
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;
 
-        private int currentFPS;
+        private int _currentFPS;
 
-        private int averageFPS;
+        private int _averageFPS;
 
-        private int minFPS;
+        private int _minFPS;
 
-        private int maxFPS;
+        private int _maxFPS;
 
-        private FPSStatistics fps;
-        private float timeToTriggerUpdatesPassed;
+        private FPSStatistics _fps;
+        private float _timeToTriggerUpdatesPassed;
 
         public FPSToolbarViewModel()
         {
             var averageFPSSamples = default(FixedList512Bytes<float>);
             averageFPSSamples.Length = AvgFPSSamplesCapacity;
-            this.fps = new FPSStatistics { AverageFPSSamples = averageFPSSamples };
+            _fps = new FPSStatistics { AverageFPSSamples = averageFPSSamples };
         }
 
         [CreateProperty(ReadOnly = true)]
         [DependsOn(nameof(CurrentFPS))]
-        public float FrameTime => this.currentFPS == 0 ? 0 : 1000f / this.currentFPS;
+        public float FrameTime => _currentFPS == 0 ? 0 : 1000f / _currentFPS;
 
         [CreateProperty]
         public int CurrentFPS
         {
-            get => this.currentFPS;
-            set => this.SetProperty(ref this.currentFPS, value);
+            get => _currentFPS;
+            set => SetProperty(ref _currentFPS, value);
         }
 
         [CreateProperty]
         public int AverageFPS
         {
-            get => this.averageFPS;
-            set => this.SetProperty(ref this.averageFPS, value);
+            get => _averageFPS;
+            set => SetProperty(ref _averageFPS, value);
         }
 
         [CreateProperty]
         public int MinFPS
         {
-            get => this.minFPS;
-            set => this.SetProperty(ref this.minFPS, value);
+            get => _minFPS;
+            set => SetProperty(ref _minFPS, value);
         }
 
         [CreateProperty]
         public int MaxFPS
         {
-            get => this.maxFPS;
-            set => this.SetProperty(ref this.maxFPS, value);
+            get => _maxFPS;
+            set => SetProperty(ref _maxFPS, value);
         }
 
         public VisualElement CreateElement()
@@ -75,79 +75,79 @@
         public void Update()
         {
             var unscaledDeltaTime = Time.unscaledDeltaTime;
-            this.timeToTriggerUpdatesPassed += unscaledDeltaTime;
+            _timeToTriggerUpdatesPassed += unscaledDeltaTime;
 
-            this.CalculateStatistics(unscaledDeltaTime);
+            CalculateStatistics(unscaledDeltaTime);
 
-            if (this.timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
+            if (_timeToTriggerUpdatesPassed < Toolbar.UpdateRateSeconds)
             {
                 return;
             }
 
-            this.timeToTriggerUpdatesPassed = 0;
+            _timeToTriggerUpdatesPassed = 0;
 
-            this.CurrentFPS = (int)this.fps.CurrentFPS;
-            this.AverageFPS = (int)this.fps.AvgFPS;
-            this.MinFPS = (int)this.fps.MinFPS;
-            this.MaxFPS = (int)this.fps.MaxFPS;
+            CurrentFPS = (int)_fps.CurrentFPS;
+            AverageFPS = (int)_fps.AvgFPS;
+            MinFPS = (int)_fps.MinFPS;
+            MaxFPS = (int)_fps.MaxFPS;
         }
 
         private void CalculateStatistics(float unscaledDeltaTime)
         {
-            this.fps.TimeToResetMinFPSPassed += unscaledDeltaTime;
-            this.fps.TimeToResetMaxFPSPassed += unscaledDeltaTime;
+            _fps.TimeToResetMinFPSPassed += unscaledDeltaTime;
+            _fps.TimeToResetMaxFPSPassed += unscaledDeltaTime;
 
             // Build FPS and ms
-            this.fps.CurrentFPS = 1 / unscaledDeltaTime;
+            _fps.CurrentFPS = 1 / unscaledDeltaTime;
 
             // Build avg FPS
-            this.fps.AvgFPS = 0;
-            this.fps.AverageFPSSamples[this.fps.IndexSample++] = this.fps.CurrentFPS;
+            _fps.AvgFPS = 0;
+            _fps.AverageFPSSamples[_fps.IndexSample++] = _fps.CurrentFPS;
 
-            if (this.fps.IndexSample == AvgFPSSamplesCapacity)
+            if (_fps.IndexSample == AvgFPSSamplesCapacity)
             {
-                this.fps.IndexSample = 0;
+                _fps.IndexSample = 0;
             }
 
-            if (this.fps.AvgFPSSamplesCount < AvgFPSSamplesCapacity)
+            if (_fps.AvgFPSSamplesCount < AvgFPSSamplesCapacity)
             {
-                this.fps.AvgFPSSamplesCount++;
+                _fps.AvgFPSSamplesCount++;
             }
 
-            for (var i = 0; i < this.fps.AvgFPSSamplesCount; i++)
+            for (var i = 0; i < _fps.AvgFPSSamplesCount; i++)
             {
-                this.fps.AvgFPS += this.fps.AverageFPSSamples[i];
+                _fps.AvgFPS += _fps.AverageFPSSamples[i];
             }
 
-            this.fps.AvgFPS /= this.fps.AvgFPSSamplesCount;
+            _fps.AvgFPS /= _fps.AvgFPSSamplesCount;
 
             // Checks to reset min and max FPS
-            if (this.fps.TimeToResetMinFPSPassed > TimeToResetMinMaxFPS)
+            if (_fps.TimeToResetMinFPSPassed > TimeToResetMinMaxFPS)
             {
-                this.fps.MinFPS = 0;
-                this.fps.TimeToResetMinFPSPassed = 0;
+                _fps.MinFPS = 0;
+                _fps.TimeToResetMinFPSPassed = 0;
             }
 
-            if (this.fps.TimeToResetMaxFPSPassed > TimeToResetMinMaxFPS)
+            if (_fps.TimeToResetMaxFPSPassed > TimeToResetMinMaxFPS)
             {
-                this.fps.MaxFPS = 0;
-                this.fps.TimeToResetMaxFPSPassed = 0;
+                _fps.MaxFPS = 0;
+                _fps.TimeToResetMaxFPSPassed = 0;
             }
 
             // Build min FPS
-            if (this.fps.CurrentFPS < this.fps.MinFPS || this.fps.MinFPS <= 0)
+            if (_fps.CurrentFPS < _fps.MinFPS || _fps.MinFPS <= 0)
             {
-                this.fps.MinFPS = this.fps.CurrentFPS;
+                _fps.MinFPS = _fps.CurrentFPS;
 
-                this.fps.TimeToResetMinFPSPassed = 0;
+                _fps.TimeToResetMinFPSPassed = 0;
             }
 
             // Build max FPS
-            if (this.fps.CurrentFPS > this.fps.MaxFPS || this.fps.MaxFPS <= 0)
+            if (_fps.CurrentFPS > _fps.MaxFPS || _fps.MaxFPS <= 0)
             {
-                this.fps.MaxFPS = this.fps.CurrentFPS;
+                _fps.MaxFPS = _fps.CurrentFPS;
 
-                this.fps.TimeToResetMaxFPSPassed = 0;
+                _fps.TimeToResetMaxFPSPassed = 0;
             }
         }
 

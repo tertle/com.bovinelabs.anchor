@@ -30,8 +30,8 @@ namespace BovineLabs.Anchor.Particles.Sample
             camera.cullingMask = 0;
             var runner = new GameObject("Particle sample").AddComponent<ParticleSampleRunner>();
             var serialized = new SerializedObject(runner);
-            serialized.FindProperty("theme").objectReferenceValue = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(folder + "/ParticleSample.tss");
-            serialized.FindProperty("visualTree").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml");
+            serialized.FindProperty("_theme").objectReferenceValue = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(folder + "/ParticleSample.tss");
+            serialized.FindProperty("_visualTree").objectReferenceValue = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml");
             serialized.ApplyModifiedPropertiesWithoutUndo();
             var scenePath = folder + "/ParticleSample.unity";
             EditorSceneManager.SaveScene(scene, scenePath);

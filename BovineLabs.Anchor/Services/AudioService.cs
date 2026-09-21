@@ -9,11 +9,11 @@ namespace BovineLabs.Anchor.Services
 
     internal sealed class AudioService : IAudioService, IDisposable
     {
-        private readonly Dictionary<string, AnchorAudioProfile> profiles;
-        private readonly HashSet<string> missingProfileWarnings = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, AnchorAudioProfile> _profiles;
+        private readonly HashSet<string> _missingProfileWarnings = new(StringComparer.Ordinal);
 
-        private GameObject host;
-        private AudioSource source;
+        private GameObject _host;
+        private AudioSource _source;
 
         public AudioService()
             : this(AnchorSettings.I.Audio)
@@ -22,10 +22,10 @@ namespace BovineLabs.Anchor.Services
 
         internal AudioService(AnchorAudioSettings settings)
         {
-            this.profiles = (settings ?? new AnchorAudioSettings()).CreateProfileDictionary();
+            _profiles = (settings ?? new AnchorAudioSettings()).CreateProfileDictionary();
         }
 
-        internal AudioSource Source => this.source;
+        internal AudioSource Source => _source;
 
         public void Play(string profileKey, AnchorAudioCue cue, AnchorAudioCueOverride cueOverride)
         {
@@ -34,10 +34,10 @@ namespace BovineLabs.Anchor.Services
                 case AnchorAudioOverrideMode.Disabled:
                     return;
                 case AnchorAudioOverrideMode.Custom:
-                    this.PlayOneShot(cueOverride.Clip);
+                    PlayOneShot(cueOverride.Clip);
                     return;
                 default:
-                    this.PlayOneShot(this.ResolveClip(profileKey, cue));
+                    PlayOneShot(ResolveClip(profileKey, cue));
                     return;
             }
         }
@@ -49,27 +49,27 @@ namespace BovineLabs.Anchor.Services
                 return;
             }
 
-            var audioSource = this.EnsureSource();
+            var audioSource = EnsureSource();
             audioSource.clip = clip;
             audioSource.PlayOneShot(clip);
         }
 
         public void Dispose()
         {
-            if (this.host != null)
+            if (_host != null)
             {
                 if (Application.isPlaying)
                 {
-                    Object.Destroy(this.host);
+                    Object.Destroy(_host);
                 }
                 else
                 {
-                    Object.DestroyImmediate(this.host);
+                    Object.DestroyImmediate(_host);
                 }
             }
 
-            this.host = null;
-            this.source = null;
+            _host = null;
+            _source = null;
         }
 
         private AudioClip ResolveClip(string profileKey, AnchorAudioCue cue)
@@ -79,12 +79,12 @@ namespace BovineLabs.Anchor.Services
                 return null;
             }
 
-            if (this.profiles.TryGetValue(profileKey, out var profile))
+            if (_profiles.TryGetValue(profileKey, out var profile))
             {
                 return profile.GetClip(cue);
             }
 
-            if (this.missingProfileWarnings.Add(profileKey))
+            if (_missingProfileWarnings.Add(profileKey))
             {
                 BLGlobalLogger.LogWarningString($"Anchor audio profile '{profileKey}' was not found. No audio will play for Anchor audio cues.");
             }
@@ -94,26 +94,26 @@ namespace BovineLabs.Anchor.Services
 
         private AudioSource EnsureSource()
         {
-            if (this.source != null)
+            if (_source != null)
             {
-                return this.source;
+                return _source;
             }
 
-            this.host = new GameObject("Anchor UI Audio", typeof(AudioSource));
+            _host = new GameObject("Anchor UI Audio", typeof(AudioSource));
 #if UNITY_EDITOR
-            this.host.hideFlags = HideFlags.HideAndDontSave;
+            _host.hideFlags = HideFlags.HideAndDontSave;
 
             if (Application.isPlaying)
 #endif
             {
-                Object.DontDestroyOnLoad(this.host);
+                Object.DontDestroyOnLoad(_host);
             }
 
-            this.source = this.host.GetComponent<AudioSource>();
-            this.source.playOnAwake = false;
-            this.source.spatialBlend = 0f;
-            this.source.loop = false;
-            return this.source;
+            _source = _host.GetComponent<AudioSource>();
+            _source.playOnAwake = false;
+            _source.spatialBlend = 0f;
+            _source.loop = false;
+            return _source;
         }
     }
 }

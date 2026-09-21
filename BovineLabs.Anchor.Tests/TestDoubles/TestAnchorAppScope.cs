@@ -6,8 +6,8 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
     internal sealed class TestAnchorAppScope : IDisposable
     {
-        private readonly AnchorApp app;
-        private readonly AnchorServiceProvider serviceProvider;
+        private readonly AnchorApp _app;
+        private readonly AnchorServiceProvider _serviceProvider;
 
         public TestAnchorAppScope(Action<AnchorServiceCollection> configureServices = null)
         {
@@ -19,20 +19,20 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
             var services = new AnchorServiceCollection();
             configureServices?.Invoke(services);
 
-            this.serviceProvider = services.BuildServiceProvider();
-            this.app = new AnchorApp();
-            this.app.Initialize(this.serviceProvider);
-            this.app.SetPanel(new AnchorPanel());
+            _serviceProvider = services.BuildServiceProvider();
+            _app = new AnchorApp();
+            _app.Initialize(_serviceProvider);
+            _app.SetPanel(new AnchorPanel());
         }
 
-        public AnchorServiceProvider ServiceProvider => this.serviceProvider;
+        public AnchorServiceProvider ServiceProvider => _serviceProvider;
 
-        public AnchorApp App => this.app;
+        public AnchorApp App => _app;
 
         public void Dispose()
         {
-            this.app.Dispose();
-            this.serviceProvider.Dispose();
+            _app.Dispose();
+            _serviceProvider.Dispose();
         }
     }
 }

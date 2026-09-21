@@ -4,37 +4,37 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
     public readonly struct ToolbarRegistrationHandle : IEquatable<ToolbarRegistrationHandle>
     {
-        private readonly long ownerId;
-        private readonly int registrationId;
+        private readonly long _ownerId;
+        private readonly int _registrationId;
 
         internal ToolbarRegistrationHandle(long ownerId, int registrationId)
         {
-            this.ownerId = ownerId;
-            this.registrationId = registrationId;
+            _ownerId = ownerId;
+            _registrationId = registrationId;
         }
 
-        internal long OwnerId => this.ownerId;
+        internal long OwnerId => _ownerId;
 
-        internal int RegistrationId => this.registrationId;
+        internal int RegistrationId => _registrationId;
 
-        public bool IsValid => this.ownerId != 0 && this.registrationId != 0;
+        public bool IsValid => _ownerId != 0 && _registrationId != 0;
 
         public bool Equals(ToolbarRegistrationHandle other)
         {
-            return this.ownerId == other.ownerId && this.registrationId == other.registrationId;
+            return _ownerId == other._ownerId && _registrationId == other._registrationId;
         }
 
         public override bool Equals(object obj)
         {
-            return obj is ToolbarRegistrationHandle other && this.Equals(other);
+            return obj is ToolbarRegistrationHandle other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (int)this.ownerId ^ (int)(this.ownerId >> 32);
-                return (hashCode * 397) ^ this.registrationId;
+                var hashCode = (int)_ownerId ^ (int)(_ownerId >> 32);
+                return (hashCode * 397) ^ _registrationId;
             }
         }
 

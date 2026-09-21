@@ -7,38 +7,38 @@ namespace BovineLabs.Anchor.Particles.Sample
 
     public sealed class ParticleRuntimePreview : EditorWindow
     {
-        private ParticleSamplePresenter presenter;
-        private IVisualElementScheduledItem clock;
-        private double lastTime;
+        private ParticleSamplePresenter _presenter;
+        private IVisualElementScheduledItem _clock;
+        private double _lastTime;
 
         [MenuItem("BovineLabs/Samples/Anchor Particles")]
         private static void Open() => GetWindow<ParticleRuntimePreview>("UI particles");
 
         private void CreateGUI()
         {
-            this.Release();
+            Release();
             var path = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this));
             var folder = Path.GetDirectoryName(path).Replace('\\', '/');
-            AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml").CloneTree(this.rootVisualElement);
-            this.presenter = new ParticleSamplePresenter(this.rootVisualElement);
-            this.lastTime = EditorApplication.timeSinceStartup;
-            this.clock = this.rootVisualElement.schedule.Execute(() =>
+            AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(folder + "/RuntimeParticles.uxml").CloneTree(rootVisualElement);
+            _presenter = new ParticleSamplePresenter(rootVisualElement);
+            _lastTime = EditorApplication.timeSinceStartup;
+            _clock = rootVisualElement.schedule.Execute(() =>
             {
                 var now = EditorApplication.timeSinceStartup;
-                this.presenter.Advance(now - this.lastTime);
-                this.lastTime = now;
+                _presenter.Advance(now - _lastTime);
+                _lastTime = now;
             }).Every(16);
         }
 
-        private void OnDisable() => this.Release();
+        private void OnDisable() => Release();
 
         private void Release()
         {
-            this.clock?.Pause();
-            this.clock = null;
-            this.presenter?.Dispose();
-            this.presenter = null;
-            this.rootVisualElement.Clear();
+            _clock?.Pause();
+            _clock = null;
+            _presenter?.Dispose();
+            _presenter = null;
+            rootVisualElement.Clear();
         }
     }
 }

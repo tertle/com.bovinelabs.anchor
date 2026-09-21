@@ -9,25 +9,25 @@
 
         public ToolbarGroupElement()
         {
-            this.AddToClassList(UssClassName);
+            AddToClassList(UssClassName);
 
-            this.mode = ScrollViewMode.Horizontal;
-            this.verticalScrollerVisibility = ScrollerVisibility.Hidden;
-            this.focusable = false;
+            mode = ScrollViewMode.Horizontal;
+            verticalScrollerVisibility = ScrollerVisibility.Hidden;
+            focusable = false;
 
-            this.horizontalScroller.RemoveFromHierarchy();
+            horizontalScroller.RemoveFromHierarchy();
         }
 
         public void AddToTab(VisualElement tab)
         {
             tab.Add(this);
-            tab.Add(this.horizontalScroller);
+            tab.Add(horizontalScroller);
         }
 
         public void RemoveFromTab()
         {
-            this.RemoveFromHierarchy();
-            this.horizontalScroller.RemoveFromHierarchy();
+            RemoveFromHierarchy();
+            horizontalScroller.RemoveFromHierarchy();
         }
     }
 }

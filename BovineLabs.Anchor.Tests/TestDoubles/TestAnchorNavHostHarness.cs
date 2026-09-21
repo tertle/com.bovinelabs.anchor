@@ -7,24 +7,24 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
     internal sealed class TestAnchorNavHostHarness : IDisposable
     {
-        private readonly TestAnchorAppScope scope;
+        private readonly TestAnchorAppScope _scope;
 
         public TestAnchorNavHostHarness()
         {
-            this.scope = new TestAnchorAppScope(static services =>
+            _scope = new TestAnchorAppScope(static services =>
             {
                 services.AddSingleton(typeof(TestVisualElementFactory));
                 services.AddSingleton(typeof(IUXMLService), typeof(TestUxmlService));
             });
 
-            this.Factory = this.scope.ServiceProvider.GetService(typeof(TestVisualElementFactory)) as TestVisualElementFactory;
-            if (this.Factory == null)
+            Factory = _scope.ServiceProvider.GetService(typeof(TestVisualElementFactory)) as TestVisualElementFactory;
+            if (Factory == null)
             {
                 throw new InvalidOperationException("Failed to resolve TestVisualElementFactory.");
             }
 
-            this.Host = new AnchorNavHost();
-            this.scope.App.NavHost = this.Host;
+            Host = new AnchorNavHost();
+            _scope.App.NavHost = Host;
         }
 
         public AnchorNavHost Host { get; }
@@ -35,7 +35,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
         {
             var receiver = new TestNavigationScreenReceiver();
 
-            this.Factory.Register(destination, () =>
+            Factory.Register(destination, () =>
             {
                 var container = new VisualElement { name = destination };
                 container.Add(new VisualElement { dataSource = receiver });
@@ -47,7 +47,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
         public void Dispose()
         {
-            this.scope.Dispose();
+            _scope.Dispose();
         }
     }
 }

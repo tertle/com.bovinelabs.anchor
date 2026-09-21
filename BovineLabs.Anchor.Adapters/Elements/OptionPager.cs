@@ -28,27 +28,27 @@ namespace BovineLabs.Anchor.Elements
         private static readonly BindingId NextButtonIconProperty = nameof(nextButtonIcon);
         private static readonly BindingId ShowIndicatorProperty = nameof(showIndicator);
 
-        private readonly ActionButton m_previousButton;
-        private readonly DropdownItem m_selectedItemElement;
-        private readonly ActionButton m_nextButton;
-        private readonly PageIndicator m_pageIndicator;
+        private readonly ActionButton _previousButton;
+        private readonly DropdownItem _selectedItemElement;
+        private readonly ActionButton _nextButton;
+        private readonly PageIndicator _pageIndicator;
 
-        private Dropdown.BindItemFunc m_bindItem;
-        private IList m_sourceItems;
-        private int m_selectedIndex = -1;
-        private int m_desiredSelectedIndex = -1;
-        private string m_selectedText = string.Empty;
-        private bool m_wrap = true;
-        private string m_emptyText = string.Empty;
-        private string m_previousButtonIcon = "caret-left";
-        private string m_nextButtonIcon = "caret-right";
-        private bool m_showIndicator = true;
+        private Dropdown.BindItemFunc _bindItem;
+        private IList _sourceItems;
+        private int _selectedIndex = -1;
+        private int _desiredSelectedIndex = -1;
+        private string _selectedText = string.Empty;
+        private bool _wrap = true;
+        private string _emptyText = string.Empty;
+        private string _previousButtonIcon = "caret-left";
+        private string _nextButtonIcon = "caret-right";
+        private bool _showIndicator = true;
 
         public OptionPager()
         {
-            this.AddToClassList(UssClassName);
-            this.style.flexDirection = FlexDirection.Column;
-            this.style.alignItems = Align.Stretch;
+            AddToClassList(UssClassName);
+            style.flexDirection = FlexDirection.Column;
+            style.alignItems = Align.Stretch;
 
             var controls = new VisualElement();
             controls.AddToClassList(ControlsUssClassName);
@@ -57,34 +57,34 @@ namespace BovineLabs.Anchor.Elements
             controls.style.justifyContent = Justify.SpaceBetween;
             controls.style.width = Length.Percent(100);
 
-            this.m_previousButton = new ActionButton(this.SelectPrevious)
+            _previousButton = new ActionButton(SelectPrevious)
             {
-                icon = this.m_previousButtonIcon,
+                icon = _previousButtonIcon,
                 label = null,
                 quiet = true,
             };
-            this.m_previousButton.AddToClassList(PreviousButtonUssClassName);
+            _previousButton.AddToClassList(PreviousButtonUssClassName);
 
-            this.m_selectedItemElement = new DropdownItem
+            _selectedItemElement = new DropdownItem
             {
-                label = this.m_emptyText,
+                label = _emptyText,
                 pickingMode = PickingMode.Ignore,
             };
-            this.m_selectedItemElement.AddToClassList(ValueUssClassName);
-            this.m_selectedItemElement.style.justifyContent = Justify.Center;
-            this.m_selectedItemElement.style.flexShrink = 1;
-            this.m_selectedItemElement.style.flexGrow = 1;
-            this.m_selectedItemElement.style.minWidth = 0;
-            this.m_selectedItemElement.style.maxWidth = Length.Percent(100);
-            this.m_selectedItemElement.labelElement.style.unityTextAlign = TextAnchor.MiddleCenter;
+            _selectedItemElement.AddToClassList(ValueUssClassName);
+            _selectedItemElement.style.justifyContent = Justify.Center;
+            _selectedItemElement.style.flexShrink = 1;
+            _selectedItemElement.style.flexGrow = 1;
+            _selectedItemElement.style.minWidth = 0;
+            _selectedItemElement.style.maxWidth = Length.Percent(100);
+            _selectedItemElement.labelElement.style.unityTextAlign = TextAnchor.MiddleCenter;
 
-            this.m_nextButton = new ActionButton(this.SelectNext)
+            _nextButton = new ActionButton(SelectNext)
             {
-                icon = this.m_nextButtonIcon,
+                icon = _nextButtonIcon,
                 label = null,
                 quiet = true,
             };
-            this.m_nextButton.AddToClassList(NextButtonUssClassName);
+            _nextButton.AddToClassList(NextButtonUssClassName);
 
             var center = new VisualElement();
             center.AddToClassList(CenterUssClassName);
@@ -95,30 +95,30 @@ namespace BovineLabs.Anchor.Elements
             center.style.flexShrink = 1;
             center.style.minWidth = 0;
 
-            this.m_pageIndicator = new PageIndicator();
-            this.m_pageIndicator.AddToClassList(IndicatorUssClassName);
-            this.m_pageIndicator.style.alignSelf = Align.Center;
-            this.m_pageIndicator.RegisterValueChangedCallback(this.OnPageIndicatorValueChanged);
+            _pageIndicator = new PageIndicator();
+            _pageIndicator.AddToClassList(IndicatorUssClassName);
+            _pageIndicator.style.alignSelf = Align.Center;
+            _pageIndicator.RegisterValueChangedCallback(OnPageIndicatorValueChanged);
 
-            center.Add(this.m_selectedItemElement);
-            center.Add(this.m_pageIndicator);
+            center.Add(_selectedItemElement);
+            center.Add(_pageIndicator);
 
-            controls.Add(this.m_previousButton);
+            controls.Add(_previousButton);
             controls.Add(center);
-            controls.Add(this.m_nextButton);
+            controls.Add(_nextButton);
 
-            this.Add(controls);
+            Add(controls);
 
-            this.ApplySelection(sendChangeEvent: false, notifyBindings: false);
+            ApplySelection(sendChangeEvent: false, notifyBindings: false);
         }
 
-        public ActionButton PreviousButton => this.m_previousButton;
+        public ActionButton PreviousButton => _previousButton;
 
-        public ActionButton NextButton => this.m_nextButton;
+        public ActionButton NextButton => _nextButton;
 
-        public DropdownItem SelectedItemElement => this.m_selectedItemElement;
+        public DropdownItem SelectedItemElement => _selectedItemElement;
 
-        public PageIndicator Indicator => this.m_pageIndicator;
+        public PageIndicator Indicator => _pageIndicator;
 
         /// <summary>
         /// Without a bindItem callback, items render using object.ToString.
@@ -126,44 +126,44 @@ namespace BovineLabs.Anchor.Elements
         [CreateProperty]
         public IList sourceItems
         {
-            get => this.m_sourceItems;
+            get => _sourceItems;
             set
             {
-                var changed = !ReferenceEquals(this.m_sourceItems, value);
-                var previousCount = this.optionsCount;
-                this.m_sourceItems = value;
+                var changed = !ReferenceEquals(_sourceItems, value);
+                var previousCount = optionsCount;
+                _sourceItems = value;
 
-                this.ApplySelection(sendChangeEvent: true, notifyBindings: true);
+                ApplySelection(sendChangeEvent: true, notifyBindings: true);
 
                 if (changed)
                 {
-                    this.NotifyPropertyChanged(in SourceItemsProperty);
+                    NotifyPropertyChanged(in SourceItemsProperty);
                 }
 
-                if (previousCount != this.optionsCount)
+                if (previousCount != optionsCount)
                 {
-                    this.NotifyPropertyChanged(in OptionsCountProperty);
+                    NotifyPropertyChanged(in OptionsCountProperty);
                 }
             }
         }
 
         [CreateProperty]
-        public int optionsCount => this.m_sourceItems?.Count ?? 0;
+        public int optionsCount => _sourceItems?.Count ?? 0;
 
         [CreateProperty]
         public Dropdown.BindItemFunc bindItem
         {
-            get => this.m_bindItem;
+            get => _bindItem;
             set
             {
-                if (this.m_bindItem == value)
+                if (_bindItem == value)
                 {
                     return;
                 }
 
-                this.m_bindItem = value;
-                this.ApplySelection(sendChangeEvent: false, notifyBindings: true);
-                this.NotifyPropertyChanged(in BindItemProperty);
+                _bindItem = value;
+                ApplySelection(sendChangeEvent: false, notifyBindings: true);
+                NotifyPropertyChanged(in BindItemProperty);
             }
         }
 
@@ -174,37 +174,37 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public int selectedIndex
         {
-            get => this.m_selectedIndex;
+            get => _selectedIndex;
             set
             {
-                if (this.m_desiredSelectedIndex == value)
+                if (_desiredSelectedIndex == value)
                 {
                     return;
                 }
 
-                this.m_desiredSelectedIndex = value;
-                this.ApplySelection(sendChangeEvent: true, notifyBindings: true);
+                _desiredSelectedIndex = value;
+                ApplySelection(sendChangeEvent: true, notifyBindings: true);
             }
         }
 
         [CreateProperty]
-        public string selectedText => this.m_selectedText;
+        public string selectedText => _selectedText;
 
         [CreateProperty]
         [UxmlAttribute]
         public bool wrap
         {
-            get => this.m_wrap;
+            get => _wrap;
             set
             {
-                if (this.m_wrap == value)
+                if (_wrap == value)
                 {
                     return;
                 }
 
-                this.m_wrap = value;
-                this.RefreshButtonStates();
-                this.NotifyPropertyChanged(in WrapProperty);
+                _wrap = value;
+                RefreshButtonStates();
+                NotifyPropertyChanged(in WrapProperty);
             }
         }
 
@@ -212,19 +212,19 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public string emptyText
         {
-            get => this.m_emptyText;
+            get => _emptyText;
             set
             {
                 value ??= string.Empty;
 
-                if (this.m_emptyText == value)
+                if (_emptyText == value)
                 {
                     return;
                 }
 
-                this.m_emptyText = value;
-                this.ApplySelection(sendChangeEvent: false, notifyBindings: true);
-                this.NotifyPropertyChanged(in EmptyTextProperty);
+                _emptyText = value;
+                ApplySelection(sendChangeEvent: false, notifyBindings: true);
+                NotifyPropertyChanged(in EmptyTextProperty);
             }
         }
 
@@ -232,19 +232,19 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public string previousButtonIcon
         {
-            get => this.m_previousButtonIcon;
+            get => _previousButtonIcon;
             set
             {
                 value ??= string.Empty;
 
-                if (this.m_previousButtonIcon == value)
+                if (_previousButtonIcon == value)
                 {
                     return;
                 }
 
-                this.m_previousButtonIcon = value;
-                this.m_previousButton.icon = value;
-                this.NotifyPropertyChanged(in PreviousButtonIconProperty);
+                _previousButtonIcon = value;
+                _previousButton.icon = value;
+                NotifyPropertyChanged(in PreviousButtonIconProperty);
             }
         }
 
@@ -252,19 +252,19 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public string nextButtonIcon
         {
-            get => this.m_nextButtonIcon;
+            get => _nextButtonIcon;
             set
             {
                 value ??= string.Empty;
 
-                if (this.m_nextButtonIcon == value)
+                if (_nextButtonIcon == value)
                 {
                     return;
                 }
 
-                this.m_nextButtonIcon = value;
-                this.m_nextButton.icon = value;
-                this.NotifyPropertyChanged(in NextButtonIconProperty);
+                _nextButtonIcon = value;
+                _nextButton.icon = value;
+                NotifyPropertyChanged(in NextButtonIconProperty);
             }
         }
 
@@ -272,88 +272,88 @@ namespace BovineLabs.Anchor.Elements
         [UxmlAttribute]
         public bool showIndicator
         {
-            get => this.m_showIndicator;
+            get => _showIndicator;
             set
             {
-                if (this.m_showIndicator == value)
+                if (_showIndicator == value)
                 {
                     return;
                 }
 
-                this.m_showIndicator = value;
-                this.m_pageIndicator.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
-                this.NotifyPropertyChanged(in ShowIndicatorProperty);
+                _showIndicator = value;
+                _pageIndicator.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
+                NotifyPropertyChanged(in ShowIndicatorProperty);
             }
         }
 
         private void OnPageIndicatorValueChanged(ChangeEvent<int> evt)
         {
-            this.selectedIndex = evt.newValue;
+            selectedIndex = evt.newValue;
         }
 
         private void SelectPrevious()
         {
-            var count = this.optionsCount;
+            var count = optionsCount;
             if (count == 0)
             {
                 return;
             }
 
-            if (this.wrap)
+            if (wrap)
             {
-                var next = this.m_selectedIndex <= 0 ? count - 1 : this.m_selectedIndex - 1;
-                this.selectedIndex = next;
+                var next = _selectedIndex <= 0 ? count - 1 : _selectedIndex - 1;
+                selectedIndex = next;
                 return;
             }
 
-            if (this.m_selectedIndex > 0)
+            if (_selectedIndex > 0)
             {
-                this.selectedIndex = this.m_selectedIndex - 1;
+                selectedIndex = _selectedIndex - 1;
             }
         }
 
         private void SelectNext()
         {
-            var count = this.optionsCount;
+            var count = optionsCount;
             if (count == 0)
             {
                 return;
             }
 
-            if (this.wrap)
+            if (wrap)
             {
-                var next = this.m_selectedIndex >= count - 1 ? 0 : this.m_selectedIndex + 1;
-                this.selectedIndex = next;
+                var next = _selectedIndex >= count - 1 ? 0 : _selectedIndex + 1;
+                selectedIndex = next;
                 return;
             }
 
-            if (this.m_selectedIndex < count - 1)
+            if (_selectedIndex < count - 1)
             {
-                this.selectedIndex = this.m_selectedIndex + 1;
+                selectedIndex = _selectedIndex + 1;
             }
         }
 
         private void ApplySelection(bool sendChangeEvent, bool notifyBindings)
         {
-            var previousIndex = this.m_selectedIndex;
-            var previousText = this.m_selectedText;
+            var previousIndex = _selectedIndex;
+            var previousText = _selectedText;
 
-            this.m_selectedIndex = this.ResolveIndex(this.m_desiredSelectedIndex);
-            this.BindSelectedItem();
+            _selectedIndex = ResolveIndex(_desiredSelectedIndex);
+            BindSelectedItem();
 
-            this.m_pageIndicator.count = this.optionsCount;
-            if (this.m_selectedIndex >= 0)
+            _pageIndicator.count = optionsCount;
+            if (_selectedIndex >= 0)
             {
-                this.m_pageIndicator.SetValueWithoutNotify(this.m_selectedIndex);
+                _pageIndicator.SetValueWithoutNotify(_selectedIndex);
             }
 
-            this.RefreshButtonStates();
+            RefreshButtonStates();
 
-            if (sendChangeEvent && previousIndex != this.m_selectedIndex)
+            if (sendChangeEvent && previousIndex != _selectedIndex)
             {
-                using var evt = ChangeEvent<int>.GetPooled(previousIndex, this.m_selectedIndex);
+                using var evt = ChangeEvent<int>.GetPooled(previousIndex, _selectedIndex);
                 evt.target = this;
-                this.SendEvent(evt);
+                SendEvent(evt);
             }
 
             if (!notifyBindings)
@@ -361,30 +361,30 @@ namespace BovineLabs.Anchor.Elements
                 return;
             }
 
-            if (previousIndex != this.m_selectedIndex)
+            if (previousIndex != _selectedIndex)
             {
-                this.NotifyPropertyChanged(in SelectedIndexProperty);
+                NotifyPropertyChanged(in SelectedIndexProperty);
             }
 
-            if (previousText != this.m_selectedText)
+            if (previousText != _selectedText)
             {
-                this.NotifyPropertyChanged(in SelectedTextProperty);
+                NotifyPropertyChanged(in SelectedTextProperty);
             }
         }
 
         private void RefreshButtonStates()
         {
-            var count = this.optionsCount;
-            var canMovePrevious = count > 0 && (this.wrap || this.m_selectedIndex > 0);
-            var canMoveNext = count > 0 && (this.wrap || this.m_selectedIndex < count - 1);
+            var count = optionsCount;
+            var canMovePrevious = count > 0 && (wrap || _selectedIndex > 0);
+            var canMoveNext = count > 0 && (wrap || _selectedIndex < count - 1);
 
-            this.m_previousButton.SetEnabled(canMovePrevious);
-            this.m_nextButton.SetEnabled(canMoveNext);
+            _previousButton.SetEnabled(canMovePrevious);
+            _nextButton.SetEnabled(canMoveNext);
         }
 
         private int ResolveIndex(int desiredIndex)
         {
-            var count = this.optionsCount;
+            var count = optionsCount;
             if (count <= 0)
             {
                 return -1;
@@ -405,35 +405,35 @@ namespace BovineLabs.Anchor.Elements
 
         private string GetOptionText(int index)
         {
-            if (index < 0 || index >= this.optionsCount)
+            if (index < 0 || index >= optionsCount)
             {
-                return this.emptyText;
+                return emptyText;
             }
 
-            return this.m_sourceItems[index]?.ToString() ?? string.Empty;
+            return _sourceItems[index]?.ToString() ?? string.Empty;
         }
 
         private void BindSelectedItem()
         {
-            if (this.m_selectedIndex < 0 || this.m_selectedIndex >= this.optionsCount)
+            if (_selectedIndex < 0 || _selectedIndex >= optionsCount)
             {
-                this.m_selectedItemElement.icon = null;
-                this.m_selectedItemElement.label = this.emptyText;
-                this.m_selectedText = this.m_selectedItemElement.labelElement.text ?? string.Empty;
+                _selectedItemElement.icon = null;
+                _selectedItemElement.label = emptyText;
+                _selectedText = _selectedItemElement.labelElement.text ?? string.Empty;
                 return;
             }
 
-            if (this.bindItem != null)
+            if (bindItem != null)
             {
-                this.bindItem.Invoke(this.m_selectedItemElement, this.m_selectedIndex);
+                bindItem.Invoke(_selectedItemElement, _selectedIndex);
             }
             else
             {
-                this.m_selectedItemElement.icon = null;
-                this.m_selectedItemElement.label = this.GetOptionText(this.m_selectedIndex);
+                _selectedItemElement.icon = null;
+                _selectedItemElement.label = GetOptionText(_selectedIndex);
             }
 
-            this.m_selectedText = this.m_selectedItemElement.labelElement.text ?? string.Empty;
+            _selectedText = _selectedItemElement.labelElement.text ?? string.Empty;
         }
     }
 }

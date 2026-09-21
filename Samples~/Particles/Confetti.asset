@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68fda26f98014038a4b16f8bc4ad12cb, type: 3}
   m_Name: Confetti
   m_EditorClassIdentifier: BovineLabs.Anchor::BovineLabs.Anchor.Particles.UIParticleEffect
-  emitters:
+  _emitters:
   - Duration: 1
     StartDelay: 0
     Looping: 0

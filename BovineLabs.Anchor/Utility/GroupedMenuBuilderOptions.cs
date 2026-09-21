@@ -6,30 +6,30 @@ namespace BovineLabs.Anchor
 
         public const int DefaultMaxPrefixLength = 8;
 
-        private int maxItemsPerMenu;
-        private int maxPrefixLength;
-        private bool keepSingleItemGroups;
+        private int _maxItemsPerMenu;
+        private int _maxPrefixLength;
+        private bool _keepSingleItemGroups;
 
         public int MaxItemsPerMenu
         {
-            readonly get => this.maxItemsPerMenu <= 0 ? DefaultMaxItemsPerMenu : this.maxItemsPerMenu;
-            set => this.maxItemsPerMenu = value;
+            readonly get => _maxItemsPerMenu <= 0 ? DefaultMaxItemsPerMenu : _maxItemsPerMenu;
+            set => _maxItemsPerMenu = value;
         }
 
         public int MaxPrefixLength
         {
-            readonly get => this.maxPrefixLength <= 0 ? DefaultMaxPrefixLength : this.maxPrefixLength;
-            set => this.maxPrefixLength = value;
+            readonly get => _maxPrefixLength <= 0 ? DefaultMaxPrefixLength : _maxPrefixLength;
+            set => _maxPrefixLength = value;
         }
 
         public bool FlattenSingleItemGroups
         {
-            readonly get => !this.keepSingleItemGroups;
-            set => this.keepSingleItemGroups = !value;
+            readonly get => !_keepSingleItemGroups;
+            set => _keepSingleItemGroups = !value;
         }
 
-        internal readonly int EffectiveMaxItemsPerMenu => this.MaxItemsPerMenu < 2 ? 2 : this.MaxItemsPerMenu;
+        internal readonly int EffectiveMaxItemsPerMenu => MaxItemsPerMenu < 2 ? 2 : MaxItemsPerMenu;
 
-        internal readonly int EffectiveMaxPrefixLength => this.MaxPrefixLength < 1 ? 1 : this.MaxPrefixLength;
+        internal readonly int EffectiveMaxPrefixLength => MaxPrefixLength < 1 ? 1 : MaxPrefixLength;
     }
 }

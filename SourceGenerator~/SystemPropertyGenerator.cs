@@ -257,8 +257,8 @@
         {
             public FieldResult(FieldData fieldData, ImmutableArray<Diagnostic> diagnostics)
             {
-                this.FieldData = fieldData;
-                this.Diagnostics = diagnostics;
+                FieldData = fieldData;
+                Diagnostics = diagnostics;
             }
 
             public FieldData FieldData { get; }

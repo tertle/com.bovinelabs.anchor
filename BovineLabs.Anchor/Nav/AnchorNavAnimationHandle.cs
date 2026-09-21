@@ -6,16 +6,16 @@ namespace BovineLabs.Anchor.Nav
 
     internal sealed class AnchorNavAnimationHandle
     {
-        private readonly AnimationDescription description;
-        private readonly Action onCompleted;
+        private readonly AnimationDescription _description;
+        private readonly Action _onCompleted;
 
-        private bool completed;
+        private bool _completed;
 
         public AnchorNavAnimationHandle(VisualElement element, AnimationDescription description, Action onCompleted)
         {
-            this.Element = element;
-            this.description = description;
-            this.onCompleted = onCompleted;
+            Element = element;
+            _description = description;
+            _onCompleted = onCompleted;
         }
 
         public VisualElement Element { get; }
@@ -24,29 +24,29 @@ namespace BovineLabs.Anchor.Nav
 
         public bool TryFinalizeFromAnimation()
         {
-            if (this.completed)
+            if (_completed)
             {
                 return false;
             }
 
-            this.completed = true;
-            this.Handle = null;
+            _completed = true;
+            Handle = null;
             return true;
         }
 
         public void CompleteImmediately()
         {
-            if (this.completed)
+            if (_completed)
             {
                 return;
             }
 
-            this.completed = true;
+            _completed = true;
 
-            this.Handle?.Recycle();
-            this.Handle = null;
-            this.description.Callback?.Invoke(this.Element, 1f);
-            this.onCompleted?.Invoke();
+            Handle?.Recycle();
+            Handle = null;
+            _description.Callback?.Invoke(Element, 1f);
+            _onCompleted?.Invoke();
         }
     }
 }

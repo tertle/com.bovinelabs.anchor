@@ -6,14 +6,14 @@ namespace BovineLabs.Anchor.Nav
 
     public partial class AnchorNavHost
     {
-        private readonly Dictionary<int, AnchorNavHostSaveState> savedStates = new();
-        private int nextStateHandle = 1;
+        private readonly Dictionary<int, AnchorNavHostSaveState> _savedStates = new();
+        private int _nextStateHandle = 1;
 
         public AnchorNavHostSaveState SaveState()
         {
-            var activeItems = new List<AnchorNavHostSaveState.StackItem>(this.activeStack.Count);
+            var activeItems = new List<AnchorNavHostSaveState.StackItem>(_activeStack.Count);
 
-            foreach (var entry in this.activeStack)
+            foreach (var entry in _activeStack)
             {
                 var savedItem = CreateSavedStackItem(entry);
                 if (savedItem != null)
@@ -22,8 +22,8 @@ namespace BovineLabs.Anchor.Nav
                 }
             }
 
-            var backStackEntries = new List<AnchorNavHostSaveState.BackStackEntry>(this.backStack.Count);
-            foreach (var entry in this.backStack.Reverse())
+            var backStackEntries = new List<AnchorNavHostSaveState.BackStackEntry>(_backStack.Count);
+            foreach (var entry in _backStack.Reverse())
             {
                 var savedEntry = CreateSavedBackStackEntry(entry);
                 if (savedEntry != null)
@@ -33,9 +33,9 @@ namespace BovineLabs.Anchor.Nav
             }
 
             return new AnchorNavHostSaveState(
-                this.currentDestination,
-                this.currentPopEnterAnimation,
-                this.currentPopExitAnimation,
+                _currentDestination,
+                _currentPopEnterAnimation,
+                _currentPopExitAnimation,
                 activeItems,
                 backStackEntries);
         }
@@ -47,14 +47,14 @@ namespace BovineLabs.Anchor.Nav
                 return;
             }
 
-            this.CancelRunningAnimations();
+            CancelRunningAnimations();
 
-            while (this.activeStack.Count > 0)
+            while (_activeStack.Count > 0)
             {
-                this.RemoveActiveEntryAt(this.activeStack.Count - 1, null);
+                RemoveActiveEntryAt(_activeStack.Count - 1, null);
             }
 
-            this.backStack.Clear();
+            _backStack.Clear();
 
             if (state.BackStack != null)
             {
@@ -66,37 +66,37 @@ namespace BovineLabs.Anchor.Nav
                         savedEntry.Options?.Clone(),
                         savedEntry.Arguments?.ToArray() ?? Array.Empty<AnchorNavArgument>(),
                         snapshot);
-                    this.backStack.Push(entry);
+                    _backStack.Push(entry);
                 }
             }
 
             var activeSnapshot = CreateSnapshotFromSaved(state.ActiveStack);
             var topOptions = activeSnapshot.Top?.Options;
-            this.ApplySnapshot(activeSnapshot, null, null, topOptions);
+            ApplySnapshot(activeSnapshot, null, null, topOptions);
 
-            this.currentPopEnterAnimation = state.CurrentPopEnterAnimation;
-            this.currentPopExitAnimation = state.CurrentPopExitAnimation;
-            this.CurrentDestination = state.CurrentDestination;
+            _currentPopEnterAnimation = state.CurrentPopEnterAnimation;
+            _currentPopExitAnimation = state.CurrentPopExitAnimation;
+            CurrentDestination = state.CurrentDestination;
         }
 
         public int SaveStateHandle()
         {
-            var state = this.SaveState();
-            var handle = this.nextStateHandle++;
-            this.savedStates.Add(handle, state);
+            var state = SaveState();
+            var handle = _nextStateHandle++;
+            _savedStates.Add(handle, state);
             return handle;
         }
 
         public bool ReleaseStateHandle(int handle, bool restore = true)
         {
-            if (!this.savedStates.Remove(handle, out var state))
+            if (!_savedStates.Remove(handle, out var state))
             {
                 return false;
             }
 
             if (restore)
             {
-                this.RestoreState(state);
+                RestoreState(state);
             }
 
             return true;
@@ -104,7 +104,7 @@ namespace BovineLabs.Anchor.Nav
 
         public IAnchorNavHostReloadState CaptureReloadState()
         {
-            return new ReloadState(this.SaveState(), new Dictionary<int, AnchorNavHostSaveState>(this.savedStates), this.nextStateHandle);
+            return new ReloadState(SaveState(), new Dictionary<int, AnchorNavHostSaveState>(_savedStates), _nextStateHandle);
         }
 
         public void RestoreReloadState(IAnchorNavHostReloadState state)
@@ -121,15 +121,15 @@ namespace BovineLabs.Anchor.Nav
                     nameof(state));
             }
 
-            this.RestoreState(reloadState.NavigationState);
-            this.savedStates.Clear();
+            RestoreState(reloadState.NavigationState);
+            _savedStates.Clear();
 
             foreach (var pair in reloadState.SavedStates)
             {
-                this.savedStates.Add(pair.Key, pair.Value);
+                _savedStates.Add(pair.Key, pair.Value);
             }
 
-            this.nextStateHandle = reloadState.NextStateHandle;
+            _nextStateHandle = reloadState.NextStateHandle;
         }
 
         private static AnchorNavHostSaveState.StackItem CreateSavedStackItem(AnchorNavActiveEntry entry)
@@ -205,9 +205,9 @@ namespace BovineLabs.Anchor.Nav
         {
             public ReloadState(AnchorNavHostSaveState navigationState, IReadOnlyDictionary<int, AnchorNavHostSaveState> savedStates, int nextStateHandle)
             {
-                this.NavigationState = navigationState;
-                this.SavedStates = savedStates;
-                this.NextStateHandle = nextStateHandle;
+                NavigationState = navigationState;
+                SavedStates = savedStates;
+                NextStateHandle = nextStateHandle;
             }
 
             public AnchorNavHostSaveState NavigationState { get; }

@@ -12,14 +12,14 @@ namespace BovineLabs.Anchor.Tests.Particles
 
     public class ParticleQuadPerformanceTests
     {
-        private bool previousBurst;
-        private bool previousSynchronous;
+        private bool _previousBurst;
+        private bool _previousSynchronous;
 
         [SetUp]
         public void SetUp()
         {
-            this.previousBurst = BurstCompiler.Options.EnableBurstCompilation;
-            this.previousSynchronous = BurstCompiler.Options.EnableBurstCompileSynchronously;
+            _previousBurst = BurstCompiler.Options.EnableBurstCompilation;
+            _previousSynchronous = BurstCompiler.Options.EnableBurstCompileSynchronously;
             BurstCompiler.Options.EnableBurstCompilation = true;
             BurstCompiler.Options.EnableBurstCompileSynchronously = true;
         }
@@ -27,8 +27,8 @@ namespace BovineLabs.Anchor.Tests.Particles
         [TearDown]
         public void TearDown()
         {
-            BurstCompiler.Options.EnableBurstCompileSynchronously = this.previousSynchronous;
-            BurstCompiler.Options.EnableBurstCompilation = this.previousBurst;
+            BurstCompiler.Options.EnableBurstCompileSynchronously = _previousSynchronous;
+            BurstCompiler.Options.EnableBurstCompilation = _previousBurst;
         }
 
         [TestCase(64)]

@@ -17,34 +17,34 @@
     {
         public FieldData(INamedTypeSymbol typeSymbol, INamedTypeSymbol[] ancestors, IReadOnlyCollection<string> namespaces, FieldDeclarationSyntax field)
         {
-            this.TypeSymbol = typeSymbol;
-            this.Ancestors = ancestors;
-            this.Namespaces = namespaces;
-            this.FieldName = field.GetFieldName();
-            this.PropertyName = FormatPropertyName(this.FieldName);
-            this.FieldType = field.GetFieldType();
+            TypeSymbol = typeSymbol;
+            Ancestors = ancestors;
+            Namespaces = namespaces;
+            FieldName = field.GetFieldName();
+            PropertyName = FormatPropertyName(FieldName);
+            FieldType = field.GetFieldType();
             var typeSyntax = field.Declaration.Type;
 
             if (typeSyntax is GenericNameSyntax { Identifier: { Text: "Changed" } } changed)
             {
-                this.FieldMode = FieldMode.Changed;
-                this.GenericType = changed.TypeArgumentList.Arguments.First().ToString();
+                FieldMode = FieldMode.Changed;
+                GenericType = changed.TypeArgumentList.Arguments.First().ToString();
 
             }
             else if (typeSyntax is GenericNameSyntax { Identifier: { Text: "ChangedList" } } changedList)
             {
-                this.FieldMode = FieldMode.ChangedList;
-                this.GenericType = changedList.TypeArgumentList.Arguments.First().ToString();
+                FieldMode = FieldMode.ChangedList;
+                GenericType = changedList.TypeArgumentList.Arguments.First().ToString();
             }
             else if (typeSyntax is GenericNameSyntax { Identifier: { Text: "NativeList" } } nativeList)
             {
-                this.FieldMode = FieldMode.NativeList;
-                this.GenericType = nativeList.TypeArgumentList.Arguments.First().ToString();
+                FieldMode = FieldMode.NativeList;
+                GenericType = nativeList.TypeArgumentList.Arguments.First().ToString();
             }
             else
             {
-                this.FieldMode = FieldMode.Default;
-                this.GenericType = string.Empty;
+                FieldMode = FieldMode.Default;
+                GenericType = string.Empty;
             }
         }
 

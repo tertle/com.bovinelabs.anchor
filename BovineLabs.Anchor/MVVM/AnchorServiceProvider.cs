@@ -7,15 +7,15 @@ namespace BovineLabs.Anchor.MVVM
 
     public sealed class AnchorServiceProvider : IServiceProvider, IDisposable
     {
-        private readonly AnchorServiceCollection services;
-        private readonly Dictionary<Type, object> singletonCache = new();
-        private readonly List<object> singletonCreationOrder = new();
-        private readonly HashSet<Type> resolving = new();
-        private bool disposed;
+        private readonly AnchorServiceCollection _services;
+        private readonly Dictionary<Type, object> _singletonCache = new();
+        private readonly List<object> _singletonCreationOrder = new();
+        private readonly HashSet<Type> _resolving = new();
+        private bool _disposed;
 
         public AnchorServiceProvider(AnchorServiceCollection services)
         {
-            this.services = services ?? throw new ArgumentNullException(nameof(services));
+            _services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         public object GetService(Type serviceType)
@@ -25,7 +25,7 @@ namespace BovineLabs.Anchor.MVVM
                 throw new ArgumentNullException(nameof(serviceType));
             }
 
-            if (this.disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(AnchorServiceProvider));
             }
@@ -35,14 +35,14 @@ namespace BovineLabs.Anchor.MVVM
                 return this;
             }
 
-            if (!this.resolving.Add(serviceType))
+            if (!_resolving.Add(serviceType))
             {
                 throw new InvalidOperationException($"Circular dependency detected while resolving '{serviceType.FullName}'.");
             }
 
             try
             {
-                var descriptor = this.FindDescriptor(serviceType);
+                var descriptor = FindDescriptor(serviceType);
                 if (descriptor == null)
                 {
                     return null;
@@ -50,7 +50,7 @@ namespace BovineLabs.Anchor.MVVM
 
                 if (descriptor.IsAlias)
                 {
-                    var aliased = this.GetService(descriptor.AliasType);
+                    var aliased = GetService(descriptor.AliasType);
                     if (aliased != null && !descriptor.ServiceType.IsInstanceOfType(aliased))
                     {
                         throw new InvalidOperationException(
@@ -62,39 +62,39 @@ namespace BovineLabs.Anchor.MVVM
 
                 if (descriptor.Lifetime == AnchorServiceLifetime.Singleton)
                 {
-                    if (this.singletonCache.TryGetValue(serviceType, out var existing))
+                    if (_singletonCache.TryGetValue(serviceType, out var existing))
                     {
                         return existing;
                     }
 
-                    var singleton = this.CreateService(descriptor);
-                    this.singletonCache.Add(serviceType, singleton);
-                    this.singletonCreationOrder.Add(singleton);
+                    var singleton = CreateService(descriptor);
+                    _singletonCache.Add(serviceType, singleton);
+                    _singletonCreationOrder.Add(singleton);
                     return singleton;
                 }
 
-                return this.CreateService(descriptor);
+                return CreateService(descriptor);
             }
             finally
             {
-                this.resolving.Remove(serviceType);
+                _resolving.Remove(serviceType);
             }
         }
 
         public void Dispose()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            this.disposed = true;
+            _disposed = true;
             var disposedInstances = new List<object>();
             List<Exception> exceptions = null;
 
-            for (var i = this.singletonCreationOrder.Count - 1; i >= 0; i--)
+            for (var i = _singletonCreationOrder.Count - 1; i >= 0; i--)
             {
-                var instance = this.singletonCreationOrder[i];
+                var instance = _singletonCreationOrder[i];
                 if (instance is not IDisposable disposable || ContainsReference(disposedInstances, instance))
                 {
                     continue;
@@ -113,8 +113,8 @@ namespace BovineLabs.Anchor.MVVM
                 }
             }
 
-            this.singletonCache.Clear();
-            this.singletonCreationOrder.Clear();
+            _singletonCache.Clear();
+            _singletonCreationOrder.Clear();
 
             if (exceptions == null)
             {
@@ -144,9 +144,9 @@ namespace BovineLabs.Anchor.MVVM
 
         private AnchorServiceDescriptor FindDescriptor(Type serviceType)
         {
-            for (var i = this.services.Count - 1; i >= 0; i--)
+            for (var i = _services.Count - 1; i >= 0; i--)
             {
-                var descriptor = this.services[i];
+                var descriptor = _services[i];
                 if (descriptor.ServiceType == serviceType)
                 {
                     return descriptor;
@@ -168,7 +168,7 @@ namespace BovineLabs.Anchor.MVVM
                 return null;
             }
 
-            return this.CreateInstance(descriptor.ImplementationType);
+            return CreateInstance(descriptor.ImplementationType);
         }
 
         private object CreateInstance(Type implementationType)
@@ -178,7 +178,7 @@ namespace BovineLabs.Anchor.MVVM
                 throw new InvalidOperationException($"Service type '{implementationType.FullName}' cannot be instantiated.");
             }
 
-            var constructor = this.SelectConstructor(implementationType);
+            var constructor = SelectConstructor(implementationType);
             if (constructor == null)
             {
                 throw new InvalidOperationException($"No valid public constructor found for '{implementationType.FullName}'.");
@@ -198,7 +198,7 @@ namespace BovineLabs.Anchor.MVVM
                 }
                 else
                 {
-                    parameterValue = this.GetService(parameterType);
+                    parameterValue = GetService(parameterType);
                 }
 
                 arguments[i] = parameterValue ?? throw new InvalidOperationException(
@@ -224,7 +224,7 @@ namespace BovineLabs.Anchor.MVVM
             foreach (var constructor in constructors)
             {
                 var parameters = constructor.GetParameters();
-                if (!this.CanResolve(parameters, out var circularDependency))
+                if (!CanResolve(parameters, out var circularDependency))
                 {
                     if (circularDependency && parameters.Length > circularFallbackParameterCount)
                     {
@@ -249,7 +249,7 @@ namespace BovineLabs.Anchor.MVVM
 
         private bool CanResolve(ParameterInfo[] parameters, out bool circularDependency)
         {
-            return this.CanResolve(parameters, new HashSet<Type>(this.resolving), out circularDependency);
+            return CanResolve(parameters, new HashSet<Type>(_resolving), out circularDependency);
         }
 
         private bool CanResolve(ParameterInfo[] parameters, HashSet<Type> resolutionPath, out bool circularDependency)
@@ -264,7 +264,7 @@ namespace BovineLabs.Anchor.MVVM
                     continue;
                 }
 
-                if (this.CanResolve(parameterType, resolutionPath, out var parameterIsCircular))
+                if (CanResolve(parameterType, resolutionPath, out var parameterIsCircular))
                 {
                     continue;
                 }
@@ -290,7 +290,7 @@ namespace BovineLabs.Anchor.MVVM
                 return true;
             }
 
-            if (this.singletonCache.ContainsKey(serviceType))
+            if (_singletonCache.ContainsKey(serviceType))
             {
                 return true;
             }
@@ -303,7 +303,7 @@ namespace BovineLabs.Anchor.MVVM
 
             try
             {
-                var descriptor = this.FindDescriptor(serviceType);
+                var descriptor = FindDescriptor(serviceType);
                 if (descriptor == null)
                 {
                     return false;
@@ -311,7 +311,7 @@ namespace BovineLabs.Anchor.MVVM
 
                 if (descriptor.IsAlias)
                 {
-                    return this.CanResolve(descriptor.AliasType, resolutionPath, out circularDependency);
+                    return CanResolve(descriptor.AliasType, resolutionPath, out circularDependency);
                 }
 
                 if (descriptor.IsInstance)
@@ -328,7 +328,7 @@ namespace BovineLabs.Anchor.MVVM
                 var constructors = implementationType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
                 foreach (var constructor in constructors)
                 {
-                    if (this.CanResolve(constructor.GetParameters(), resolutionPath, out var constructorIsCircular))
+                    if (CanResolve(constructor.GetParameters(), resolutionPath, out var constructorIsCircular))
                     {
                         return true;
                     }

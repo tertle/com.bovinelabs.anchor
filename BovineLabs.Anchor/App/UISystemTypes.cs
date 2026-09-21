@@ -12,14 +12,14 @@
     public class UISystemTypes : KSettingsBase<UISystemTypes, ulong>
     {
         [SerializeField]
-        private NavigationComponent[] types = Array.Empty<NavigationComponent>();
+        private NavigationComponent[] _types = Array.Empty<NavigationComponent>();
 
-        public override IEnumerable<NameValue<ulong>> Keys => this.Types
+        public override IEnumerable<NameValue<ulong>> Keys => Types
             .Where(s => s.Component != null)
             .SelectMany(s => s.States.Select(n => new NameValue<ulong>(n, s.Component.GetStableTypeHash())))
             .ToArray();
 
-        public IReadOnlyList<NavigationComponent> Types => this.types;
+        public IReadOnlyList<NavigationComponent> Types => _types;
 
         [Serializable]
         public class NavigationComponent

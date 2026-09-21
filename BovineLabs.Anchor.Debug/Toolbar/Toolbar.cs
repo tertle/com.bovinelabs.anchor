@@ -32,18 +32,18 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         [NoAutoStaticsCleanup]
         private static long nextOwnerId;
 
-        private readonly SortedDictionary<int, Registration> registrations = new();
-        private readonly IServiceProvider serviceProvider;
-        private readonly ToolbarViewModel viewModel;
-        private readonly ILocalStorageService storageService;
-        private readonly long ownerId;
+        private readonly SortedDictionary<int, Registration> _registrations = new();
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ToolbarViewModel _viewModel;
+        private readonly ILocalStorageService _storageService;
+        private readonly long _ownerId;
 
-        private ToolbarView currentView;
-        private string activeTabName;
-        private int nextRegistrationId;
-        private bool isRibbonVisible;
-        private bool isToolbarHidden;
-        private bool disposed;
+        private ToolbarView _currentView;
+        private string _activeTabName;
+        private int _nextRegistrationId;
+        private bool _isRibbonVisible;
+        private bool _isToolbarHidden;
+        private bool _disposed;
 
         [Preserve]
         public Toolbar(IServiceProvider serviceProvider, ToolbarViewModel viewModel, ILocalStorageService storageService)
@@ -58,24 +58,24 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                 throw new InvalidOperationException("Only one Anchor toolbar service can be active.");
             }
 
-            this.ownerId = ++nextOwnerId;
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-            this.storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
-            this.activeTabName = storageService.GetValue(ActiveTabKey, string.Empty);
-            this.isRibbonVisible = storageService.GetValue(ShowRibbonKey, false);
-            this.isToolbarHidden = !Show.Data;
+            _ownerId = ++nextOwnerId;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            _storageService = storageService ?? throw new ArgumentNullException(nameof(storageService));
+            _activeTabName = storageService.GetValue(ActiveTabKey, string.Empty);
+            _isRibbonVisible = storageService.GetValue(ShowRibbonKey, false);
+            _isToolbarHidden = !Show.Data;
 
-            SetBurstActiveTab(this.activeTabName);
+            SetBurstActiveTab(_activeTabName);
 
             try
             {
-                this.RegisterAutoToolbars(autoToolbarTypes ?? throw new ArgumentNullException(nameof(autoToolbarTypes)));
+                RegisterAutoToolbars(autoToolbarTypes ?? throw new ArgumentNullException(nameof(autoToolbarTypes)));
                 Current = this;
             }
             catch
             {
-                this.Dispose();
+                Dispose();
                 throw;
             }
         }
@@ -85,28 +85,28 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         internal static bool IsAvailable => Current != null;
 
-        internal string ActiveTabName => this.activeTabName;
+        internal string ActiveTabName => _activeTabName;
 
-        internal bool IsRibbonVisible => this.isRibbonVisible;
+        internal bool IsRibbonVisible => _isRibbonVisible;
 
-        internal bool IsToolbarHidden => this.isToolbarHidden;
+        internal bool IsToolbarHidden => _isToolbarHidden;
 
         public VisualElement CreateRootVisualElement()
         {
-            this.ThrowIfDisposed();
-            this.ReleaseRootVisualElement();
+            ThrowIfDisposed();
+            ReleaseRootVisualElement();
 
-            var view = new ToolbarView(this, this.viewModel);
+            var view = new ToolbarView(this, _viewModel);
 
             try
             {
-                foreach (var registration in this.registrations.Values)
+                foreach (var registration in _registrations.Values)
                 {
-                    this.Materialize(view, registration);
+                    Materialize(view, registration);
                 }
 
                 view.CompleteComposition();
-                this.currentView = view;
+                _currentView = view;
                 return view;
             }
             catch
@@ -118,30 +118,30 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         public void ReleaseRootVisualElement()
         {
-            var view = this.currentView;
-            this.currentView = null;
+            var view = _currentView;
+            _currentView = null;
             view?.Dispose();
         }
 
         public void Dispose()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            this.disposed = true;
+            _disposed = true;
             Current = null;
             ToolbarViewData.ActiveTab.Data = default;
 
-            var regArray = this.registrations.Values.ToArray();
-            this.registrations.Clear();
+            var regArray = _registrations.Values.ToArray();
+            _registrations.Clear();
 
-            this.ReleaseRootVisualElement();
+            ReleaseRootVisualElement();
 
             foreach (var registration in regArray)
             {
-                this.viewModel.RemoveSelection(registration.ElementName);
+                _viewModel.RemoveSelection(registration.ElementName);
                 registration.Release();
             }
         }
@@ -150,7 +150,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
             where TModel : class, IToolbarElement, IBindingObjectNotify<TData>, new()
             where TData : unmanaged
         {
-            this.ThrowIfDisposed();
+            ThrowIfDisposed();
             ValidatePresentationMetadata(tabName, elementName);
 
             data = null;
@@ -181,7 +181,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                     loaded = true;
                 }
 
-                return this.AddRegistration(tabName, elementName, model, () => ReleaseDynamicModel<TModel, TData>(model, isSerializable, saveKey));
+                return AddRegistration(tabName, elementName, model, () => ReleaseDynamicModel<TModel, TData>(model, isSerializable, saveKey));
             }
             catch
             {
@@ -202,13 +202,13 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         internal bool Remove(ToolbarRegistrationHandle handle)
         {
-            if (handle.OwnerId != this.ownerId || !this.registrations.Remove(handle.RegistrationId, out var registration))
+            if (handle.OwnerId != _ownerId || !_registrations.Remove(handle.RegistrationId, out var registration))
             {
                 return false;
             }
 
-            this.currentView?.RemoveRegistration(handle.RegistrationId);
-            this.viewModel.RemoveSelection(registration.ElementName);
+            _currentView?.RemoveRegistration(handle.RegistrationId);
+            _viewModel.RemoveSelection(registration.ElementName);
             registration.Release();
             return true;
         }
@@ -220,20 +220,20 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         internal void SetActiveTab(string tabName)
         {
-            this.activeTabName = tabName ?? string.Empty;
-            SetBurstActiveTab(this.activeTabName);
-            this.storageService.SetValue(ActiveTabKey, this.activeTabName);
+            _activeTabName = tabName ?? string.Empty;
+            SetBurstActiveTab(_activeTabName);
+            _storageService.SetValue(ActiveTabKey, _activeTabName);
         }
 
         internal void SetRibbonVisible(bool visible)
         {
-            this.isRibbonVisible = visible;
-            this.storageService.SetValue(ShowRibbonKey, visible);
+            _isRibbonVisible = visible;
+            _storageService.SetValue(ShowRibbonKey, visible);
         }
 
         internal void SetToolbarHidden(bool hidden)
         {
-            this.isToolbarHidden = hidden;
+            _isToolbarHidden = hidden;
         }
 
         private static void ValidatePresentationMetadata(string tabName, string elementName)
@@ -312,7 +312,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                     throw new InvalidOperationException($"{entry.Type} is not defined as an Anchor service.");
                 }
 
-                if (this.serviceProvider.GetService(entry.Type) is not IToolbarElement model)
+                if (_serviceProvider.GetService(entry.Type) is not IToolbarElement model)
                 {
                     throw new InvalidOperationException($"Unable to resolve auto-toolbar model '{entry.Type.FullName}'.");
                 }
@@ -328,7 +328,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
                         loaded = true;
                     }
 
-                    this.AddRegistration(tabName, entry.Attribute.ElementName, model, () =>
+                    AddRegistration(tabName, entry.Attribute.ElementName, model, () =>
                     {
                         if (model is ILoadable registeredLoadable)
                         {
@@ -350,28 +350,28 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private ToolbarRegistrationHandle AddRegistration(string tabName, string elementName, IToolbarElement model, Action release)
         {
-            var registrationId = ++this.nextRegistrationId;
-            var handle = new ToolbarRegistrationHandle(this.ownerId, registrationId);
+            var registrationId = ++_nextRegistrationId;
+            var handle = new ToolbarRegistrationHandle(_ownerId, registrationId);
             var registration = new Registration(handle, tabName, elementName, model, release);
 
-            this.registrations.Add(registrationId, registration);
+            _registrations.Add(registrationId, registration);
 
             try
             {
-                this.viewModel.AddSelection(elementName);
+                _viewModel.AddSelection(elementName);
 
-                if (this.currentView != null)
+                if (_currentView != null)
                 {
-                    this.Materialize(this.currentView, registration);
+                    Materialize(_currentView, registration);
                 }
 
                 return handle;
             }
             catch
             {
-                this.currentView?.RemoveRegistration(registrationId);
-                this.viewModel.RemoveSelection(elementName);
-                this.registrations.Remove(registrationId);
+                _currentView?.RemoveRegistration(registrationId);
+                _viewModel.RemoveSelection(elementName);
+                _registrations.Remove(registrationId);
                 throw;
             }
         }
@@ -387,7 +387,7 @@ namespace BovineLabs.Anchor.Debug.Toolbar
 
         private void ThrowIfDisposed()
         {
-            if (this.disposed)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(nameof(Toolbar));
             }
@@ -397,11 +397,11 @@ namespace BovineLabs.Anchor.Debug.Toolbar
         {
             public Registration(ToolbarRegistrationHandle handle, string tabName, string elementName, IToolbarElement model, Action release)
             {
-                this.Handle = handle;
-                this.TabName = tabName;
-                this.ElementName = elementName;
-                this.Model = model;
-                this.Release = release;
+                Handle = handle;
+                TabName = tabName;
+                ElementName = elementName;
+                Model = model;
+                Release = release;
             }
 
             public ToolbarRegistrationHandle Handle { get; }

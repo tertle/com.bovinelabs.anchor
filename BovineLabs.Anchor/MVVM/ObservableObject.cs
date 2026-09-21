@@ -17,8 +17,8 @@ namespace BovineLabs.Anchor.MVVM
 
         event EventHandler<BindablePropertyChangedEventArgs> INotifyBindablePropertyChanged.propertyChanged
         {
-            add => this.BindablePropertyChanged += value;
-            remove => this.BindablePropertyChanged -= value;
+            add => BindablePropertyChanged += value;
+            remove => BindablePropertyChanged -= value;
         }
 
         protected virtual void OnPropertyChanging(PropertyChangingEventArgs e)
@@ -28,12 +28,12 @@ namespace BovineLabs.Anchor.MVVM
                 throw new ArgumentNullException(nameof(e));
             }
 
-            this.PropertyChanging?.Invoke(this, e);
+            PropertyChanging?.Invoke(this, e);
         }
 
         protected void OnPropertyChanging([CallerMemberName] string propertyName = null)
         {
-            this.OnPropertyChanging(new PropertyChangingEventArgs(propertyName));
+            OnPropertyChanging(new PropertyChangingEventArgs(propertyName));
         }
 
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -43,13 +43,13 @@ namespace BovineLabs.Anchor.MVVM
                 throw new ArgumentNullException(nameof(e));
             }
 
-            this.PropertyChanged?.Invoke(this, e);
-            this.BindablePropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(e.PropertyName));
+            PropertyChanged?.Invoke(this, e);
+            BindablePropertyChanged?.Invoke(this, new BindablePropertyChangedEventArgs(e.PropertyName));
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
 
         protected bool SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null)
@@ -59,9 +59,9 @@ namespace BovineLabs.Anchor.MVVM
                 return false;
             }
 
-            this.OnPropertyChanging(propertyName);
+            OnPropertyChanging(propertyName);
             field = newValue;
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
 
@@ -77,9 +77,9 @@ namespace BovineLabs.Anchor.MVVM
                 return false;
             }
 
-            this.OnPropertyChanging(propertyName);
+            OnPropertyChanging(propertyName);
             field = newValue;
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
 
@@ -95,9 +95,9 @@ namespace BovineLabs.Anchor.MVVM
                 return false;
             }
 
-            this.OnPropertyChanging(propertyName);
+            OnPropertyChanging(propertyName);
             callback(newValue);
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
 
@@ -118,9 +118,9 @@ namespace BovineLabs.Anchor.MVVM
                 return false;
             }
 
-            this.OnPropertyChanging(propertyName);
+            OnPropertyChanging(propertyName);
             callback(newValue);
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
 
@@ -141,9 +141,9 @@ namespace BovineLabs.Anchor.MVVM
                 return false;
             }
 
-            this.OnPropertyChanging(propertyName);
+            OnPropertyChanging(propertyName);
             callback(model, newValue);
-            this.OnPropertyChanged(propertyName);
+            OnPropertyChanged(propertyName);
             return true;
         }
     }

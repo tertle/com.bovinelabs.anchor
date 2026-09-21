@@ -14,13 +14,13 @@
         [Preserve]
         public AppUIToolbarView(AppUIToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
             var theme = new Dropdown
             {
                 defaultMessage = "Theme",
-                bindItem = (item, i) => item.label = this.Model.Themes[i].ToString(),
+                bindItem = (item, i) => item.label = Model.Themes[i].ToString(),
             };
 
             theme.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -34,7 +34,7 @@
             var scale = new Dropdown
             {
                 defaultMessage = "Scale",
-                bindItem = (item, i) => item.label = this.Model.Scales[i].ToString(),
+                bindItem = (item, i) => item.label = Model.Scales[i].ToString(),
             };
 
             scale.SetBinding(nameof(Dropdown.sourceItems), new DataBinding
@@ -45,12 +45,12 @@
 
             scale.SetBinding(nameof(Dropdown.selectedIndex), new DataBinding { dataSourcePath = new PropertyPath(nameof(AppUIToolbarViewModel.ScaleValue)) });
 
-            this.Add(new Text("Theme"));
-            this.Add(theme);
-            this.Add(new Text("Scale"));
-            this.Add(scale);
+            Add(new Text("Theme"));
+            Add(theme);
+            Add(new Text("Scale"));
+            Add(scale);
         }
 
-        private AppUIToolbarViewModel Model => (AppUIToolbarViewModel)this.dataSource;
+        private AppUIToolbarViewModel Model => (AppUIToolbarViewModel)dataSource;
     }
 }

@@ -15,25 +15,25 @@
     [AutoToolbar("Quality")]
     public class QualityToolbarViewModel : ObservableObject, IToolbarElement
     {
-        private int qualityValue;
+        private int _qualityValue;
 
         [CreateProperty]
         public int QualityValue
         {
-            get => this.qualityValue;
+            get => _qualityValue;
             set
             {
-                if (this.SetProperty(ref this.qualityValue, value))
+                if (SetProperty(ref _qualityValue, value))
                 {
-                    QualitySettings.SetQualityLevel(this.qualityValue);
+                    QualitySettings.SetQualityLevel(_qualityValue);
                 }
             }
         }
 
         public QualityToolbarViewModel()
         {
-            this.QualityChoices = QualitySettings.names.ToList();
-            this.QualityValue = QualitySettings.GetQualityLevel();
+            QualityChoices = QualitySettings.names.ToList();
+            QualityValue = QualitySettings.GetQualityLevel();
         }
 
         [CreateProperty(ReadOnly = true)]
@@ -46,7 +46,7 @@
 
         public void Update()
         {
-            this.QualityValue = QualitySettings.GetQualityLevel();
+            QualityValue = QualitySettings.GetQualityLevel();
         }
     }
 }

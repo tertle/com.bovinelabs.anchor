@@ -7,11 +7,11 @@ namespace BovineLabs.Anchor
     [UxmlObject]
     public partial class ClassBinding : CustomBinding, IDataSourceProvider
     {
-        private IVisualElementScheduledItem scheduledItem;
+        private IVisualElementScheduledItem _scheduledItem;
 
         public ClassBinding()
         {
-            this.updateTrigger = BindingUpdateTrigger.OnSourceChanged;
+            updateTrigger = BindingUpdateTrigger.OnSourceChanged;
         }
 
         [CreateProperty]
@@ -32,28 +32,28 @@ namespace BovineLabs.Anchor
         [UxmlAttribute("data-source-path")]
         public string DataSourcePathString
         {
-            get => this.dataSourcePath.ToString();
-            set => this.dataSourcePath = new PropertyPath(value);
+            get => dataSourcePath.ToString();
+            set => dataSourcePath = new PropertyPath(value);
         }
 
         protected override BindingResult Update(in BindingContext context)
         {
-            this.CancelScheduledUpdate();
+            CancelScheduledUpdate();
 
-            if (string.IsNullOrWhiteSpace(this.Class))
+            if (string.IsNullOrWhiteSpace(Class))
             {
                 return new BindingResult(BindingStatus.Failure, "[UI Toolkit] ClassBinding requires a non-empty class name.");
             }
 
-            var result = this.TryResolveBoolean(in context, out var enabled);
+            var result = TryResolveBoolean(in context, out var enabled);
 
             if (result.status != BindingStatus.Success)
             {
-                this.SetState(context.targetElement, this.Delay, this.Class, false);
+                SetState(context.targetElement, Delay, Class, false);
                 return result;
             }
 
-            this.SetState(context.targetElement, this.Delay, this.Class, enabled);
+            SetState(context.targetElement, Delay, Class, enabled);
             return result;
         }
 
@@ -61,7 +61,7 @@ namespace BovineLabs.Anchor
         {
             if (delay)
             {
-                this.scheduledItem = element.schedule.Execute(() => element.EnableInClassList(className, state));
+                _scheduledItem = element.schedule.Execute(() => element.EnableInClassList(className, state));
             }
             else
             {
@@ -71,19 +71,19 @@ namespace BovineLabs.Anchor
 
         protected override void OnDeactivated(in BindingActivationContext context)
         {
-            this.CancelScheduledUpdate();
+            CancelScheduledUpdate();
             base.OnDeactivated(in context);
 
-            if (!string.IsNullOrWhiteSpace(this.Class))
+            if (!string.IsNullOrWhiteSpace(Class))
             {
-                context.targetElement.RemoveFromClassList(this.Class);
+                context.targetElement.RemoveFromClassList(Class);
             }
         }
 
         private void CancelScheduledUpdate()
         {
-            this.scheduledItem?.Pause();
-            this.scheduledItem = null;
+            _scheduledItem?.Pause();
+            _scheduledItem = null;
         }
 
         private BindingResult TryResolveBoolean(in BindingContext context, out bool value)

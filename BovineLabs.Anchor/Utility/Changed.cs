@@ -15,8 +15,8 @@
 
         public Changed(T value, bool hasChanged = true)
         {
-            this.Value = value;
-            this.HasChanged = hasChanged;
+            Value = value;
+            HasChanged = hasChanged;
         }
 
         /// <summary>

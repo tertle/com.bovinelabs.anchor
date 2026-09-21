@@ -7,20 +7,20 @@ namespace BovineLabs.Anchor.Nav
     public sealed class AnchorNavArgument : IEquatable<AnchorNavArgument>
     {
         [SerializeField]
-        private string name;
+        private string _name;
 
         [SerializeField]
-        private string value;
+        private string _value;
 
         public AnchorNavArgument(string name, string value)
         {
-            this.name = name;
-            this.value = value;
+            _name = name;
+            _value = value;
         }
 
-        public string Name => this.name;
+        public string Name => _name;
 
-        public string Value => this.value;
+        public string Value => _value;
 
         public static AnchorNavArgument String(string name, string value)
         {
@@ -44,21 +44,21 @@ namespace BovineLabs.Anchor.Nav
                 return false;
             }
 
-            return this.name == other.name &&
-                   this.value == other.value;
+            return _name == other._name &&
+                   _value == other._value;
         }
 
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as AnchorNavArgument);
+            return Equals(obj as AnchorNavArgument);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = this.name != null ? this.name.GetHashCode() : 0;
-                return (hashCode * 397) ^ (this.value != null ? this.value.GetHashCode() : 0);
+                var hashCode = _name != null ? _name.GetHashCode() : 0;
+                return (hashCode * 397) ^ (_value != null ? _value.GetHashCode() : 0);
             }
         }
     }

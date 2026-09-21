@@ -116,14 +116,14 @@ namespace BovineLabs.Anchor.Tests.App
         [Test]
         public void ComponentRequirementConstructor_RequiresMatchingComponentBeforeUpdate()
         {
-            var system = this.World.CreateSystem<TestRequireUpdateSystem>();
-            ref var testSystem = ref this.WorldUnmanaged.GetUnsafeSystemRef<TestRequireUpdateSystem>(system);
+            var system = World.CreateSystem<TestRequireUpdateSystem>();
+            ref var testSystem = ref WorldUnmanaged.GetUnsafeSystemRef<TestRequireUpdateSystem>(system);
 
-            system.Update(this.WorldUnmanaged);
+            system.Update(WorldUnmanaged);
             Assert.AreEqual(0, testSystem.UpdateCount);
 
-            this.Manager.CreateEntity(typeof(TestRequiredComponent));
-            system.Update(this.WorldUnmanaged);
+            Manager.CreateEntity(typeof(TestRequiredComponent));
+            system.Update(WorldUnmanaged);
 
             Assert.AreEqual(1, testSystem.UpdateCount);
         }
@@ -136,12 +136,12 @@ namespace BovineLabs.Anchor.Tests.App
 
             public void Load()
             {
-                this.InitializeCount++;
+                InitializeCount++;
             }
 
             public void Unload()
             {
-                this.DisposeCount++;
+                DisposeCount++;
             }
         }
 
@@ -165,7 +165,7 @@ namespace BovineLabs.Anchor.Tests.App
 
             public void OnUpdate(ref SystemState state)
             {
-                this.UpdateCount++;
+                UpdateCount++;
             }
         }
     }

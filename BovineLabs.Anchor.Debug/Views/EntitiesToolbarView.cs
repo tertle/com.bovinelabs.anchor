@@ -13,10 +13,10 @@
         [Preserve]
         public EntitiesToolbarView(EntitiesToolbarViewModel viewModel)
         {
-            this.dataSource = viewModel;
-            this.AddToClassList(UssClassName);
+            dataSource = viewModel;
+            AddToClassList(UssClassName);
 
-            this.Add(KeyValueGroup.Create(viewModel,
+            Add(KeyValueGroup.Create(viewModel,
                 new[]
                 {
                     ("Entities", nameof(EntitiesToolbarViewModel.Entities)),

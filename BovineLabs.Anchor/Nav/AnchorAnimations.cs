@@ -8,52 +8,52 @@ namespace BovineLabs.Anchor.Nav
     {
         [SerializeField]
         [Tooltip("Animation used when presenting this destination.")]
-        private AnchorNavAnimation enterAnimation;
+        private AnchorNavAnimation _enterAnimation;
 
         [SerializeField]
         [Tooltip("Animation used when leaving this destination.")]
-        private AnchorNavAnimation exitAnimation;
+        private AnchorNavAnimation _exitAnimation;
 
         [SerializeField]
         [Tooltip("Animation played when this destination returns via a pop.")]
-        private AnchorNavAnimation popEnterAnimation;
+        private AnchorNavAnimation _popEnterAnimation;
 
         [SerializeField]
         [Tooltip("Animation played when this destination is popped off the stack.")]
-        private AnchorNavAnimation popExitAnimation;
+        private AnchorNavAnimation _popExitAnimation;
 
         public AnchorNavAnimation EnterAnim
         {
-            get => this.enterAnimation;
-            set => this.enterAnimation = value;
+            get => _enterAnimation;
+            set => _enterAnimation = value;
         }
 
         public AnchorNavAnimation ExitAnim
         {
-            get => this.exitAnimation;
-            set => this.exitAnimation = value;
+            get => _exitAnimation;
+            set => _exitAnimation = value;
         }
 
         public AnchorNavAnimation PopEnterAnim
         {
-            get => this.popEnterAnimation;
-            set => this.popEnterAnimation = value;
+            get => _popEnterAnimation;
+            set => _popEnterAnimation = value;
         }
 
         public AnchorNavAnimation PopExitAnim
         {
-            get => this.popExitAnimation;
-            set => this.popExitAnimation = value;
+            get => _popExitAnimation;
+            set => _popExitAnimation = value;
         }
 
         public AnchorAnimations Clone()
         {
             return new AnchorAnimations()
             {
-                enterAnimation = this.enterAnimation,
-                exitAnimation = this.exitAnimation,
-                popEnterAnimation = this.popEnterAnimation,
-                popExitAnimation = this.popExitAnimation,
+                _enterAnimation = _enterAnimation,
+                _exitAnimation = _exitAnimation,
+                _popEnterAnimation = _popEnterAnimation,
+                _popExitAnimation = _popExitAnimation,
             };
         }
     }

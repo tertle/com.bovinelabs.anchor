@@ -8,7 +8,7 @@
     {
         private void Awake()
         {
-            var tr = (RectTransform)this.transform;
+            var tr = (RectTransform)transform;
 
             tr.anchorMin = Vector2.zero;
             tr.anchorMax = Vector2.one;

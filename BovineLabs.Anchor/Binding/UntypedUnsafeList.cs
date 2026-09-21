@@ -19,12 +19,12 @@
 
         internal void Resize(int length, int elementSize, int elementAlignment)
         {
-            if (length > this.Capacity)
+            if (length > Capacity)
             {
-                this.SetCapacity(length, elementSize, elementAlignment);
+                SetCapacity(length, elementSize, elementAlignment);
             }
 
-            this.Length = length;
+            Length = length;
         }
 
         internal void SetCapacity(int capacity, int elementSize, int elementAlignment)
@@ -32,7 +32,7 @@
             var newCapacity = math.max(capacity, CollectionHelper.CacheLineSize / elementSize);
             newCapacity = math.ceilpow2(newCapacity);
 
-            if (newCapacity == this.Capacity)
+            if (newCapacity == Capacity)
             {
                 return;
             }
@@ -43,20 +43,20 @@
 
             if (newCapacity > 0)
             {
-                newPointer = this.Allocator.Allocate(elementSize, elementAlignment, newCapacity);
+                newPointer = Allocator.Allocate(elementSize, elementAlignment, newCapacity);
 
-                if (this.Ptr != null && this.Capacity > 0)
+                if (Ptr != null && Capacity > 0)
                 {
-                    var itemsToCopy = math.min(newCapacity, this.Capacity);
+                    var itemsToCopy = math.min(newCapacity, Capacity);
                     var bytesToCopy = itemsToCopy * elementSize;
-                    UnsafeUtility.MemCpy(newPointer, this.Ptr, bytesToCopy);
+                    UnsafeUtility.MemCpy(newPointer, Ptr, bytesToCopy);
                 }
             }
 
-            AllocatorManager.Free(this.Allocator, this.Ptr, elementSize, elementAlignment, this.Capacity);
+            AllocatorManager.Free(Allocator, Ptr, elementSize, elementAlignment, Capacity);
 
-            this.Ptr = newPointer;
-            this.Capacity = newCapacity;
+            Ptr = newPointer;
+            Capacity = newCapacity;
         }
     }
 }

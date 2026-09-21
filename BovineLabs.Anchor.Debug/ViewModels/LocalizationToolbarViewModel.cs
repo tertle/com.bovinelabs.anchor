@@ -16,22 +16,22 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     [AutoToolbar("Localization")]
     public class LocalizationToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
-        private int selectedLocale = -1;
+        private int _selectedLocale = -1;
 
-        private List<string> locales = new();
+        private List<string> _locales = new();
 
-        private bool loaded;
+        private bool _loaded;
 
         [CreateProperty]
         public int SelectedLocale
         {
-            get => this.selectedLocale;
+            get => _selectedLocale;
             set
             {
-                if (this.SetProperty(ref this.selectedLocale, value) && LocalizationSettings.HasSettings)
+                if (SetProperty(ref _selectedLocale, value) && LocalizationSettings.HasSettings)
                 {
-                    LocalizationSettings.SelectedLocale = this.SelectedLocale != -1
-                        ? LocalizationSettings.Instance.AvailableLocales[this.SelectedLocale]
+                    LocalizationSettings.SelectedLocale = SelectedLocale != -1
+                        ? LocalizationSettings.Instance.AvailableLocales[SelectedLocale]
                         : null;
                 }
             }
@@ -40,8 +40,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public List<string> Locales
         {
-            get => this.locales;
-            set => this.SetProperty(ref this.locales, value);
+            get => _locales;
+            set => SetProperty(ref _locales, value);
         }
 
         public VisualElement CreateElement()
@@ -51,50 +51,50 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         public void Load()
         {
-            if (this.loaded || !LocalizationSettings.HasSettings)
+            if (_loaded || !LocalizationSettings.HasSettings)
             {
                 return;
             }
 
-            this.loaded = true;
-            LocalizationSettings.InitializationCompleted += this.OnInitializationCompleted;
+            _loaded = true;
+            LocalizationSettings.InitializationCompleted += OnInitializationCompleted;
             if (LocalizationSettings.Instance.IsInitialized)
             {
-                this.OnInitializationCompleted();
+                OnInitializationCompleted();
             }
         }
 
         public void Unload()
         {
-            if (!this.loaded)
+            if (!_loaded)
             {
                 return;
             }
 
-            this.loaded = false;
-            LocalizationSettings.InitializationCompleted -= this.OnInitializationCompleted;
-            LocalizationSettings.SelectedLocaleChanged -= this.OnSelectedLocaleChanged;
+            _loaded = false;
+            LocalizationSettings.InitializationCompleted -= OnInitializationCompleted;
+            LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
         }
 
         private void OnInitializationCompleted()
         {
-            if (!this.loaded)
+            if (!_loaded)
             {
                 return;
             }
 
-            this.Locales = new List<string>(LocalizationSettings.Instance.AvailableLocales.Select(s => s.ToString()));
+            Locales = new List<string>(LocalizationSettings.Instance.AvailableLocales.Select(s => s.ToString()));
 
             var locale = LocalizationSettings.SelectedLocale;
-            this.SelectedLocale = locale != null ? this.Locales.IndexOf(locale.ToString()) : -1;
+            SelectedLocale = locale != null ? Locales.IndexOf(locale.ToString()) : -1;
 
-            LocalizationSettings.SelectedLocaleChanged -= this.OnSelectedLocaleChanged;
-            LocalizationSettings.SelectedLocaleChanged += this.OnSelectedLocaleChanged;
+            LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
+            LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
         }
 
         private void OnSelectedLocaleChanged(Locale locale)
         {
-            this.SelectedLocale = locale != null ? this.Locales.IndexOf(locale.ToString()) : -1;
+            SelectedLocale = locale != null ? Locales.IndexOf(locale.ToString()) : -1;
         }
     }
 }

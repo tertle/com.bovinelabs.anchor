@@ -10,7 +10,7 @@ namespace BovineLabs.Anchor.Audio
         public const string DefaultProfileKey = "default";
 
         [SerializeField]
-        private Dictionary<string, AnchorAudioProfile> profiles = new()
+        private Dictionary<string, AnchorAudioProfile> _profiles = new()
         {
             { DefaultProfileKey, new AnchorAudioProfile { Key = DefaultProfileKey } },
         };
@@ -19,7 +19,7 @@ namespace BovineLabs.Anchor.Audio
         {
             var profileDictionary = new Dictionary<string, AnchorAudioProfile>(StringComparer.Ordinal);
 
-            foreach (var profile in this.profiles)
+            foreach (var profile in _profiles)
             {
                 if (string.IsNullOrWhiteSpace(profile.Key))
                 {

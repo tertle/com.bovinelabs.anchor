@@ -13,7 +13,7 @@ namespace BovineLabs.Anchor.Debug.Systems
     [UpdateInGroup(typeof(ToolbarSystemGroup))]
     public partial struct PhysicsToolbarSystem : ISystem, ISystemStartStop
     {
-        private ToolbarHelper<PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data> toolbar;
+        private ToolbarHelper<PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data> _toolbar;
 
         public void OnCreate(ref SystemState state)
         {
@@ -23,30 +23,30 @@ namespace BovineLabs.Anchor.Debug.Systems
                 return;
             }
 
-            this.toolbar = new ToolbarHelper<PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data>(ref state, "Physics");
+            _toolbar = new ToolbarHelper<PhysicsToolbarViewModel, PhysicsToolbarViewModel.Data>(ref state, "Physics");
         }
 
         public void OnStartRunning(ref SystemState state)
         {
-            this.toolbar.Load();
+            _toolbar.Load();
 
-            this.UpdateData(ref state, ref this.toolbar.Binding);
+            UpdateData(ref state, ref _toolbar.Binding);
         }
 
         public void OnStopRunning(ref SystemState state)
         {
-            this.toolbar.Unload();
+            _toolbar.Unload();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            if (!this.toolbar.IsVisible())
+            if (!_toolbar.IsVisible())
             {
                 return;
             }
 
-            this.UpdateData(ref state, ref this.toolbar.Binding);
+            UpdateData(ref state, ref _toolbar.Binding);
         }
 
         private void UpdateData(ref SystemState state, ref PhysicsToolbarViewModel.Data data)
