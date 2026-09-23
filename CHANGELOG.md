@@ -3,10 +3,11 @@
 ## [2.0.0-pre.4] - Unreleased
 
 ### Added
-* Bindable native UI particles with visibility policies, panel-space birth transforms, completion events, and visual-generation cleanup.
+* Bindable native UI particles with visibility policies, panel-space birth transforms, completion events, bounded panel capacity, emission scaling, and visual-generation cleanup.
 * Particle effect inspector preview, authored sample effects, and lifecycle/performance fixtures.
 
 ### Changed
+* `AnchorLinearProgress` now loads its shader from `AnchorSettings.LinearProgressShader`; assign the package shader on existing settings assets that previously relied on Resources loading.
 * Private instance fields now use underscore prefixes. Migrate external Anchor settings, navigation/audio/particle assets and serialized view-model data directly to the new keys before importing this source; generated/public binding names are unchanged. No serialization aliases were added.
 * Optional localization integration now targets the Localization Runtime module; App UI language contexts and the localization toolbar use module initialization, locales, and Smart Strings.
 
