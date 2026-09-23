@@ -19,7 +19,7 @@ namespace BovineLabs.Anchor.Elements
 
         public AnchorTouchSliderFloat()
         {
-            _progressElement = this.Q<VisualElement>(TouchSlider<float>.progressUssClassName);
+            _progressElement = this.Q<VisualElement>(progressUssClassName);
             AnchorTouchSlider.Initialize(this);
         }
 
