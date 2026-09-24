@@ -83,10 +83,10 @@ namespace BovineLabs.Anchor.Debug.ViewModels
                 return;
             }
 
-            Locales = new List<string>(LocalizationSettings.Instance.AvailableLocales.Select(s => s.ToString()));
+            Locales = new List<string>(LocalizationSettings.Instance.AvailableLocales.Select(s => s.LocaleName));
 
             var locale = LocalizationSettings.SelectedLocale;
-            SelectedLocale = locale != null ? Locales.IndexOf(locale.ToString()) : -1;
+            SelectedLocale = locale != null ? LocalizationSettings.Instance.AvailableLocales.ToList().IndexOf(locale) : -1;
 
             LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
             LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
@@ -94,7 +94,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private void OnSelectedLocaleChanged(Locale locale)
         {
-            SelectedLocale = locale != null ? Locales.IndexOf(locale.ToString()) : -1;
+            SelectedLocale = locale != null ? LocalizationSettings.Instance.AvailableLocales.ToList().IndexOf(locale) : -1;
         }
     }
 }
