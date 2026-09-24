@@ -11,6 +11,9 @@
 * Private instance fields now use underscore prefixes. Migrate external Anchor settings, navigation/audio/particle assets and serialized view-model data directly to the new keys before importing this source; generated/public binding names are unchanged. No serialization aliases were added.
 * Optional localization integration now targets the Localization Runtime module; App UI language contexts and the localization toolbar use module initialization, locales, and Smart Strings.
 
+### Fixed
+* Localization toolbar locale labels and selection now match the chosen locale.
+
 ## [2.0.0-pre.3] - 2026-09-18
 
 ### Added
