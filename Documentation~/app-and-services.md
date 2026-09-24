@@ -39,7 +39,8 @@ See [Navigation](navigation.md) for destination setup, state semantics, actions,
 
 ## Configure a project app
 
-The following builder adds an application service with constructor injection and eagerly resolves it after normal app initialization. In a project, place each top-level type in its own same-named file; they are shown together here to keep the example readable.
+The following builder adds an application service with constructor injection and eagerly resolves it after normal app initialization. Keep the
+`GameAppBuilder` script separate from the profile service contract and implementation; they are shown together here to keep the example readable.
 
 ```csharp
 namespace MyGame.UI
