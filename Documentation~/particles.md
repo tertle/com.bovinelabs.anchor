@@ -132,7 +132,7 @@ last repaint to clear old geometry. Draws split at 16,383 quads; normalized orig
 
 ## Samples and scope
 
-Import **Native UI particles** from Package Manager. Open `ParticleSample.unity`, enter Play mode and click **Play all**, or open **BovineLabs > Samples > Anchor Particles**. The sample includes
+Import **Native UI particles** from Package Manager. Open `ParticleSample.unity`, enter Play mode and click **Play all**, or open **BovineLabs > Samples > Anchor Particles Preview**. The sample includes
 editable Sparkle, Confetti, Dust and Layered assets, original procedural soft-dot art, clipped and explicit-overlay placements,
 pause/clear and effects-disabled controls. Effects start only on request. The presenter uses Anchor RelayCommands, resolves controls
 once, and unregisters on disposal. In an Anchor app create it in OnVisualGenerationInitialized and dispose it in

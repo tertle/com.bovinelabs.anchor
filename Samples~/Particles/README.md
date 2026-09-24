@@ -4,7 +4,7 @@ Import **Native UI particles** from Package Manager. Open `ParticleSample.unity`
 The scene shows animated button sparkle, clipped confetti, ambient dust and an explicitly placed layered overlay.
 Use Stop emitting, Pause, Resume, Clear, Effects enabled and Hide cards to explore playback and visibility.
 
-For an independent Editor preview, open **BovineLabs > Samples > Anchor Particles** and click **Play all**.
+For an independent Editor preview, open **BovineLabs > Samples > Anchor Particles Preview** and click **Play all**.
 Select Sparkle, Confetti, Dust or Layered to edit the effect and use its inspector preview. Previews start only on request.
 `RuntimeParticles.uxml` and `RuntimeParticles.uss` author the layout; `ParticleSamplePresenter` wires the controls and commands.
 A separate `ParticleSampleController` supports using the same UXML with an existing UIDocument.
