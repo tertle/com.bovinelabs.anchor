@@ -2,6 +2,8 @@ root = true
 
 # C# preferences for this standalone BovineLabs package.
 [*.cs]
+csharp_new_line_before_open_brace = control_blocks
+csharp_preserve_single_line_blocks = false
 indent_style = space
 indent_size = 4
 max_line_length = 160
