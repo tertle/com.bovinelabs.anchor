@@ -211,7 +211,13 @@ namespace Example.Debug
 
 Each helper registration creates an independent model and pinned data instance, even when several worlds use the same model type. The model creates a fresh visual projection for the current toolbar root. Do not mark the view as a service or cache it on the model.
 
-Keep panels compact. Prefer AppUI `Text` for values, `Toggle` for booleans, `ActionButton` for commands, and short row or column layouts. `KeyValueGroup.Create` is useful for a few aligned readouts; see [Adapter elements](adapter-elements.md).
+Keep each toolbar group's content within the rendered height of five standard single-line elements. Labels, control heights, wrapping, and vertical spacing count toward this limit. Split additional controls into a separate group instead of extending the ribbon vertically. Prefer AppUI `Text` for values, `Toggle` for booleans, `ActionButton` for commands, and short row or column layouts. `KeyValueGroup.Create` is useful for a few aligned readouts; see [Adapter elements](adapter-elements.md).
+
+## Rendering wireframe
+
+The built-in Wireframe group contains a single dropdown with Off, Wireframe, Solid Wireframe, and Shaded Wireframe modes. Rendering remains a separate group with five counter rows. The dropdown uses URP's Rendering Debugger settings, applies to all cameras including Entities Graphics, and reflects changes made in the Rendering Debugger. Off restores ordinary rendering.
+
+In players, URP rendering diagnostics require the Checked or Debug **Managed Code Variant** (`UNITY_ENABLE_CHECKS`). The dropdown is disabled in Instrumented players. In **Project Settings > Graphics > Shader Stripping**, disable **Strip Runtime Debug Shaders** so the debug shader variants and resources survive the build. Release players omit the Anchor debug toolbar entirely.
 
 ## ToolbarHelper lifecycle
 

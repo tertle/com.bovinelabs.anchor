@@ -3,6 +3,7 @@
 ## [2.0.0-pre.4] - Unreleased
 
 ### Added
+* A compact Wireframe debug toolbar group using URP's Rendering Debugger modes, including Entities Graphics support.
 * Bindable native UI particles with visibility policies, panel-space birth transforms, completion events, bounded panel capacity, emission scaling, and visual-generation cleanup.
 * Particle effect inspector preview, authored sample effects, and lifecycle/performance fixtures.
 
