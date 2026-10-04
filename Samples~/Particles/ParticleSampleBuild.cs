@@ -74,7 +74,6 @@ namespace BovineLabs.Anchor.Particles.Sample
                     target = BuildTarget.StandaloneWindows64,
                     subtarget = (int)StandaloneBuildSubtarget.Player,
                     options = BuildOptions.Development | BuildOptions.StrictMode,
-                    extraScriptingDefines = new[] { "UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP" },
                 });
                 if (report.summary.result != BuildResult.Succeeded)
                 {

@@ -69,7 +69,8 @@ temporarily enables frame timing and selects DX12, then restores project setting
 It also restores the active build profile and the Editor development toggle. The scripted build explicitly selects
 `StandaloneBuildSubtarget.Player` and `BuildOptions.Development | BuildOptions.StrictMode`; game build profiles must not supply
 their scenes to this experiment. Addressables content generation is disabled only during this UI-only build and then restored.
-`UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP` isolates the UI experiment from automatic ECS worlds.
+The historical fixture supplied `UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP` as a Player-build option to isolate the UI experiment from automatic ECS worlds.
+The current animated sample adds no scripting defines and uses the host project's normal ECS bootstrap.
 Use the repository's approved headless/connected workflow. Do not run alongside an Editor occupying the same project.
 
 Launch with `-force-d3d12 -screen-fullscreen 0 -screen-width 1600 -screen-height 1000 --particle-results <absolute-directory>`.

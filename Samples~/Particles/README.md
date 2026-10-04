@@ -13,6 +13,7 @@ A separate `ParticleSampleController` supports using the same UXML with an exist
 
 The optional build entry point is `BovineLabs.Anchor.Particles.Sample.ParticleSampleBuild.Build`.
 It explicitly regenerates this sample's scene and produces `Artifacts/AnchorParticles/Player/AnchorParticles.exe`, outside Unity's temporary directory.
+The build uses the host project's normal ECS bootstrap and adds no scripting defines. Account for the host's ECS workload when comparing whole-frame measurements.
 Use IL2CPP while the project's CoreCLR build support is broken.
 
 Run the Player visibly with `-force-d3d12 -screen-fullscreen 0 -screen-width 1600 -screen-height 1000 --particle-runtime-results <absolute-output-directory>`.
