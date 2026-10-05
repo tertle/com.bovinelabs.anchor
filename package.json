@@ -3,7 +3,7 @@
   "description": "UI and toolkit framework based on Unity App UI",
   "version": "2.0.0-pre.4",
   "unity": "6000.7",
-  "unityRelease": "0b1",
+  "unityRelease": "0b3",
   "displayName": "BovineLabs Anchor",
   "license": "MIT",
   "documentationUrl": "https://gitlab.com/tertle/com.bovinelabs.anchor/-/blob/main/Documentation~/index.md",
