@@ -9,6 +9,7 @@
     using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Assertions;
+    using UnityEngine.Rendering;
     using UnityEngine.Rendering.Universal;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
@@ -769,7 +770,8 @@
             cam.rect = rect;
 
             var additional = cam.GetComponent<UniversalAdditionalCameraData>();
-            if (additional != null && additional.scriptableRenderer.SupportsCameraStackingType(CameraRenderType.Base))
+            if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset && additional != null &&
+                additional.scriptableRenderer is { } renderer && renderer.SupportsCameraStackingType(CameraRenderType.Base))
             {
                 foreach (var camera in additional.cameraStack)
                 {
