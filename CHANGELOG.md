@@ -2,9 +2,6 @@
 
 ## [2.0.0-pre.4] - Unreleased
 
-### Fixed
-* The debug toolbar resizes the main camera without dereferencing a missing URP renderer when the active render pipeline is absent or invalid.
-
 ### Added
 * A compact Wireframe debug toolbar group using URP's Rendering Debugger modes, including Entities Graphics support.
 * Bindable native UI particles with visibility policies, panel-space birth transforms, completion events, bounded panel capacity, emission scaling, and visual-generation cleanup.
@@ -17,6 +14,8 @@
 * Private instance fields now use underscore prefixes. Migrate external Anchor settings, navigation/audio assets and serialized view-model data directly to the new keys before importing this source; generated/public binding names are unchanged. No serialization aliases were added.
 * Optional localization integration now targets the Localization Runtime module; App UI language contexts and the localization toolbar use module initialization, locales, and Smart Strings.
 
+### Fixed
+* The debug toolbar resizes the main camera without dereferencing a missing URP renderer when the active render pipeline is absent or invalid.
 
 ## [2.0.0-pre.3] - 2026-09-18
 
