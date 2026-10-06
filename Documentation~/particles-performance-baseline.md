@@ -1,5 +1,7 @@
 # BL-302 measured particle baseline
 
+> Historical evidence from the retired particle measurement harness. Measurements and acceptance limits below remain unchanged. Use [Anchor Showcase](../Samples~/Showcase/README.md) for current sample entry points.
+
 Measured 20 September 2026 on Windows 11, Ryzen 9 9950X3D, RTX 4070, Unity 6000.7.0b1. Player: Windows x64 IL2CPP, Development/Strict, DX12, 1600 x 1000, VSync 0, uncapped, seed 7. The same machine, authored workloads and Burst settings were used before and after. Another workspace Editor was open; this is a workstation operating envelope, not a hardware-independent guarantee.
 
 Baseline root: `862f1b5689818d95ee41cf49408df3251a22f2fb`; Anchor: `a482af6bee1057becfe4f3bac3c98c07adc57938`. The before Player contains the completed BL-301 runtime with only measurement-harness changes. The after Player contains the BL-302 working changes. CoreCLR was not used because its unrelated package Burst build failures were already established in BL-301. The original project backend/settings were restored after building.
@@ -16,7 +18,7 @@ Baseline root: `862f1b5689818d95ee41cf49408df3251a22f2fb`; Anchor: `a482af6bee10
 
 ## Capture validity and interpretation
 
-Each Player workload has five runs of 120 warmup and 600 measured frames. The original 19-case BL-299 static matrix was rerun from the existing imported historical harness, with its workloads unchanged. The current runtime harness adds ten matched live-count/emitter combinations, each active, hidden, paused, idle and detach/reattach: 50 cases, 150,000 captured frames per version. Including static cases, the matched before/after evidence contains 414,000 frames.
+Each Player workload has five runs of 120 warmup and 600 measured frames. The original 19-case BL-299 static matrix was rerun from the existing imported historical harness, with its workloads unchanged. The BL-302 runtime harness adds ten matched live-count/emitter combinations, each active, hidden, paused, idle and detach/reattach: 50 cases, 150,000 captured frames per version. Including static cases, the matched before/after evidence contains 414,000 frames.
 
 The historical harness had capacity-one ProfilerRecorders without wraparound, which froze marker values after the first sample. Those preliminary captures are excluded. Both accepted captures use StartImmediately | Default (including wraparound). Hidden/paused effects are populated before changing their state; every retained runtime case verifies its exact live count.
 
@@ -155,11 +157,11 @@ A full 1,000-quad repaint writes 256,000 vertex bytes and 12,000 index bytes; 20
 - Quality tests cover fractional looping bursts across step partitions, changes to zero and back without suppressed replay, bounded overload counters and invalid scales. Existing tests retain deterministic motion, transformed/reflected births, shared revision ownership, chunk limits and stable compaction coverage.
 - Repaint tests cover unchanged pause, changed tint, moved paused panel-space renderer, current-call live counts, final-death invalidation and repeated empty Clear. Tests create no project assets.
 
-## Reproduction and evidence
+## Historical evidence
 
 Local raw evidence is in the assigned workspace under `Artifacts/BL302`: `BeforeStaticCorrected`, `BeforeRuntimeCorrected`, `AfterStatic`, `AfterRuntime`, the Before/After XML and compact test logs, and BeforeBuildCorrected/AfterBuild logs. The original benchmark Players are retained locally (BeforePlayer and AfterPlayer). Preliminary frozen-recorder captures contain EXCLUDED.txt and are not comparison evidence.
 
-Use the Unity target-selection procedure and the narrow EditMode particle namespace with !Performance or Performance explicitly. The imported historical static harness is evidence only and is not reintroduced as a second shipping sample. The current sample uses ParticleSampleBuild.Build, writes outside Temp, and runs visibly with `-force-d3d12 -screen-fullscreen 0 -screen-width 1600 -screen-height 1000 --particle-runtime-results <directory>`. After runtime-complete.txt, run `python summarize-runtime.py <before-directory> <after-directory>`. See the sample README and particles.md for capacity/quality policy.
+The retired runtime harness used `ParticleSampleBuild.Build`, wrote captures outside Temp, and summarized matched before/after directories. Those build and capture scripts are no longer shipped. The recorded revisions identify the measured implementation; see [particles.md](particles.md) for current capacity and quality policy.
 
 
 ## Supplemental repeats and acceptance limits

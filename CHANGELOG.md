@@ -9,7 +9,7 @@
 
 ### Changed
 * Unity 6000.7.0b3 or newer is required.
-* The particle sample build now uses the host project's normal ECS bootstrap instead of disabling automatic system bootstrapping with a scripting define.
+* One Anchor Showcase import replaces the Basic UI and Native UI particles samples, with a generated scene and button bar for bindings, collections, particles, animations and Burst ECS examples.
 * `AnchorLinearProgress` now loads its shader from `AnchorSettings.LinearProgressShader`; assign the package shader on existing settings assets that previously relied on Resources loading.
 * Private instance fields now use underscore prefixes. Migrate external Anchor settings, navigation/audio assets and serialized view-model data directly to the new keys before importing this source; generated/public binding names are unchanged. No serialization aliases were added.
 * Optional localization integration now targets the Localization Runtime module; App UI language contexts and the localization toolbar use module initialization, locales, and Smart Strings.

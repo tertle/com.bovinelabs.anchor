@@ -1,6 +1,6 @@
 # Historical native quad rendering experiment (BL-299)
 
-> Archived evidence: the static-quad fixture and its scripts have been removed. Commands and type names below describe the historical implementation, not the current sample. Use [the animated particle sample](../Samples~/Particles/README.md) for current entry points.
+> Historical evidence: the static-quad fixture and its scripts have been removed. Type names and capture procedures below describe the historical implementation. Use [Anchor Showcase](../Samples~/Showcase/README.md) for current entry points.
 
 This is a rendering and measurement fixture, not the particle simulation or a released `AnchorParticles` control.
 The sample's types are experimental. `ParticleQuad` and `ParticleQuadMesh` are the shared unmanaged input and mesh conversion.
@@ -55,27 +55,23 @@ Detach releases native input; reattach reconstructs the predefined fixture. Rege
 Empty, paused, zero-size and hidden controls skip repaint requests. Hidden ancestors are checked separately from the control's own style.
 Clear invalidates once to remove the last mesh. Decorations ignore picking and focus.
 
-## Reproduction
+## Historical fixture setup
 
-Import `Samples~/Particles` into the project's `Assets` as a single sample folder, preserving its metadata.
-The isolated sample assembly requires Anchor, Collections and Mathematics. The existing Anchor test assembly stays Editor-only.
+The fixture was imported from `Samples~/Particles` into the project's `Assets` as a single sample folder, preserving its metadata.
+Its isolated assembly required Anchor, Collections and Mathematics. The existing Anchor test assembly stayed Editor-only.
 Unity Performance Testing **6.7.0** is installed in this Shattered checkout (confirmed by its live package manifest and run metadata);
 only a test assembly reference was added. The transitive dependency request of 3.2.0 does not identify the installed built-in version.
 No new runtime package dependency was added.
 
-The sample's explicit authoring/build entry point is `BovineLabs.Anchor.Particles.Sample.ParticleFixtureBuild.Build`.
-It creates the sample scene, builds a Windows x64 development Player at `Temp/AnchorParticles/Player/AnchorParticles.exe`,
-temporarily enables frame timing and selects DX12, then restores project settings in `finally`.
-It also restores the active build profile and the Editor development toggle. The scripted build explicitly selects
-`StandaloneBuildSubtarget.Player` and `BuildOptions.Development | BuildOptions.StrictMode`; game build profiles must not supply
-their scenes to this experiment. Addressables content generation is disabled only during this UI-only build and then restored.
+The fixture's authoring/build entry point was `BovineLabs.Anchor.Particles.Sample.ParticleFixtureBuild.Build`.
+It created the sample scene, built a Windows x64 development Player at `Temp/AnchorParticles/Player/AnchorParticles.exe`,
+temporarily enabled frame timing and selected DX12, then restored project settings in `finally`.
+It also restored the active build profile and the Editor development toggle. The scripted build explicitly selected
+`StandaloneBuildSubtarget.Player` and `BuildOptions.Development | BuildOptions.StrictMode`, with fixture scenes selected independently of game build profiles.
+Addressables content generation was disabled only during this UI-only build and then restored.
 The historical fixture supplied `UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP` as a Player-build option to isolate the UI experiment from automatic ECS worlds.
-The current animated sample adds no scripting defines and uses the host project's normal ECS bootstrap.
-Use the repository's approved headless/connected workflow. Do not run alongside an Editor occupying the same project.
-
-Launch with `-force-d3d12 -screen-fullscreen 0 -screen-width 1600 -screen-height 1000 --particle-results <absolute-directory>`.
-Without the results argument the scene is a manual visual harness. Keep window state and resolution stable during measurement.
-Use `python summarize.py <absolute-directory>` after `complete.txt` exists.
+The retired harness selected DX12 at 1600 x 1000 in a window, accepted `--particle-results` for capture output and wrote `complete.txt` before summarization.
+These build and capture entry points are not included in Showcase.
 
 The fixed matrix includes empty UI, 100 idle/paused/hidden controls, 64/256/1,000/5,000/20,000 quads,
 matched totals across 1/32/100 controls, large overlap, shared/multiple textures, masking and two panels.
@@ -139,15 +135,8 @@ The compiler reports these as auto-layout structs. The final headless build exit
 before reporting the failures. These types are outside the particle helper. Disabling Burst or changing the scripting backend
 would produce a different experiment, so neither was used to manufacture a passing result.
 
-Reproduce after importing the sample:
-
-```powershell
-unity --non-interactive run <absolute-project-path> --timeout 1800 -- `
-    -executeMethod BovineLabs.Anchor.Particles.Sample.ParticleFixtureBuild.Build -logFile <absolute-build-log>
-```
-
 No successful Player, Player timing table, screenshot, clipping/opacity pass, lifecycle pass or additive capability result is claimed.
-The sample contains those checks and capture paths, but they require the build blocker to be resolved before acceptance.
+The historical fixture contained those checks and capture paths, but the recorded build blocker prevented acceptance.
 The BL-299 core gate remains unverified. On 19 September 2026 the user explicitly authorized BL-300 implementation and Editor
 validation while deferring Player testing and all builds. That override permits the runtime work; it does not supply the missing
 Player evidence. See [the runtime measurements](particles-runtime-benchmarks.md) for BL-300's separate Editor results.

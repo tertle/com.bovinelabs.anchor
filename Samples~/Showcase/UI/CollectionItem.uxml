@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements" xmlns:binding="BovineLabs.Anchor" editor-extension-mode="False">
+    <ui:VisualElement class="collection-item">
+        <Bindings>
+            <binding:ClassBinding property="selected-class" class="collection-item--selected" data-source-path="Selected"/>
+        </Bindings>
+        <ui:Label class="sample-card-title">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="Title" binding-mode="ToTarget"/>
+            </Bindings>
+        </ui:Label>
+        <ui:Label class="sample-muted">
+            <Bindings>
+                <ui:DataBinding property="text" data-source-path="ChargeText" binding-mode="ToTarget"/>
+            </Bindings>
+        </ui:Label>
+        <a:AnchorLinearProgress variant="Determinate" class="collection-item-progress">
+            <Bindings>
+                <ui:DataBinding property="value" data-source-path="Charge" binding-mode="ToTarget"/>
+            </Bindings>
+        </a:AnchorLinearProgress>
+        <ui:VisualElement class="sample-actions collection-item-actions">
+            <a:AnchorButton title="Select" size="S">
+                <Bindings>
+                    <ui:DataBinding property="clickable.command" data-source-path="SelectCommand" binding-mode="ToTarget"/>
+                </Bindings>
+            </a:AnchorButton>
+            <a:AnchorButton title="+20%" size="S">
+                <Bindings>
+                    <ui:DataBinding property="clickable.command" data-source-path="ChargeUpCommand" binding-mode="ToTarget"/>
+                </Bindings>
+            </a:AnchorButton>
+            <a:AnchorButton title="−20%" size="S">
+                <Bindings>
+                    <ui:DataBinding property="clickable.command" data-source-path="DischargeCommand" binding-mode="ToTarget"/>
+                </Bindings>
+            </a:AnchorButton>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

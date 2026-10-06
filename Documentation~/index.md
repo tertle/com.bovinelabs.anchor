@@ -21,9 +21,12 @@ Anchor provides:
 4. Add [adapter elements](adapter-elements.md) when the project needs Anchor's App UI-backed controls.
 5. Add the [debug toolbar](debug-toolbar.md) to development builds that need live ECS and app controls.
 
+Import **Anchor Showcase** to explore bindings, collections, particles, animations and Burst ECS in one scene. Choose **BovineLabs > Samples > Anchor Play**;
+see the [Showcase README](../Samples~/Showcase/README.md) for generated assets and sample ownership.
+
 ## Requirements and assemblies
 
-Anchor 2.0.0-pre.3 declares Unity 6000.7, `com.bovinelabs.core` 2.0.0-pre.3, Unity App UI 3.0.0-pre.1, and Universal Render Pipeline 17.7.0 in `package.json`.
+Anchor 2.0.0-pre.4 declares Unity 6000.7, `com.bovinelabs.core` 2.0.0-pre.4, Unity App UI 3.0.0-pre.1, and Universal Render Pipeline 17.7.0 in `package.json`.
 
 All Anchor assemblies have `autoReferenced` disabled. Reference only the surfaces the consuming assembly uses:
 

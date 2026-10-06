@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="animation-popup" class="animation-route animation-popup-backdrop">
+        <ui:VisualElement class="sample-card animation-popup">
+            <ui:Label text="Popup layer" class="sample-card-title" />
+            <ui:Label text="The underlying destination stays visible. Closing plays the registered exit animation before removing this layer." class="sample-description" />
+            <ui:Button name="animation-close-button" text="Close popup" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

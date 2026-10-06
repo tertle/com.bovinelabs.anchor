@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="animation-details" class="animation-route animation-screen animation-screen--details">
+        <ui:Label text="Details" class="sample-card-title" />
+        <ui:Label text="Enter and exit animations run on forward navigation. Back plays the saved pop-enter and pop-exit animations." class="sample-description" />
+        <ui:VisualElement class="sample-actions">
+            <ui:Button name="animation-back-button" text="Back to home" />
+            <ui:Button name="animation-details-popup-button" text="Open popup" />
+        </ui:VisualElement>
+        <ui:Label text="Try switching presets before going back; the saved transition still owns this route." class="sample-muted" />
+    </ui:VisualElement>
+</ui:UXML>

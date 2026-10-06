@@ -1,0 +1,56 @@
+.particle-controls {
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.particle-controls > .unity-slider {
+    min-width: 240px;
+    flex-grow: 1;
+}
+
+.particle-controls > .unity-integer-field {
+    width: 240px;
+    flex-shrink: 0;
+}
+
+.particle-stage {
+    position: relative;
+    min-height: 300px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.particle-cards {
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.sample-card.particle-card {
+    position: relative;
+    min-width: 280px;
+    min-height: 140px;
+    flex-basis: 42%;
+    flex-grow: 1;
+}
+
+.particle-readout {
+    font-size: 20px;
+    white-space: normal;
+}
+
+.particle-card--clipped {
+    overflow: hidden;
+}
+
+.particle-source-button {
+    margin-top: 20px;
+    min-height: 32px;
+}
+
+.particle-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}

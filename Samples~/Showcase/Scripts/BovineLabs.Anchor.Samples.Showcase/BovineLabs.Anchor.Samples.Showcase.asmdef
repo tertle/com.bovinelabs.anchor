@@ -1,0 +1,17 @@
+{
+    "name": "BovineLabs.Anchor.Samples.Showcase",
+    "references": [
+        "BovineLabs.Anchor",
+        "BovineLabs.Anchor.Adapters",
+        "BovineLabs.Core",
+        "Unity.AppUI",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Mathematics",
+        "Unity.Scenes"
+    ],
+    "allowUnsafeCode": true,
+    "autoReferenced": false
+}

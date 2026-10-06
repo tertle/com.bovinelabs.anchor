@@ -1,0 +1,90 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements" xmlns:binding="BovineLabs.Anchor" editor-extension-mode="False">
+    <Style src="Collections.uss"/>
+    <ui:ScrollView class="sample-page" data-source-type="BovineLabs.Anchor.Samples.Showcase.BindingSampleViewModel, BovineLabs.Anchor.Samples.Showcase" horizontal-scroller-visibility="Hidden">
+        <ui:VisualElement class="sample-header">
+            <ui:Label text="Observable bindings" class="sample-title"/>
+            <ui:Label text="Move charge in either slider, arm the system and launch. Every readout and command observes the same managed state." class="sample-description"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-row">
+            <ui:VisualElement class="sample-card binding-controls">
+                <ui:Label text="Two-way controls" class="sample-card-title"/>
+                <ui:Slider label="Charge" low-value="0" high-value="1" show-input-field="true">
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="Charge" binding-mode="TwoWay"/>
+                    </Bindings>
+                </ui:Slider>
+                <a:AnchorTouchSliderFloat label="Same charge · touch or type" low-value="0" high-value="1" step="0.05" shift-step="0.25">
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="Charge" binding-mode="TwoWay"/>
+                    </Bindings>
+                </a:AnchorTouchSliderFloat>
+                <ui:Toggle label="Arm the launch system">
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="Armed" binding-mode="TwoWay"/>
+                    </Bindings>
+                </ui:Toggle>
+                <ui:VisualElement class="sample-actions">
+                    <a:AnchorButton name="launch" title="Launch · costs 25%">
+                        <Bindings>
+                            <ui:DataBinding property="clickable.command" data-source-path="LaunchCommand" binding-mode="ToTarget"/>
+                        </Bindings>
+                    </a:AnchorButton>
+                    <a:AnchorButton title="Recharge">
+                        <Bindings>
+                            <ui:DataBinding property="clickable.command" data-source-path="RechargeCommand" binding-mode="ToTarget"/>
+                        </Bindings>
+                    </a:AnchorButton>
+                    <a:AnchorButton title="Drain">
+                        <Bindings>
+                            <ui:DataBinding property="clickable.command" data-source-path="DrainCommand" binding-mode="ToTarget"/>
+                        </Bindings>
+                    </a:AnchorButton>
+                    <a:AnchorButton title="Reset">
+                        <Bindings>
+                            <ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget"/>
+                        </Bindings>
+                    </a:AnchorButton>
+                </ui:VisualElement>
+                <ui:Label text="The launch command needs an armed system and at least 25% charge. Its generated CanExecute gate updates the button automatically." class="sample-muted"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="sample-card binding-readout">
+                <ui:Label text="One state, several presentations" class="sample-card-title"/>
+                <ui:Label class="sample-value">
+                    <Bindings>
+                        <ui:DataBinding property="text" data-source-path="ChargeText" binding-mode="ToTarget"/>
+                    </Bindings>
+                </ui:Label>
+                <a:AnchorLinearProgress name="charge-progress" variant="Determinate" class="binding-progress">
+                    <Bindings>
+                        <ui:DataBinding property="value" data-source-path="Charge" binding-mode="ToTarget"/>
+                        <ui:DataBinding property="bufferValue" data-source-path="BufferValue" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorLinearProgress>
+                <ui:VisualElement class="sample-row binding-meter-row">
+                    <a:AnchorLinearProgress direction="Vertical" variant="Determinate" class="binding-progress-vertical">
+                        <Bindings>
+                            <ui:DataBinding property="value" data-source-path="Charge" binding-mode="ToTarget"/>
+                        </Bindings>
+                    </a:AnchorLinearProgress>
+                    <ui:VisualElement class="binding-state">
+                        <Bindings>
+                            <binding:ClassBinding property="ready-class" class="binding-state--ready" data-source-path="CanLaunch"/>
+                        </Bindings>
+                        <ui:Label class="sample-card-title">
+                            <Bindings>
+                                <ui:DataBinding property="text" data-source-path="ReadinessText" binding-mode="ToTarget"/>
+                            </Bindings>
+                        </ui:Label>
+                        <ui:Label class="sample-muted">
+                            <Bindings>
+                                <ui:DataBinding property="text" data-source-path="LaunchText" binding-mode="ToTarget"/>
+                            </Bindings>
+                        </ui:Label>
+                        <ui:Label text="A boolean ClassBinding changes this card's appearance when launch becomes available." class="sample-muted"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label text="The solid bar is current charge. The faint buffer previews 20% more. Computed text and buffer properties declare DependsOn so they refresh only when their source changes." class="sample-muted"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

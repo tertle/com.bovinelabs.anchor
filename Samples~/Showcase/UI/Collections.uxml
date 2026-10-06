@@ -1,0 +1,76 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements" editor-extension-mode="False">
+    <Style src="Collections.uss"/>
+    <ui:ScrollView class="sample-page" data-source-type="BovineLabs.Anchor.Samples.Showcase.CollectionSampleViewModel, BovineLabs.Anchor.Samples.Showcase" horizontal-scroller-visibility="Hidden">
+        <ui:VisualElement class="sample-header">
+            <ui:Label text="Collections and row templates" class="sample-title"/>
+            <ui:Label text="The grid and accordion share a collection of observable relay rows. Add or remove rows, then change a relay in either view." class="sample-description"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-card">
+            <ui:VisualElement class="sample-actions">
+                <a:AnchorButton name="collection-add" title="Add relay">
+                    <Bindings>
+                        <ui:DataBinding property="clickable.command" data-source-path="AddCommand" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorButton>
+                <a:AnchorButton title="Remove selected / last">
+                    <Bindings>
+                        <ui:DataBinding property="clickable.command" data-source-path="RemoveCommand" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorButton>
+                <a:AnchorButton title="Charge all">
+                    <Bindings>
+                        <ui:DataBinding property="clickable.command" data-source-path="ChargeAllCommand" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorButton>
+                <a:AnchorButton title="Clear">
+                    <Bindings>
+                        <ui:DataBinding property="clickable.command" data-source-path="ClearCommand" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorButton>
+                <a:AnchorButton title="Reset six relays">
+                    <Bindings>
+                        <ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorButton>
+            </ui:VisualElement>
+            <ui:Label class="sample-value">
+                <Bindings>
+                    <ui:DataBinding property="text" data-source-path="CountText" binding-mode="ToTarget"/>
+                </Bindings>
+            </ui:Label>
+            <ui:Label class="sample-muted">
+                <Bindings>
+                    <ui:DataBinding property="text" data-source-path="TotalText" binding-mode="ToTarget"/>
+                </Bindings>
+            </ui:Label>
+            <ui:Label class="sample-muted">
+                <Bindings>
+                    <ui:DataBinding property="text" data-source-path="SelectionText" binding-mode="ToTarget"/>
+                </Bindings>
+            </ui:Label>
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-row collection-views">
+            <ui:VisualElement class="sample-card collection-view">
+                <ui:Label text="Virtualized grid" class="sample-card-title"/>
+                <ui:Label text="Rows recycle as you scroll. Their template receives each relay as its data source." class="sample-muted"/>
+                <a:AnchorGridView name="relay-grid" item-template="CollectionItem.uxml" selection-type="None" column-count="2" item-height="174" class="collection-grid">
+                    <Bindings>
+                        <ui:DataBinding property="itemsSource" data-source-path="Items" binding-mode="ToTarget"/>
+                    </Bindings>
+                </a:AnchorGridView>
+            </ui:VisualElement>
+            <ui:VisualElement class="sample-card collection-view">
+                <ui:Label text="Accordion" class="sample-card-title"/>
+                <ui:Label text="Expand a relay to edit its charge. Both controls share the same row objects." class="sample-muted"/>
+                <ui:ScrollView class="collection-accordion-scroll" horizontal-scroller-visibility="Hidden">
+                    <a:AnchorAccordion name="relay-accordion" item-template="CollectionAccordionItem.uxml">
+                        <Bindings>
+                            <ui:DataBinding property="itemsSource" data-source-path="Items" binding-mode="ToTarget"/>
+                        </Bindings>
+                    </a:AnchorAccordion>
+                </ui:ScrollView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label text="Collection commands publish a replacement array so the accordion rebuilds its templates. Individual row changes use observable notifications and preserve the collection." class="sample-muted"/>
+    </ui:ScrollView>
+</ui:UXML>

@@ -1,0 +1,42 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements">
+    <ui:ScrollView class="sample-page" data-source-type="BovineLabs.Anchor.Samples.Showcase.EcsDashboardViewModel, BovineLabs.Anchor.Samples.Showcase">
+        <ui:VisualElement class="sample-header">
+            <ui:Label text="Burst → ECS → bindings" class="sample-title" />
+            <ui:Label text="512 baked cells continuously charge and discharge in an isolated ECS world. A Burst system feeds Anchor bindings through UIHelper. Watch one cell move, then pulse the whole buffer, change its speed or pause it." class="sample-description" />
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-row">
+            <ui:VisualElement class="sample-card">
+                <ui:Label text="Simulation" class="sample-card-title" />
+                <ui:Label class="sample-value"><Bindings><ui:DataBinding property="text" data-source-path="TickText" binding-mode="ToTarget" /></Bindings></ui:Label>
+                <ui:Label text="Cells in the buffer" class="sample-muted" />
+                <ui:Label class="sample-value"><Bindings><ui:DataBinding property="text" data-source-path="EntityCount" binding-mode="ToTarget" /></Bindings></ui:Label>
+                <ui:Label text="Cells above 75% charge" class="sample-muted" />
+                <ui:Label class="sample-value"><Bindings><ui:DataBinding property="text" data-source-path="ChargedCount" binding-mode="ToTarget" /></Bindings></ui:Label>
+                <ui:Slider label="Simulation speed" low-value="0.1" high-value="4" show-input-field="true"><Bindings><ui:DataBinding property="value" data-source-path="Speed" binding-mode="TwoWay" /></Bindings></ui:Slider>
+                <ui:Toggle label="Pause simulation"><Bindings><ui:DataBinding property="value" data-source-path="Paused" binding-mode="TwoWay" /></Bindings></ui:Toggle>
+                <ui:VisualElement class="sample-actions">
+                    <a:AnchorActionButton label="Reset phases"><Bindings><ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget" /></Bindings></a:AnchorActionButton>
+                    <a:AnchorActionButton label="Pulse all cells"><Bindings><ui:DataBinding property="clickable.command" data-source-path="PulseCommand" binding-mode="ToTarget" /></Bindings></a:AnchorActionButton>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="sample-card">
+                <ui:Label text="One cell + the whole buffer" class="sample-card-title" />
+                <ui:VisualElement class="sample-row ecs-probe">
+                    <a:AnchorLinearProgress name="ecs-probe" direction="Vertical" variant="Determinate" class="ecs-probe-meter"><Bindings><ui:DataBinding property="value" data-source-path="ProbeCharge" binding-mode="ToTarget" /></Bindings></a:AnchorLinearProgress>
+                    <ui:VisualElement class="ecs-probe-description">
+                        <ui:Label class="sample-value"><Bindings><ui:DataBinding property="text" data-source-path="ProbeChargeText" binding-mode="ToTarget" /></Bindings></ui:Label>
+                        <ui:Label text="Pulse aligns every cell at full charge, then they keep moving at different rates. Reset spreads their phases again. Pause holds the current values." class="sample-muted" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label text="Different phases keep the average fairly steady even while individual cells move." class="sample-muted" />
+                <ui:Label text="Average" class="sample-muted" />
+                <a:AnchorLinearProgress variant="Determinate" class="sample-progress"><Bindings><ui:DataBinding property="value" data-source-path="AverageCharge" binding-mode="ToTarget" /></Bindings></a:AnchorLinearProgress>
+                <ui:Label text="Minimum" class="sample-muted" />
+                <a:AnchorLinearProgress variant="Determinate" class="sample-progress"><Bindings><ui:DataBinding property="value" data-source-path="MinimumCharge" binding-mode="ToTarget" /></Bindings></a:AnchorLinearProgress>
+                <ui:Label text="Maximum" class="sample-muted" />
+                <a:AnchorLinearProgress variant="Determinate" class="sample-progress"><Bindings><ui:DataBinding property="value" data-source-path="MaximumCharge" binding-mode="ToTarget" /></Bindings></a:AnchorLinearProgress>
+                <ui:Label text="UI commands write Changed&lt;bool&gt; requests. The next Burst update consumes them, updates the buffer and sets generated SystemProperty values on the main thread." class="sample-description" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

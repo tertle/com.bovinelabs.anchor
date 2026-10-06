@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="animation-home" class="animation-route animation-screen animation-screen--home">
+        <ui:Label text="Home" class="sample-card-title" />
+        <ui:Label text="Forward navigation saves this screen on the back stack." class="sample-description" />
+        <ui:VisualElement class="sample-actions">
+            <ui:Button name="animation-details-button" text="Open details" />
+            <ui:Button name="animation-home-popup-button" text="Open popup" />
+        </ui:VisualElement>
+        <ui:Label text="Fade uses opacity; scale + fade also changes the destination's scale." class="sample-muted" />
+    </ui:VisualElement>
+</ui:UXML>

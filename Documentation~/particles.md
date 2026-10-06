@@ -132,23 +132,18 @@ last repaint to clear old geometry. Draws split at 16,383 quads; normalized orig
 
 ## Samples and scope
 
-Import **Native UI particles** from Package Manager. Open `ParticleSample.unity`, enter Play mode and click **Play all**, or open **BovineLabs > Samples > Anchor Particles Preview**. The sample includes
-editable Sparkle, Confetti, Dust and Layered assets, original procedural soft-dot art, clipped and explicit-overlay placements,
-pause/clear and effects-disabled controls. Effects start only on request. The presenter uses Anchor RelayCommands, resolves controls
-once, and unregisters on disposal. In an Anchor app create it in OnVisualGenerationInitialized and dispose it in
-OnVisualGenerationShuttingDown. For a standalone UIDocument use RuntimeParticles.uxml with ParticleSampleController.
+Import **Anchor Showcase** from Package Manager, choose **BovineLabs > Samples > Anchor Play**, then select **Particles** from the button bar.
+The page explores sparkle, clipped confetti, ambient dust and panel-space bursts with playback, seed, speed, emission, visibility and counter controls.
+The authored Sparkle, Confetti, Dust and Layered effects and soft-dot texture live under `Showcase/Effects`, preserving their metadata from the earlier sample.
+See the [Showcase README](../Samples~/Showcase/README.md) for generation and lifecycle ownership.
 
-The existing Basic UI sample remains available. This stage includes ordinary alpha quads only: no additive material, flipbook,
+Particles use ordinary alpha quads only: no additive material, flipbook,
 target-flight, GPU animation, scene collision, sub-emitter graph, ParticleSystem, VFX Graph or Deck integration.
 
 ## Validation and measurements
 
 Tests live under `BovineLabs.Anchor.Tests.Particles`, including coordinate, lifecycle and shared-revision ownership contracts.
 Select correctness fixtures separately from explicit Performance tests when the connected test runner cannot combine filters.
-The sample fixture supports `--particle-runtime-results <directory>` for 64–20,000 particles, 1/32/100 emitters and a mostly-empty
-100-emitter case. Each runs active, hidden visibility watching, explicit pause, idle and detach/reattach churn with five repetitions,
-120 warmup frames and 600 captured frames. Hidden and paused populations are established before changing visibility/playback.
-Add `--particle-turnover` for deterministic full-population death/respawn at 1,000 particles across one and 32 emitters.
 Record CPU/GPU and engine GC separately from
-Anchor's focused allocation tests. See [BL-301 evidence](particles-release-evidence.md); older stage baselines are historical and
-must not be treated as current measurements of the larger birth-basis state.
+Anchor's focused allocation tests. See [BL-301 evidence](particles-release-evidence.md) and the [BL-302 baseline](particles-performance-baseline.md).
+These are historical captures from retired measurement harnesses; the Showcase is the current interactive sample and does not reproduce those capture commands.

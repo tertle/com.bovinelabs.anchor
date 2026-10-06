@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI" xmlns:a="BovineLabs.Anchor.Elements" xmlns:binding="BovineLabs.Anchor" editor-extension-mode="False">
+    <appui:AccordionItem class="collection-accordion-item">
+        <Bindings>
+            <ui:DataBinding property="title" data-source-path="Title" binding-mode="ToTarget"/>
+            <binding:ClassBinding property="selected-class" class="collection-accordion-item--selected" data-source-path="Selected"/>
+        </Bindings>
+        <ui:VisualElement class="collection-accordion-content">
+            <ui:Label class="sample-muted">
+                <Bindings>
+                    <ui:DataBinding property="text" data-source-path="Description" binding-mode="ToTarget"/>
+                </Bindings>
+            </ui:Label>
+            <a:AnchorTouchSliderFloat label="Relay charge" low-value="0" high-value="1" step="0.05" shift-step="0.25">
+                <Bindings>
+                    <ui:DataBinding property="value" data-source-path="Charge" binding-mode="TwoWay"/>
+                </Bindings>
+            </a:AnchorTouchSliderFloat>
+            <ui:Label class="sample-muted">
+                <Bindings>
+                    <ui:DataBinding property="text" data-source-path="ChargeText" binding-mode="ToTarget"/>
+                </Bindings>
+            </ui:Label>
+            <a:AnchorButton title="Select this relay">
+                <Bindings>
+                    <ui:DataBinding property="clickable.command" data-source-path="SelectCommand" binding-mode="ToTarget"/>
+                </Bindings>
+            </a:AnchorButton>
+        </ui:VisualElement>
+    </appui:AccordionItem>
+</ui:UXML>

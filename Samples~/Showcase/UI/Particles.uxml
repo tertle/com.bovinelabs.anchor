@@ -1,0 +1,52 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements" editor-extension-mode="False">
+    <Style src="ParticleShowcase.uss" />
+    <ui:ScrollView class="sample-page" horizontal-scroller-visibility="Hidden">
+        <ui:VisualElement class="sample-header">
+            <ui:Label text="Native UI particles" class="sample-title" />
+            <ui:Label text="Effects render directly in UI Toolkit. Compare local button sparkle, clipped confetti, looping dust and a panel-space layered burst." class="sample-description" />
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-actions">
+            <ui:Button name="particle-play" text="Play all" />
+            <ui:Button name="particle-stop" text="Stop emitting" />
+            <ui:Button name="particle-pause" text="Pause" />
+            <ui:Button name="particle-resume" text="Resume" />
+            <ui:Button name="particle-clear" text="Clear" />
+            <ui:Toggle name="particle-enabled" label="Effects enabled" value="true" />
+            <ui:Toggle name="particle-hidden" label="Hide stage (pauses)" />
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-row particle-controls">
+            <ui:Slider name="particle-speed" label="Playback speed" low-value="0" high-value="2" value="1" show-input-field="true" />
+            <ui:Slider name="particle-emission" label="Emission scale" low-value="0" high-value="2" value="1" show-input-field="true" />
+            <ui:IntegerField name="particle-seed" label="Seed" value="7" />
+        </ui:VisualElement>
+        <ui:VisualElement name="particle-stage" class="particle-stage">
+            <ui:VisualElement class="sample-row particle-cards">
+                <ui:VisualElement class="sample-card particle-card">
+                    <ui:Label text="Button sparkle" class="sample-card-title" />
+                    <ui:Label text="Local space follows the button." class="sample-muted" />
+                    <ui:Button name="particle-sparkle-button" text="Sparkle from this button" class="particle-source-button">
+                        <a:AnchorParticles name="particle-sparkle" play-on-attach="false" class="particle-fill" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement class="sample-card particle-card particle-card--clipped">
+                    <a:AnchorParticles name="particle-confetti" play-on-attach="false" class="particle-fill" />
+                    <ui:Label text="Clipped confetti" class="sample-card-title" />
+                    <ui:Label text="The card clips particles at its bounds." class="sample-muted" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sample-card particle-card">
+                    <a:AnchorParticles name="particle-dust" play-on-attach="false" class="particle-fill" />
+                    <ui:Label text="Ambient dust" class="sample-card-title" />
+                    <ui:Label text="Looping emission pauses when hidden." class="sample-muted" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sample-card particle-card">
+                    <ui:Label text="Layered overlay" class="sample-card-title" />
+                    <ui:Label text="Panel space keeps particles at their birth positions." class="sample-muted" />
+                    <ui:Button name="particle-overlay-button" text="Burst from here" class="particle-source-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <a:AnchorParticles name="particle-layered" play-on-attach="false" simulation-space="Panel" class="particle-fill" />
+        </ui:VisualElement>
+        <ui:Label name="particle-counters" class="sample-value particle-readout" />
+        <ui:Label name="particle-status" text="Choose Play all or click a source button. Effects start only when requested." class="sample-muted" />
+    </ui:ScrollView>
+</ui:UXML>

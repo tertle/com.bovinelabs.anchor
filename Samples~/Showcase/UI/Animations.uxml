@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="AnimationShowcase.uss" />
+    <ui:ScrollView class="sample-page" horizontal-scroller-visibility="Hidden">
+        <ui:VisualElement class="sample-header">
+            <ui:Label text="Navigation and transitions" class="sample-title" />
+            <ui:Label text="Explore real Anchor forward, back and popup transitions. The preview owns its own navigation stack, so the showcase tabs stay available." class="sample-description" />
+        </ui:VisualElement>
+        <ui:VisualElement class="sample-actions">
+            <ui:Toggle name="animation-scale" label="Use scale + fade" />
+            <ui:Button name="animation-reset" text="Reset navigation" />
+        </ui:VisualElement>
+        <ui:Label text="The selected preset applies to your next navigation. Back uses the animation pair saved with that route." class="sample-muted" />
+        <ui:VisualElement name="nav-preview" class="animation-preview" />
+        <ui:Label name="animation-status" class="sample-value animation-status" />
+        <ui:VisualElement class="sample-row animation-transition-row">
+            <ui:VisualElement name="animation-transition" class="sample-card transition-card">
+                <ui:Label text="USS class transition" class="sample-card-title" />
+                <ui:Label text="A class change animates opacity and background color without creating a navigation destination." class="sample-muted" />
+            </ui:VisualElement>
+            <ui:VisualElement class="animation-transition-controls">
+                <ui:Button name="animation-transition-button" text="Apply active class" />
+                <ui:Label name="animation-transition-status" text="Toggle the class to start a transition." class="sample-muted" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

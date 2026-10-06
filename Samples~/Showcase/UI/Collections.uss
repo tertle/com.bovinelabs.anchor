@@ -1,0 +1,85 @@
+.binding-controls,
+.binding-readout,
+.collection-view {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 360px;
+}
+
+.binding-progress {
+    width: 100%;
+    height: 26px;
+}
+
+.binding-meter-row {
+    align-items: stretch;
+    flex-wrap: nowrap;
+}
+
+.binding-progress-vertical {
+    width: 44px;
+    height: 150px;
+    flex-shrink: 0;
+}
+
+.binding-state {
+    flex-grow: 1;
+    padding: 16px;
+    gap: 12px;
+    justify-content: center;
+    background-color: var(--bl-surface);
+    border-width: 1px;
+    border-color: var(--bl-border);
+    border-radius: var(--bl-radius);
+}
+
+.binding-state--ready {
+    background-color: var(--bl-selection);
+    border-color: var(--bl-accent);
+}
+
+.collection-grid,
+.collection-accordion-scroll {
+    height: 460px;
+    min-height: 240px;
+}
+
+.collection-item {
+    height: 162px;
+    margin: 4px;
+    padding: 12px;
+    gap: 9px;
+    background-color: var(--bl-surface);
+    border-width: 1px;
+    border-color: var(--bl-border);
+    border-radius: var(--bl-radius);
+}
+
+.collection-item--selected {
+    background-color: var(--bl-selection);
+    border-color: var(--bl-accent);
+}
+
+.collection-item-progress {
+    width: 100%;
+    height: 12px;
+}
+
+.collection-item-actions {
+    flex-wrap: nowrap;
+    gap: 4px;
+}
+
+.collection-item-actions > .appui-button {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.collection-accordion-content {
+    padding: 12px;
+    gap: 12px;
+}
+
+.collection-accordion-item--selected > .appui-accordionitem__heading {
+    background-color: var(--bl-selection);
+}

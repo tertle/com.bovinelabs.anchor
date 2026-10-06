@@ -1,0 +1,10 @@
+{
+    "name": "BovineLabs.Anchor.Samples.Showcase.Authoring",
+    "references": [
+        "BovineLabs.Anchor.Samples.Showcase",
+        "Unity.Entities",
+        "Unity.Entities.Hybrid",
+        "Unity.Mathematics"
+    ],
+    "autoReferenced": false
+}

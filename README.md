@@ -7,7 +7,7 @@ For support and discussions, join [Discord](https://discord.gg/RTsw6Cxvw3).
 ## Requirements
 
 - Unity 6000.7.0b3 or newer.
-- BovineLabs Core 2.0.0-pre.3 or newer.
+- BovineLabs Core 2.0.0-pre.4 or newer.
 - Unity App UI 3.0.0-pre.1 or newer.
 - Universal Render Pipeline 17.7.0 or newer.
 
@@ -49,8 +49,9 @@ Then follow [Getting started](Documentation~/getting-started.md).
 
 ## Sample
 
-Import **Basic UI** from the Package Manager, open `Scenes/Basic UI`, and enter Play mode. Its scene script navigates to the sample screen without changing
-project settings.
+Import **Anchor Showcase** from the Package Manager, then choose **BovineLabs > Samples > Anchor Play**. One generated scene uses a persistent button bar
+to switch between bindings, collections, particles, animations and Burst ECS examples. **Anchor Generate** rebuilds `Generated/Scenes/Main.unity` and its
+assets. See the [Showcase README](Samples~/Showcase/README.md) for entry points and implementation details.
 
 ## Documentation
 

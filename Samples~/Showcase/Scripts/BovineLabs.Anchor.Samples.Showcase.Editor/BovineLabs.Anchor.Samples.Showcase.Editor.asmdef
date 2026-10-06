@@ -1,0 +1,15 @@
+{
+    "name": "BovineLabs.Anchor.Samples.Showcase.Editor",
+    "references": [
+        "BovineLabs.Anchor",
+        "BovineLabs.Anchor.Samples.Showcase",
+        "BovineLabs.Anchor.Samples.Showcase.Authoring",
+        "BovineLabs.Core",
+        "BovineLabs.Core.Editor",
+        "Unity.Entities",
+        "Unity.Scenes",
+        "Unity.Scenes.Editor"
+    ],
+    "includePlatforms": ["Editor"],
+    "autoReferenced": false
+}

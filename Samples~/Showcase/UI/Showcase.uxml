@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:bl="BovineLabs.Core.UI" xmlns:nav="BovineLabs.Anchor.Nav">
+    <Style src="Showcase.uss" />
+    <bl:BovineThemeRoot class="anchor-showcase">
+        <nav:AnchorNavHost name="showcase-host" class="showcase-content" />
+        <ui:VisualElement class="showcase-navigation">
+            <ui:Label text="ANCHOR" class="showcase-brand" />
+            <ui:Button name="scenario-0" text="Bindings" class="showcase-tab" />
+            <ui:Button name="scenario-1" text="Collections" class="showcase-tab" />
+            <ui:Button name="scenario-2" text="Particles" class="showcase-tab" />
+            <ui:Button name="scenario-3" text="Animations" class="showcase-tab" />
+            <ui:Button name="scenario-4" text="Burst ECS" class="showcase-tab" />
+        </ui:VisualElement>
+    </bl:BovineThemeRoot>
+</ui:UXML>
