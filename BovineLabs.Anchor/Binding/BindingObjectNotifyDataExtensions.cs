@@ -4,9 +4,9 @@
     using System.Runtime.CompilerServices;
     using BovineLabs.Core.Assertions;
     using BovineLabs.Core.Utility;
-    using Unity.Assertions;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using UnityEngine.Assertions;
 
     public static unsafe class BindingObjectNotifyDataExtensions
     {

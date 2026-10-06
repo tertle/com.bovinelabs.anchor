@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using BovineLabs.Core.Utility;
-    using Unity.Assertions;
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Scripting.LifecycleManagement;
+    using UnityEngine.Assertions;
 
     internal unsafe struct SetValueParams
     {

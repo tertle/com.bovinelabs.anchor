@@ -1,6 +1,6 @@
 # Anchor Showcase
 
-Import **Anchor Showcase** from Package Manager, then choose **BovineLabs > Samples > Anchor Play**. The imported sample generates `Generated/Scenes/Main.unity`; use **Anchor Generate** to rebuild only its generated assets. Save open scenes before rebuilding. No host-project Anchor settings are required.
+Import **Anchor Showcase** from Package Manager, then choose **BovineLabs > Samples > Anchor Play**. The imported sample generates `Generated/Scenes/Main.unity`; use **Anchor Generate** to rebuild only its generated assets. Save open scenes before rebuilding. No host-project Anchor settings are required. Generation reimports the UI after the sample assembly loads so declared view-model types resolve on a fresh import.
 
 One scene and a persistent bottom button bar expose five examples:
 

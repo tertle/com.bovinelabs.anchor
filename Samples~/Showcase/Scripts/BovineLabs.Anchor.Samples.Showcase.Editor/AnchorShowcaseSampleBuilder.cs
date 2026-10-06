@@ -77,6 +77,12 @@ namespace BovineLabs.Anchor.Samples.Showcase.Editor
             Directory.CreateDirectory($"{generated}/Settings");
             AssetDatabase.Refresh();
 
+            // UXML can import before the sample view-model assembly has loaded.
+            foreach (var guid in AssetDatabase.FindAssets("t:VisualTreeAsset", new[] { $"{root}/UI" }))
+            {
+                AssetDatabase.ImportAsset(AssetDatabase.GUIDToAssetPath(guid), ImportAssetOptions.ForceUpdate);
+            }
+
             var panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
             panelSettings.themeStyleSheet = Load<ThemeStyleSheet>($"{root}/UI/Showcase.tss");
             panelSettings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
