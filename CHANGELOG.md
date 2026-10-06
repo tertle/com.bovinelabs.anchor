@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.4] - Unreleased
+## [2.0.0-pre.4] - 2026-10-07
 
 ### Added
 * A compact Wireframe debug toolbar group using URP's Rendering Debugger modes, including Entities Graphics support.
