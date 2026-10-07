@@ -4,7 +4,7 @@ This guide creates the smallest useful Anchor application: one UI Toolkit screen
 
 ## Requirements
 
-The current package metadata targets Unity 7000.0.0a7 or newer and declares `com.bovinelabs.core` 2.0.0-pre.5, Unity App UI 2.2.4, and Universal Render Pipeline 17.7.0 as dependencies.
+The current package metadata targets Unity 7000.0.0a7 or newer and declares `com.bovinelabs.core` 2.0.0-pre.6, Unity App UI 2.2.4, and Universal Render Pipeline 17.7.0 as dependencies.
 
 Unity App UI (`com.unity.dt.app-ui`) is required and is installed with Anchor.
 

@@ -7,7 +7,7 @@ For support and discussions, join [Discord](https://discord.gg/RTsw6Cxvw3).
 ## Requirements
 
 - Unity 7000.0.0a7 or newer.
-- BovineLabs Core 2.0.0-pre.5 or newer.
+- BovineLabs Core 2.0.0-pre.6 or newer.
 - Unity App UI 2.2.4 or newer.
 - Universal Render Pipeline 17.7.0 or newer.
 

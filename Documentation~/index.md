@@ -26,7 +26,7 @@ see the [Showcase README](../Samples~/Showcase/README.md) for generated assets a
 
 ## Requirements and assemblies
 
-Anchor 2.0.0-pre.5 declares Unity 7000.0.0a7, `com.bovinelabs.core` 2.0.0-pre.5, Unity App UI 2.2.4, and Universal Render Pipeline 17.7.0 in `package.json`.
+Anchor 2.0.0-pre.6 declares Unity 7000.0.0a7, `com.bovinelabs.core` 2.0.0-pre.6, Unity App UI 2.2.4, and Universal Render Pipeline 17.7.0 in `package.json`.
 
 All Anchor assemblies have `autoReferenced` disabled. Reference only the surfaces the consuming assembly uses:
 
