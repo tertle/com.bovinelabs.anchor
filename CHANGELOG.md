@@ -1,6 +1,14 @@
 # Changelog
 
-## [2.0.0-pre.5] - Unreleased
+## [2.0.0-pre.5] - 2026-10-07
+
+### Changed
+* Unity 7000.0.0a7 or newer is required.
+* Updated the Unity App UI dependency from `3.0.0-pre.1` to `2.2.4`.
+* Upgraded Anchor Showcase UI importer metadata for Unity 7, preserving asset GUIDs.
+
+### Fixed
+* Anchor Showcase generation reimports UXML after the sample assembly loads so view-model types resolve on a fresh sample import.
 
 ## [2.0.0-pre.4] - 2026-10-07
 
