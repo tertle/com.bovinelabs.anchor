@@ -1,6 +1,9 @@
 # Changelog
 
-## [2.0.0-pre.6] - Not Released
+## [2.0.0-pre.6] - Unreleased
+
+### Fixed
+* Debug toolbar camera resizing checks the camera renderer directly, allowing supported overlay camera stacks to resize without a global render-pipeline gate.
 
 ## [2.0.0-pre.5] - 2026-10-07
 
