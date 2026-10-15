@@ -8,6 +8,8 @@ The current package metadata targets Unity 7000.0.0a7 or newer and declares `com
 
 Unity App UI (`com.unity.dt.app-ui`) is required and is installed with Anchor.
 
+Enable **Project Settings > UI Toolkit > Enable UI Components** to expose component authoring in UI Builder and the visual element Inspector. Components remain an experimental Unity feature.
+
 The package's assembly definitions are not auto-referenced, so a consuming assembly definition must explicitly reference the Anchor assemblies it uses.
 
 ## Install Anchor

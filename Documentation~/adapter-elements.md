@@ -161,7 +161,17 @@ private void InspectEvent(EventBase evt)
 </BovineLabs.Anchor.Elements.AnchorButton>
 ```
 
-The Anchor-specific audio attributes are the same on both controls:
+### Audio feedback component
+
+`BovineLabs.Anchor.Components.AudioFeedback` adds feedback to an existing AppUI `Button` or `ActionButton`. Both Anchor button adapters attach it automatically with the default profile. Add an authored component to configure that same instance; audio attributes now belong on the component rather than on the button.
+
+```xml
+<appui:Button title="Play">
+    <BovineLabs.Anchor.Components.AudioFeedback audio-profile="menu" hover-audio-mode="Disabled" />
+</appui:Button>
+```
+
+The component exposes these attributes:
 
 | UXML attribute | Default | Purpose |
 | --- | --- | --- |
@@ -171,7 +181,7 @@ The Anchor-specific audio attributes are the same on both controls:
 | `activate-audio-mode` | `Inherit` | `Inherit`, `Disabled`, or `Custom` |
 | `activate-audio-clip` | none | Clip used in `Custom` mode |
 
-`AnchorButton` plays activate audio through its normal click callback. `AnchorActionButton` handles only an `ActionTriggeredEvent` whose target is the button itself, which avoids reacting to a bubbled child action. Hover audio is limited to mouse and tracked-pointer entry and does not play while the control is disabled.
+Regular buttons play activation audio through their normal click callback. Action buttons handle only an `ActionTriggeredEvent` whose target is the button itself, which avoids reacting to a bubbled child action. Hover audio is limited to mouse and tracked-pointer entry and does not play while the control is disabled. Removing the component stops its owned event subscriptions; releasing the element also releases the component's resources.
 
 ## OptionPager
 
