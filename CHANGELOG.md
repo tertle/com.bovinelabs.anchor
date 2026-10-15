@@ -10,8 +10,10 @@
 ### Changed
 * Button audio configuration moves to the audio feedback component; Anchor button adapters retain their default feedback and event-aware commands.
 * FPS toolbar readouts bind raw numeric values instead of allocating formatted strings.
+* Discarded navigation screens, toolbar visuals, and application visual generations release UI Toolkit resources after their owned lifecycle cleanup and the current UI callback have finished.
 
 ### Fixed
+* Immediate navigation completion runs once, and button-driven navigation or toolbar removal no longer destroys native element resources while App UI is still processing activation.
 * Debug toolbar camera resizing checks the camera renderer directly, allowing supported overlay camera stacks to resize without a global render-pipeline gate.
 
 ## [2.0.0-pre.5] - 2026-10-07

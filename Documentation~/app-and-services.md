@@ -25,6 +25,8 @@ The default lifecycle is:
 | `OnDisable` | Unregisters the renderer callback, captures navigation state, and releases only the current visual generation. The app, provider, and durable services remain alive. |
 | `OnDestroy` | Invokes final visual-generation teardown and app shutdown, disposes the app, then disposes the provider and its durable services exactly once. |
 
+Visual teardown detaches the discarded tree and releases its complete physical hierarchy and root, including children hidden behind custom content containers. Attached panels schedule native resource release on the surviving panel root so any current activation callback can finish. Run generation-owned cleanup before those resources are released. Services and view models survive a visual reload, but references to the old elements do not.
+
 The protected hooks have distinct responsibilities:
 
 - `OnConfigureServices` runs before the provider exists. Call `base` first, then add or replace project registrations.

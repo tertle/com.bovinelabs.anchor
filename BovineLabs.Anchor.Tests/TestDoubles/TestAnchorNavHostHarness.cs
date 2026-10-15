@@ -24,6 +24,7 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
             }
 
             Host = new AnchorNavHost();
+            _scope.App.RootVisualElement.Add(Host);
             _scope.App.NavHost = Host;
         }
 
@@ -37,8 +38,12 @@ namespace BovineLabs.Anchor.Tests.TestDoubles
 
             Factory.Register(destination, () =>
             {
-                var container = new VisualElement { name = destination };
-                container.Add(new VisualElement { dataSource = receiver });
+                var container = new VisualElement {
+                    name = destination
+                };
+                container.Add(new VisualElement {
+                    dataSource = receiver
+                });
                 return container;
             });
 

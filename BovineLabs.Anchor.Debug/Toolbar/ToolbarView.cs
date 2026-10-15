@@ -38,6 +38,7 @@
         private readonly Dictionary<Camera, Rect> _originalCameraRects = new();
         private readonly Dictionary<string, ToolbarGroup> _toolbarTabs = new();
         private readonly Dictionary<int, ToolbarGroup.Tab> _toolbarGroups = new();
+        private readonly List<VisualElement> _discardedElements = new();
         private readonly Toolbar _toolbar;
         private readonly ToolbarViewModel _viewModel;
 
@@ -45,6 +46,7 @@
         private readonly Dropdown _filterButton;
         private readonly Button _showButton;
         private readonly IVisualElementScheduledItem _cameraRefresh;
+        private IVisualElementScheduledItem _releaseDiscardedElements;
 
         private ToolbarGroup _activeGroup;
         private AnchorApp _anchorApp;
@@ -164,7 +166,13 @@
 
             HideTab(group);
             group.Group.Groups.Remove(group);
+            // A control can remove its own registration while App UI is still activating it.
+            _discardedElements.Add(group.View);
+            _discardedElements.Add(group.Container);
+            _releaseDiscardedElements ??= schedule.Execute(ReleaseDiscardedElements);
+            _releaseDiscardedElements.ExecuteLater(0);
             ReleaseVisualElement(group.View);
+            ReleaseVisualElement(group.Container);
 
             if (_compositionCompleted)
             {
@@ -187,7 +195,9 @@
 
             _disposed = true;
             _compositionCompleted = false;
+            var panelRoot = panel?.visualTree;
             _cameraRefresh.Pause();
+            _releaseDiscardedElements?.Pause();
 
             _viewModel.PropertyChanged -= OnPropertyChanged;
 
@@ -202,7 +212,25 @@
 
             foreach (var group in _toolbarGroups.Values)
             {
+                _discardedElements.Add(group.View);
+                _discardedElements.Add(group.Container);
                 ReleaseVisualElement(group.View);
+                ReleaseVisualElement(group.Container);
+            }
+
+            foreach (var tab in _toolbarTabs.Values)
+            {
+                if (!tab.Parent.resourcesReleased)
+                {
+                    tab.Parent.RemoveFromTab();
+                }
+
+                _discardedElements.Add(tab.Parent);
+                _discardedElements.Add(tab.Parent.horizontalScroller);
+                _discardedElements.Add(tab.Button);
+                ReleaseVisualElement(tab.Parent);
+                ReleaseVisualElement(tab.Parent.horizontalScroller);
+                ReleaseVisualElement(tab.Button);
             }
 
             _toolbarGroups.Clear();
@@ -218,7 +246,16 @@
             {
                 RemoveFromHierarchy();
                 ClearBindingsAndDataSources(this);
-                Clear();
+                _discardedElements.Add(this);
+            }
+
+            if (panelRoot != null)
+            {
+                panelRoot.schedule.Execute(ReleaseDiscardedElements);
+            }
+            else
+            {
+                ReleaseDiscardedElements();
             }
         }
 
@@ -316,8 +353,6 @@
 
         private static void ReleaseVisualElement(VisualElement element)
         {
-            var resourcesReleased = element.resourcesReleased;
-
             try
             {
                 if (element is IDisposable disposable)
@@ -327,7 +362,7 @@
             }
             finally
             {
-                if (resourcesReleased)
+                if (element.resourcesReleased)
                 {
                     element.dataSource = null;
                 }
@@ -337,6 +372,22 @@
                     ClearBindingsAndDataSources(element);
                 }
             }
+        }
+
+        private void ReleaseDiscardedElements()
+        {
+            foreach (var element in _discardedElements)
+            {
+                if (element.resourcesReleased)
+                {
+                    continue;
+                }
+
+                element.hierarchy.Clear(VisualElementClearOptions.RecursiveReleaseResources);
+                element.ReleaseResources();
+            }
+
+            _discardedElements.Clear();
         }
 
         private static void ClearBindingsAndDataSources(VisualElement element)
@@ -489,7 +540,9 @@
 
         private Button CreateShowButton()
         {
-            var button = new Button(() => ShowRibbon(!IsRibbonVisible)) { trailingIcon = "caret-down" };
+            var button = new Button(() => ShowRibbon(!IsRibbonVisible)) {
+                trailingIcon = "caret-down"
+            };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
@@ -531,7 +584,9 @@
 
         private Button CreateHideButton()
         {
-            var button = new Button(HideToolbar) { trailingIcon = "x" };
+            var button = new Button(HideToolbar) {
+                trailingIcon = "x"
+            };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);

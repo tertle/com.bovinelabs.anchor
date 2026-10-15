@@ -3,6 +3,7 @@ namespace BovineLabs.Anchor.Nav
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Core;
@@ -10,6 +11,9 @@ namespace BovineLabs.Anchor.Nav
 
     public partial class AnchorNavHost
     {
+        private readonly List<VisualElement> _discardedElements = new();
+        private IVisualElementScheduledItem _releaseDiscardedElements;
+
         /// <summary>
         /// Leaves the current destination unchanged.
         /// </summary>
@@ -513,16 +517,50 @@ namespace BovineLabs.Anchor.Nav
 
             void OnCompleted()
             {
-                if (entry.Element.parent != null)
+                if (entry.Element.resourcesReleased)
                 {
-                    entry.Element.RemoveFromHierarchy();
+                    return;
                 }
+
+                entry.Element.Query<AnchorParticles>().ForEach(static particles => particles.ReleaseVisualGeneration());
+                entry.Element.RemoveFromHierarchy();
+                // App UI finishes updating the activating control after navigation returns.
+                _discardedElements.Add(entry.Element);
+                _releaseDiscardedElements ??= schedule.Execute(ReleaseDiscardedElements);
+                _releaseDiscardedElements.ExecuteLater(0);
             }
 
-            if (!TryPlayAnimation(entry.Element, exitAnim, OnCompleted))
+            TryPlayAnimation(entry.Element, exitAnim, OnCompleted);
+        }
+
+        internal void ReleaseVisualGeneration()
+        {
+            CancelRunningAnimations();
+            _releaseDiscardedElements?.Pause();
+            if (panel?.visualTree is { } panelRoot)
             {
-                OnCompleted();
+                panelRoot.schedule.Execute(ReleaseDiscardedElements);
             }
+            else
+            {
+                ReleaseDiscardedElements();
+            }
+        }
+
+        private void ReleaseDiscardedElements()
+        {
+            foreach (var element in _discardedElements)
+            {
+                if (element.resourcesReleased)
+                {
+                    continue;
+                }
+
+                element.hierarchy.Clear(VisualElementClearOptions.RecursiveReleaseResources);
+                element.ReleaseResources();
+            }
+
+            _discardedElements.Clear();
         }
 
         private static void OnEntered(AnchorNavActiveEntry entry)

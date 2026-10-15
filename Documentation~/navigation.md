@@ -20,6 +20,8 @@ IAnchorNavHost nav = AnchorApp.Current.NavHost;
 
 `AnchorAppBuilder` captures an opaque navigation reload state before replacing a panel visual generation. The replacement host restores the active and back stacks, popup layering, and outstanding state handles through the same `IAnchorNavHost` contract.
 
+Navigation owns the visual trees it instantiates. A departing screen receives its exit callbacks while its visuals remain live, then detaches after its exit animation finishes. Its complete hierarchy and root are released on a subsequent UI update so the activation callback that navigated away can finish safely. Visual-generation teardown also flushes pending discards. Keep durable state on the view model; do not retain departed elements for reuse. Closing a popup preserves its active base screen.
+
 If you construct `AnchorNavHost` yourself, the parameterless constructor discovers attributed code actions, but it does not read action or animation assets from `AnchorSettings`. Pass those collections to `AnchorNavHost(IEnumerable<AnchorAction>, IEnumerable<AnchorNavAnimation>)` when the custom host needs them.
 
 ## Register destinations

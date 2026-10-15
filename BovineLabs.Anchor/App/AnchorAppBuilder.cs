@@ -242,7 +242,6 @@
                         }
                         finally
                         {
-                            _appRootVisualElement?.RemoveFromHierarchy();
                             _anchorApp.Dispose();
                         }
                     }
@@ -271,7 +270,6 @@
             {
                 try
                 {
-                    _appRootVisualElement?.RemoveFromHierarchy();
                     _anchorApp.ReleaseVisualGeneration();
                 }
                 finally

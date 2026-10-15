@@ -23,7 +23,9 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.RegisterScreen("popup-b");
 
             context.Host.Navigate("base");
-            context.Host.Navigate("popup-a", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup-a", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
 
             context.Host.Navigate(
                 "popup-b",
@@ -49,7 +51,9 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.RegisterScreen("popup-b");
 
             context.Host.Navigate("base");
-            context.Host.Navigate("popup-a", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup-a", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
 
             context.Host.Navigate(
                 "popup-b",
@@ -121,12 +125,16 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.Host.Navigate("base");
             context.Host.Navigate(
                 "popup",
-                new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
+                new AnchorNavOptions {
+                    PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+                },
                 AnchorNavArgument.String("a", "1"));
 
             context.Host.Navigate(
                 "popup",
-                new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent },
+                new AnchorNavOptions {
+                    PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+                },
                 AnchorNavArgument.String("a", "2"));
 
             Assert.AreEqual(2, popupReceiver.EnterCount);
@@ -145,7 +153,9 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.RegisterScreen("panel");
 
             context.Host.Navigate("base");
-            context.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
             context.Host.Navigate("panel");
 
             Assert.IsTrue(context.Host.PopBackStack());
@@ -162,7 +172,9 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.RegisterScreen("panel");
 
             context.Host.Navigate("base");
-            context.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
             context.Host.Navigate("panel");
 
             Assert.IsTrue(context.Host.PopBackStackToPanel());
@@ -179,7 +191,9 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.RegisterScreen("popup-b");
 
             context.Host.Navigate("base");
-            context.Host.Navigate("popup-a", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup-a", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
             context.Host.Navigate(
                 "popup-b",
                 new AnchorNavOptions
@@ -205,9 +219,13 @@ namespace BovineLabs.Anchor.Tests.Nav
             context.RegisterScreen("popup-top");
 
             context.Host.Navigate("base");
-            context.Host.Navigate("popup-base", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup-base", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
             context.Host.Navigate("panel");
-            context.Host.Navigate("popup-top", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
+            context.Host.Navigate("popup-top", new AnchorNavOptions {
+                PopupStrategy = AnchorPopupStrategy.PopupOnCurrent
+            });
 
             Assert.IsFalse(context.Host.ClosePopup("popup-base"));
             Assert.AreEqual("popup-top", context.Host.CurrentDestination);
@@ -245,6 +263,7 @@ namespace BovineLabs.Anchor.Tests.Nav
 
                 Factory = _scope.ServiceProvider.GetRequiredService<TestVisualElementFactory>();
                 Host = new AnchorNavHost(actions, animations);
+                _scope.App.RootVisualElement.Add(Host);
                 _scope.App.NavHost = Host;
             }
 
@@ -258,8 +277,12 @@ namespace BovineLabs.Anchor.Tests.Nav
 
                 Factory.Register(destination, () =>
                 {
-                    var root = new VisualElement { name = destination };
-                    root.Add(new VisualElement { dataSource = receiver });
+                    var root = new VisualElement {
+                        name = destination
+                    };
+                    root.Add(new VisualElement {
+                        dataSource = receiver
+                    });
                     return root;
                 });
 

@@ -234,7 +234,11 @@ namespace BovineLabs.Anchor
 
         internal void ReleaseVisualGeneration()
         {
-            RootVisualElement?.Query<AnchorParticles>().ForEach(static particles => particles.ReleaseVisualGeneration());
+            var root = RootVisualElement;
+            if (root is { resourcesReleased: false })
+            {
+                root.Query<AnchorParticles>().ForEach(static particles => particles.ReleaseVisualGeneration());
+            }
 
             if (Panel != null)
             {
@@ -244,18 +248,60 @@ namespace BovineLabs.Anchor
 
             try
             {
-                _toolbarHost?.ReleaseRootVisualElement();
+                try
+                {
+                    if (NavHost is AnchorNavHost navHost)
+                    {
+                        navHost.ReleaseVisualGeneration();
+                    }
+                }
+                finally
+                {
+                    _toolbarHost?.ReleaseRootVisualElement();
+                }
             }
             finally
             {
-                PopupContainer = null;
-                NotificationContainer = null;
-                TooltipContainer = null;
-                NavHost = null;
-                Panel = null;
-                RootVisualElement = null;
-                _hasScreenMetrics = false;
-                _lastScreenMetrics = default;
+                try
+                {
+                    if (root is { resourcesReleased: false })
+                    {
+                        var panelRoot = root.panel?.visualTree;
+                        root.RemoveFromHierarchy();
+
+                        void ReleaseRootResources()
+                        {
+                            if (root.resourcesReleased)
+                            {
+                                return;
+                            }
+
+                            root.hierarchy.Clear(VisualElementClearOptions.RecursiveReleaseResources);
+                            root.ReleaseResources();
+                        }
+
+                        if (panelRoot != null)
+                        {
+                            // Disabling the app from a UI command must let that control finish its activation.
+                            panelRoot.schedule.Execute(ReleaseRootResources);
+                        }
+                        else
+                        {
+                            ReleaseRootResources();
+                        }
+                    }
+                }
+                finally
+                {
+                    PopupContainer = null;
+                    NotificationContainer = null;
+                    TooltipContainer = null;
+                    NavHost = null;
+                    Panel = null;
+                    RootVisualElement = null;
+                    _hasScreenMetrics = false;
+                    _lastScreenMetrics = default;
+                }
             }
         }
 
