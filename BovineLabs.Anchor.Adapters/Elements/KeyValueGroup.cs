@@ -6,6 +6,7 @@
     using JetBrains.Annotations;
     using Unity.AppUI.UI;
     using Unity.Properties;
+    using UnityEngine;
     using UnityEngine.Assertions;
     using UnityEngine.UIElements;
 
@@ -27,16 +28,7 @@
 
         public KeyValueGroup(IEnumerable<string> keys)
         {
-            AddToClassList(UssClassName);
-            style.flexDirection = FlexDirection.Row;
-
-            var left = new VisualElement();
-            left.AddToClassList(LeftUssClassName);
-            Add(left);
-
-            var right = new VisualElement();
-            right.AddToClassList(RightUssClassName);
-            Add(right);
+            CreateColumns(this, out var left, out var right);
 
             if (keys == null)
             {
@@ -55,6 +47,37 @@
         }
 
         public IReadOnlyList<KeyValueElement> Elements => _elements;
+
+        /// <summary>
+        /// Creates aligned numeric readouts. The returned container has no string-row Elements contract.
+        /// </summary>
+        public static VisualElement CreateNumeric(
+            object viewModel, (string Key, string Path, AnchorNumericText Value)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
+        {
+            var group = new VisualElement();
+            CreateColumns(group, out var left, out var right);
+
+            foreach (var field in fields)
+            {
+                var key = new Text(field.Key);
+                key.AddToClassList("bl-key-value__key");
+                left.Add(key);
+
+                var value = field.Value;
+                value.AddToClassList("bl-key-value__value");
+                value.style.unityTextAlign = TextAnchor.UpperRight;
+                value.dataSource = viewModel;
+                value.SetBinding(AnchorNumericText.NumberProperty, new DataBinding
+                {
+                    bindingMode = BindingMode.ToTarget,
+                    dataSourcePath = new PropertyPath(field.Path),
+                    updateTrigger = trigger,
+                });
+                right.Add(value);
+            }
+
+            return group;
+        }
 
         public static KeyValueGroup Create(
             object viewModel, (string Key, string Path)[] fields, BindingUpdateTrigger trigger = BindingUpdateTrigger.OnSourceChanged)
@@ -106,6 +129,20 @@
             }
 
             return group;
+        }
+
+        private static void CreateColumns(VisualElement group, out VisualElement left, out VisualElement right)
+        {
+            group.AddToClassList(UssClassName);
+            group.style.flexDirection = FlexDirection.Row;
+
+            left = new VisualElement();
+            left.AddToClassList(LeftUssClassName);
+            group.Add(left);
+
+            right = new VisualElement();
+            right.AddToClassList(RightUssClassName);
+            group.Add(right);
         }
     }
 }

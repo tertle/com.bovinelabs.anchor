@@ -1,9 +1,7 @@
 ﻿namespace BovineLabs.Anchor.Debug.Views
 {
-    using System;
     using BovineLabs.Anchor.Debug.ViewModels;
     using BovineLabs.Anchor.Elements;
-    using Unity.Properties;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
@@ -18,17 +16,25 @@
             dataSource = viewModel;
             AddToClassList(UssClassName);
 
-            TypeConverter<int, string> fpsConverter = (ref int value) => $"{value} fps";
-            TypeConverter<float, string> timeConverter = (ref float value) => $"{value:0.0} ms";
-
-            Add(KeyValueGroup.Create(viewModel,
-                new (string, string, Action<DataBinding>)[]
+            Add(KeyValueGroup.CreateNumeric(viewModel,
+                new (string, string, AnchorNumericText)[]
                 {
-                    ("FPS", nameof(FPSToolbarViewModel.CurrentFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
-                    ("Frame", nameof(FPSToolbarViewModel.FrameTime), db => db.sourceToUiConverters.AddConverter(timeConverter)),
-                    ("Average", nameof(FPSToolbarViewModel.AverageFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
-                    ("Min", nameof(FPSToolbarViewModel.MinFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
-                    ("Max", nameof(FPSToolbarViewModel.MaxFPS), db => db.sourceToUiConverters.AddConverter(fpsConverter)),
+                    ("FPS", nameof(FPSToolbarViewModel.CurrentFPS), new AnchorIntegerText {
+                        suffix = " fps"
+                    }),
+                    ("Frame", nameof(FPSToolbarViewModel.FrameTime), new AnchorNumberText {
+                        format = "0.0",
+                        suffix = " ms"
+                    }),
+                    ("Average", nameof(FPSToolbarViewModel.AverageFPS), new AnchorIntegerText {
+                        suffix = " fps"
+                    }),
+                    ("Min", nameof(FPSToolbarViewModel.MinFPS), new AnchorIntegerText {
+                        suffix = " fps"
+                    }),
+                    ("Max", nameof(FPSToolbarViewModel.MaxFPS), new AnchorIntegerText {
+                        suffix = " fps"
+                    }),
                 }));
 
             schedule.Execute(UpdateModel).Every(1);

@@ -5,9 +5,11 @@
 ### Added
 * A reusable UI Toolkit audio feedback component for existing buttons.
 * A reusable UI Toolkit pulse component for existing visual elements.
+* Bindable integer and floating-point text controls that format attached readouts through UI Toolkit's native text buffer.
 
 ### Changed
 * Button audio configuration moves to the audio feedback component; Anchor button adapters retain their default feedback and event-aware commands.
+* FPS toolbar readouts bind raw numeric values instead of allocating formatted strings.
 
 ### Fixed
 * Debug toolbar camera resizing checks the camera renderer directly, allowing supported overlay camera stacks to resize without a global render-pipeline gate.

@@ -83,6 +83,8 @@ namespace Example.Debug
 
 Managed polling should be modest. `Toolbar.UpdateRateSeconds` is `0.25` seconds and is a useful default for counters that do not need per-frame refresh.
 
+For changing numeric readouts, keep raw numeric model properties and use `AnchorIntegerText` or `AnchorNumberText` with `KeyValueGroup.CreateNumeric`. The FPS toolbar uses this path to avoid intermediate formatted strings during attached updates. See [Numeric text](adapter-elements.md#numeric-text) for formatting and allocation limits.
+
 ## ECS-backed panels
 
 Use three types with separate responsibilities:

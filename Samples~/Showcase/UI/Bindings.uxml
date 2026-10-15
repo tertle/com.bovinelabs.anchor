@@ -49,11 +49,13 @@
             </ui:VisualElement>
             <ui:VisualElement class="sample-card binding-readout">
                 <ui:Label text="One state, several presentations" class="sample-card-title"/>
-                <ui:Label class="sample-value">
+                <a:AnchorNumberText format="P0" suffix=" charge" class="sample-value">
+                    <BovineLabs.Anchor.Components.Pulse interval="1800" minimum-opacity="0.55" />
                     <Bindings>
-                        <ui:DataBinding property="text" data-source-path="ChargeText" binding-mode="ToTarget"/>
+                        <ui:DataBinding property="number" data-source-path="Charge" binding-mode="ToTarget"/>
+                        <ui:DataBinding property="${component:BovineLabs.Anchor.Components.Pulse}.Enabled" data-source-path="CanLaunch" binding-mode="ToTarget"/>
                     </Bindings>
-                </ui:Label>
+                </a:AnchorNumberText>
                 <a:AnchorLinearProgress name="charge-progress" variant="Determinate" class="binding-progress">
                     <Bindings>
                         <ui:DataBinding property="value" data-source-path="Charge" binding-mode="ToTarget"/>
@@ -83,7 +85,7 @@
                         <ui:Label text="A boolean ClassBinding changes this card's appearance when launch becomes available." class="sample-muted"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Label text="The solid bar is current charge. The faint buffer previews 20% more. Computed text and buffer properties declare DependsOn so they refresh only when their source changes." class="sample-muted"/>
+                <ui:Label text="The solid bar is current charge. The faint buffer previews 20% more. Numeric text binds the raw charge and pulses when launch is available; computed text and buffer properties refresh when their sources change." class="sample-muted"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:ScrollView>

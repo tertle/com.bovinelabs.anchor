@@ -197,6 +197,24 @@ Regular buttons play activation audio through their normal click callback. Actio
 
 Component bindings target the component's field, such as `${component:BovineLabs.Anchor.Components.Pulse}.Enabled`. Enable **Project Settings > UI Toolkit > Enable UI Components** to expose component authoring; Unity's component API is experimental.
 
+## Numeric text
+
+`AnchorIntegerText` binds an exact `long` value; `AnchorNumberText` binds a `double`. Both derive from AppUI `BaseTextElement` and use its text styling and contexts without passing numeric output through localization token resolution. Keep translated labels in ordinary AppUI text elements.
+
+```xml
+<BovineLabs.Anchor.Elements.AnchorNumberText format="0.0" suffix=" ms">
+    <Bindings>
+        <ui:DataBinding property="number" data-source-path="FrameTime" binding-mode="ToTarget" />
+    </Bindings>
+</BovineLabs.Anchor.Elements.AnchorNumberText>
+```
+
+`number` is the typed numeric binding target. `format` uses standard .NET numeric formatting. `suffix` is appended verbatim. An empty `culture` follows the AppUI language context, falling back to the current culture; set a culture name for a fixed format.
+
+Attached elements format into a reused character buffer and call `TextElement.SetText`; detached elements allocate a string so their `text` remains immediately readable. Initial buffer growth can allocate. Reading `text`, saving text view data, or registering string change listeners can also materialize strings, so measure the complete attached binding path before claiming zero allocations.
+
+`KeyValueGroup.CreateNumeric` builds a numeric key/value layout from typed text elements and raw value paths. It returns a `VisualElement`; the existing string-based `KeyValueGroup.Elements` and `KeyValueElement.ValueLabel` contracts are unchanged.
+
 ## OptionPager
 
 `OptionPager` is a compact alternative to a dropdown. It renders previous and next `ActionButton`s, the selected item, and an optional `PageIndicator`.
