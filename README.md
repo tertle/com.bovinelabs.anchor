@@ -80,7 +80,7 @@ The runtime, adapter, debug, and editor assemblies have `autoReferenced` disable
 
 ## UI component migration
 
-Use stock App UI controls with behavior from `BovineLabs.Anchor.Components`. The components live in `BovineLabs.Anchor`; reference `Unity.AppUI` for the controls. Enable **Project Settings > UI Toolkit > Enable UI Components** to expose Unity's experimental component authoring interface.
+Use stock App UI controls with behavior from `BovineLabs.Anchor.Components`. The components live in `BovineLabs.Anchor`; reference `Unity.AppUI` for the controls. Anchor automatically enables **Project Settings > UI Toolkit > Enable UI Components** and restores it if disabled. This experimental setting controls authoring visibility; component compilation and runtime APIs remain available before it is enabled.
 
 This release removes six former elements:
 

@@ -171,7 +171,7 @@ Attach the component to its owning element, then target its public field with `$
 
 Ordinary `clickable.command` receives `userData` and controls enabled state through `CanExecute`. `EventCommand.Command` receives the Button's original activation event or an ActionButton's owner-targeted `ActionTriggeredEvent`; it does not manage enabled state. Attach `EventCommand` before `AudioFeedback` to preserve ActionButton's command-before-audio ordering.
 
-Custom bindable components must explicitly declare `: IVisualElementComponent` in their source for Unity's Properties generator. A generated interface declaration alone is invisible to the separate property-bag generator. Enable **Project Settings > UI Toolkit > Enable UI Components** for the experimental authoring interface.
+Custom bindable components must explicitly declare `: IVisualElementComponent` in their source for Unity's Properties generator. A generated interface declaration alone is invisible to the separate property-bag generator. Anchor automatically enables **Project Settings > UI Toolkit > Enable UI Components** for the experimental authoring interface; this setting does not gate compilation or runtime bindings.
 
 Use generated notifying setters for C# changes. After direct writes through `ref element.GetComponent<T>()`, notify the qualified field path with `NotifyComponentChanged`; call `MarkComponentDirty<T>()` as well when `OnComponentChanged` drives layout, scheduling or other behavior. Binding updates do both automatically. See [Component authoring and bindings](adapter-elements.md#component-authoring-and-bindings) for a complete C# example.
 

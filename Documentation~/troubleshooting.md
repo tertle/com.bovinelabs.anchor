@@ -40,7 +40,7 @@ Do not add `data-source-type` to row templates when `GridItemTemplate` or `Accor
 
 ## A UI component cannot be authored or its binding does not update
 
-Enable **Project Settings > UI Toolkit > Enable UI Components** for Unity's experimental component inspector. Components are direct children of the owner in UXML, and their types live in `BovineLabs.Anchor.Components`.
+Anchor automatically enables **Project Settings > UI Toolkit > Enable UI Components** for Unity's experimental component inspector and restores it if disabled. This setting controls authoring visibility, not component compilation. Components are direct children of the owner in UXML, and their types live in `BovineLabs.Anchor.Components`.
 
 Bind public component fields through `${component:Fully.Qualified.Type}.Field`, including Pascal-case field names such as `Command`, `ItemsSource`, and `Enabled`. A custom bindable component must explicitly declare `: IVisualElementComponent` in its own source so Unity's Properties generator produces its property bag.
 

@@ -14,6 +14,7 @@
 * Discarded navigation screens, toolbar visuals, and application visual generations release UI Toolkit resources after their owned lifecycle cleanup and the current UI callback have finished.
 
 ### Fixed
+* Anchor enables UI Components authoring on Editor initialization and restores it when disabled; the setting does not gate component compilation or runtime APIs.
 * Immediate navigation completion runs once, and button-driven navigation or toolbar removal no longer destroys native element resources while App UI is still processing activation.
 * Debug toolbar camera resizing checks the camera renderer directly, allowing supported overlay camera stacks to resize without a global render-pipeline gate.
 

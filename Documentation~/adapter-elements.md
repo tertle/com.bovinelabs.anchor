@@ -187,7 +187,7 @@ Regular buttons play activation audio through their normal click callback. Actio
 
 ### Component authoring and bindings
 
-Enable **Project Settings > UI Toolkit > Enable UI Components** for Unity's experimental component authoring interface. Components are authored directly inside their owner and do not create additional visual elements. The flag exposes authoring/debugging UI; runtime attachment and bindings use the component API.
+Anchor automatically enables **Project Settings > UI Toolkit > Enable UI Components** and restores it if disabled. Components are authored directly inside their owner and do not create additional visual elements. This experimental flag exposes authoring/debugging UI; component compilation, runtime attachment, and bindings do not depend on it.
 
 Bindings target a component field, for example `${component:BovineLabs.Anchor.Components.Pulse}.Enabled`. Custom bindable components must explicitly declare `: IVisualElementComponent` in their source so Unity's Properties generator can produce the property bag; generators cannot inspect one another's generated declarations.
 
