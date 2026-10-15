@@ -5,10 +5,11 @@
 ### Added
 * A reusable UI Toolkit audio feedback component for existing buttons.
 * A reusable UI Toolkit pulse component for existing visual elements.
+* Composable event commands, grid templates, accordion items, safe-area padding, and timers in the core runtime assembly.
 * Bindable integer and floating-point text controls that format attached readouts through UI Toolkit's native text buffer.
 
 ### Changed
-* Button audio configuration moves to the audio feedback component; Anchor button adapters retain their default feedback and event-aware commands.
+* Breaking: removed `AnchorButton`, `AnchorActionButton`, `AnchorGridView`, `AnchorAccordion`, `AnchorSafeArea`, and `BovineLabs.Anchor.Elements.Timer`. Use stock controls/containers with `AudioFeedback`, `EventCommand`, `GridItemTemplate`, `AccordionItems`, `SafeArea`, and `BovineLabs.Anchor.Components.Timer`; move attributes and binding targets to their component fields. See the README migration table.
 * FPS toolbar readouts bind raw numeric values instead of allocating formatted strings.
 * Discarded navigation screens, toolbar visuals, and application visual generations release UI Toolkit resources after their owned lifecycle cleanup and the current UI callback have finished.
 

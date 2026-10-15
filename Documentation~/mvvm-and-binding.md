@@ -101,19 +101,20 @@ A `CanExecuteMethod` must return `bool` and have the same parameters as the comm
             </Bindings>
         </ui:Label>
 
-        <BovineLabs.Anchor.Elements.AnchorActionButton label="Continue">
+        <Unity.AppUI.UI.ActionButton label="Continue">
+            <BovineLabs.Anchor.Components.AudioFeedback />
             <Bindings>
                 <ui:DataBinding
                     property="clickable.command"
                     data-source-path="ContinueCommand"
                     binding-mode="ToTarget" />
             </Bindings>
-        </BovineLabs.Anchor.Elements.AnchorActionButton>
+        </Unity.AppUI.UI.ActionButton>
     </ui:VisualElement>
 </ui:UXML>
 ```
 
-Replace `Example.UI` after the comma with the view model's assembly name. The button in this example is an AppUI-backed Anchor adapter; see [Adapter elements](adapter-elements.md).
+Replace `Example.UI` after the comma with the view model's assembly name. This uses a stock App UI button with an Anchor core component; an adapter assembly reference is not required. See [Components and adapter elements](adapter-elements.md).
 
 In a stripped player build, use `[Preserve]` for a service type that is reached only through reflection or a UXML type string.
 
@@ -150,6 +151,29 @@ toggle.SetBinding(nameof(toggle.value), new DataBinding
     updateTrigger = BindingUpdateTrigger.OnSourceChanged,
 });
 ```
+
+## Bind UI components
+
+Attach the component to its owning element, then target its public field with `${component:Fully.Qualified.Type}.Field`. For an event-aware command:
+
+```xml
+<Unity.AppUI.UI.ActionButton label="Inspect">
+    <BovineLabs.Anchor.Components.EventCommand />
+    <BovineLabs.Anchor.Components.AudioFeedback />
+    <Bindings>
+        <ui:DataBinding
+            property="${component:BovineLabs.Anchor.Components.EventCommand}.Command"
+            data-source-path="InspectEventCommand"
+            binding-mode="ToTarget" />
+    </Bindings>
+</Unity.AppUI.UI.ActionButton>
+```
+
+Ordinary `clickable.command` receives `userData` and controls enabled state through `CanExecute`. `EventCommand.Command` receives the Button's original activation event or an ActionButton's owner-targeted `ActionTriggeredEvent`; it does not manage enabled state. Attach `EventCommand` before `AudioFeedback` to preserve ActionButton's command-before-audio ordering.
+
+Custom bindable components must explicitly declare `: IVisualElementComponent` in their source for Unity's Properties generator. A generated interface declaration alone is invisible to the separate property-bag generator. Enable **Project Settings > UI Toolkit > Enable UI Components** for the experimental authoring interface.
+
+Use generated notifying setters for C# changes. After direct writes through `ref element.GetComponent<T>()`, notify the qualified field path with `NotifyComponentChanged`; call `MarkComponentDirty<T>()` as well when `OnComponentChanged` drives layout, scheduling or other behavior. Binding updates do both automatically. See [Component authoring and bindings](adapter-elements.md#component-authoring-and-bindings) for a complete C# example.
 
 ## Converter groups
 

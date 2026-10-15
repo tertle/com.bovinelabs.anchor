@@ -62,7 +62,7 @@ assets. See the [Showcase README](Samples~/Showcase/README.md) for entry points 
 | [Application and services](Documentation~/app-and-services.md) | App lifecycle, dependency injection, UXML ownership, storage, and UI audio |
 | [Navigation](Documentation~/navigation.md) | Destinations, actions, popups, arguments, callbacks, saved state, animations, and Burst entry points |
 | [MVVM and binding](Documentation~/mvvm-and-binding.md) | Observable objects, generated properties and commands, ECS-facing data, and `UIHelper` |
-| [Adapter elements](Documentation~/adapter-elements.md) | AppUI controls, repeated-item templates, command payloads, safe areas, and timers |
+| [Components and adapter elements](Documentation~/adapter-elements.md) | Stock App UI composition, repeated-item templates, commands, safe areas, timers, and custom controls |
 | [Debug toolbar](Documentation~/debug-toolbar.md) | Auto toolbar views, ECS-backed tabs, build symbols, and lifecycle |
 | [Troubleshooting](Documentation~/troubleshooting.md) | Assembly references, host startup, UXML binding, navigation, and toolbar diagnostics |
 
@@ -70,13 +70,30 @@ assets. See the [Showcase README](Samples~/Showcase/README.md) for entry points 
 
 | Assembly | Purpose |
 |---|---|
-| `BovineLabs.Anchor` | App hosting, services, navigation, MVVM, binding, core elements, audio, and utilities |
-| `BovineLabs.Anchor.Adapters` | AppUI-backed controls such as `AnchorActionButton`, `AnchorGridView`, and `OptionPager` |
+| `BovineLabs.Anchor` | App hosting, services, navigation, MVVM, binding, UI components, core elements, audio, and utilities |
+| `BovineLabs.Anchor.Adapters` | Custom controls such as numeric text, `AnchorLinearProgress`, touch sliders, and `OptionPager` |
 | `BovineLabs.Anchor.Debug` | AppUI-based runtime debug toolbar and built-in panels |
 | `BovineLabs.Anchor.Editor` | Anchor settings and navigation asset inspectors |
 | `BovineLabs.Anchor.Tests` | Package EditMode tests |
 
 The runtime, adapter, debug, and editor assemblies have `autoReferenced` disabled. Add the assemblies you use to your own `.asmdef`; installing the package alone does not make their types visible.
+
+## UI component migration
+
+Use stock App UI controls with behavior from `BovineLabs.Anchor.Components`. The components live in `BovineLabs.Anchor`; reference `Unity.AppUI` for the controls. Enable **Project Settings > UI Toolkit > Enable UI Components** to expose Unity's experimental component authoring interface.
+
+This release removes six former elements:
+
+| Removed element | Replacement |
+| --- | --- |
+| `AnchorButton` | App UI `Button` plus `AudioFeedback`; add `EventCommand` for event-aware commands |
+| `AnchorActionButton` | App UI `ActionButton` plus the same components |
+| `AnchorGridView` | App UI `GridView` plus `GridItemTemplate` |
+| `AnchorAccordion` | App UI `Accordion` plus `AccordionItems` |
+| `AnchorSafeArea` | Existing container plus `SafeArea` |
+| `BovineLabs.Anchor.Elements.Timer` | Existing element plus `BovineLabs.Anchor.Components.Timer` |
+
+Move element-specific attributes onto the component. Bind former `commandWithEventInfo` targets to `${component:BovineLabs.Anchor.Components.EventCommand}.Command`; bind accordion sources to `${component:BovineLabs.Anchor.Components.AccordionItems}.ItemsSource`. Add `EventCommand` before `AudioFeedback` to preserve ActionButton command/audio ordering. See [Components and adapter elements](Documentation~/adapter-elements.md) for examples.
 
 ## Theme entry points
 

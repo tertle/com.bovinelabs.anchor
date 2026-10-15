@@ -7,31 +7,36 @@
         </ui:VisualElement>
         <ui:VisualElement class="sample-card">
             <ui:VisualElement class="sample-actions">
-                <a:AnchorButton name="collection-add" title="Add relay">
+                <Unity.AppUI.UI.Button name="collection-add" title="Add relay">
+                    <BovineLabs.Anchor.Components.AudioFeedback/>
                     <Bindings>
                         <ui:DataBinding property="clickable.command" data-source-path="AddCommand" binding-mode="ToTarget"/>
                     </Bindings>
-                </a:AnchorButton>
-                <a:AnchorButton title="Remove selected / last">
+                </Unity.AppUI.UI.Button>
+                <Unity.AppUI.UI.Button title="Remove selected / last">
+                    <BovineLabs.Anchor.Components.AudioFeedback/>
                     <Bindings>
                         <ui:DataBinding property="clickable.command" data-source-path="RemoveCommand" binding-mode="ToTarget"/>
                     </Bindings>
-                </a:AnchorButton>
-                <a:AnchorButton title="Charge all">
+                </Unity.AppUI.UI.Button>
+                <Unity.AppUI.UI.Button title="Charge all">
+                    <BovineLabs.Anchor.Components.AudioFeedback/>
                     <Bindings>
                         <ui:DataBinding property="clickable.command" data-source-path="ChargeAllCommand" binding-mode="ToTarget"/>
                     </Bindings>
-                </a:AnchorButton>
-                <a:AnchorButton title="Clear">
+                </Unity.AppUI.UI.Button>
+                <Unity.AppUI.UI.Button title="Clear">
+                    <BovineLabs.Anchor.Components.AudioFeedback/>
                     <Bindings>
                         <ui:DataBinding property="clickable.command" data-source-path="ClearCommand" binding-mode="ToTarget"/>
                     </Bindings>
-                </a:AnchorButton>
-                <a:AnchorButton title="Reset six relays">
+                </Unity.AppUI.UI.Button>
+                <Unity.AppUI.UI.Button title="Reset six relays">
+                    <BovineLabs.Anchor.Components.AudioFeedback/>
                     <Bindings>
                         <ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget"/>
                     </Bindings>
-                </a:AnchorButton>
+                </Unity.AppUI.UI.Button>
             </ui:VisualElement>
             <ui:Label class="sample-value">
                 <Bindings>
@@ -53,21 +58,23 @@
             <ui:VisualElement class="sample-card collection-view">
                 <ui:Label text="Virtualized grid" class="sample-card-title"/>
                 <ui:Label text="Rows recycle as you scroll. Their template receives each relay as its data source." class="sample-muted"/>
-                <a:AnchorGridView name="relay-grid" item-template="CollectionItem.uxml" selection-type="None" column-count="2" item-height="174" class="collection-grid">
+                <Unity.AppUI.UI.GridView name="relay-grid" selection-type="None" column-count="2" item-height="174" class="collection-grid">
+                    <BovineLabs.Anchor.Components.GridItemTemplate item-template="CollectionItem.uxml"/>
                     <Bindings>
                         <ui:DataBinding property="itemsSource" data-source-path="Items" binding-mode="ToTarget"/>
                     </Bindings>
-                </a:AnchorGridView>
+                </Unity.AppUI.UI.GridView>
             </ui:VisualElement>
             <ui:VisualElement class="sample-card collection-view">
                 <ui:Label text="Accordion" class="sample-card-title"/>
                 <ui:Label text="Expand a relay to edit its charge. Both controls share the same row objects." class="sample-muted"/>
                 <ui:ScrollView class="collection-accordion-scroll" horizontal-scroller-visibility="Hidden">
-                    <a:AnchorAccordion name="relay-accordion" item-template="CollectionAccordionItem.uxml">
+                    <Unity.AppUI.UI.Accordion name="relay-accordion">
+                        <BovineLabs.Anchor.Components.AccordionItems item-template="CollectionAccordionItem.uxml"/>
                         <Bindings>
-                            <ui:DataBinding property="itemsSource" data-source-path="Items" binding-mode="ToTarget"/>
+                            <ui:DataBinding property="${component:BovineLabs.Anchor.Components.AccordionItems}.ItemsSource" data-source-path="Items" binding-mode="ToTarget"/>
                         </Bindings>
-                    </a:AnchorAccordion>
+                    </Unity.AppUI.UI.Accordion>
                 </ui:ScrollView>
             </ui:VisualElement>
         </ui:VisualElement>

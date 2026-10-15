@@ -1,12 +1,13 @@
 namespace BovineLabs.Anchor.Tests.Toolbar
 {
     using System;
+    using BovineLabs.Anchor.Components;
     using BovineLabs.Anchor.Debug.Toolbar;
-    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
     using UnityEngine.UIElements;
+    using Button = Unity.AppUI.UI.Button;
     using ToolbarService = BovineLabs.Anchor.Debug.Toolbar.Toolbar;
 
     public class ToolbarResourceReleaseTests
@@ -82,10 +83,14 @@ namespace BovineLabs.Anchor.Tests.Toolbar
             var viewModel = new ToolbarViewModel(storage);
             using var toolbar = new ToolbarService(new EmptyServiceProvider(), viewModel, storage, Array.Empty<Type>());
             var root = (ToolbarView)toolbar.CreateRootVisualElement();
-            var button = new AnchorButton();
+            var button = new Button();
             root.AddRegistration(1, "Tab", "Button", button);
             var container = button.parent;
-            button.commandWithEventInfo = new RelayCommand<EventBase>(_ => root.RemoveRegistration(1));
+            button.AddComponent(new EventCommand
+            {
+                Command = new RelayCommand<EventBase>(_ => root.RemoveRegistration(1)),
+            });
+            button.GetOrAddComponent<AudioFeedback>();
 
             Assert.DoesNotThrow(() => button.clickable.InvokePressed(null));
 

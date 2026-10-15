@@ -265,7 +265,7 @@ Navigation normally owns screen instantiation and attachment. It also applies sc
 
 Configure UI audio under **BovineLabs > Settings > Anchor > Audio**. Each profile maps a case-sensitive key to optional hover and activation clips. The built-in profile key is `default`, exposed as `AnchorAudioSettings.DefaultProfileKey`.
 
-When the App UI adapters are installed, `AnchorButton` and `AnchorActionButton` use the default profile unless another profile is assigned. Each cue can:
+Attach `BovineLabs.Anchor.Components.AudioFeedback` to a stock App UI `Button` or `ActionButton`. The component lives in `BovineLabs.Anchor` and uses the default profile unless another profile is assigned. Each cue can:
 
 - `Inherit` the clip from the selected profile.
 - `Disabled` suppress playback for that cue.
@@ -297,7 +297,7 @@ public static class MenuAudio
 }
 ```
 
-`AnchorAudio.Play` is a no-op when there is no current app or no registered `IAudioService`. The default service creates its audio GameObject only when it has a non-null clip to play, and disposes that object with the app provider. See [Adapter elements](adapter-elements.md) for the button attributes and properties.
+`AnchorAudio.Play` is a no-op when there is no current app or no registered `IAudioService`. The default service creates its audio GameObject only when it has a non-null clip to play, and disposes that object with the app provider. See [Components and adapter elements](adapter-elements.md#audio-feedback-component) for audio attributes and event-aware command composition.
 
 ## Replace a built-in service
 

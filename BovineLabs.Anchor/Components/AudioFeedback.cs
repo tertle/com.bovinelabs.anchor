@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Components
     using Button = Unity.AppUI.UI.Button;
 
     [VisualElementComponent]
-    public partial struct AudioFeedback
+    public partial struct AudioFeedback : IVisualElementComponent
     {
         [CreateProperty]
         [UxmlAttribute("audio-profile")]
@@ -95,12 +95,14 @@ namespace BovineLabs.Anchor.Components
 
         private sealed class ButtonSubscription : IDisposable
         {
+            private readonly Pressable _pressable;
             private Button _button;
 
             public ButtonSubscription(Button button)
             {
                 _button = button;
-                _button.clicked += OnActivated;
+                _pressable = button.clickable;
+                _pressable.clicked += OnActivated;
             }
 
             public void Dispose()
@@ -110,7 +112,7 @@ namespace BovineLabs.Anchor.Components
                     return;
                 }
 
-                _button.clicked -= OnActivated;
+                _pressable.clicked -= OnActivated;
                 _button = null;
             }
 

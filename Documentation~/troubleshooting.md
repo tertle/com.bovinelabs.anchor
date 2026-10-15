@@ -6,7 +6,7 @@ Start with the first symptom that matches the project. Anchor logs runtime setup
 
 Anchor's asmdefs have `autoReferenced` disabled. Add an explicit reference from the consuming asmdef:
 
-- `BovineLabs.Anchor` for app, navigation, services, MVVM, binding, audio, and core elements.
+- `BovineLabs.Anchor` for app, navigation, services, MVVM, binding, audio, UI components, and core elements.
 - `BovineLabs.Anchor.Adapters` for AppUI-backed Anchor controls.
 - `BovineLabs.Anchor.Debug` for toolbar views and helpers.
 
@@ -36,7 +36,15 @@ If a custom builder overrides `OnConfigureServices`, `OnVisualGenerationInitiali
 
 For each element with `data-source-type`, `UXMLService` asks the app service provider for that exact type. Verify that the value is assembly-qualified and that the type is registered with `[IsService]` or in `OnConfigureServices`.
 
-Do not add `data-source-type` to row templates when `AnchorGridView` or `AnchorAccordion` owns the row. Those controls assign each row's `dataSource` from `itemsSource`.
+Do not add `data-source-type` to row templates when `GridItemTemplate` or `AccordionItems` supplies row data. Keep a grid source on stock `GridView.itemsSource`; bind an accordion source to `${component:BovineLabs.Anchor.Components.AccordionItems}.ItemsSource`.
+
+## A UI component cannot be authored or its binding does not update
+
+Enable **Project Settings > UI Toolkit > Enable UI Components** for Unity's experimental component inspector. Components are direct children of the owner in UXML, and their types live in `BovineLabs.Anchor.Components`.
+
+Bind public component fields through `${component:Fully.Qualified.Type}.Field`, including Pascal-case field names such as `Command`, `ItemsSource`, and `Enabled`. A custom bindable component must explicitly declare `: IVisualElementComponent` in its own source so Unity's Properties generator produces its property bag.
+
+Direct C# field writes do not raise notifications. Use generated setters, or call `NotifyComponentChanged` for the qualified field path and `MarkComponentDirty<T>()` when changed behavior depends on `OnComponentChanged`. For the six removed wrapper elements, follow the [migration table](../README.md#ui-component-migration).
 
 ## Generated properties or commands are missing
 
@@ -77,4 +85,4 @@ Confirm all of the following:
 
 ## UI audio is silent
 
-Audio feedback is opt-in. Assign hover or activate clips to a named profile in `AnchorSettings.Audio`, then select that profile or a per-control cue override. An inherited cue with no clip intentionally produces no sound. Custom builders that replace default service registration must register an `IAudioService` implementation.
+Audio feedback is opt-in. Attach `AudioFeedback` to the stock button, assign hover or activate clips to a named profile in `AnchorSettings.Audio`, then select that profile or a per-control cue override. An inherited cue with no clip intentionally produces no sound. Custom builders that replace default service registration must register an `IAudioService` implementation.

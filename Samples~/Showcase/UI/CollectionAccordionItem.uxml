@@ -20,11 +20,12 @@
                     <ui:DataBinding property="text" data-source-path="ChargeText" binding-mode="ToTarget"/>
                 </Bindings>
             </ui:Label>
-            <a:AnchorButton title="Select this relay">
+            <appui:Button title="Select this relay">
+                <BovineLabs.Anchor.Components.AudioFeedback/>
                 <Bindings>
                     <ui:DataBinding property="clickable.command" data-source-path="SelectCommand" binding-mode="ToTarget"/>
                 </Bindings>
-            </a:AnchorButton>
+            </appui:Button>
         </ui:VisualElement>
     </appui:AccordionItem>
 </ui:UXML>

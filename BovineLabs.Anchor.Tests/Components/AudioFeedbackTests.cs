@@ -3,10 +3,10 @@ namespace BovineLabs.Anchor.Tests.Components
     using System.Collections.Generic;
     using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.Components;
-    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using NUnit.Framework;
+    using Unity.Properties;
     using UnityEngine.UIElements;
     using Button = Unity.AppUI.UI.Button;
 
@@ -48,6 +48,22 @@ namespace BovineLabs.Anchor.Tests.Components
             Assert.AreEqual(AnchorAudioSettings.DefaultProfileKey, _audio.Calls[0].Profile);
             Assert.AreEqual(AnchorAudioCue.Activate, _audio.Calls[0].Cue);
             Assert.AreEqual(AnchorAudioOverrideMode.Inherit, _audio.Calls[0].Override.Mode);
+        }
+
+        [Test]
+        public void AudioProfile_PropertyBagRoundTrip_DrivesActivation()
+        {
+            var component = AudioFeedback.Create();
+
+            Assert.IsTrue(PropertyContainer.TrySetValue(ref component, nameof(AudioFeedback.AudioProfile), "settings"));
+            Assert.IsTrue(PropertyContainer.TryGetValue(ref component, nameof(AudioFeedback.AudioProfile), out string profile));
+            Assert.AreEqual("settings", profile);
+            var button = new Button();
+            button.AddComponent(component);
+            button.clickable.InvokePressed(null);
+
+            Assert.AreEqual(1, _audio.Calls.Count);
+            Assert.AreEqual(profile, _audio.Calls[0].Profile);
         }
 
         [Test]
@@ -96,9 +112,10 @@ namespace BovineLabs.Anchor.Tests.Components
         }
 
         [Test]
-        public void AnchorButton_GetOrAddAuthoredAudio_ReusesDefaultWithoutDuplicatingActivation()
+        public void Button_GetOrAddAudioTwice_ReusesConfigurationWithoutDuplicatingActivation()
         {
-            var button = new AnchorButton();
+            var button = new Button();
+            button.GetOrAddComponent<AudioFeedback>();
             ref var feedback = ref button.GetOrAddComponent<AudioFeedback>();
             feedback.AudioProfile = "authored";
             button.NotifyComponentChanged(new BindingId("${component:BovineLabs.Anchor.Components.AudioFeedback}.AudioProfile"));
@@ -107,22 +124,6 @@ namespace BovineLabs.Anchor.Tests.Components
 
             Assert.AreEqual(1, _audio.Calls.Count);
             Assert.AreEqual("authored", _audio.Calls[0].Profile);
-        }
-
-        [Test]
-        public void AnchorButton_Activation_PreservesCommandEventInfo()
-        {
-            EventBase received = null;
-            var button = new AnchorButton
-            {
-                commandWithEventInfo = new RelayCommand<EventBase>(evt => received = evt),
-            };
-            using var evt = KeyUpEvent.GetPooled();
-
-            button.clickable.InvokePressed(evt);
-
-            Assert.AreSame(evt, received);
-            Assert.AreEqual(1, _audio.Calls.Count);
         }
 
         private sealed class RecordingAudioService : IAudioService

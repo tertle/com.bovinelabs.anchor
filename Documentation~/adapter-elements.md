@@ -1,8 +1,8 @@
 # Adapter elements and UI utilities
 
-Anchor supplies a small set of AppUI adapters plus a few UI Toolkit-only elements. Use them where they add Anchor behavior; use the original AppUI control when no adapter behavior is needed.
+Use stock App UI controls with composable behavior from `BovineLabs.Anchor.Components`. Anchor retains custom elements for numeric text, progress rendering, touch sliders, and other controls that need their own visual implementation.
 
-Most AppUI-backed element types compile in `BovineLabs.Anchor.Adapters`. A consuming asmdef must reference both `BovineLabs.Anchor.Adapters` and `Unity.AppUI`. The adapter assembly is not auto-referenced. `GroupedMenuBuilder` is the layout exception: it lives in the core `BovineLabs.Anchor` assembly.
+Components and `GroupedMenuBuilder` live in the core `BovineLabs.Anchor` assembly. Stock App UI controls with Anchor components require `BovineLabs.Anchor` and `Unity.AppUI`; add `BovineLabs.Anchor.Adapters` for the custom elements below. These assemblies are not auto-referenced.
 
 Unity converts C# camel-case `[UxmlAttribute]` names to kebab case. For example, `itemTemplate` is `item-template` and `showIndicator` is `show-indicator` in UXML.
 
@@ -60,87 +60,73 @@ overlays. The control provides linear fill through the silhouette; it does not p
 
 ## Repeated item controls
 
-### AnchorGridView
+### Grid item template
 
-`AnchorGridView` derives from AppUI `GridView` and adds one UXML attribute:
-
-| UXML attribute | Type | Purpose |
-| --- | --- | --- |
-| `item-template` | `VisualTreeAsset` | Template cloned by `makeItem` for every grid slot |
-
-The adapter's `bindItem` assigns `itemsSource[index]` to the cloned row's `dataSource`:
+Attach `GridItemTemplate` to a stock App UI `GridView`. Its `item-template` attribute supplies the `VisualTreeAsset` cloned by `makeItem`; its binder assigns `itemsSource[index]` to the cloned row's `dataSource`. Scrolling, recycling and selection remain owned by App UI.
 
 ```xml
-<BovineLabs.Anchor.Elements.AnchorGridView
+<Unity.AppUI.UI.GridView
     data-source-type="Example.UI.CatalogViewModel, Example.UI"
-    item-template="project://database/Assets/UI/CatalogItem.uxml#CatalogItem"
     selection-type="None"
     column-count="4"
     item-height="84">
+    <BovineLabs.Anchor.Components.GridItemTemplate
+        item-template="project://database/Assets/UI/CatalogItem.uxml#CatalogItem" />
     <Bindings>
-        <ui:DataBinding
-            property="itemsSource"
-            data-source-path="Items"
-            binding-mode="ToTarget" />
+        <ui:DataBinding property="itemsSource" data-source-path="Items" binding-mode="ToTarget" />
     </Bindings>
-</BovineLabs.Anchor.Elements.AnchorGridView>
+</Unity.AppUI.UI.GridView>
 ```
 
-Bind the item template directly to row properties. Its root should not declare the screen view model as `data-source-type`, because that would replace the row source:
+Bind the item template directly to row properties. Its root should not declare the screen view model as `data-source-type`, because the grid supplies the row source:
 
 ```xml
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <BovineLabs.Anchor.Elements.AnchorActionButton>
+    <Unity.AppUI.UI.ActionButton>
+        <BovineLabs.Anchor.Components.AudioFeedback />
         <Bindings>
             <ui:DataBinding property="label" data-source-path="Label" binding-mode="ToTarget" />
             <ui:DataBinding property="clickable.command" data-source-path="SelectCommand" binding-mode="ToTarget" />
         </Bindings>
-    </BovineLabs.Anchor.Elements.AnchorActionButton>
+    </Unity.AppUI.UI.ActionButton>
 </ui:UXML>
 ```
 
-When `item-template` is missing, the grid creates a `Label` containing `Template Not Found` for each item.
+When `item-template` is missing, the component creates a `Label` containing `Template Not Found` for each item. Removing the component restores the grid callbacks it replaced, unless another owner has since replaced them.
 
-### AnchorAccordion
+### Accordion items
 
-`AnchorAccordion` derives from AppUI `Accordion`. It clones its template once per source item, then assigns each discovered `AccordionItem.dataSource` in source order.
-
-| UXML attribute | Type | Purpose |
-| --- | --- | --- |
-| `item-template` | `VisualTreeAsset` | Template cloned for each source item |
-
-`itemsSource` is bindable but is not a literal UXML attribute:
+Attach `AccordionItems` to a stock App UI `Accordion`. `ItemTemplate` supplies the `item-template` asset; bind the source list to the component's `ItemsSource` field:
 
 ```xml
-<BovineLabs.Anchor.Elements.AnchorAccordion
-    data-source-type="Example.UI.ModsViewModel, Example.UI"
-    item-template="project://database/Assets/UI/ModItem.uxml#ModItem">
+<Unity.AppUI.UI.Accordion data-source-type="Example.UI.ModsViewModel, Example.UI">
+    <BovineLabs.Anchor.Components.AccordionItems
+        item-template="project://database/Assets/UI/ModItem.uxml#ModItem" />
     <Bindings>
-        <ui:DataBinding property="itemsSource" data-source-path="Mods" binding-mode="ToTarget" />
+        <ui:DataBinding
+            property="${component:BovineLabs.Anchor.Components.AccordionItems}.ItemsSource"
+            data-source-path="Mods"
+            binding-mode="ToTarget" />
     </Bindings>
-</BovineLabs.Anchor.Elements.AnchorAccordion>
+</Unity.AppUI.UI.Accordion>
 ```
 
-The template must produce one `AccordionItem` per clone. As with the grid, leave the row root's service-level `data-source-type` unset.
+The component clones its template directly into the accordion for each source item, preserving App UI's exclusive-open behavior. Use one `AccordionItem` per template, with no service-level `data-source-type` on its row root. Replacing the template/source or removing the component detaches the rows it owns while preserving unrelated children. Detached rows keep their normal garbage-collected lifetime so App UI can finish any active callbacks.
 
 ## Buttons and commands
 
-`AnchorButton` derives from AppUI `Button`; `AnchorActionButton` derives from AppUI `ActionButton`. Both add:
-
-- `commandWithEventInfo`, a bindable `ICommand` that receives the click or action event.
-- Named-profile hover and activation audio with optional per-control overrides.
-
-Use the normal AppUI command when the handler needs no event payload:
+Use stock App UI `Button` and `ActionButton`. Bind `clickable.command` for an ordinary command; App UI supplies the element's `userData` parameter and updates enabled state from `CanExecute`:
 
 ```xml
-<BovineLabs.Anchor.Elements.AnchorActionButton label="Play">
+<Unity.AppUI.UI.ActionButton label="Play">
+    <BovineLabs.Anchor.Components.AudioFeedback />
     <Bindings>
         <ui:DataBinding property="clickable.command" data-source-path="PlayCommand" binding-mode="ToTarget" />
     </Bindings>
-</BovineLabs.Anchor.Elements.AnchorActionButton>
+</Unity.AppUI.UI.ActionButton>
 ```
 
-Bind `commandWithEventInfo` when a generated command accepts the event:
+Attach `EventCommand` when the command needs the activation event:
 
 ```csharp
 [ICommand]
@@ -151,27 +137,31 @@ private void InspectEvent(EventBase evt)
 ```
 
 ```xml
-<BovineLabs.Anchor.Elements.AnchorButton label="Inspect">
+<Unity.AppUI.UI.Button title="Inspect">
+    <BovineLabs.Anchor.Components.EventCommand />
+    <BovineLabs.Anchor.Components.AudioFeedback />
     <Bindings>
         <ui:DataBinding
-            property="commandWithEventInfo"
+            property="${component:BovineLabs.Anchor.Components.EventCommand}.Command"
             data-source-path="InspectEventCommand"
             binding-mode="ToTarget" />
     </Bindings>
-</BovineLabs.Anchor.Elements.AnchorButton>
+</Unity.AppUI.UI.Button>
 ```
+
+`EventCommand.Command` receives the original `EventBase` from a Button's `clickedWithEventInfo`, or the targeted `ActionTriggeredEvent` from an ActionButton. Bubbled child actions are ignored. Programmatic Button activation can supply `null`. The component calls `ICommand.Execute` without taking ownership of enabled state or `CanExecuteChanged`; Anchor's relay commands check their own eligibility.
+
+Attach `EventCommand` before `AudioFeedback` to retain command-before-audio ordering for ActionButton. Button follows App UI's fixed order: ordinary command, click/audio callbacks, then event-aware command. Removing the component stops its owned subscription; permanent element release also cleans it up.
 
 ### Audio feedback component
 
-`BovineLabs.Anchor.Components.AudioFeedback` adds feedback to an existing AppUI `Button` or `ActionButton`. Both Anchor button adapters attach it automatically with the default profile. Add an authored component to configure that same instance; audio attributes now belong on the component rather than on the button.
+`AudioFeedback` adds hover and activation audio to a stock App UI `Button` or `ActionButton`. Attach it explicitly; its profile defaults to `default`.
 
 ```xml
-<appui:Button title="Play">
+<Unity.AppUI.UI.Button title="Play">
     <BovineLabs.Anchor.Components.AudioFeedback audio-profile="menu" hover-audio-mode="Disabled" />
-</appui:Button>
+</Unity.AppUI.UI.Button>
 ```
-
-The component exposes these attributes:
 
 | UXML attribute | Default | Purpose |
 | --- | --- | --- |
@@ -181,21 +171,36 @@ The component exposes these attributes:
 | `activate-audio-mode` | `Inherit` | `Inherit`, `Disabled`, or `Custom` |
 | `activate-audio-clip` | none | Clip used in `Custom` mode |
 
-Regular buttons play activation audio through their normal click callback. Action buttons handle only an `ActionTriggeredEvent` whose target is the button itself, which avoids reacting to a bubbled child action. Hover audio is limited to mouse and tracked-pointer entry and does not play while the control is disabled. Removing the component stops its owned event subscriptions; releasing the element also releases the component's resources.
+Regular buttons play activation audio through their normal click callback. Action buttons accept only an `ActionTriggeredEvent` targeted at the owner. Hover audio is limited to mouse and tracked-pointer entry and does not play while the control is disabled. Removal and permanent release clean up owned subscriptions.
 
 ### Pulse component
 
-`BovineLabs.Anchor.Components.Pulse` animates an existing element's opacity, including sealed AppUI text controls. It is disabled by default.
+`Pulse` animates an existing element's opacity, including sealed App UI text controls. It is disabled by default.
 
 ```xml
-<appui:Text text="Waiting" class="waiting-text">
+<Unity.AppUI.UI.Text text="Waiting" class="waiting-text">
     <BovineLabs.Anchor.Components.Pulse enabled="true" interval="1200" minimum-opacity="0.35" />
-</appui:Text>
+</Unity.AppUI.UI.Text>
 ```
 
-`interval` is the duration of a whole cycle in milliseconds. `minimum-opacity` and `maximum-opacity` define the range. The corresponding USS properties are `--bl-anchor-pulse-interval`, `--bl-anchor-pulse-minimum-opacity`, and `--bl-anchor-pulse-maximum-opacity`. Disabling or explicitly removing the component restores the element's prior inline opacity.
+`interval` is the duration of a whole cycle in milliseconds; a value at or below zero disables animation. `minimum-opacity` and `maximum-opacity` define the range. The corresponding USS properties are `--bl-anchor-pulse-interval`, `--bl-anchor-pulse-minimum-opacity`, and `--bl-anchor-pulse-maximum-opacity`. Disabling or explicitly removing the component restores the element's prior inline opacity.
 
-Component bindings target the component's field, such as `${component:BovineLabs.Anchor.Components.Pulse}.Enabled`. Enable **Project Settings > UI Toolkit > Enable UI Components** to expose component authoring; Unity's component API is experimental.
+### Component authoring and bindings
+
+Enable **Project Settings > UI Toolkit > Enable UI Components** for Unity's experimental component authoring interface. Components are authored directly inside their owner and do not create additional visual elements. The flag exposes authoring/debugging UI; runtime attachment and bindings use the component API.
+
+Bindings target a component field, for example `${component:BovineLabs.Anchor.Components.Pulse}.Enabled`. Custom bindable components must explicitly declare `: IVisualElementComponent` in their source so Unity's Properties generator can produce the property bag; generators cannot inspect one another's generated declarations.
+
+For C# changes, use the generated setters where available. Direct field writes require a binding notification, and behavior driven by `OnComponentChanged` also needs `MarkComponentDirty<T>`:
+
+```csharp
+ref var safeArea = ref element.GetComponent<BovineLabs.Anchor.Components.SafeArea>();
+safeArea.Edges = AnchorSafeAreaEdges.Top;
+element.NotifyComponentChanged(new BindingId("${component:BovineLabs.Anchor.Components.SafeArea}.Edges"));
+element.MarkComponentDirty<BovineLabs.Anchor.Components.SafeArea>();
+```
+
+Bindings and generated setters mark changes automatically. Configure Pulse timing and opacity through UXML/USS, or use its generated inline-style setters when overriding USS from C#.
 
 ## Numeric text
 
@@ -352,38 +357,39 @@ builder.AddGroupedActions(
 
 The primary group selector is optional. Another overload accepts an `IComparer<string>` to impose a domain-specific group order. Defaults are 12 entries per menu level, a maximum normalized prefix length of 8, and flattened one-item groups. Values below 2 for `MaxItemsPerMenu` are clamped to 2; prefix lengths below 1 are clamped to 1. Duplicate labels remain separate actions and invoke the callback with the correct source item.
 
-## Safe-area container
+## Safe-area padding
 
-`AnchorSafeArea` is in the core `BovineLabs.Anchor` assembly and does not require an adapter reference. It converts `AnchorApp.SafeArea` from screen coordinates into panel coordinates and applies only the unsafe-edge overlap covered by the element's own bounds.
+Attach `SafeArea` to the existing container whose bounds should be measured. It converts `AnchorApp.SafeArea` from screen coordinates to panel coordinates and applies only the unsafe-edge overlap covered by the owner.
 
 ```xml
-<BovineLabs.Anchor.Elements.AnchorSafeArea
-    edges="Top,Left,Right"
-    class="screen-safe-area">
+<ui:VisualElement class="screen-safe-area">
+    <BovineLabs.Anchor.Components.SafeArea edges="Top,Left,Right" />
     <!-- Screen content -->
-</BovineLabs.Anchor.Elements.AnchorSafeArea>
+</ui:VisualElement>
 ```
 
-The `edges` flag attribute accepts `None`, `Top`, `Bottom`, `Left`, `Right`, or `All` and defaults to `All`. The element reacts to app screen-metric changes, panel-root geometry, and its own geometry.
+`Edges` accepts `None`, `Top`, `Bottom`, `Left`, `Right`, or `All` and defaults to `All`. The component reacts to app screen metrics, panel-root geometry and its owner's geometry. It owns all four inline padding values and resets them to zero for invalid geometry, detachment or explicit removal. Put design padding on an inner child. Removal and permanent release unsubscribe owned app/panel listeners.
 
-`AnchorSafeArea` owns all four inline padding values and resets them to zero when geometry is invalid or the element detaches. Put design padding on an inner child rather than on the safe-area element itself.
+## Timer component
 
-## Timer element
-
-`Timer` is also in the core assembly. It repeatedly executes a bound `ICommand` through the UI Toolkit scheduler:
+Attach `Timer` to an existing element to execute a bound command through its scheduler:
 
 ```xml
-<BovineLabs.Anchor.Elements.Timer interval="250">
+<ui:VisualElement>
+    <BovineLabs.Anchor.Components.Timer interval="250" />
     <Bindings>
-        <ui:DataBinding property="command" data-source-path="RefreshCommand" binding-mode="ToTarget" />
+        <ui:DataBinding
+            property="${component:BovineLabs.Anchor.Components.Timer}.Command"
+            data-source-path="RefreshCommand"
+            binding-mode="ToTarget" />
     </Bindings>
-</BovineLabs.Anchor.Elements.Timer>
+</ui:VisualElement>
 ```
 
-`interval` is milliseconds. A value less than or equal to zero pauses and clears the schedule. Changing a positive interval pauses the old scheduled item before creating the replacement. `command` is bindable but is not a literal UXML attribute.
+`Interval` is milliseconds. A value at or below zero pauses and clears the schedule; changing a positive interval replaces the old scheduled item. `Command` is bindable and receives `null`; it is not a literal UXML attribute. Detachment suspends scheduling, and removal/permanent release cancel the owned scheduled item.
 
 ## Related binding helpers
 
 - Use [MVVM and data binding](mvvm-and-binding.md) for `ClassBinding`, converter groups, commands, and data-source ownership.
 - Use `AnchorObservableCollection<T>` when a repeated control needs bulk collection updates with one reset event.
-- Prefer row data supplied by `AnchorGridView` or `AnchorAccordion` over adding service-level data sources to their templates.
+- Prefer row data supplied by `GridItemTemplate` or `AccordionItems` over adding service-level data sources to their templates.

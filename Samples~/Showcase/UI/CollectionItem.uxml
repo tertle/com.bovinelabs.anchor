@@ -19,21 +19,24 @@
             </Bindings>
         </a:AnchorLinearProgress>
         <ui:VisualElement class="sample-actions collection-item-actions">
-            <a:AnchorButton title="Select" size="S">
+            <Unity.AppUI.UI.Button title="Select" size="S">
+                <BovineLabs.Anchor.Components.AudioFeedback/>
                 <Bindings>
                     <ui:DataBinding property="clickable.command" data-source-path="SelectCommand" binding-mode="ToTarget"/>
                 </Bindings>
-            </a:AnchorButton>
-            <a:AnchorButton title="+20%" size="S">
+            </Unity.AppUI.UI.Button>
+            <Unity.AppUI.UI.Button title="+20%" size="S">
+                <BovineLabs.Anchor.Components.AudioFeedback/>
                 <Bindings>
                     <ui:DataBinding property="clickable.command" data-source-path="ChargeUpCommand" binding-mode="ToTarget"/>
                 </Bindings>
-            </a:AnchorButton>
-            <a:AnchorButton title="−20%" size="S">
+            </Unity.AppUI.UI.Button>
+            <Unity.AppUI.UI.Button title="−20%" size="S">
+                <BovineLabs.Anchor.Components.AudioFeedback/>
                 <Bindings>
                     <ui:DataBinding property="clickable.command" data-source-path="DischargeCommand" binding-mode="ToTarget"/>
                 </Bindings>
-            </a:AnchorButton>
+            </Unity.AppUI.UI.Button>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -1,12 +1,13 @@
 namespace BovineLabs.Anchor.Tests.Nav
 {
+    using BovineLabs.Anchor.Components;
     using BovineLabs.Anchor.MVVM;
-    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
     using UnityEngine.UIElements;
+    using Button = Unity.AppUI.UI.Button;
 
     public class AnchorNavResourceReleaseTests
     {
@@ -89,14 +90,18 @@ namespace BovineLabs.Anchor.Tests.Nav
             scope.App.RootVisualElement.Add(host);
             scope.App.NavHost = host;
             var screen = new VisualElement();
-            var button = new AnchorButton();
+            var button = new Button();
             screen.Add(button);
-            button.commandWithEventInfo = new RelayCommand<EventBase>(_ =>
+            button.AddComponent(new EventCommand
             {
-                host.Navigate("next");
-                Assert.IsFalse(button.resourcesReleased);
-                Assert.IsNull(screen.parent);
+                Command = new RelayCommand<EventBase>(_ =>
+                {
+                    host.Navigate("next");
+                    Assert.IsFalse(button.resourcesReleased);
+                    Assert.IsNull(screen.parent);
+                }),
             });
+            button.GetOrAddComponent<AudioFeedback>();
             scope.ServiceProvider.GetRequiredService<TestVisualElementFactory>().Register("first", () => screen);
             host.Navigate("first");
 

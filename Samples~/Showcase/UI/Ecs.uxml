@@ -15,8 +15,8 @@
                 <ui:Slider label="Simulation speed" low-value="0.1" high-value="4" show-input-field="true"><Bindings><ui:DataBinding property="value" data-source-path="Speed" binding-mode="TwoWay" /></Bindings></ui:Slider>
                 <ui:Toggle label="Pause simulation"><Bindings><ui:DataBinding property="value" data-source-path="Paused" binding-mode="TwoWay" /></Bindings></ui:Toggle>
                 <ui:VisualElement class="sample-actions">
-                    <a:AnchorActionButton label="Reset phases"><Bindings><ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget" /></Bindings></a:AnchorActionButton>
-                    <a:AnchorActionButton label="Pulse all cells"><Bindings><ui:DataBinding property="clickable.command" data-source-path="PulseCommand" binding-mode="ToTarget" /></Bindings></a:AnchorActionButton>
+                    <Unity.AppUI.UI.ActionButton label="Reset phases"><BovineLabs.Anchor.Components.AudioFeedback/><Bindings><ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget" /></Bindings></Unity.AppUI.UI.ActionButton>
+                    <Unity.AppUI.UI.ActionButton label="Pulse all cells"><BovineLabs.Anchor.Components.AudioFeedback/><Bindings><ui:DataBinding property="clickable.command" data-source-path="PulseCommand" binding-mode="ToTarget" /></Bindings></Unity.AppUI.UI.ActionButton>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="sample-card">

@@ -24,26 +24,30 @@
                     </Bindings>
                 </ui:Toggle>
                 <ui:VisualElement class="sample-actions">
-                    <a:AnchorButton name="launch" title="Launch · costs 25%">
+                    <Unity.AppUI.UI.Button name="launch" title="Launch · costs 25%">
+                        <BovineLabs.Anchor.Components.AudioFeedback/>
                         <Bindings>
                             <ui:DataBinding property="clickable.command" data-source-path="LaunchCommand" binding-mode="ToTarget"/>
                         </Bindings>
-                    </a:AnchorButton>
-                    <a:AnchorButton title="Recharge">
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button title="Recharge">
+                        <BovineLabs.Anchor.Components.AudioFeedback/>
                         <Bindings>
                             <ui:DataBinding property="clickable.command" data-source-path="RechargeCommand" binding-mode="ToTarget"/>
                         </Bindings>
-                    </a:AnchorButton>
-                    <a:AnchorButton title="Drain">
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button title="Drain">
+                        <BovineLabs.Anchor.Components.AudioFeedback/>
                         <Bindings>
                             <ui:DataBinding property="clickable.command" data-source-path="DrainCommand" binding-mode="ToTarget"/>
                         </Bindings>
-                    </a:AnchorButton>
-                    <a:AnchorButton title="Reset">
+                    </Unity.AppUI.UI.Button>
+                    <Unity.AppUI.UI.Button title="Reset">
+                        <BovineLabs.Anchor.Components.AudioFeedback/>
                         <Bindings>
                             <ui:DataBinding property="clickable.command" data-source-path="ResetCommand" binding-mode="ToTarget"/>
                         </Bindings>
-                    </a:AnchorButton>
+                    </Unity.AppUI.UI.Button>
                 </ui:VisualElement>
                 <ui:Label text="The launch command needs an armed system and at least 25% charge. Its generated CanExecute gate updates the button automatically." class="sample-muted"/>
             </ui:VisualElement>

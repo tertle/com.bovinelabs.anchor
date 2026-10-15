@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Components
     using UnityEngine.UIElements;
 
     [VisualElementComponent]
-    public partial struct Pulse
+    public partial struct Pulse : IVisualElementComponent
     {
         [CreateProperty]
         [UxmlAttribute("enabled")]
