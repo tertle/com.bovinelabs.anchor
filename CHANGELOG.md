@@ -4,6 +4,7 @@
 
 ### Added
 * A reusable UI Toolkit audio feedback component for existing buttons.
+* A reusable UI Toolkit pulse component for existing visual elements.
 
 ### Changed
 * Button audio configuration moves to the audio feedback component; Anchor button adapters retain their default feedback and event-aware commands.

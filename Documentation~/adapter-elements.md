@@ -183,6 +183,20 @@ The component exposes these attributes:
 
 Regular buttons play activation audio through their normal click callback. Action buttons handle only an `ActionTriggeredEvent` whose target is the button itself, which avoids reacting to a bubbled child action. Hover audio is limited to mouse and tracked-pointer entry and does not play while the control is disabled. Removing the component stops its owned event subscriptions; releasing the element also releases the component's resources.
 
+### Pulse component
+
+`BovineLabs.Anchor.Components.Pulse` animates an existing element's opacity, including sealed AppUI text controls. It is disabled by default.
+
+```xml
+<appui:Text text="Waiting" class="waiting-text">
+    <BovineLabs.Anchor.Components.Pulse enabled="true" interval="1200" minimum-opacity="0.35" />
+</appui:Text>
+```
+
+`interval` is the duration of a whole cycle in milliseconds. `minimum-opacity` and `maximum-opacity` define the range. The corresponding USS properties are `--bl-anchor-pulse-interval`, `--bl-anchor-pulse-minimum-opacity`, and `--bl-anchor-pulse-maximum-opacity`. Disabling or explicitly removing the component restores the element's prior inline opacity.
+
+Component bindings target the component's field, such as `${component:BovineLabs.Anchor.Components.Pulse}.Enabled`. Enable **Project Settings > UI Toolkit > Enable UI Components** to expose component authoring; Unity's component API is experimental.
+
 ## OptionPager
 
 `OptionPager` is a compact alternative to a dropdown. It renders previous and next `ActionButton`s, the selected item, and an optional `PageIndicator`.
