@@ -20,6 +20,7 @@ namespace BovineLabs.Anchor.Samples.Showcase
         private readonly Slider _emission;
         private readonly IntegerField _seed;
         private readonly IVisualElementScheduledItem _schedule;
+        private readonly RewardFlightShowcasePresenter _rewards;
 
         public ParticleShowcasePresenter(VisualElement root, UIParticleEffect[] effects)
         {
@@ -80,11 +81,13 @@ namespace BovineLabs.Anchor.Samples.Showcase
             _seed.RegisterValueChangedCallback(SeedChanged);
             _particles[3].Completed += Completed;
             _schedule = root.schedule.Execute(UpdateCounters).Every(100);
+            _rewards = new RewardFlightShowcasePresenter(root, effects[6], effects[7]);
             UpdateCounters();
         }
 
         public void Dispose()
         {
+            _rewards.Dispose();
             _schedule.Pause();
             for (var i = 0; i < _buttons.Length; i++)
             {

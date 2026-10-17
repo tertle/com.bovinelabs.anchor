@@ -126,7 +126,7 @@ namespace BovineLabs.Anchor.Samples.Showcase.Editor
                 views[index] = Load<VisualTreeAsset>($"{root}/UI/{names[index]}.uxml");
             }
 
-            var effectNames = new[] { "Sparkle", "Confetti", "Dust", "Layered", "AnimatedSparkle", "SpriteSparkle" };
+            var effectNames = new[] { "Sparkle", "Confetti", "Dust", "Layered", "AnimatedSparkle", "SpriteSparkle", "RewardSnapshot", "RewardFollow" };
             var effects = new UIParticleEffect[effectNames.Length];
             for (var index = 0; index < effects.Length; index++)
             {

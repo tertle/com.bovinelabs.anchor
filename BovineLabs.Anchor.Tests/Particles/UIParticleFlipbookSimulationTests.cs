@@ -13,6 +13,7 @@ namespace BovineLabs.Anchor.Tests.Particles
         private NativeArray<UIParticleEmitterState> _states;
         private NativeArray<UIParticleEmissionStream> _streams;
         private NativeArray<int2> _flipbookStates;
+        private UIParticleFlights _flights;
         private NativeArray<ParticleQuad> _quads;
         private NativeArray<int> _counts;
         private float4x4 _transform;
@@ -116,7 +117,7 @@ namespace BovineLabs.Anchor.Tests.Particles
             _flipbookStates[0] = new int2(3, 0);
             _flipbookStates[1] = new int2(5, 0);
             _flipbookStates[2] = new int2(7, 0);
-            UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, 0.2, 7, false, ref _transform);
+            UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, ref _flights, 0.2, 7, false, ref _transform);
             Assert.That(_states[0].Count, Is.EqualTo(2));
             Assert.That(_states[1].Count, Is.EqualTo(2));
             Assert.That(_particles[2].Position.x, Is.EqualTo(20));
@@ -182,7 +183,7 @@ namespace BovineLabs.Anchor.Tests.Particles
             var flipbook = _data.Flipbooks[1];
             flipbook.StartFrame = new int2(0, 7);
             _data.Flipbooks[1] = default;
-            UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, 0, 33, true, ref _transform);
+            UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, ref _flights, 0, 33, true, ref _transform);
             var baseline = _particles.ToArray();
             _data.Flipbooks[1] = flipbook;
             int2[] firstFrames = null;
@@ -196,7 +197,7 @@ namespace BovineLabs.Anchor.Tests.Particles
                     _flipbookStates[i] = new int2(-1);
                 }
 
-                UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, 0, 33, true, ref _transform);
+                UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, ref _flights, 0, 33, true, ref _transform);
                 Assert.That(_states[1].Count, Is.EqualTo(4));
                 for (var i = 0; i < 4; i++)
                 {

@@ -5,6 +5,8 @@ namespace BovineLabs.Anchor.Elements
     using BovineLabs.Anchor.Particles;
     using Unity.Mathematics;
     using Unity.Properties;
+    using Unity.Profiling;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine;
     using UnityEngine.UIElements;
 
@@ -12,6 +14,8 @@ namespace BovineLabs.Anchor.Elements
     public partial class AnchorParticles : VisualElement
     {
         public const string UssClassName = "bl-anchor-particles";
+        [NoAutoStaticsCleanup]
+        private static readonly ProfilerMarker TargetMarker = new("Anchor.Particles.TargetSample");
         private UIParticleEffect _effect;
         private UIParticleRuntime _runtime;
         private UIParticleCoordinator _coordinator;
@@ -29,6 +33,10 @@ namespace BovineLabs.Anchor.Elements
         private bool _explicitlyPaused;
         private bool _hiddenPaused;
         private bool _completionPending;
+        private int _arrivalsPending;
+        private VisualElement _target;
+        private string _targetName;
+        private Vector2 _targetPoint;
         private VisualElement _source;
         private Vector2 _sourcePoint;
         private Matrix4x4 _renderTransform;
@@ -46,6 +54,81 @@ namespace BovineLabs.Anchor.Elements
         }
 
         public event Action Completed;
+        // Cosmetic feedback only: at most one aggregate notification after an update, never a gameplay transaction.
+        public event Action<int> Arrived;
+
+        [CreateProperty]
+        public VisualElement Target
+        {
+            get => _target;
+            set
+            {
+                if (_target == value)
+                {
+                    return;
+                }
+
+                if (value?.panel != null && panel != null && value.panel != panel)
+                {
+                    throw new ArgumentException("Particle target and renderer must belong to the same panel.", nameof(value));
+                }
+
+                Clear();
+                _target?.UnregisterCallback<DetachFromPanelEvent>(TargetDetached);
+                _target = value;
+                _target?.RegisterCallback<DetachFromPanelEvent>(TargetDetached);
+                NotifyPropertyChanged(nameof(Target));
+            }
+        }
+
+        [CreateProperty, UxmlAttribute]
+        public string TargetName
+        {
+            get => _targetName;
+            set
+            {
+                if (_targetName == value)
+                {
+                    return;
+                }
+
+                Target = null;
+                _targetName = value;
+                NotifyPropertyChanged(nameof(TargetName));
+            }
+        }
+
+        [CreateProperty, UxmlAttribute]
+        public Vector2 TargetPoint
+        {
+            get => _targetPoint;
+            set
+            {
+                if (!float.IsFinite(value.x) || !float.IsFinite(value.y))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value));
+                }
+
+                if (_targetPoint == value)
+                {
+                    return;
+                }
+
+                _targetPoint = value;
+                NotifyPropertyChanged(nameof(TargetPoint));
+            }
+        }
+
+        // The presenter supplies its current visual generation. A miss stays a miss until explicitly refreshed.
+        public void RefreshTarget(VisualElement visualRoot)
+        {
+            if (visualRoot == null)
+            {
+                throw new ArgumentNullException(nameof(visualRoot));
+            }
+
+            Target = string.IsNullOrEmpty(_targetName) ? null : visualRoot.Q(_targetName);
+        }
 
         [CreateProperty, UxmlAttribute]
         public UIParticleEffect Effect
@@ -96,6 +179,11 @@ namespace BovineLabs.Anchor.Elements
                 if (_simulationSpace == value)
                 {
                     return;
+                }
+
+                if (value != UIParticleSpace.Panel && _runtime?.HasFlights == true)
+                {
+                    throw new ArgumentException("A prepared target flight requires Panel simulation space.", nameof(value));
                 }
 
                 _simulationSpace = value;
@@ -252,7 +340,7 @@ namespace BovineLabs.Anchor.Elements
         public UIParticleCounters Counters => _runtime?.Counters ?? default;
         public int ReservedSlots => _runtime?.Capacity ?? 0;
         public ParticlePlayResult LastPlayResult { get; private set; }
-        internal bool NeedsUpdate => (_simulationSpace == UIParticleSpace.Panel && LiveCount != 0) || _completionPending || (IsPlaying &&
+        internal bool NeedsUpdate => (_simulationSpace == UIParticleSpace.Panel && LiveCount != 0) || _completionPending || _arrivalsPending != 0 || (IsPlaying &&
             ((!_explicitlyPaused && _playbackSpeed > 0) || _hiddenBehaviour == UIParticleHiddenBehaviour.StopAndClear));
         internal bool ManualClock { get; set; }
 
@@ -271,6 +359,11 @@ namespace BovineLabs.Anchor.Elements
             {
                 Clear();
                 return LastPlayResult = ParticlePlayResult.NoEffect;
+            }
+
+            if (ValidateFlightSpace(effect) && !HasTarget())
+            {
+                return LastPlayResult = ParticlePlayResult.TargetUnavailable;
             }
 
             var hadParticles = LiveCount != 0;
@@ -296,6 +389,7 @@ namespace BovineLabs.Anchor.Elements
             _requested = true;
             _pending = true;
             _completionPending = false;
+            _arrivalsPending = 0;
             _explicitlyPaused = false;
             _hiddenPaused = false;
             LastPlayResult = ParticlePlayResult.Deferred;
@@ -318,6 +412,147 @@ namespace BovineLabs.Anchor.Elements
 
             return LastPlayResult;
         }
+
+        public ParticleEmissionResult Emit(int emitterIndex, int count, VisualElement source, Vector2 localPoint)
+        {
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (!float.IsFinite(localPoint.x) || !float.IsFinite(localPoint.y))
+            {
+                throw new ArgumentOutOfRangeException(nameof(localPoint));
+            }
+
+            if (!_effectsEnabled)
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.Suppressed
+                };
+            }
+
+            if (_effect == null)
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.NoEffect
+                };
+            }
+
+            if ((uint)emitterIndex >= (uint)_effect.Emitters.Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(emitterIndex));
+            }
+
+            var flight = ValidateFlightSpace(_effect);
+            if (flight && !HasTarget())
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.TargetUnavailable
+                };
+            }
+
+            if (panel == null || source.panel == null)
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.SourceUnavailable
+                };
+            }
+
+            if (source.panel != panel)
+            {
+                throw new ArgumentException("Particle source and renderer must belong to the same panel.", nameof(source));
+            }
+
+            if (!TryGetTransforms(out _, out _, false) || !float.IsFinite(layout.width) || !float.IsFinite(layout.height) || layout.width <= 0 || layout.height <= 0)
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.SourceUnavailable
+                };
+            }
+
+            var sourceWorld = source.worldTransform * Matrix4x4.Translate(localPoint);
+            var determinant = (sourceWorld.m00 * sourceWorld.m11) - (sourceWorld.m01 * sourceWorld.m10);
+            if (!float.IsFinite(determinant) || Mathf.Abs(determinant) < 0.000001f)
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.SourceUnavailable
+                };
+            }
+
+            float4x4 spawn = _simulationSpace == UIParticleSpace.Panel ? sourceWorld : worldTransform.inverse * sourceWorld;
+            if (_runtime != null && _runtime.HasFlights && _runtime.Revision != _effect.Revision)
+            {
+                Clear();
+            }
+
+            _coordinator = UIParticleCoordinator.Register(panel, this);
+            if (!TryPrepare(_effect))
+            {
+                return new ParticleEmissionResult {
+                    Status = ParticleEmissionStatus.BudgetExceeded
+                };
+            }
+
+            // A pending Play retains its timeline intent, but the explicit source request is admitted now.
+            if (_pending)
+            {
+                _runtime.Play(_seed);
+                _pending = false;
+                LastPlayResult = ParticlePlayResult.Started;
+            }
+
+            var result = _runtime.Emit(emitterIndex, count, _seed, ref spawn);
+            if (result.Emitted != 0)
+            {
+                _requested = true;
+                _completionPending = false;
+                MarkDirtyRepaint();
+            }
+
+            _coordinator.Wake();
+            return result;
+        }
+
+        private bool ValidateFlightSpace(UIParticleEffect effect)
+        {
+            foreach (var emitter in effect.Emitters)
+            {
+                if (emitter?.Flight?.Enabled == true)
+                {
+                    if (_simulationSpace != UIParticleSpace.Panel)
+                    {
+                        throw new ArgumentException("Target flights require Panel simulation space; Local space cannot follow a panel-space destination.");
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasTarget()
+        {
+            if (panel == null || _target?.panel == null)
+            {
+                return false;
+            }
+
+            if (_target.panel != panel)
+            {
+                throw new ArgumentException("Particle target and renderer must belong to the same panel.");
+            }
+
+            return true;
+        }
+
+        private void TargetDetached(DetachFromPanelEvent evt) => Target = null;
 
         private bool TryPrepare(UIParticleEffect effect)
         {
@@ -426,6 +661,7 @@ namespace BovineLabs.Anchor.Elements
             _requested = false;
             _pending = false;
             _completionPending = false;
+            _arrivalsPending = 0;
             _explicitlyPaused = false;
             _hiddenPaused = false;
             ReleaseStorage();
@@ -454,6 +690,12 @@ namespace BovineLabs.Anchor.Elements
                 return;
             }
 
+            if (_runtime != null && _runtime.HasFlights && (_target?.panel != panel || _runtime.Revision != _effect.Revision))
+            {
+                Clear();
+                return;
+            }
+
             // UI Toolkit transforms retained vertices without regenerating them. Panel-space vertices need a new inverse conversion.
             if (_simulationSpace == UIParticleSpace.Panel && LiveCount != 0 && _renderTransform != worldTransform)
             {
@@ -475,7 +717,7 @@ namespace BovineLabs.Anchor.Elements
 
             var wasHiddenPaused = _hiddenPaused;
             _hiddenPaused = hidden && _hiddenBehaviour == UIParticleHiddenBehaviour.Pause;
-            if (_hiddenPaused || !TryGetTransforms(out var spawn, out _))
+            if (_hiddenPaused || !TryGetTransforms(out var spawn, out _, _pending || _runtime?.IsEmitting == true))
             {
                 return;
             }
@@ -505,17 +747,40 @@ namespace BovineLabs.Anchor.Elements
                 return;
             }
 
+            var target = float2.zero;
+            if (_runtime.HasFlights)
+            {
+                using (TargetMarker.Auto())
+                {
+                    target = (Vector2)_target.worldTransform.MultiplyPoint3x4(_targetPoint);
+                }
+
+                if (!math.all(math.isfinite(target)))
+                {
+                    Clear();
+                    return;
+                }
+            }
+
             var hadParticles = _runtime.LiveCount != 0;
-            if (_runtime.Advance(elapsed * _playbackSpeed, ref spawn) && !hidden && (hadParticles || _runtime.LiveCount != 0))
+            if (_runtime.Advance(elapsed * _playbackSpeed, ref spawn, target) && !hidden && (hadParticles || _runtime.LiveCount != 0))
             {
                 MarkDirtyRepaint();
             }
 
+            _arrivalsPending += Math.Min(_runtime.TakeArrivals(), int.MaxValue - _arrivalsPending);
             CheckCompletion();
         }
 
         internal void DispatchCompletion()
         {
+            var arrivals = _arrivalsPending;
+            _arrivalsPending = 0;
+            if (arrivals != 0)
+            {
+                Arrived?.Invoke(arrivals);
+            }
+
             if (!_completionPending)
             {
                 return;
@@ -528,6 +793,7 @@ namespace BovineLabs.Anchor.Elements
         internal void Release()
         {
             Clear();
+            Target = null;
             ResetSourcePoint();
             _ancestry.Clear();
         }
@@ -578,7 +844,7 @@ namespace BovineLabs.Anchor.Elements
             return false;
         }
 
-        private bool TryGetTransforms(out float4x4 spawn, out float4x4 render)
+        private bool TryGetTransforms(out float4x4 spawn, out float4x4 render, bool includeSource)
         {
             spawn = float4x4.identity;
             render = float4x4.identity;
@@ -596,7 +862,7 @@ namespace BovineLabs.Anchor.Elements
             }
 
             var sourceWorld = world;
-            if (_source != null)
+            if (includeSource && _source != null)
             {
                 // A source removed independently is a documented stale coordinate request; suspend until replaced.
                 if (_source.panel != panel)
@@ -617,7 +883,7 @@ namespace BovineLabs.Anchor.Elements
                 spawn = sourceWorld;
                 render = world.inverse;
             }
-            else if (_source != null)
+            else if (includeSource && _source != null)
             {
                 spawn = world.inverse * sourceWorld;
             }
@@ -649,6 +915,7 @@ namespace BovineLabs.Anchor.Elements
             _coordinator?.Unregister(this);
             _coordinator = null;
             Completed = null;
+            Arrived = null;
         }
 
         private void GeometryChanged(GeometryChangedEvent evt)
@@ -661,7 +928,7 @@ namespace BovineLabs.Anchor.Elements
 
         private void Draw(MeshGenerationContext context)
         {
-            if (_runtime == null || _runtime.LiveCount == 0 || IsHidden() || !TryGetTransforms(out _, out var render))
+            if (_runtime == null || _runtime.LiveCount == 0 || IsHidden() || !TryGetTransforms(out _, out var render, false))
             {
                 return;
             }

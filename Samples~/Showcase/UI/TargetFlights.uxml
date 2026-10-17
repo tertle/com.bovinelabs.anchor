@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements" editor-extension-mode="False">
+    <Style src="TargetFlights.uss" />
+    <ui:VisualElement class="sample-card reward-card">
+        <ui:Label text="Cosmetic reward flights" class="sample-card-title" />
+        <ui:Label text="The counter changes on click. Arrivals only pulse it. Click several sources quickly, then move or remove the target." class="sample-muted" />
+        <ui:VisualElement class="sample-actions">
+            <ui:Toggle name="reward-follow" label="Follow moving target" value="true" />
+            <ui:Toggle name="reward-enabled" label="Effects enabled" value="true" />
+            <ui:Toggle name="reward-hidden" label="Hide flights (pauses)" />
+            <ui:Button name="reward-pause" text="Pause" />
+            <ui:Button name="reward-resume" text="Resume" />
+            <ui:Button name="reward-move" text="Move target" />
+            <ui:Button name="reward-remove" text="Remove / restore target" />
+        </ui:VisualElement>
+        <ui:VisualElement name="reward-stage" class="reward-stage">
+            <ui:VisualElement class="reward-sources">
+                <ui:Button name="reward-source-0" text="Collect 5" />
+                <ui:Button name="reward-source-1" text="Collect 10" />
+                <ui:Button name="reward-source-2" text="Collect 20" />
+            </ui:VisualElement>
+            <ui:VisualElement name="reward-target-parent" class="reward-target-parent">
+                <ui:Label name="reward-counter" text="0 coins" class="reward-counter" />
+            </ui:VisualElement>
+            <ui:VisualElement name="reward-overlay" class="reward-overlay" picking-mode="Ignore">
+                <a:AnchorParticles name="reward-snapshot" target-name="reward-counter" target-point="75, 30" play-on-attach="false" simulation-space="Panel" class="reward-overlay" />
+                <a:AnchorParticles name="reward-following" target-name="reward-counter" target-point="75, 30" play-on-attach="false" simulation-space="Panel" class="reward-overlay" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="reward-status" text="Choose a source. Requests join the active run without restarting earlier particles." class="sample-muted" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -26,6 +26,11 @@ namespace BovineLabs.Anchor.Editor.Particles
                 case nameof(UIParticleEmitterSettings.Flipbook):
                     cache.Animated = property.FindPropertyRelative(nameof(UIParticleFlipbookSettings.Enabled));
                     return cache.Flipbook = CreatePropertyField(property);
+                case nameof(UIParticleEmitterSettings.Lifetime):
+                    return cache.Lifetime = CreatePropertyField(property);
+                case nameof(UIParticleEmitterSettings.Flight):
+                    cache.Flight = property.FindPropertyRelative(nameof(UIParticleFlightSettings.Enabled));
+                    break;
             }
 
             return base.CreateElement(property);
@@ -38,6 +43,7 @@ namespace BovineLabs.Anchor.Editor.Particles
             root.Add(cache.Hint);
             root.TrackPropertyValue(cache.Source, _ => UpdateVisibility(cache));
             root.TrackPropertyValue(cache.Animated, _ => UpdateVisibility(cache));
+            root.TrackPropertyValue(cache.Flight, _ => UpdateVisibility(cache));
             UpdateVisibility(cache);
         }
 
@@ -45,6 +51,7 @@ namespace BovineLabs.Anchor.Editor.Particles
         {
             var mixed = cache.Source.hasMultipleDifferentValues;
             var sprite = cache.Source.enumValueIndex == (int)UIParticleTextureSource.Sprite;
+            ElementUtility.SetVisible(cache.Lifetime, cache.Flight.hasMultipleDifferentValues || !cache.Flight.boolValue);
             ElementUtility.SetVisible(cache.Texture, mixed || !sprite);
             ElementUtility.SetVisible(cache.Uv, mixed || !sprite);
             ElementUtility.SetVisible(cache.Sprite, mixed || sprite);
@@ -57,6 +64,8 @@ namespace BovineLabs.Anchor.Editor.Particles
         {
             public SerializedProperty Source;
             public SerializedProperty Animated;
+            public SerializedProperty Flight;
+            public PropertyField Lifetime;
             public PropertyField Texture;
             public PropertyField Uv;
             public PropertyField Sprite;

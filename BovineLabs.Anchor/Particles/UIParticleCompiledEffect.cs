@@ -23,6 +23,7 @@ namespace BovineLabs.Anchor.Particles
             var steps = new List<UIParticleColorStep>();
             UIParticleSprite[] sprites = null;
             UIParticleFlipbook[] flipbooks = null;
+            UIParticleFlight[] flights = null;
             Textures = new Texture2D[effect.Emitters.Count];
             Revision = effect.Revision;
 
@@ -46,7 +47,7 @@ namespace BovineLabs.Anchor.Particles
                     Dimensions = settings.Dimensions,
                     Direction = math.radians(settings.Direction),
                     Spread = math.radians(settings.Spread),
-                    Lifetime = settings.Lifetime,
+                    Lifetime = settings.Flight.Enabled ? new float2(1) : settings.Lifetime,
                     Speed = settings.Speed,
                     Size = settings.Size,
                     Rotation = math.radians((float2)settings.Rotation),
@@ -118,6 +119,13 @@ namespace BovineLabs.Anchor.Particles
                 }
 
                 var index = emitters.Count;
+                if (settings.Flight.Enabled)
+                {
+                    flights ??= new UIParticleFlight[effect.Emitters.Count];
+                    flights[index] = UIParticleFlightUtility.Compile(settings.Flight, FlightCapacity);
+                    FlightCapacity = checked(FlightCapacity + settings.MaxParticles);
+                }
+
                 if (settings.TextureSource == UIParticleTextureSource.Sprite)
                 {
                     var sprite = settings.Sprite;
@@ -172,11 +180,13 @@ namespace BovineLabs.Anchor.Particles
                 Steps = new NativeArray<UIParticleColorStep>(steps.ToArray(), Allocator.Persistent),
                 Sprites = sprites == null ? default : new NativeArray<UIParticleSprite>(sprites, Allocator.Persistent),
                 Flipbooks = flipbooks == null ? default : new NativeArray<UIParticleFlipbook>(flipbooks, Allocator.Persistent),
+                Flights = flights == null ? default : new NativeArray<UIParticleFlight>(flights, Allocator.Persistent),
             };
             NativeBytes = (long)emitters.Count * UnsafeUtility.SizeOf<UIParticleEmitter>() +
                 ((long)bursts.Count * UnsafeUtility.SizeOf<UIParticleBurst>()) +
                 ((long)samples.Count * UnsafeUtility.SizeOf<UIParticleSample>()) + ((long)steps.Count * UnsafeUtility.SizeOf<UIParticleColorStep>()) +
-                ((long)Data.Sprites.Length * UnsafeUtility.SizeOf<UIParticleSprite>()) + ((long)Data.Flipbooks.Length * UnsafeUtility.SizeOf<UIParticleFlipbook>());
+                ((long)Data.Sprites.Length * UnsafeUtility.SizeOf<UIParticleSprite>()) + ((long)Data.Flipbooks.Length * UnsafeUtility.SizeOf<UIParticleFlipbook>()) +
+                ((long)Data.Flights.Length * UnsafeUtility.SizeOf<UIParticleFlight>());
             if (_sourceSprites != null)
             {
                 _effect = effect;
@@ -189,6 +199,7 @@ namespace BovineLabs.Anchor.Particles
         public uint Revision { get; }
         public int Capacity { get; }
         public int FlipbookCapacity { get; }
+        public int FlightCapacity { get; }
         public long NativeBytes { get; }
         public bool IsDisposed { get; private set; }
 
@@ -214,6 +225,11 @@ namespace BovineLabs.Anchor.Particles
             if (Data.Flipbooks.IsCreated)
             {
                 Data.Flipbooks.Dispose();
+            }
+
+            if (Data.Flights.IsCreated)
+            {
+                Data.Flights.Dispose();
             }
 
             IsDisposed = true;
@@ -248,7 +264,11 @@ namespace BovineLabs.Anchor.Particles
             Require(math.all(math.isfinite((float2)s.Offset)), "Offset must be finite.");
             Require(math.all(math.isfinite((float2)s.Dimensions)) && math.all((float2)s.Dimensions >= 0), "Dimensions must be nonnegative.");
             Require(math.isfinite(s.Direction) && math.isfinite(s.Spread) && s.Spread >= 0 && s.Spread <= 360, "Invalid direction or spread.");
-            Range(s.Lifetime, true, true);
+            Require(s.Flight != null, "Flight settings are required; disable the section for ordinary particles.");
+            if (!s.Flight.Enabled)
+            {
+                Range(s.Lifetime, true, true);
+            }
             Range(s.Speed, true, false);
             Range(s.Size, true, false);
             Range(s.Rotation, false, false);

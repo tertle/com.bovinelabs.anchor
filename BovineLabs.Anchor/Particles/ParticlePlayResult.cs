@@ -8,5 +8,6 @@ namespace BovineLabs.Anchor.Particles
         Suppressed,
         NoEffect,
         BudgetExceeded,
+        TargetUnavailable,
     }
 }

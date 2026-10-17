@@ -44,5 +44,6 @@ namespace BovineLabs.Anchor.Particles
         public bool FlipX;
         public bool FlipY;
         public UIParticleFlipbookSettings Flipbook = new();
+        public UIParticleFlightSettings Flight = new();
     }
 }

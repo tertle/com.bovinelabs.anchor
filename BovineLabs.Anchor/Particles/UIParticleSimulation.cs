@@ -10,17 +10,40 @@ namespace BovineLabs.Anchor.Particles
         [BurstCompile]
         internal static void Step(
             ref UIParticleCompiledData data, ref NativeArray<UIParticle> particles, ref NativeArray<UIParticleEmitterState> states,
-            ref NativeArray<UIParticleEmissionStream> streams, ref NativeArray<int2> flipbookStates, double delta, uint seed, bool emitting,
-            ref float4x4 spawnTransform, float emissionScale = 1)
+            ref NativeArray<UIParticleEmissionStream> streams, ref NativeArray<int2> flipbookStates, ref UIParticleFlights flights, double delta, uint seed,
+            bool emitting, ref float4x4 spawnTransform, float emissionScale = 1)
         {
             for (var e = 0; e < data.Emitters.Length; e++)
             {
                 var settings = data.Emitters[e];
                 var state = states[e];
                 var flipbook = data.Flipbooks.IsCreated ? data.Flipbooks[e] : default;
+                var flight = data.Flights.IsCreated ? data.Flights[e] : default;
                 Coefficients(settings.Drag, (float)delta, out var decay, out var velocityIntegral, out var accelerationIntegral);
                 var live = 0;
-                if (flipbook.Enabled)
+                if (flight.Enabled)
+                {
+                    for (var p = 0; p < state.Count; p++)
+                    {
+                        var particle = particles[settings.Offset + p];
+                        var phase = flights.States[flight.Offset + p];
+                        if (AdvanceFlight(ref particle, ref phase, in settings, in flight, flights.Target, (float)delta))
+                        {
+                            flights.States[flight.Offset + live] = phase;
+                            if (flipbook.Enabled)
+                            {
+                                flipbookStates[flipbook.Offset + live] = flipbookStates[flipbook.Offset + p];
+                            }
+
+                            particles[settings.Offset + live++] = particle;
+                        }
+                        else
+                        {
+                            flights.Arrivals++;
+                        }
+                    }
+                }
+                else if (flipbook.Enabled)
                 {
                     for (var p = 0; p < state.Count; p++)
                     {
@@ -125,12 +148,31 @@ namespace BovineLabs.Anchor.Particles
                         }
 
                         streams[streamOffset + selected] = stream;
-                        var particle = Spawn(in settings, seed, (uint)e, state.Ordinal + (uint)p, ref spawnTransform);
+                        var particle = Spawn(in settings, in flight, seed, (uint)e, state.Ordinal + (uint)p, ref spawnTransform, out var phase);
                         var age = (float)math.max(0, end - settings.Delay - birth);
-                        Coefficients(settings.Drag, age, out decay, out velocityIntegral, out accelerationIntegral);
-                        Integrate(ref particle, age, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
-                        if (particle.Age < particle.Lifetime)
+                        var survives = true;
+                        if (flight.Enabled)
                         {
+                            survives = AdvanceFlight(ref particle, ref phase, in settings, in flight, flights.Target, age);
+                            if (!survives)
+                            {
+                                flights.Arrivals++;
+                            }
+                        }
+                        else
+                        {
+                            Coefficients(settings.Drag, age, out decay, out velocityIntegral, out accelerationIntegral);
+                            Integrate(ref particle, age, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
+                            survives = particle.Age < particle.Lifetime;
+                        }
+
+                        if (survives)
+                        {
+                            if (flight.Enabled)
+                            {
+                                flights.States[flight.Offset + state.Count] = phase;
+                            }
+
                             if (flipbook.Enabled)
                             {
                                 flipbookStates[flipbook.Offset + state.Count] = UIParticleFlipbookUtility.Sample(in flipbook, seed, (uint)e,
@@ -152,6 +194,85 @@ namespace BovineLabs.Anchor.Particles
             }
         }
 
+        [BurstCompile]
+        internal static void Emit(
+            ref UIParticleCompiledData data, ref NativeArray<UIParticle> particles, ref NativeArray<UIParticleEmitterState> states,
+            ref NativeArray<int2> flipbookStates, ref UIParticleFlights flights, int emitterIndex, int count, uint seed, float emissionScale,
+            ref float4x4 spawnTransform, out ParticleEmissionResult result)
+        {
+            var settings = data.Emitters[emitterIndex];
+            var state = states[emitterIndex];
+            var flipbook = data.Flipbooks.IsCreated ? data.Flipbooks[emitterIndex] : default;
+            var flight = data.Flights.IsCreated ? data.Flights[emitterIndex] : default;
+            var credit = state.ManualCredit + ((double)count * emissionScale);
+            var attempted = math.floor(credit);
+            state.ManualCredit = credit - attempted;
+            var admitted = (int)math.min(settings.Capacity - state.Count, attempted);
+            for (var p = 0; p < admitted; p++)
+            {
+                var ordinal = unchecked(state.Ordinal + (uint)p);
+                var particle = Spawn(in settings, in flight, seed, (uint)emitterIndex, ordinal, ref spawnTransform, out var phase);
+                if (flight.Enabled)
+                {
+                    flights.States[flight.Offset + state.Count] = phase;
+                }
+
+                if (flipbook.Enabled)
+                {
+                    flipbookStates[flipbook.Offset + state.Count] = UIParticleFlipbookUtility.Sample(in flipbook, seed, (uint)emitterIndex, ordinal);
+                }
+
+                particles[settings.Offset + state.Count++] = particle;
+            }
+
+            state.Attempted = AddCounter(state.Attempted, attempted);
+            state.Emitted = AddCounter(state.Emitted, admitted);
+            state.Dropped = AddCounter(state.Dropped, attempted - admitted);
+            state.Ordinal = unchecked(state.Ordinal + (uint)(attempted % 4294967296d));
+            states[emitterIndex] = state;
+            result = new ParticleEmissionResult
+            {
+                Status = ParticleEmissionStatus.Accepted,
+                Attempted = AddCounter(0, attempted),
+                Emitted = admitted,
+                Dropped = AddCounter(0, attempted - admitted),
+            };
+        }
+
+        private static bool AdvanceFlight(
+            ref UIParticle particle, ref UIParticleFlightState phase, in UIParticleEmitter settings, in UIParticleFlight flight, float2 target, float delta)
+        {
+            var scatter = math.min(delta, math.max(0, phase.ScatterDuration - particle.Age));
+            if (scatter > 0)
+            {
+                Coefficients(settings.Drag, scatter, out var decay, out var velocityIntegral, out var accelerationIntegral);
+                Integrate(ref particle, scatter, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
+            }
+
+            particle.Age += delta - scatter;
+            particle.Rotation += particle.AngularVelocity * (delta - scatter);
+            if (particle.Age < phase.ScatterDuration)
+            {
+                return true;
+            }
+
+            if (!phase.Started)
+            {
+                UIParticleFlightUtility.Begin(ref phase, particle.Position, target);
+            }
+
+            var endpoint = flight.TargetMode == UIParticleTargetMode.Follow ? target : phase.Destination;
+            if (particle.Age >= particle.Lifetime)
+            {
+                particle.Position = endpoint;
+                return false;
+            }
+
+            particle.Position = UIParticleFlightUtility.Evaluate(in phase, flight.TargetMode, target,
+                (particle.Age - phase.ScatterDuration) / phase.FlightDuration);
+            return math.distance(particle.Position, endpoint) > flight.ArrivalRadius;
+        }
+
         private static double Occurrences(double time, double burstTime, double duration, bool looping)
         {
             if (time < burstTime)
@@ -167,7 +288,9 @@ namespace BovineLabs.Anchor.Particles
             return increment >= ulong.MaxValue - value ? ulong.MaxValue : value + (ulong)increment;
         }
 
-        private static UIParticle Spawn(in UIParticleEmitter settings, uint seed, uint emitter, uint ordinal, ref float4x4 transform)
+        private static UIParticle Spawn(
+            in UIParticleEmitter settings, in UIParticleFlight flight, uint seed, uint emitter, uint ordinal, ref float4x4 transform,
+            out UIParticleFlightState phase)
         {
             var random = new Random(math.hash(new uint3(seed, emitter, ordinal)) | 1u);
             var position = settings.Position;
@@ -188,11 +311,19 @@ namespace BovineLabs.Anchor.Particles
             var direction = settings.Direction + ((random.NextFloat() - 0.5f) * settings.Spread);
             math.sincos(direction, out var dy, out var dx);
             var velocity = new float2(dx, dy) * random.NextFloat(settings.Speed.x, settings.Speed.y);
+            var lifetime = random.NextFloat(settings.Lifetime.x, settings.Lifetime.y);
+            phase = default;
+            if (flight.Enabled)
+            {
+                phase = UIParticleFlightUtility.Sample(in flight, seed, emitter, ordinal);
+                lifetime = phase.ScatterDuration + phase.FlightDuration;
+            }
+
             return new UIParticle
             {
                 Position = math.transform(transform, new float3(position, 0)).xy,
                 Velocity = math.mul(transform, new float4(velocity, 0, 0)).xy,
-                Lifetime = random.NextFloat(settings.Lifetime.x, settings.Lifetime.y),
+                Lifetime = lifetime,
                 Size = random.NextFloat(settings.Size.x, settings.Size.y),
                 Rotation = random.NextFloat(settings.Rotation.x, settings.Rotation.y),
                 AngularVelocity = random.NextFloat(settings.AngularVelocity.x, settings.AngularVelocity.y),

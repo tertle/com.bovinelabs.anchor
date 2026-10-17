@@ -14,6 +14,7 @@ namespace BovineLabs.Anchor.Tests.Particles
         private NativeArray<UIParticleEmitterState> _states;
         private NativeArray<UIParticleEmissionStream> _streams;
         private NativeArray<int2> _flipbookStates;
+        private UIParticleFlights _flights;
         private NativeArray<ParticleQuad> _quads;
         private NativeArray<int> _counts;
         private float4x4 _transform;
@@ -52,14 +53,14 @@ namespace BovineLabs.Anchor.Tests.Particles
             BurstCompiler.Options.EnableBurstCompileSynchronously = _previousSynchronous;
         }
 
-        [TestCase(64), TestCase(1000), TestCase(5000), Performance]
+        [TestCase(64), TestCase(100), TestCase(1000), TestCase(5000), Performance]
         public void BasicUpdateMaintainsLivePopulation(int count)
         {
             Prepare(count);
             MeasureUpdate(count);
         }
 
-        [TestCase(64), TestCase(1000), TestCase(5000), Performance]
+        [TestCase(64), TestCase(100), TestCase(1000), TestCase(5000), Performance]
         public void FlipbookUpdateMaintainsLivePopulation(int count)
         {
             Prepare(count);
@@ -141,7 +142,7 @@ namespace BovineLabs.Anchor.Tests.Particles
 
         private void UpdateParticles()
         {
-            UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, 1d / 60, 7, false, ref _transform);
+            UIParticleSimulation.Step(ref _data, ref _particles, ref _states, ref _streams, ref _flipbookStates, ref _flights, 1d / 60, 7, false, ref _transform);
             UIParticleMesh.Fill(ref _data, ref _particles, ref _states, ref _flipbookStates, ref _quads, ref _counts, ref _tint);
         }
     }

@@ -18,6 +18,9 @@ namespace BovineLabs.Anchor.Editor.Particles
             var feedback = new HelpBox(string.Empty, HelpBoxMessageType.Info);
             root.Add(feedback);
             AnchorParticles preview = null;
+            VisualElement source = null;
+            VisualElement destination = null;
+            var hasFlights = false;
             IVisualElementScheduledItem clock = null;
             var lastTime = 0d;
             var running = false;
@@ -31,6 +34,7 @@ namespace BovineLabs.Anchor.Editor.Particles
             void Validate()
             {
                 long capacity = 0;
+                hasFlights = false;
                 try
                 {
                     foreach (var item in targets)
@@ -38,11 +42,13 @@ namespace BovineLabs.Anchor.Editor.Particles
                         var compiled = new UIParticleCompiledEffect((UIParticleEffect)item);
                         compiled.Retain();
                         capacity += compiled.Capacity;
+                        hasFlights |= compiled.FlightCapacity != 0;
                         compiled.Release();
                     }
 
                     feedback.text = $"Ordered alpha emitters • {capacity:N0} total capacity across selection. " +
-                        "UI units; sampled size/color curves; normalized texture UV rectangles.";
+                        (hasFlights ? "Panel-space target flights; drag S (source) and T (target) in the preview." :
+                            "UI units; sampled size/color curves; normalized texture UV rectangles.");
                     feedback.messageType = HelpBoxMessageType.Info;
                 }
                 catch (ArgumentException exception)
@@ -60,6 +66,15 @@ namespace BovineLabs.Anchor.Editor.Particles
             }
 
             Validate();
+            void BindPreview()
+            {
+                preview.SimulationSpace = hasFlights ? UIParticleSpace.Panel : UIParticleSpace.Local;
+                preview.Target = destination;
+                preview.TargetPoint = new Vector2(10, 10);
+                preview.SetSourcePoint(source, new Vector2(10, 10));
+                destination.style.display = hasFlights ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
             if (!MultiEditing)
             {
                 var asset = (UIParticleEffect)target;
@@ -86,6 +101,24 @@ namespace BovineLabs.Anchor.Editor.Particles
                 preview.style.backgroundColor = background.value;
                 preview.style.overflow = Overflow.Hidden;
                 root.Add(preview);
+                source = new Label("S");
+                destination = new Label("T");
+                foreach (var handle in new[] { source, destination })
+                {
+                    handle.style.position = Position.Absolute;
+                    handle.style.width = 20;
+                    handle.style.height = 20;
+                    handle.style.top = 100;
+                    handle.style.unityTextAlign = TextAnchor.MiddleCenter;
+                    handle.style.backgroundColor = new Color(0.2f, 0.35f, 0.5f);
+                    handle.style.color = Color.white;
+                    handle.AddManipulator(new UIParticlePreviewDrag());
+                    preview.Add(handle);
+                }
+
+                source.style.left = Length.Percent(25);
+                destination.style.left = Length.Percent(75);
+                destination.style.display = hasFlights ? DisplayStyle.Flex : DisplayStyle.None;
                 background.RegisterValueChangedCallback(evt => preview.style.backgroundColor = evt.newValue);
                 clock = preview.schedule.Execute(() =>
                 {
@@ -107,7 +140,7 @@ namespace BovineLabs.Anchor.Editor.Particles
                         return;
                     }
 
-                    preview.SetSourcePoint(preview, preview.contentRect.center);
+                    BindPreview();
                     if (restart || !preview.IsPlaying)
                     {
                         preview.Play(seed.value);
@@ -139,6 +172,25 @@ namespace BovineLabs.Anchor.Editor.Particles
                 {
                     text = "Restart",
                 });
+                tools.Add(new Button(() =>
+                {
+                    Validate();
+                    if (feedback.messageType == HelpBoxMessageType.Error || asset.Emitters.Count == 0)
+                    {
+                        return;
+                    }
+
+                    BindPreview();
+                    var emitter = hasFlights ? asset.Emitters.FindIndex(static settings => settings.Flight.Enabled) : 0;
+                    preview.Emit(emitter, 16, source, new Vector2(10, 10));
+                    lastTime = EditorApplication.timeSinceStartup;
+                    running = true;
+                    clock.Resume();
+                })
+                {
+                    text = "Emit 16",
+                    tooltip = "Join the first flight emitter (or emitter zero) without restarting existing particles.",
+                });
                 tools.Add(new Button(Stop)
                 {
                     text = "Clear",
@@ -165,7 +217,7 @@ namespace BovineLabs.Anchor.Editor.Particles
                 Validate();
                 if (restart && feedback.messageType != HelpBoxMessageType.Error)
                 {
-                    preview.SetSourcePoint(preview, preview.contentRect.center);
+                    BindPreview();
                     preview.Play();
                     lastTime = EditorApplication.timeSinceStartup;
                     running = true;

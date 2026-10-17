@@ -10,5 +10,6 @@ namespace BovineLabs.Anchor.Particles
         public NativeArray<UIParticleColorStep> Steps;
         public NativeArray<UIParticleSprite> Sprites;
         public NativeArray<UIParticleFlipbook> Flipbooks;
+        public NativeArray<UIParticleFlight> Flights;
     }
 }

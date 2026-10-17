@@ -21,6 +21,7 @@ namespace BovineLabs.Anchor.Particles
         internal NativeArray<int> QuadCounts;
         private NativeArray<UIParticleEmissionStream> _streams;
         private NativeArray<int2> _flipbookStates;
+        private UIParticleFlights _flights;
         private uint _seed;
         private float _emissionScale = 1;
         private bool _emitting;
@@ -43,6 +44,11 @@ namespace BovineLabs.Anchor.Particles
             {
                 _flipbookStates = new NativeArray<int2>(Compiled.FlipbookCapacity, Allocator.Persistent);
             }
+
+            if (Compiled.FlightCapacity != 0)
+            {
+                _flights.States = new NativeArray<UIParticleFlightState>(Compiled.FlightCapacity, Allocator.Persistent);
+            }
         }
 
         public static int ParticleStride => UnsafeUtility.SizeOf<UIParticle>();
@@ -50,11 +56,14 @@ namespace BovineLabs.Anchor.Particles
         public long ParticleCapacityBytes => (long)Capacity * ParticleStride;
         public long NativeBytes => ParticleCapacityBytes + ((long)Quads.Length * UnsafeUtility.SizeOf<ParticleQuad>()) +
             ((long)States.Length * (UnsafeUtility.SizeOf<UIParticleEmitterState>() + sizeof(int))) +
-            ((long)_streams.Length * UnsafeUtility.SizeOf<UIParticleEmissionStream>()) + ((long)_flipbookStates.Length * UnsafeUtility.SizeOf<int2>());
+            ((long)_streams.Length * UnsafeUtility.SizeOf<UIParticleEmissionStream>()) + ((long)_flipbookStates.Length * UnsafeUtility.SizeOf<int2>()) +
+            ((long)_flights.States.Length * UnsafeUtility.SizeOf<UIParticleFlightState>());
         public long SharedCompiledBytes => Compiled.NativeBytes;
         public uint Revision => Compiled.Revision;
         public bool IsPlaying { get; private set; }
         public bool IsPaused { get; private set; }
+        internal bool HasFlights => Compiled.FlightCapacity != 0;
+        internal bool IsEmitting => _emitting;
 
         public float EmissionScale
         {
@@ -134,6 +143,29 @@ namespace BovineLabs.Anchor.Particles
             UpdatePlaying();
         }
 
+        internal ParticleEmissionResult Emit(int emitterIndex, int count, uint seed, ref float4x4 spawnTransform)
+        {
+            ThrowIfDisposed();
+            if (!IsPlaying)
+            {
+                _seed = seed;
+                _emitting = false;
+            }
+
+            var data = Compiled.Data;
+            UIParticleSimulation.Emit(ref data, ref Particles, ref States, ref _flipbookStates, ref _flights, emitterIndex, count, _seed,
+                _emissionScale, ref spawnTransform, out var result);
+            UpdatePlaying();
+            return result;
+        }
+
+        internal int TakeArrivals()
+        {
+            var arrivals = _flights.Arrivals;
+            _flights.Arrivals = 0;
+            return arrivals;
+        }
+
         public void Pause()
         {
             ThrowIfDisposed();
@@ -163,15 +195,32 @@ namespace BovineLabs.Anchor.Particles
             IsPlaying = false;
             IsPaused = false;
             _emitting = false;
+            _flights.Arrivals = 0;
         }
 
         public bool Advance(double elapsed)
         {
+            if (HasFlights)
+            {
+                throw new InvalidOperationException("Flight effects require a panel-space target point. Use Advance(elapsed, target).");
+            }
+
             var identity = float4x4.identity;
-            return Advance(elapsed, ref identity);
+            return Advance(elapsed, ref identity, default);
         }
 
-        internal bool Advance(double elapsed, ref float4x4 spawnTransform)
+        public bool Advance(double elapsed, float2 target)
+        {
+            if (!math.all(math.isfinite(target)))
+            {
+                throw new ArgumentOutOfRangeException(nameof(target));
+            }
+
+            var identity = float4x4.identity;
+            return Advance(elapsed, ref identity, target);
+        }
+
+        internal bool Advance(double elapsed, ref float4x4 spawnTransform, float2 target)
         {
             ThrowIfDisposed();
             if (!math.isfinite(elapsed) || elapsed < 0)
@@ -186,12 +235,13 @@ namespace BovineLabs.Anchor.Particles
 
             using (SimulationMarker.Auto())
             {
+                _flights.Target = target;
                 var remaining = math.min(elapsed, 4d / 60);
                 var data = Compiled.Data;
                 for (var step = 0; step < 4; step++)
                 {
                     var delta = math.min(remaining, 1d / 60);
-                    UIParticleSimulation.Step(ref data, ref Particles, ref States, ref _streams, ref _flipbookStates, delta, _seed,
+                    UIParticleSimulation.Step(ref data, ref Particles, ref States, ref _streams, ref _flipbookStates, ref _flights, delta, _seed,
                         _emitting, ref spawnTransform, _emissionScale);
                     remaining -= delta;
                     if (remaining <= 0)
@@ -248,6 +298,11 @@ namespace BovineLabs.Anchor.Particles
             if (_flipbookStates.IsCreated)
             {
                 _flipbookStates.Dispose();
+            }
+
+            if (_flights.States.IsCreated)
+            {
+                _flights.States.Dispose();
             }
 
             Compiled.Release();

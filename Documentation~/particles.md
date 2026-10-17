@@ -29,6 +29,7 @@ Closing the inspector, recompiling or changing Play Mode stops and releases the 
 | Sprite | Sprite mode uses the sprite's texture, actual UV corners, visible rectangle and pivot. Rectangular/full-rect geometry only. |
 | FlipX, FlipY | Mirror texture content, or mirror a sprite's geometry about its authored pivot. Defaults preserve existing assets. |
 | Flipbook | Optional regular-grid animation for Texture mode. Sprite mode is static. |
+| Flight | Optional scatter then cubic target flight. Requires Panel space; scatter + flight duration replaces Lifetime. |
 
 Empty effects and unassigned controls are inert. Invalid configured inputs fail preparation; they are not silently repaired.
 For runtime-authored changes call `effect.Invalidate()` after editing fields. The asset cache is identity + revision, with no deep
@@ -80,7 +81,7 @@ and `DroppedCount` are read-only diagnostic snapshots; counts are not broadcast 
 attempted/emitted/dropped spawns for the current run, and `ReservedSlots` reports resident capacity.
 
 `Play()` restarts with Seed; `Play(seed)` also sets it. `Play(effect, seed)` attempts a transactional asset replacement. Each returns
-`ParticlePlayResult`: Started, Deferred (waiting for attachment/layout/visibility), Suppressed, NoEffect or BudgetExceeded.
+`ParticlePlayResult`: Started, Deferred (waiting for attachment/layout/visibility), Suppressed, NoEffect, BudgetExceeded or TargetUnavailable.
 `LastPlayResult` also exposes the result of deferred startup and property-driven replacement. Rejected requests are not retried
 automatically when capacity becomes available. `StopEmitting()` lets survivors finish. `Pause()` is an explicit pause,
 independent of visibility. `Resume()` resumes a paused run, not a cancelled or completed run. `Clear()` cancels, empties geometry,
@@ -159,10 +160,61 @@ payload sizes. Shared compiled data is counted once per revision. UI Toolkit own
 fills synchronously through Burst and never retains, overwrites or disposes them after submission. The final particle requests one
 last repaint to clear old geometry. Draws split at 16,383 quads; normalized original-texture UVs use Unity's atlas remapping.
 
-Sprite and flipbook descriptors are optional compiled tables. Only flipbook emitters allocate additional birth state: eight bytes per
+Sprite and flipbook descriptors are optional compiled tables. Flipbook emitters allocate additional birth state: eight bytes per
 reserved particle slot for the selected start frame and row. Stable compaction moves that state with its particle. Basic particle
 and quad strides remain 68 and 56 bytes, and basic effects allocate no animation state. Sprites use the existing quad basis;
 flipbooks update UV rectangles during mesh generation. Both retain adjacent-texture batching without new materials or vertex channels.
+
+## Target flights and joined emission
+
+Enable an emitter's `Flight` section to scatter using its existing shape, speed, acceleration and drag, then travel along a cubic
+path. `ScatterDuration` is a nonnegative range; `FlightDuration` is a positive range. Their sum is the particle's finite lifetime,
+so ordinary Lifetime is hidden and ignored. `PathBend` is a maximum perpendicular offset in panel UI units, sampled with a stable
+independent seed per birth. `ArrivalRadius` allows early retirement only after scatter ends. Time along the curve is linear and
+clamped; there is no indefinitely chasing particle or collision solver.
+
+Flight effects require `SimulationSpace = Panel`; attempting to play or emit them in Local space throws an authoring error.
+Assign `Target` and its explicit target-local `TargetPoint`, or set the bindable/UXML `TargetName` and call
+`RefreshTarget(currentViewRoot)` once when the presenter creates that visual generation. A name miss is inert until an explicit
+refresh. There is no per-frame name search. Rebind after recreating a view; do not reuse a previous generation's target.
+
+The control samples the target's full world transform once per active update, including ancestor transforms and panel scaling.
+Snapshot captures the destination **when scatter ends**. Follow uses the latest target sample and moves the endpoint-side control
+point by the same delta, intentionally reshaping the remaining curve. A teleported target can therefore produce a position jump.
+Snapshot still arrives at its captured point if the same target moves. Both modes cancel if that target detaches.
+
+`Emit(emitterIndex, count, source, localPoint)` captures the source transform once and admits new particles immediately into the
+asset's ordered emitter index. It joins existing particles without calling `Play()` or resetting their ages, sources or seeds.
+An idle configured control starts a draining run with **no automatic rate or burst emission**. Joining a previously requested
+Play retains that run's timeline. Requests can also join a paused run; their time and target sampling wait for resume. Source
+elements are not retained by this API after the request, so their later movement/removal does not affect emitted particles.
+
+`ParticleEmissionResult` returns a Status plus Attempted, Emitted and Dropped counts after quality scaling. Accepted may emit zero:
+fractional `EmissionScale` credit is retained per emitter, while capacity exhaustion drops new births without emission debt.
+Counters and fractional credit are retained with prepared storage until Clear or Play resets them. Suppressed, NoEffect,
+SourceUnavailable, TargetUnavailable and BudgetExceeded are explicit non-admission results. Detached/unresolved source geometry
+and an unconfigured/detached target are ordinary unavailable results; nonfinite points, invalid indexes/counts, and cross-panel
+source/target references are programmer errors. A failed budget admission does not partially emit.
+
+The runtime is synchronous: admission is bounded by emitter capacity and has no pending request queue. Even very large counts
+do at most the available-capacity work, with saturating diagnostic counters. No managed object or callback is stored per request
+or particle. Only enabled emitters allocate the 48-byte flight sidecar per reserved slot; compaction preserves birth order and
+keeps flight/flipbook sidecars together. Ordinary particle and quad strides remain 68/56 bytes. Manual fractional credit adds one
+double per emitter, independent of particle count. `NativeBytes` and `SharedCompiledBytes` include flight storage/descriptors.
+
+`Arrived(int count)` is optional, aggregate **cosmetic** feedback, dispatched at most once after an update. The accumulator is
+cleared before callbacks; a handler can emit again or clear/detach safely. Rejected or cancelled particles never arrive. Completed
+fires once when the combined run drains; an arrival handler that joins more particles postpones completion until those drain too.
+Never grant currency, inventory or experience from either notification. Change gameplay state in the initiating command, even when
+effects are disabled or rejected; use arrival only for a visual pulse.
+
+Changing Target cancels the old run and requires a new start. Moving the same target or changing its local point follows the
+selected Snapshot/Follow behavior. Invalidating a prepared flight effect cancels it on its next update, including TargetMode edits;
+the next Play/Emit prepares the new revision. Clear, disabled effects, target removal, renderer detach and visual-generation teardown
+cancel without Completed. Hidden Pause freezes phase time and target sampling; reveal discards hidden elapsed time, and explicit
+Pause continues to override visibility. Teardown clears target references and arrival subscriptions. The inspector preview has
+draggable S/T handles and uses the same control/runtime with an explicit clock. **Emit 16** joins the first flight emitter (or
+emitter zero for ordinary effects), including assets with no automatic rate or bursts.
 
 ## Samples and scope
 
@@ -170,10 +222,13 @@ Import **Anchor Showcase** from Package Manager, choose **BovineLabs > Samples >
 The page explores sparkle, clipped confetti, ambient dust, panel-space bursts, an eight-frame AnimatedSparkle and a rectangular SpriteSparkle
 with an offset pivot. Playback, seed, speed, emission, visibility and counter controls apply to all six examples.
 The authored effects and textures live under `Showcase/Effects`; the original four effects preserve their earlier metadata and appearance.
+The separate reward card uses `TargetFlights.uxml`, two authored Snapshot/Follow overlays, three source buttons and one counter.
+It demonstrates overlapping requests, moving/removing/restoring the target, pause/reveal and effects suppression. Its counter changes
+immediately from each source command; arrivals only pulse the label. Switching mode cancels the previous visuals.
 See the [Showcase README](../Samples~/Showcase/README.md) for generation and lifecycle ownership.
 
 Particles use ordinary alpha quads only: no additive material,
-target-flight, GPU animation, scene collision, sub-emitter graph, ParticleSystem, VFX Graph or Deck integration.
+GPU animation, scene collision, sub-emitter graph, ParticleSystem, VFX Graph or Deck integration.
 
 ## Validation and measurements
 

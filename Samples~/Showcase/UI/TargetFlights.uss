@@ -1,0 +1,51 @@
+.reward-card {
+    margin-top: 16px;
+}
+
+.reward-stage {
+    position: relative;
+    height: 260px;
+    overflow: hidden;
+}
+
+.reward-sources {
+    position: absolute;
+    left: 16px;
+    bottom: 20px;
+    gap: 12px;
+    flex-direction: row;
+}
+
+.reward-target-parent {
+    position: absolute;
+    right: 16px;
+    top: 20px;
+}
+
+.reward-target-parent.is-moved {
+    right: 180px;
+    top: 130px;
+}
+
+.reward-counter {
+    width: 150px;
+    height: 60px;
+    -unity-text-align: middle-center;
+    font-size: 24px;
+    color: rgb(255, 225, 140);
+    background-color: rgb(42, 48, 64);
+    border-radius: 12px;
+}
+
+.reward-counter.is-pulsing {
+    background-color: rgb(110, 85, 30);
+    color: white;
+}
+
+.reward-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}

@@ -1,5 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:a="BovineLabs.Anchor.Elements" editor-extension-mode="False">
     <Style src="ParticleShowcase.uss" />
+    <ui:Template name="target-flights" src="TargetFlights.uxml" />
     <ui:ScrollView class="sample-page" horizontal-scroller-visibility="Hidden">
         <ui:VisualElement class="sample-header">
             <ui:Label text="Native UI particles" class="sample-title" />
@@ -57,6 +58,7 @@
             <a:AnchorParticles name="particle-layered" play-on-attach="false" simulation-space="Panel" class="particle-fill" />
         </ui:VisualElement>
         <ui:Label name="particle-counters" class="sample-value particle-readout" />
+        <ui:Instance template="target-flights" />
         <ui:Label name="particle-status" text="Choose Play all or click a source button. Effects start only when requested." class="sample-muted" />
     </ui:ScrollView>
 </ui:UXML>
