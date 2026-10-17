@@ -25,11 +25,40 @@ Closing the inspector, recompiling or changing Play Mode stops and releases the 
 | StartColorMin/Max | Components sampled once per birth. |
 | Acceleration, Drag | Constant acceleration in the simulation space and nonnegative linear drag. |
 | SizeOverLifetime, ColorOverLifetime | Normalized-age appearance, sampled as described below. |
-| Texture, Uv | Optional Texture2D and normalized rectangular UV region; white untextured quads are valid. |
+| TextureSource, Texture, Uv | Texture mode keeps the optional Texture2D and normalized rectangular UV region; white untextured quads remain valid. |
+| Sprite | Sprite mode uses the sprite's texture, actual UV corners, visible rectangle and pivot. Rectangular/full-rect geometry only. |
+| FlipX, FlipY | Mirror texture content, or mirror a sprite's geometry about its authored pivot. Defaults preserve existing assets. |
+| Flipbook | Optional regular-grid animation for Texture mode. Sprite mode is static. |
 
 Empty effects and unassigned controls are inert. Invalid configured inputs fail preparation; they are not silently repaired.
 For runtime-authored changes call `effect.Invalidate()` after editing fields. The asset cache is identity + revision, with no deep
 hashing or polling. It releases native tables when the final runtime using a revision releases it.
+
+### Sprites and flipbooks
+
+Sprite sources preserve aspect ratio: `Size` is the longer dimension of the original sprite rectangle in UI units. The visible
+geometry and authored pivot are scaled relative to that rectangle, including rectangular packing rotation/reflection and trimming.
+The compiler matches all four UV corners to their geometry; it does not assume an unrotated atlas rectangle. Tight-packed,
+nonrectangular and non-quad sprite meshes, and split-alpha textures, fail preparation with a diagnostic. Import settings are never changed automatically.
+
+Texture mode supports a regular grid inside `Uv`. Columns and rows are positive integers. Frames run left-to-right, top-to-bottom;
+row zero is the top row. Whole Sheet uses every cell; Single Row selects one fixed row or samples a random row once per birth.
+`StartFrame` is an inclusive integer range sampled once per birth, counted within the selected sheet or row. Its independent random
+stream does not alter existing spawn positions, lifetimes, colors or motion.
+
+Lifetime timing advances `Cycles` over normalized particle age. Frames Per Second uses absolute particle age. Zero cycles/rate freezes
+the sampled start frame. `Loop` wraps within the sheet/row; when false, animation clamps at its last frame. Playback speed and pause
+work through ordinary particle time. `Padding` insets each cell edge in source-texture pixels; it must leave a nonempty frame. Author
+transparent/extruded gutters for filtered textures, and use appropriate filtering/mipmap settings to avoid neighbouring-frame bleed.
+FlipX/FlipY mirror each selected frame without changing frame order; padding remains inside that cell.
+
+Sprites are static sources. To animate a sheet, explicitly select Texture and author its compatible grid region; arbitrary SpriteAtlas
+layouts are not flipbook grids. The inspector shows source-specific fields and the settings for the selected timing/row mode.
+
+Source texture/sprite reimports and moves invalidate loaded effect descriptors for their next preparation. Runtime SpriteAtlas registration
+invalidates a matching prepared sprite revision once. Existing runs retain their prepared texture references and geometry until replay,
+as with other effect edits; restart them after changing source layout. Call `Invalidate()` yourself after procedural sprite geometry or texture-layout changes. No sprite arrays or asset
+properties are queried per particle or frame.
 
 ## Control and playback
 
@@ -130,20 +159,50 @@ payload sizes. Shared compiled data is counted once per revision. UI Toolkit own
 fills synchronously through Burst and never retains, overwrites or disposes them after submission. The final particle requests one
 last repaint to clear old geometry. Draws split at 16,383 quads; normalized original-texture UVs use Unity's atlas remapping.
 
+Sprite and flipbook descriptors are optional compiled tables. Only flipbook emitters allocate additional birth state: eight bytes per
+reserved particle slot for the selected start frame and row. Stable compaction moves that state with its particle. Basic particle
+and quad strides remain 68 and 56 bytes, and basic effects allocate no animation state. Sprites use the existing quad basis;
+flipbooks update UV rectangles during mesh generation. Both retain adjacent-texture batching without new materials or vertex channels.
+
 ## Samples and scope
 
 Import **Anchor Showcase** from Package Manager, choose **BovineLabs > Samples > Anchor Play**, then select **Particles** from the button bar.
-The page explores sparkle, clipped confetti, ambient dust and panel-space bursts with playback, seed, speed, emission, visibility and counter controls.
-The authored Sparkle, Confetti, Dust and Layered effects and soft-dot texture live under `Showcase/Effects`, preserving their metadata from the earlier sample.
+The page explores sparkle, clipped confetti, ambient dust, panel-space bursts, an eight-frame AnimatedSparkle and a rectangular SpriteSparkle
+with an offset pivot. Playback, seed, speed, emission, visibility and counter controls apply to all six examples.
+The authored effects and textures live under `Showcase/Effects`; the original four effects preserve their earlier metadata and appearance.
 See the [Showcase README](../Samples~/Showcase/README.md) for generation and lifecycle ownership.
 
-Particles use ordinary alpha quads only: no additive material, flipbook,
+Particles use ordinary alpha quads only: no additive material,
 target-flight, GPU animation, scene collision, sub-emitter graph, ParticleSystem, VFX Graph or Deck integration.
 
 ## Validation and measurements
 
-Tests live under `BovineLabs.Anchor.Tests.Particles`, including coordinate, lifecycle and shared-revision ownership contracts.
-Select correctness fixtures separately from explicit Performance tests when the connected test runner cannot combine filters.
+Data-only tests live under `BovineLabs.Anchor.Tests.Particles`, covering quad geometry, sprite corner/pivot mapping, flipbook timing,
+validation, deterministic births and sidecar compaction. The earlier asset-dependent lifecycle/runtime fixtures were retired. Check
+actual imports, atlas packing, inspector/preview, clipping, opacity and playback teardown in the assigned Editor or a focused Player.
+Use the current test runner and explicitly include Performance when measuring the mesh and simulation/appearance fixtures.
 Record CPU/GPU and engine GC separately from
 Anchor's focused allocation tests. See [BL-301 evidence](particles-release-evidence.md) and the [BL-302 baseline](particles-performance-baseline.md).
 These are historical captures from retired measurement harnesses; the Showcase is the current interactive sample and does not reproduce those capture commands.
+
+### BL-303 validation — 17 October 2026
+
+Unity 7000.0.0a9, Windows Editor, synchronous Burst. The data-only kernel fixture advances one populated control and samples its
+appearance; it excludes UI submission, GPU uploads and frame time. Ten warmups and thirty one-iteration measurements were used.
+The reference uses the original `29b3f1e` simulation/appearance kernels with unused argument adapters for the current fixture.
+
+| Live particles | Basic reference median (µs) | Basic final median (µs) | Flipbook median (µs) |
+| ---: | ---: | ---: | ---: |
+| 64 | 12.80 | 13.00 | 13.25 |
+| 1,000 | 23.45 | 22.95 | 38.40 |
+| 5,000 | 70.20 | 66.55 | 145.45 |
+
+All measured kernel GC sample groups were zero. The first candidate's higher disabled-feature timings prompted a separate ordinary
+appearance loop; the final medians are within the reference's observed sample spread. These short paired CPU captures are not a
+five-run noise calibration, a Player performance guarantee or a speedup claim. Flipbook cost is explicit and optional.
+
+Editor checks covered the authored sample imports, a legacy effect without the new serialized fields, full-rect sprite aspect/pivot,
+rectangular SpriteAtlas packing, source reimport invalidation, conditional inspector fields, frame rendering, clipping, opacity and
+pause/clear. The imported atlas used no packing rotation; rotated/reflected corner mappings are covered by data-only tests. A 64-slot
+basic or sprite runtime owned 8,100 native bytes; animation added exactly 512 bytes. Clearing the review controls returned all 704
+reserved slots. No Player/GPU measurement or split-alpha support is claimed.

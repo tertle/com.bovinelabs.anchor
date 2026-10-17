@@ -3,7 +3,7 @@
     <ui:ScrollView class="sample-page" horizontal-scroller-visibility="Hidden">
         <ui:VisualElement class="sample-header">
             <ui:Label text="Native UI particles" class="sample-title" />
-            <ui:Label text="Effects render directly in UI Toolkit. Compare local button sparkle, clipped confetti, looping dust and a panel-space layered burst." class="sample-description" />
+            <ui:Label text="Effects render directly in UI Toolkit. Compare local sparkle, clipped confetti, looping dust, panel-space bursts, flipbooks and sprite sources." class="sample-description" />
         </ui:VisualElement>
         <ui:VisualElement class="sample-actions">
             <ui:Button name="particle-play" text="Play all" />
@@ -42,6 +42,16 @@
                     <ui:Label text="Layered overlay" class="sample-card-title" />
                     <ui:Label text="Panel space keeps particles at their birth positions." class="sample-muted" />
                     <ui:Button name="particle-overlay-button" text="Burst from here" class="particle-source-button" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sample-card particle-card particle-card--clipped">
+                    <a:AnchorParticles name="particle-animated" play-on-attach="false" class="particle-fill" />
+                    <ui:Label text="Animated sparkle" class="sample-card-title" />
+                    <ui:Label text="Eight frames animate over each particle's lifetime." class="sample-muted" />
+                </ui:VisualElement>
+                <ui:VisualElement class="sample-card particle-card">
+                    <a:AnchorParticles name="particle-sprite" play-on-attach="false" class="particle-fill" />
+                    <ui:Label text="Sprite source" class="sample-card-title" />
+                    <ui:Label text="A rectangular sprite retains its aspect ratio and authored pivot." class="sample-muted" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <a:AnchorParticles name="particle-layered" play-on-attach="false" simulation-space="Panel" class="particle-fill" />

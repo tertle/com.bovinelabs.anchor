@@ -3,6 +3,8 @@
 ## [2.0.0-pre.6] - Unreleased
 
 ### Added
+* Native UI particle sprite sources with rectangular atlas rotation, aspect and pivot preservation, plus optional grid flipbooks with deterministic rows/start frames, lifetime or frame-rate timing, wrapping/clamping and pixel gutters.
+* Conditional particle texture/flipbook authoring and two Showcase examples; ordinary particle and quad storage remain unchanged.
 * A reusable UI Toolkit audio feedback component for existing buttons.
 * A reusable UI Toolkit pulse component for existing visual elements.
 * Composable event commands, grid templates, accordion items, safe-area padding, and timers in the core runtime assembly.

@@ -32,6 +32,8 @@ namespace BovineLabs.Anchor.Samples.Showcase
                 root.Q<AnchorParticles>("particle-confetti"),
                 root.Q<AnchorParticles>("particle-dust"),
                 root.Q<AnchorParticles>("particle-layered"),
+                root.Q<AnchorParticles>("particle-animated"),
+                root.Q<AnchorParticles>("particle-sprite"),
             };
 
             for (var i = 0; i < _particles.Length; i++)
@@ -108,6 +110,8 @@ namespace BovineLabs.Anchor.Samples.Showcase
             PlayAt(1, _particles[1]);
             PlayAt(2, _particles[2]);
             PlayAt(3, _buttons[6]);
+            PlayAt(4, _particles[4]);
+            PlayAt(5, _particles[5]);
         }
 
         private void PlayAt(int index, VisualElement source)

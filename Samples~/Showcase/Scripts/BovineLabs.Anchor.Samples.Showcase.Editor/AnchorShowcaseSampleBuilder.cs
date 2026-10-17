@@ -126,8 +126,8 @@ namespace BovineLabs.Anchor.Samples.Showcase.Editor
                 views[index] = Load<VisualTreeAsset>($"{root}/UI/{names[index]}.uxml");
             }
 
-            var effects = new UIParticleEffect[4];
-            var effectNames = new[] { "Sparkle", "Confetti", "Dust", "Layered" };
+            var effectNames = new[] { "Sparkle", "Confetti", "Dust", "Layered", "AnimatedSparkle", "SpriteSparkle" };
+            var effects = new UIParticleEffect[effectNames.Length];
             for (var index = 0; index < effects.Length; index++)
             {
                 effects[index] = Load<UIParticleEffect>($"{root}/Effects/{effectNames[index]}.asset");
@@ -139,8 +139,7 @@ namespace BovineLabs.Anchor.Samples.Showcase.Editor
             EditorSceneManager.SaveScene(main, $"{generated}/Scenes/Main.unity");
         }
 
-        private static T Load<T>(string path)
-            where T : UnityEngine.Object
+        private static T Load<T>(string path) where T : UnityEngine.Object
         {
             return AssetDatabase.LoadAssetAtPath<T>(path) ?? throw new InvalidOperationException($"Missing sample asset '{path}'.");
         }

@@ -11,6 +11,65 @@ namespace BovineLabs.Anchor.Particles
         [BurstCompile]
         internal static void Fill(
             ref UIParticleCompiledData data, ref NativeArray<UIParticle> particles, ref NativeArray<UIParticleEmitterState> states,
+            ref NativeArray<int2> flipbookStates, ref NativeArray<ParticleQuad> quads, ref NativeArray<int> counts, ref float4 tint)
+        {
+            if (!data.Sprites.IsCreated && !data.Flipbooks.IsCreated)
+            {
+                FillBasic(ref data, ref particles, ref states, ref quads, ref counts, ref tint);
+                return;
+            }
+
+            var output = 0;
+            for (var e = 0; e < data.Emitters.Length; e++)
+            {
+                var emitter = data.Emitters[e];
+                var sprite = data.Sprites.IsCreated ? data.Sprites[e] : default;
+                var flipbook = data.Flipbooks.IsCreated ? data.Flipbooks[e] : default;
+                var count = 0;
+                for (var p = 0; p < states[e].Count; p++)
+                {
+                    var particle = particles[emitter.Offset + p];
+                    var age = math.saturate(particle.Age / particle.Lifetime);
+                    Sample(ref data, e, age, out var multiplier, out var color);
+                    var size = particle.Size * multiplier;
+                    if (size == 0)
+                    {
+                        continue;
+                    }
+
+                    color *= particle.Tint * tint;
+                    var bytes = (uint4)math.round(math.saturate(color) * 255);
+                    var quad = new ParticleQuad
+                    {
+                        Position = particle.Position,
+                        Size = new float2(size),
+                        Angle = particle.Rotation,
+                        Tint = new Color32((byte)bytes.x, (byte)bytes.y, (byte)bytes.z, (byte)bytes.w),
+                        Uv = emitter.Uv,
+                        BasisOffset = particle.Basis - float2x2.identity,
+                    };
+                    if (sprite.Enabled)
+                    {
+                        UIParticleSpriteUtility.Apply(in sprite, ref quad);
+                    }
+
+                    if (flipbook.Enabled)
+                    {
+                        quad.Uv = UIParticleFlipbookUtility.FrameUv(in flipbook, flipbookStates[flipbook.Offset + p],
+                            particle.Age, particle.Lifetime, emitter.Uv);
+                    }
+
+                    quads[output++] = quad;
+                    count++;
+                }
+
+                counts[e] = count;
+            }
+        }
+
+        // Keep optional texture work out of the ordinary appearance loop.
+        private static void FillBasic(
+            ref UIParticleCompiledData data, ref NativeArray<UIParticle> particles, ref NativeArray<UIParticleEmitterState> states,
             ref NativeArray<ParticleQuad> quads, ref NativeArray<int> counts, ref float4 tint)
         {
             var output = 0;

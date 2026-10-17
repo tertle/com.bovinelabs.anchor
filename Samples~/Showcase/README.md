@@ -8,11 +8,15 @@ One scene and a persistent bottom button bar expose five examples:
 | --- | --- |
 | Bindings | Observable properties, computed dependencies, two-way controls, command eligibility and class binding |
 | Collections | Grid and accordion row templates, selection, item commands and live collection edits |
-| Particles | Sparkle, clipped confetti, ambient dust and panel-space bursts; seed, speed, emission, visibility and counters |
+| Particles | Sparkle, clipped confetti, ambient dust, panel-space bursts, an eight-frame flipbook and a rectangular sprite with an offset pivot; seed, speed, emission, visibility and counters |
 | Animations | Fade and scale-fade navigation, back stack, animated popups and USS class transitions |
 | Burst ECS | 512 continuously oscillating baked buffer cells, an individual-cell meter, an isolated world and Burst `SystemProperty` publication through `UIHelper`; pulse, reset, speed and pause controls |
 
 Inspect `UI` for declarative layout/bindings and `Scripts` for state ownership. The sample uses Core's theme tokens and Anchor's App UI theme. Particle effect and texture metadata is preserved from the earlier particle sample.
+
+`Effects/AnimatedSparkle.asset` uses the 4×2 `SparkleSheet.tga` grid with two-pixel frame padding and lifetime animation clamped at its
+last frame. `Effects/SpriteSparkle.asset` uses a full-rect 64×32 sprite with pivot `(0.25, 0.5)`. The original four effects remain unchanged.
+Regenerate an already-imported Showcase after adding these examples so its app receives all six effect references.
 
 The catalog app resolves view-model services from each UXML `data-source-type`. Managed examples retain their state while changing tabs. Effects and animation callbacks are released on tab changes. The ECS page loads its baked scene into a separate world and disposes that world when leaving; its system pairs `UIHelper.Bind` and `Unbind` and publishes only unmanaged values from its main-thread Burst update. UI commands write requests consumed on the next update.
 

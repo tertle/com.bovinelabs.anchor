@@ -37,7 +37,12 @@ namespace BovineLabs.Anchor.Particles
         public float Drag;
         public AnimationCurve SizeOverLifetime = AnimationCurve.Linear(0, 1, 1, 0);
         public Gradient ColorOverLifetime = new();
+        public UIParticleTextureSource TextureSource;
         public Texture2D Texture;
+        public Sprite Sprite;
         public Rect Uv = new(0, 0, 1, 1);
+        public bool FlipX;
+        public bool FlipY;
+        public UIParticleFlipbookSettings Flipbook = new();
     }
 }

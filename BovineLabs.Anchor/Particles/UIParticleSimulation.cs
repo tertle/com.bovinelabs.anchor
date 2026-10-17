@@ -10,22 +10,39 @@ namespace BovineLabs.Anchor.Particles
         [BurstCompile]
         internal static void Step(
             ref UIParticleCompiledData data, ref NativeArray<UIParticle> particles, ref NativeArray<UIParticleEmitterState> states,
-            ref NativeArray<UIParticleEmissionStream> streams, double delta, uint seed, bool emitting, ref float4x4 spawnTransform,
-            float emissionScale = 1)
+            ref NativeArray<UIParticleEmissionStream> streams, ref NativeArray<int2> flipbookStates, double delta, uint seed, bool emitting,
+            ref float4x4 spawnTransform, float emissionScale = 1)
         {
             for (var e = 0; e < data.Emitters.Length; e++)
             {
                 var settings = data.Emitters[e];
                 var state = states[e];
+                var flipbook = data.Flipbooks.IsCreated ? data.Flipbooks[e] : default;
                 Coefficients(settings.Drag, (float)delta, out var decay, out var velocityIntegral, out var accelerationIntegral);
                 var live = 0;
-                for (var p = 0; p < state.Count; p++)
+                if (flipbook.Enabled)
                 {
-                    var particle = particles[settings.Offset + p];
-                    Integrate(ref particle, (float)delta, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
-                    if (particle.Age < particle.Lifetime)
+                    for (var p = 0; p < state.Count; p++)
                     {
-                        particles[settings.Offset + live++] = particle;
+                        var particle = particles[settings.Offset + p];
+                        Integrate(ref particle, (float)delta, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
+                        if (particle.Age < particle.Lifetime)
+                        {
+                            flipbookStates[flipbook.Offset + live] = flipbookStates[flipbook.Offset + p];
+                            particles[settings.Offset + live++] = particle;
+                        }
+                    }
+                }
+                else
+                {
+                    for (var p = 0; p < state.Count; p++)
+                    {
+                        var particle = particles[settings.Offset + p];
+                        Integrate(ref particle, (float)delta, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
+                        if (particle.Age < particle.Lifetime)
+                        {
+                            particles[settings.Offset + live++] = particle;
+                        }
                     }
                 }
 
@@ -114,6 +131,12 @@ namespace BovineLabs.Anchor.Particles
                         Integrate(ref particle, age, settings.Acceleration, decay, velocityIntegral, accelerationIntegral);
                         if (particle.Age < particle.Lifetime)
                         {
+                            if (flipbook.Enabled)
+                            {
+                                flipbookStates[flipbook.Offset + state.Count] = UIParticleFlipbookUtility.Sample(in flipbook, seed, (uint)e,
+                                    unchecked(state.Ordinal + (uint)p));
+                            }
+
                             particles[settings.Offset + state.Count++] = particle;
                         }
                     }

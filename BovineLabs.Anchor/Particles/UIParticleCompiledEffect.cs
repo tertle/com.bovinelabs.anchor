@@ -6,11 +6,14 @@ namespace BovineLabs.Anchor.Particles
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Mathematics;
     using UnityEngine;
+    using UnityEngine.U2D;
 
     internal sealed class UIParticleCompiledEffect
     {
         public const int SampleCount = 128;
         private int _owners;
+        private readonly UIParticleEffect _effect;
+        private readonly Sprite[] _sourceSprites;
 
         public UIParticleCompiledEffect(UIParticleEffect effect)
         {
@@ -18,6 +21,8 @@ namespace BovineLabs.Anchor.Particles
             var bursts = new List<UIParticleBurst>();
             var samples = new List<UIParticleSample>();
             var steps = new List<UIParticleColorStep>();
+            UIParticleSprite[] sprites = null;
+            UIParticleFlipbook[] flipbooks = null;
             Textures = new Texture2D[effect.Emitters.Count];
             Revision = effect.Revision;
 
@@ -112,7 +117,48 @@ namespace BovineLabs.Anchor.Particles
                     emitter.StepCount = steps.Count - emitter.StepOffset;
                 }
 
-                Textures[emitters.Count] = settings.Texture;
+                var index = emitters.Count;
+                if (settings.TextureSource == UIParticleTextureSource.Sprite)
+                {
+                    var sprite = settings.Sprite;
+                    Require(sprite != null, "A Sprite source requires an assigned sprite.");
+                    Require(!sprite.packed || sprite.packingMode == SpritePackingMode.Rectangle,
+                        "Tight-packed particle sprites are unsupported. Use rectangular atlas packing.");
+                    Require(sprite.associatedAlphaSplitTexture == null,
+                        "Particle sprites do not support split-alpha textures. Use a texture format with an alpha channel.");
+                    sprites ??= new UIParticleSprite[effect.Emitters.Count];
+                    _sourceSprites ??= new Sprite[effect.Emitters.Count];
+                    _sourceSprites[index] = sprite;
+                    sprites[index] = UIParticleSpriteUtility.Compile(sprite.vertices, sprite.uv, sprite.triangles, sprite.pixelsPerUnit,
+                        sprite.rect.size, new float2(settings.FlipX ? -1 : 1, settings.FlipY ? -1 : 1));
+                    emitter.Uv = sprites[index].Uv;
+                    Textures[index] = sprite.texture;
+                }
+                else
+                {
+                    if (settings.FlipX)
+                    {
+                        emitter.Uv = emitter.Uv.zyxw;
+                    }
+
+                    if (settings.FlipY)
+                    {
+                        emitter.Uv = emitter.Uv.xwzy;
+                    }
+
+                    Textures[index] = settings.Texture;
+                }
+
+                if (settings.Flipbook.Enabled)
+                {
+                    Require(settings.TextureSource == UIParticleTextureSource.Texture && settings.Texture != null,
+                        "Flipbooks require a Texture2D and an explicitly authored rectangular grid region, not a Sprite source.");
+                    flipbooks ??= new UIParticleFlipbook[effect.Emitters.Count];
+                    flipbooks[index] = UIParticleFlipbookUtility.Compile(settings.Flipbook, emitter.Uv,
+                        new int2(settings.Texture.width, settings.Texture.height), FlipbookCapacity);
+                    FlipbookCapacity = checked(FlipbookCapacity + settings.MaxParticles);
+                }
+
                 emitters.Add(emitter);
                 Capacity = capacity;
             }
@@ -124,16 +170,25 @@ namespace BovineLabs.Anchor.Particles
                 Bursts = new NativeArray<UIParticleBurst>(bursts.ToArray(), Allocator.Persistent),
                 Samples = new NativeArray<UIParticleSample>(samples.ToArray(), Allocator.Persistent),
                 Steps = new NativeArray<UIParticleColorStep>(steps.ToArray(), Allocator.Persistent),
+                Sprites = sprites == null ? default : new NativeArray<UIParticleSprite>(sprites, Allocator.Persistent),
+                Flipbooks = flipbooks == null ? default : new NativeArray<UIParticleFlipbook>(flipbooks, Allocator.Persistent),
             };
             NativeBytes = (long)emitters.Count * UnsafeUtility.SizeOf<UIParticleEmitter>() +
                 ((long)bursts.Count * UnsafeUtility.SizeOf<UIParticleBurst>()) +
-                ((long)samples.Count * UnsafeUtility.SizeOf<UIParticleSample>()) + ((long)steps.Count * UnsafeUtility.SizeOf<UIParticleColorStep>());
+                ((long)samples.Count * UnsafeUtility.SizeOf<UIParticleSample>()) + ((long)steps.Count * UnsafeUtility.SizeOf<UIParticleColorStep>()) +
+                ((long)Data.Sprites.Length * UnsafeUtility.SizeOf<UIParticleSprite>()) + ((long)Data.Flipbooks.Length * UnsafeUtility.SizeOf<UIParticleFlipbook>());
+            if (_sourceSprites != null)
+            {
+                _effect = effect;
+                SpriteAtlasManager.atlasRegistered += OnAtlasRegistered;
+            }
         }
 
         public UIParticleCompiledData Data;
         public Texture2D[] Textures { get; }
         public uint Revision { get; }
         public int Capacity { get; }
+        public int FlipbookCapacity { get; }
         public long NativeBytes { get; }
         public bool IsDisposed { get; private set; }
 
@@ -150,7 +205,36 @@ namespace BovineLabs.Anchor.Particles
             Data.Bursts.Dispose();
             Data.Samples.Dispose();
             Data.Steps.Dispose();
+            if (Data.Sprites.IsCreated)
+            {
+                Data.Sprites.Dispose();
+                SpriteAtlasManager.atlasRegistered -= OnAtlasRegistered;
+            }
+
+            if (Data.Flipbooks.IsCreated)
+            {
+                Data.Flipbooks.Dispose();
+            }
+
             IsDisposed = true;
+        }
+
+        private void OnAtlasRegistered(SpriteAtlas atlas)
+        {
+            if (_effect == null || _effect.Revision != Revision)
+            {
+                return;
+            }
+
+            foreach (var sprite in _sourceSprites)
+            {
+                if (sprite != null && atlas.CanBindTo(sprite))
+                {
+                    // Existing runs retain their immutable revision; the next Play prepares the rebound sprite once.
+                    _effect.Invalidate();
+                    return;
+                }
+            }
         }
 
         private static void Validate(UIParticleEmitterSettings s)
@@ -175,9 +259,14 @@ namespace BovineLabs.Anchor.Particles
             var max = ToFloat(s.StartColorMax);
             Require(math.all(math.isfinite(min)) && math.all(math.isfinite(max)) && math.all(min >= 0) && math.all(max >= min) &&
                 math.all(max <= 1), "Start colors must have ordered channels in [0, 1].");
-            var uv = new float4(s.Uv.x, s.Uv.y, s.Uv.width, s.Uv.height);
-            Require(math.all(math.isfinite(uv)) && math.all(uv.xy >= 0) && math.all(uv.zw > 0) && math.all(uv.xy + uv.zw <= 1),
-                "UV rectangle must be nonempty and contained in [0, 1].");
+            Require(s.TextureSource <= UIParticleTextureSource.Sprite, "Unknown particle texture source.");
+            Require(s.Flipbook != null, "Flipbook settings are required; disable the section for ordinary particles.");
+            if (s.TextureSource == UIParticleTextureSource.Texture)
+            {
+                var uv = new float4(s.Uv.x, s.Uv.y, s.Uv.width, s.Uv.height);
+                Require(math.all(math.isfinite(uv)) && math.all(uv.xy >= 0) && math.all(uv.zw > 0) && math.all(uv.xy + uv.zw <= 1),
+                    "UV rectangle must be nonempty and contained in [0, 1].");
+            }
             Require(s.Bursts != null, "Burst list is required.");
             foreach (var burst in s.Bursts)
             {

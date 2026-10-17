@@ -5,11 +5,14 @@ namespace BovineLabs.Anchor.Particles
     using Unity.Collections.LowLevel.Unsafe;
     using Unity.Mathematics;
     using Unity.Profiling;
+    using Unity.Scripting.LifecycleManagement;
     using UnityEngine.UIElements;
 
     public sealed class UIParticleRuntime : IDisposable
     {
+        [NoAutoStaticsCleanup]
         private static readonly ProfilerMarker SimulationMarker = new("Anchor.Particles.Simulation");
+        [NoAutoStaticsCleanup]
         private static readonly ProfilerMarker AppearanceMarker = new("Anchor.Particles.Appearance");
         internal readonly UIParticleCompiledEffect Compiled;
         internal NativeArray<UIParticle> Particles;
@@ -17,6 +20,7 @@ namespace BovineLabs.Anchor.Particles
         internal NativeArray<ParticleQuad> Quads;
         internal NativeArray<int> QuadCounts;
         private NativeArray<UIParticleEmissionStream> _streams;
+        private NativeArray<int2> _flipbookStates;
         private uint _seed;
         private float _emissionScale = 1;
         private bool _emitting;
@@ -35,6 +39,10 @@ namespace BovineLabs.Anchor.Particles
             Quads = new NativeArray<ParticleQuad>(Compiled.Capacity, Allocator.Persistent);
             QuadCounts = new NativeArray<int>(States.Length, Allocator.Persistent);
             _streams = new NativeArray<UIParticleEmissionStream>(Compiled.Data.Bursts.Length + States.Length, Allocator.Persistent);
+            if (Compiled.FlipbookCapacity != 0)
+            {
+                _flipbookStates = new NativeArray<int2>(Compiled.FlipbookCapacity, Allocator.Persistent);
+            }
         }
 
         public static int ParticleStride => UnsafeUtility.SizeOf<UIParticle>();
@@ -42,7 +50,7 @@ namespace BovineLabs.Anchor.Particles
         public long ParticleCapacityBytes => (long)Capacity * ParticleStride;
         public long NativeBytes => ParticleCapacityBytes + ((long)Quads.Length * UnsafeUtility.SizeOf<ParticleQuad>()) +
             ((long)States.Length * (UnsafeUtility.SizeOf<UIParticleEmitterState>() + sizeof(int))) +
-            ((long)_streams.Length * UnsafeUtility.SizeOf<UIParticleEmissionStream>());
+            ((long)_streams.Length * UnsafeUtility.SizeOf<UIParticleEmissionStream>()) + ((long)_flipbookStates.Length * UnsafeUtility.SizeOf<int2>());
         public long SharedCompiledBytes => Compiled.NativeBytes;
         public uint Revision => Compiled.Revision;
         public bool IsPlaying { get; private set; }
@@ -183,7 +191,7 @@ namespace BovineLabs.Anchor.Particles
                 for (var step = 0; step < 4; step++)
                 {
                     var delta = math.min(remaining, 1d / 60);
-                    UIParticleSimulation.Step(ref data, ref Particles, ref States, ref _streams, delta, _seed,
+                    UIParticleSimulation.Step(ref data, ref Particles, ref States, ref _streams, ref _flipbookStates, delta, _seed,
                         _emitting, ref spawnTransform, _emissionScale);
                     remaining -= delta;
                     if (remaining <= 0)
@@ -203,7 +211,7 @@ namespace BovineLabs.Anchor.Particles
             using (AppearanceMarker.Auto())
             {
                 var data = Compiled.Data;
-                UIParticleMesh.Fill(ref data, ref Particles, ref States, ref Quads, ref QuadCounts, ref tint);
+                UIParticleMesh.Fill(ref data, ref Particles, ref States, ref _flipbookStates, ref Quads, ref QuadCounts, ref tint);
             }
         }
 
@@ -237,6 +245,11 @@ namespace BovineLabs.Anchor.Particles
             Quads.Dispose();
             QuadCounts.Dispose();
             _streams.Dispose();
+            if (_flipbookStates.IsCreated)
+            {
+                _flipbookStates.Dispose();
+            }
+
             Compiled.Release();
             _disposed = true;
             IsPlaying = false;
