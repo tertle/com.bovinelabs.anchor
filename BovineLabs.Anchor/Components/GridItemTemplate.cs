@@ -101,6 +101,8 @@ namespace BovineLabs.Anchor.Components
 
             private VisualElement MakeItem()
             {
+                // UXML adds the component before populating its serialized attributes. Read the completed component when a row is requested.
+                _template = _grid.GetComponent<GridItemTemplate>().ItemTemplate;
                 return _template != null ? _template.Instantiate() : new Label("Template Not Found");
             }
 
