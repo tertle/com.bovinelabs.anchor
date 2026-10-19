@@ -53,7 +53,7 @@ namespace BovineLabs.Anchor.Audio
         {
             unchecked
             {
-                return ((int)_mode * 397) ^ (_clip != null ? _clip.GetHashCode() : 0);
+                return ((int)_mode * 397) ^ (_clip != null ? _clip.GetEntityId().GetHashCode() : 0);
             }
         }
     }
