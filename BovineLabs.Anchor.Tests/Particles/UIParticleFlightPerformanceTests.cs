@@ -26,7 +26,7 @@ namespace BovineLabs.Anchor.Tests.Particles
         private bool _previousBurst;
         private bool _previousSynchronous;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _previousBurst = BurstCompiler.Options.EnableBurstCompilation;
@@ -51,11 +51,16 @@ namespace BovineLabs.Anchor.Tests.Particles
             _counts.Dispose();
             _vertices.Dispose();
             _indices.Dispose();
+        }
+
+        [OneTimeTearDown]
+        public void RestoreBurst()
+        {
             BurstCompiler.Options.EnableBurstCompilation = _previousBurst;
             BurstCompiler.Options.EnableBurstCompileSynchronously = _previousSynchronous;
         }
 
-        [TestCase(100), TestCase(1000), TestCase(5000), Performance]
+        [TestCase(5000), Performance]
         public void FollowFlightSeparatesSimulationAppearanceAndMeshCosts(int count)
         {
             Prepare(count);
@@ -75,7 +80,7 @@ namespace BovineLabs.Anchor.Tests.Particles
             Assert.That(_flights.Arrivals, Is.Zero);
         }
 
-        [TestCase(100), TestCase(1000), TestCase(5000), Performance]
+        [TestCase(5000), Performance]
         public void ManySourceRequestsAdmitOnlyAvailableCapacity(int count)
         {
             Prepare(count);

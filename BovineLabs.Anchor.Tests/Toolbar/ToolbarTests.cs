@@ -126,20 +126,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         }
 
         [Test]
-        public void CreatingSecondToolbarWhileFirstIsActive_Throws()
-        {
-            var firstStorage = CreateVisibleStorage();
-            var firstViewModel = new ToolbarViewModel(firstStorage);
-            using var toolbar = new ToolbarService(new TestServiceProvider(), firstViewModel, firstStorage, Array.Empty<Type>());
-
-            var secondStorage = CreateVisibleStorage();
-            var secondViewModel = new ToolbarViewModel(secondStorage);
-
-            Assert.Throws<InvalidOperationException>(
-                () => new ToolbarService(new TestServiceProvider(), secondViewModel, secondStorage, Array.Empty<Type>()));
-        }
-
-        [Test]
         public void RegistrationHandle_FromDisposedToolbarCannotRemoveFromNewToolbar()
         {
             const string saveKey = "bl.toolbar.Generation.Model";

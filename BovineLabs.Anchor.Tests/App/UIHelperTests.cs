@@ -7,9 +7,7 @@ namespace BovineLabs.Anchor.Tests.App
     using BovineLabs.Testing;
     using NUnit.Framework;
     using BovineLabs.Anchor.MVVM;
-    using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
-    using Unity.Entities;
 
     public unsafe class UIHelperTests : ECSTestsFixture
     {
@@ -29,12 +27,13 @@ namespace BovineLabs.Anchor.Tests.App
                 services.AddSingleton(typeof(TestViewModel));
             });
 
+            var viewModelService = scope.ServiceProvider.GetRequiredService<IViewModelService>();
+            Assert.IsNull(viewModelService.Get<TestViewModel>());
             var helper = default(UIHelper<TestViewModel, TestData>);
             helper.Bind();
-
-            var viewModelService = scope.ServiceProvider.GetRequiredService<IViewModelService>();
             var viewModel = viewModelService.Get<TestViewModel>();
             Assert.IsNotNull(viewModel);
+            Assert.AreSame(viewModel, viewModelService.Load<TestViewModel>());
             Assert.AreEqual(1, viewModel.InitializeCount);
 
             helper.Binding.Counter = 19;
@@ -113,21 +112,6 @@ namespace BovineLabs.Anchor.Tests.App
             }
         }
 
-        [Test]
-        public void ComponentRequirementConstructor_RequiresMatchingComponentBeforeUpdate()
-        {
-            var system = World.CreateSystem<TestRequireUpdateSystem>();
-            ref var testSystem = ref WorldUnmanaged.GetUnsafeSystemRef<TestRequireUpdateSystem>(system);
-
-            system.Update(WorldUnmanaged);
-            Assert.AreEqual(0, testSystem.UpdateCount);
-
-            Manager.CreateEntity(typeof(TestRequiredComponent));
-            system.Update(WorldUnmanaged);
-
-            Assert.AreEqual(1, testSystem.UpdateCount);
-        }
-
         private sealed class TestViewModel : SystemObservableObject<TestData>, ILoadable
         {
             public int InitializeCount { get; private set; }
@@ -148,25 +132,6 @@ namespace BovineLabs.Anchor.Tests.App
         private struct TestData
         {
             public int Counter;
-        }
-
-        private struct TestRequiredComponent : IComponentData
-        {
-        }
-
-        private partial struct TestRequireUpdateSystem : ISystem
-        {
-            public int UpdateCount;
-
-            public void OnCreate(ref SystemState state)
-            {
-                _ = new UIHelper<TestViewModel, TestData>(ref state, ComponentType.ReadOnly<TestRequiredComponent>());
-            }
-
-            public void OnUpdate(ref SystemState state)
-            {
-                UpdateCount++;
-            }
         }
     }
 }

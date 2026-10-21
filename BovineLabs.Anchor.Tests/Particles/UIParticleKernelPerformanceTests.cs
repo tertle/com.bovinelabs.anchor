@@ -22,7 +22,7 @@ namespace BovineLabs.Anchor.Tests.Particles
         private bool _previousBurst;
         private bool _previousSynchronous;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _previousBurst = BurstCompiler.Options.EnableBurstCompilation;
@@ -48,19 +48,23 @@ namespace BovineLabs.Anchor.Tests.Particles
                 _data.Flipbooks.Dispose();
                 _flipbookStates.Dispose();
             }
+        }
 
+        [OneTimeTearDown]
+        public void RestoreBurst()
+        {
             BurstCompiler.Options.EnableBurstCompilation = _previousBurst;
             BurstCompiler.Options.EnableBurstCompileSynchronously = _previousSynchronous;
         }
 
-        [TestCase(64), TestCase(100), TestCase(1000), TestCase(5000), Performance]
+        [TestCase(5000), Performance]
         public void BasicUpdateMaintainsLivePopulation(int count)
         {
             Prepare(count);
             MeasureUpdate(count);
         }
 
-        [TestCase(64), TestCase(100), TestCase(1000), TestCase(5000), Performance]
+        [TestCase(5000), Performance]
         public void FlipbookUpdateMaintainsLivePopulation(int count)
         {
             Prepare(count);

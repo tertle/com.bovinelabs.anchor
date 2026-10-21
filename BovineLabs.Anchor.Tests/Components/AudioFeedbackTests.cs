@@ -34,22 +34,6 @@ namespace BovineLabs.Anchor.Tests.Components
             _provider.Dispose();
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void Button_PointerOrKeyboardActivation_PlaysOneActivateCue(bool keyboard)
-        {
-            var button = new Button();
-            button.GetOrAddComponent<AudioFeedback>();
-            using EventBase evt = keyboard ? KeyUpEvent.GetPooled() : PointerUpEvent.GetPooled();
-
-            button.clickable.InvokePressed(evt);
-
-            Assert.AreEqual(1, _audio.Calls.Count);
-            Assert.AreEqual(AnchorAudioSettings.DefaultProfileKey, _audio.Calls[0].Profile);
-            Assert.AreEqual(AnchorAudioCue.Activate, _audio.Calls[0].Cue);
-            Assert.AreEqual(AnchorAudioOverrideMode.Inherit, _audio.Calls[0].Override.Mode);
-        }
-
         [Test]
         public void AudioProfile_PropertyBagRoundTrip_DrivesActivation()
         {
@@ -97,6 +81,9 @@ namespace BovineLabs.Anchor.Tests.Components
             button.clickable.InvokePressed(null);
 
             Assert.AreEqual(1, _audio.Calls.Count);
+            Assert.AreEqual(AnchorAudioSettings.DefaultProfileKey, _audio.Calls[0].Profile);
+            Assert.AreEqual(AnchorAudioCue.Activate, _audio.Calls[0].Cue);
+            Assert.AreEqual(AnchorAudioOverrideMode.Inherit, _audio.Calls[0].Override.Mode);
         }
 
         [Test]

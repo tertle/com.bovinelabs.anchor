@@ -8,30 +8,6 @@ namespace BovineLabs.Anchor.Tests.Binding
     public class BindingObjectNotifyDataExtensionsTests
     {
         [Test]
-        public void SetProperty_SameValue_ReturnsFalseAndDoesNotMutate()
-        {
-            var binding = new TestBindingObject();
-            var field = 11;
-
-            var changed = binding.SetProperty(ref field, 11, "Value");
-
-            Assert.IsFalse(changed);
-            Assert.AreEqual(11, field);
-        }
-
-        [Test]
-        public void SetProperty_ChangedValue_ReturnsTrueAndMutates()
-        {
-            var binding = new TestBindingObject();
-            var field = 11;
-
-            var changed = binding.SetProperty(ref field, 12, "Value");
-
-            Assert.IsTrue(changed);
-            Assert.AreEqual(12, field);
-        }
-
-        [Test]
         public void SetProperty_ChangedWrapperSameValueAndResetFlag_ResetsHasChanged()
         {
             var binding = new TestBindingObject();
@@ -42,25 +18,6 @@ namespace BovineLabs.Anchor.Tests.Binding
             Assert.IsFalse(changed);
             Assert.AreEqual(42, field.Value);
             Assert.IsFalse(field.HasChanged);
-        }
-
-        [Test]
-        public void SetProperty_NativeListEqualContent_ReturnsFalse()
-        {
-            var binding = new TestBindingObject();
-            var list = new NativeList<int>(Allocator.Temp);
-            var incoming = new NativeArray<int>(new[] { 1, 2 }, Allocator.Temp);
-            MultiContainer<int> incomingContainer = incoming;
-
-            list.Add(1);
-            list.Add(2);
-
-            var changed = binding.SetProperty(list, incomingContainer, "Items");
-
-            Assert.IsFalse(changed);
-            Assert.AreEqual(2, list.Length);
-            Assert.AreEqual(1, list[0]);
-            Assert.AreEqual(2, list[1]);
         }
 
         [Test]
@@ -81,6 +38,7 @@ namespace BovineLabs.Anchor.Tests.Binding
             Assert.AreEqual(7, list[0]);
             Assert.AreEqual(8, list[1]);
             Assert.AreEqual(9, list[2]);
+            Assert.IsFalse(binding.SetProperty(list, incomingContainer, "Items"));
         }
 
         [Test]

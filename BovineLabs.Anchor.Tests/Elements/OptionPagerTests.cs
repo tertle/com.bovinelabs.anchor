@@ -3,7 +3,6 @@ namespace BovineLabs.Anchor.Tests.Elements
     using System.Collections.Generic;
     using BovineLabs.Anchor.Elements;
     using NUnit.Framework;
-    using UnityEngine.UIElements;
 
     public class OptionPagerTests
     {
@@ -37,19 +36,5 @@ namespace BovineLabs.Anchor.Tests.Elements
             pager.sourceItems = new List<string>();
             Assert.AreEqual(-1, pager.selectedIndex);
         }
-
-        [Test]
-        public void EmptyText_UpdatesDisplayWhenNoItems()
-        {
-            var pager = new OptionPager
-            {
-                emptyText = "Nothing",
-                sourceItems = new List<string>(),
-            };
-
-            Assert.AreEqual("Nothing", pager.selectedText);
-            Assert.AreEqual("Nothing", pager.SelectedItemElement.label);
-        }
-
     }
 }

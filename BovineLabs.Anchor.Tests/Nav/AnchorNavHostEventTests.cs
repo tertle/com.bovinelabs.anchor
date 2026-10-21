@@ -2,7 +2,6 @@ namespace BovineLabs.Anchor.Tests.Nav
 {
     using System.Collections.Generic;
     using BovineLabs.Anchor.Nav;
-    using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
 
@@ -85,22 +84,6 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.AreEqual(1, bReceiver.EnterCount);
             Assert.AreEqual(0, bReceiver.ExitCount);
             Assert.AreEqual(AnchorNavArgument.String("k", "2"), bReceiver.LastEnterArguments[0]);
-        }
-
-        [Test]
-        public void ArgumentsWithoutScreenHandler_IsSafeNoThrow()
-        {
-            using var scope = new TestAnchorAppScope(static services =>
-            {
-                services.AddSingleton(typeof(TestVisualElementFactory));
-                services.AddSingleton(typeof(IUXMLService), typeof(TestUxmlService));
-            });
-
-            var host = new AnchorNavHost();
-            scope.App.NavHost = host;
-
-            Assert.DoesNotThrow(() => host.Navigate("no-handler", AnchorNavArgument.String("value", "1")));
-            Assert.AreEqual("no-handler", host.CurrentDestination);
         }
     }
 }

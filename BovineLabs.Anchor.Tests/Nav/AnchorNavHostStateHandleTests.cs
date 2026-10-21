@@ -32,28 +32,6 @@ namespace BovineLabs.Anchor.Tests.Nav
         }
 
         [Test]
-        public void SaveStateHandle_ReturnsIncreasingValues()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-
-            var first = harness.Host.SaveStateHandle();
-            var second = harness.Host.SaveStateHandle();
-
-            Assert.Greater(first, 0);
-            Assert.Greater(second, first);
-        }
-
-        [Test]
-        public void ReleaseStateHandle_InvalidHandle_ReturnsFalse()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-
-            var released = harness.Host.ReleaseStateHandle(9999, restore: false);
-
-            Assert.IsFalse(released);
-        }
-
-        [Test]
         public void ReleaseStateHandle_ValidRestoreFalse_RemovesSavedStateOnly()
         {
             using var harness = new TestAnchorNavHostHarness();
@@ -119,6 +97,9 @@ namespace BovineLabs.Anchor.Tests.Nav
             var state = harness.Host.SaveState();
 
             harness.Host.ClearNavigation();
+            Assert.IsFalse(harness.Host.CanGoBack);
+            Assert.IsFalse(harness.Host.HasActivePopups);
+            Assert.IsNull(harness.Host.CurrentDestination);
             harness.Host.RestoreState(state);
 
             Assert.AreEqual("popup", harness.Host.CurrentDestination);

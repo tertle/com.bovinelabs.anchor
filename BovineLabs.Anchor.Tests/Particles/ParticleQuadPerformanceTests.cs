@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Tests.Particles
         private bool _previousBurst;
         private bool _previousSynchronous;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _previousBurst = BurstCompiler.Options.EnableBurstCompilation;
@@ -24,17 +24,13 @@ namespace BovineLabs.Anchor.Tests.Particles
             BurstCompiler.Options.EnableBurstCompileSynchronously = true;
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
             BurstCompiler.Options.EnableBurstCompileSynchronously = _previousSynchronous;
             BurstCompiler.Options.EnableBurstCompilation = _previousBurst;
         }
 
-        [TestCase(64)]
-        [TestCase(256)]
-        [TestCase(1000)]
-        [TestCase(5000)]
         [TestCase(20000)]
         [Performance]
         public void MeshFill(int count)

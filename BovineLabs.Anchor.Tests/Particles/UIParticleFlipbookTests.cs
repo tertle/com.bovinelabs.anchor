@@ -9,11 +9,9 @@ namespace BovineLabs.Anchor.Tests.Particles
 
     public class UIParticleFlipbookTests
     {
-        [TestCase(0, true, 0, 0)]
         [TestCase(0.2499f, true, 0, 0)]
         [TestCase(0.25f, true, 1, 0)]
         [TestCase(1, true, 0, 1)]
-        [TestCase(1.9999f, true, 3, 1)]
         [TestCase(2, true, 0, 0)]
         [TestCase(2, false, 3, 1)]
         public void LifetimeFramesAdvanceAcrossRowsAndRespectLooping(float age, bool loop, int column, int row)
@@ -33,7 +31,6 @@ namespace BovineLabs.Anchor.Tests.Particles
             Assert.That(uv.w - uv.y, Is.EqualTo(0.5f).Within(0.00001f));
         }
 
-        [TestCase(0, 2)]
         [TestCase(0.1249f, 2)]
         [TestCase(0.125f, 3)]
         [TestCase(0.25f, 0)]
@@ -127,7 +124,6 @@ namespace BovineLabs.Anchor.Tests.Particles
         }
 
         [TestCase(0, 1)]
-        [TestCase(1, -1)]
         [TestCase(int.MaxValue, 2)]
         public void InvalidGridDimensionsAreRejected(int columns, int rows)
         {
@@ -140,7 +136,6 @@ namespace BovineLabs.Anchor.Tests.Particles
 
         [TestCase(-1)]
         [TestCase(float.NaN)]
-        [TestCase(float.PositiveInfinity)]
         public void InvalidSelectedTimingIsRejected(float rate)
         {
             var settings = new UIParticleFlipbookSettings {

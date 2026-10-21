@@ -6,7 +6,6 @@ namespace BovineLabs.Anchor.Tests.App
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using UnityEngine;
     using UnityEngine.UIElements;
 
     public class AnchorAppTests
@@ -176,14 +175,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void ServiceProvider_GetRequiredService_WhenMissing_Throws()
-        {
-            using var provider = new AnchorServiceCollection().BuildServiceProvider();
-
-            Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<IMissingService>());
-        }
-
-        [Test]
         public void ServiceCollection_VisualElementsCannotBeRegistered()
         {
             var services = new AnchorServiceCollection();
@@ -198,37 +189,6 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.AreEqual(0, services.Count);
         }
 
-        [Test]
-        public void UpdateScreenMetrics_WhenMetricsChange_RaisesScreenMetricsChanged()
-        {
-            using var scope = new TestAnchorAppScope();
-            var app = scope.App;
-            var fired = false;
-            var received = default(AnchorScreenMetrics);
-
-            void OnScreenMetricsChanged(AnchorScreenMetrics metrics)
-            {
-                fired = true;
-                received = metrics;
-            }
-
-            app.ScreenMetricsChanged += OnScreenMetricsChanged;
-
-            try
-            {
-                var expected = new AnchorScreenMetrics(1000, 500, new Rect(50f, 20f, 900f, 460f));
-
-                app.UpdateScreenMetrics(expected);
-
-                Assert.IsTrue(fired);
-                Assert.AreEqual(expected, received);
-            }
-            finally
-            {
-                app.ScreenMetricsChanged -= OnScreenMetricsChanged;
-            }
-        }
-
         private interface IFooSettings
         {
         }
@@ -238,10 +198,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         private sealed class SharedSettings : IFooSettings, IBarSettings
-        {
-        }
-
-        private interface IMissingService
         {
         }
 

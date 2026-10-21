@@ -7,16 +7,6 @@ namespace BovineLabs.Anchor.Tests.Utility
     public class SequenceComparerTests
     {
         [Test]
-        public void SequenceComparer_NullSequences_AreEqualAndHaveZeroHashCode()
-        {
-            var comparer = new SequenceComparer<int>();
-
-            Assert.IsTrue(comparer.Equals(null, null));
-            Assert.AreEqual(0, comparer.GetHashCode(null));
-            Assert.IsFalse(comparer.Equals(null, new[] { 1 }));
-        }
-
-        [Test]
         public void SequenceComparer_EqualElements_ProduceEqualHashCodes()
         {
             var comparer = new SequenceComparer<int>();

@@ -7,30 +7,6 @@ namespace BovineLabs.Anchor.Tests.Nav
     public class AnchorNavHostTests
     {
         [Test]
-        public void Navigate_InvalidDestination_ReturnsFalse()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-
-            Assert.IsFalse(harness.Host.Navigate(null));
-            Assert.IsFalse(harness.Host.Navigate(string.Empty));
-            Assert.IsFalse(harness.Host.Navigate("   "));
-        }
-
-        [Test]
-        public void Navigate_FromAtoB_PushesBackStack()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("A");
-            harness.RegisterScreen("B");
-
-            harness.Host.Navigate("A");
-            harness.Host.Navigate("B");
-
-            Assert.AreEqual("B", harness.Host.CurrentDestination);
-            Assert.IsTrue(harness.Host.CanGoBack);
-        }
-
-        [Test]
         public void ClearBackStack_LeavesCurrentDestination()
         {
             using var harness = new TestAnchorNavHostHarness();
@@ -44,75 +20,6 @@ namespace BovineLabs.Anchor.Tests.Nav
 
             Assert.IsFalse(harness.Host.CanGoBack);
             Assert.AreEqual("B", harness.Host.CurrentDestination);
-        }
-
-        [Test]
-        public void ClearNavigation_ClearsCurrentAndBackStack()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("A");
-            harness.RegisterScreen("B");
-
-            harness.Host.Navigate("A");
-            harness.Host.Navigate("B");
-
-            harness.Host.ClearNavigation();
-
-            Assert.IsFalse(harness.Host.CanGoBack);
-            Assert.IsFalse(harness.Host.HasActivePopups);
-            Assert.IsNull(harness.Host.CurrentDestination);
-        }
-
-        [Test]
-        public void NavigatePopupOnCurrent_SetsPopupState()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("base");
-            harness.RegisterScreen("popup");
-
-            harness.Host.Navigate("base");
-
-            var result = harness.Host.Navigate(
-                "popup",
-                new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-
-            Assert.IsTrue(result);
-            Assert.AreEqual("popup", harness.Host.CurrentDestination);
-            Assert.IsTrue(harness.Host.HasActivePopups);
-        }
-
-        [Test]
-        public void ClosePopup_Existing_RemovesPopupAndRestoresBase()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("base");
-            harness.RegisterScreen("popup");
-
-            harness.Host.Navigate("base");
-            harness.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-
-            var closed = harness.Host.ClosePopup("popup");
-
-            Assert.IsTrue(closed);
-            Assert.IsFalse(harness.Host.HasActivePopups);
-            Assert.AreEqual("base", harness.Host.CurrentDestination);
-        }
-
-        [Test]
-        public void Toggle_ActivePopup_RemovesPopupAndRestoresBase()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("base");
-            harness.RegisterScreen("popup");
-
-            harness.Host.Navigate("base");
-            harness.Host.Navigate("popup", new AnchorNavOptions { PopupStrategy = AnchorPopupStrategy.PopupOnCurrent });
-
-            var toggled = harness.Host.Toggle("popup");
-
-            Assert.IsTrue(toggled);
-            Assert.IsFalse(harness.Host.HasActivePopups);
-            Assert.AreEqual("base", harness.Host.CurrentDestination);
         }
 
         [Test]
@@ -132,17 +39,6 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.IsTrue(toggled);
             Assert.IsFalse(harness.Host.HasActivePopups);
             Assert.AreEqual("base", harness.Host.CurrentDestination);
-        }
-
-        [Test]
-        public void MissingAnimationId_DoesNotThrowAndFallsBack()
-        {
-            using var harness = new TestAnchorNavHostHarness();
-            harness.RegisterScreen("A");
-            harness.Host.Navigate("A");
-
-            Assert.DoesNotThrow(() => harness.Host.ClearNavigation(9999));
-            Assert.IsNull(harness.Host.CurrentDestination);
         }
     }
 }

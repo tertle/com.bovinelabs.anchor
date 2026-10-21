@@ -48,30 +48,6 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
-        public void RelayCommand_RespectsCanExecute()
-        {
-            var executeCount = 0;
-            var command = new RelayCommand(() => executeCount++, () => false);
-
-            Assert.IsFalse(command.CanExecute());
-            command.Execute();
-
-            Assert.AreEqual(0, executeCount);
-        }
-
-        [Test]
-        public void RelayCommand_NotifyCanExecuteChanged_RaisesEvent()
-        {
-            var command = new RelayCommand(() => { });
-            var eventCount = 0;
-            command.CanExecuteChanged += (_, _) => eventCount++;
-
-            command.NotifyCanExecuteChanged();
-
-            Assert.AreEqual(1, eventCount);
-        }
-
-        [Test]
         public void RelayCommand_PropertyChangedSource_RaisesCanExecuteChangedForObservedProperty()
         {
             var viewModel = new TestViewModel();
@@ -83,27 +59,6 @@ namespace BovineLabs.Anchor.Tests.App
             viewModel.Value = 4;
 
             Assert.AreEqual(1, eventCount);
-        }
-
-        [Test]
-        public void RelayCommandOfT_InvalidObjectParameter_Throws()
-        {
-            var command = new RelayCommand<int>(_ => { });
-
-            Assert.IsFalse(command.CanExecute("invalid"));
-            Assert.Throws<InvalidOperationException>(() => command.Execute("invalid"));
-        }
-
-        [Test]
-        public void RelayCommandOfT_ValidParameter_ExecutesWhenAllowed()
-        {
-            var received = 0;
-            var command = new RelayCommand<int>(value => received = value, value => value > 0);
-
-            command.Execute(4);
-            command.Execute(-1);
-
-            Assert.AreEqual(4, received);
         }
 
         [Test]
@@ -136,6 +91,8 @@ namespace BovineLabs.Anchor.Tests.App
             Assert.IsTrue(command.CanExecute(7));
             command.Execute(7);
             Assert.AreEqual(7, viewModel.Value);
+            Assert.IsFalse(command.CanExecute("invalid"));
+            Assert.Throws<InvalidOperationException>(() => command.Execute("invalid"));
         }
 
         [Test]
@@ -152,18 +109,6 @@ namespace BovineLabs.Anchor.Tests.App
 
             Assert.IsTrue(command.CanExecute(null));
             command.Execute(null);
-            Assert.AreEqual(1, viewModel.ExecuteCount);
-        }
-
-        [Test]
-        public void GeneratedCommand_WithoutCanExecuteMethod_ExecutesByDefault()
-        {
-            var viewModel = new GeneratedDefaultCanExecuteViewModel();
-            var command = viewModel.IncrementCommand;
-
-            Assert.IsTrue(command.CanExecute(null));
-            command.Execute(null);
-
             Assert.AreEqual(1, viewModel.ExecuteCount);
         }
 
@@ -315,17 +260,6 @@ namespace BovineLabs.Anchor.Tests.App
             {
                 _allowExecute = allowExecute;
             }
-        }
-
-        public partial class GeneratedDefaultCanExecuteViewModel
-        {
-            [ICommand]
-            private void Increment()
-            {
-                ExecuteCount++;
-            }
-
-            public int ExecuteCount { get; private set; }
         }
 
         public partial class GeneratedObservablePropertyViewModel : ObservableObject

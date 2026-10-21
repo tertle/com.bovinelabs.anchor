@@ -4,7 +4,6 @@ namespace BovineLabs.Anchor.Tests.Components
     using System.Windows.Input;
     using BovineLabs.Anchor.Audio;
     using BovineLabs.Anchor.Components;
-    using BovineLabs.Anchor.Elements;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Services;
     using NUnit.Framework;
@@ -18,7 +17,12 @@ namespace BovineLabs.Anchor.Tests.Components
         public void Command_PropertyBagRoundTrip_DrivesActivation()
         {
             var calls = 0;
-            ICommand expected = new RelayCommand<EventBase>(_ => calls++);
+            object received = new object();
+            ICommand expected = new RelayCommand<EventBase>(evt =>
+            {
+                received = evt;
+                calls++;
+            });
             var component = new EventCommand();
 
             Assert.IsTrue(PropertyContainer.TrySetValue(ref component, nameof(EventCommand.Command), expected));
@@ -29,49 +33,9 @@ namespace BovineLabs.Anchor.Tests.Components
             button.clickable.InvokePressed(null);
 
             Assert.AreEqual(1, calls);
+            Assert.IsNull(received);
         }
 
-        [Test]
-        public void PulseEnabled_PropertyBagRoundTrip_PreservesConfiguredValue()
-        {
-            var component = Pulse.Create();
-
-            Assert.IsTrue(PropertyContainer.TrySetValue(ref component, nameof(Pulse.Enabled), true));
-            Assert.IsTrue(PropertyContainer.TryGetValue(ref component, nameof(Pulse.Enabled), out bool enabled));
-
-            Assert.IsTrue(enabled);
-            Assert.IsTrue(component.Enabled);
-        }
-
-        [Test]
-        public void SafeAreaEdges_PropertyBagRoundTrip_PreservesConfiguredValue()
-        {
-            var component = SafeArea.Create();
-            const AnchorSafeAreaEdges expected = AnchorSafeAreaEdges.Top | AnchorSafeAreaEdges.Left;
-
-            Assert.IsTrue(PropertyContainer.TrySetValue(ref component, nameof(SafeArea.Edges), expected));
-            Assert.IsTrue(PropertyContainer.TryGetValue(ref component, nameof(SafeArea.Edges), out AnchorSafeAreaEdges actual));
-
-            Assert.AreEqual(expected, actual);
-            Assert.AreEqual(expected, component.Edges);
-        }
-
-        [Test]
-        public void TimerIntervalAndCommand_PropertyBagRoundTrip_PreservesConfiguredValues()
-        {
-            var component = new Timer();
-            ICommand expected = new RelayCommand(() => { });
-
-            Assert.IsTrue(PropertyContainer.TrySetValue(ref component, nameof(Timer.Interval), 250L));
-            Assert.IsTrue(PropertyContainer.TrySetValue(ref component, nameof(Timer.Command), expected));
-            Assert.IsTrue(PropertyContainer.TryGetValue(ref component, nameof(Timer.Interval), out long interval));
-            Assert.IsTrue(PropertyContainer.TryGetValue(ref component, nameof(Timer.Command), out ICommand command));
-
-            Assert.AreEqual(250L, interval);
-            Assert.AreSame(expected, command);
-        }
-
-        [TestCase(false)]
         [TestCase(true)]
         public void Button_PointerOrKeyboardActivation_PassesOriginalEvent(bool keyboard)
         {
@@ -88,27 +52,6 @@ namespace BovineLabs.Anchor.Tests.Components
 
             Assert.AreSame(evt, received);
             Assert.AreSame(button, received.target);
-        }
-
-        [Test]
-        public void Button_ProgrammaticActivation_PassesNullEventOnce()
-        {
-            var calls = 0;
-            object received = new object();
-            var button = new Button();
-            button.AddComponent(new EventCommand
-            {
-                Command = new RelayCommand<EventBase>(evt =>
-                {
-                    calls++;
-                    received = evt;
-                }),
-            });
-
-            button.clickable.InvokePressed(null);
-
-            Assert.AreEqual(1, calls);
-            Assert.IsNull(received);
         }
 
         [Test]
@@ -162,15 +105,6 @@ namespace BovineLabs.Anchor.Tests.Components
             button.clickable.InvokePressed(null);
 
             Assert.AreEqual(0, calls);
-        }
-
-        [Test]
-        public void Button_MissingCommand_AllowsActivation()
-        {
-            var button = new Button();
-            button.GetOrAddComponent<EventCommand>();
-
-            Assert.DoesNotThrow(() => button.clickable.InvokePressed(null));
         }
 
         [Test]

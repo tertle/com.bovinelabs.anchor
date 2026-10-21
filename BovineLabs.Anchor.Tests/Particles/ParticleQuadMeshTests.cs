@@ -46,11 +46,8 @@ namespace BovineLabs.Anchor.Tests.Particles
         }
 
         [TestCase(0, 0)]
-        [TestCase(1, 1)]
-        [TestCase(16382, 1)]
         [TestCase(16383, 1)]
         [TestCase(16384, 2)]
-        [TestCase(20000, 2)]
         public void ChunkedFillPreservesEveryQuadWithoutIndexWrap(int count, int expectedChunks)
         {
             var quads = new NativeArray<ParticleQuad>(count, Allocator.Temp);

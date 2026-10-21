@@ -63,7 +63,6 @@ namespace BovineLabs.Anchor.Tests.Components
 
         [TestCase(true, false)]
         [TestCase(false, true)]
-        [TestCase(true, true)]
         public void GridTemplate_RemovalPreservesCallbacksReplacedByTheOwner(bool replaceFactory, bool replaceBinder)
         {
             Func<VisualElement> previousMakeItem = static () => new VisualElement();

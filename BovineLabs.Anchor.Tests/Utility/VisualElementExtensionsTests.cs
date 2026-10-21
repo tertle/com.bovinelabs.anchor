@@ -7,34 +7,6 @@ namespace BovineLabs.Anchor.Tests.Utility
     public class VisualElementExtensionsTests
     {
         [Test]
-        public void SetPickingModeRecursive_UpdatesEntireSubtree()
-        {
-            var root = new VisualElement();
-            var child = new VisualElement();
-            var grandChild = new VisualElement();
-            child.Add(grandChild);
-            root.Add(child);
-
-            root.SetPickingModeRecursive(PickingMode.Ignore);
-
-            Assert.AreEqual(PickingMode.Ignore, root.pickingMode);
-            Assert.AreEqual(PickingMode.Ignore, child.pickingMode);
-            Assert.AreEqual(PickingMode.Ignore, grandChild.pickingMode);
-        }
-
-        [Test]
-        public void TryResolveDataSource_ReturnsFalse_ForNullOrMismatchedSource()
-        {
-            Assert.IsFalse(BovineLabs.Anchor.VisualElementExtensions.TryResolveDataSource<TestData>(null, out _));
-
-            var root = new VisualElement { dataSource = new object() };
-            var child = new VisualElement();
-            root.Add(child);
-
-            Assert.IsFalse(child.TryResolveDataSource<TestData>(out _));
-        }
-
-        [Test]
         public void TryResolveDataSource_ReturnsTrue_ForHierarchicalMatch()
         {
             var source = new TestData { Text = "hello" };

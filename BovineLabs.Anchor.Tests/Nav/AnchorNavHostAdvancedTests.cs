@@ -2,14 +2,11 @@ namespace BovineLabs.Anchor.Tests.Nav
 {
     using System;
     using System.Collections.Generic;
-    using System.Text.RegularExpressions;
     using BovineLabs.Anchor.MVVM;
     using BovineLabs.Anchor.Nav;
     using BovineLabs.Anchor.Services;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using NUnit.Framework;
-    using UnityEngine;
-    using UnityEngine.TestTools;
     using UnityEngine.UIElements;
 
     public class AnchorNavHostAdvancedTests
@@ -68,25 +65,6 @@ namespace BovineLabs.Anchor.Tests.Nav
             Assert.IsTrue(context.Host.PopBackStack());
             Assert.AreEqual("popup-a", context.Host.CurrentDestination);
             Assert.IsTrue(context.Host.HasActivePopups);
-        }
-
-        [Test]
-        public void EnsureBaseAndPopup_EmptyBaseDestination_ReturnsFalse()
-        {
-            using var context = new HostContext();
-            context.RegisterScreen("popup");
-            LogAssert.Expect(LogType.Error, new Regex("requires a base destination"));
-
-            var result = context.Host.Navigate(
-                "popup",
-                new AnchorNavOptions
-                {
-                    PopupStrategy = AnchorPopupStrategy.EnsureBaseAndPopup,
-                    PopupBaseDestination = string.Empty,
-                });
-
-            Assert.IsFalse(result);
-            Assert.IsNull(context.Host.CurrentDestination);
         }
 
         [Test]

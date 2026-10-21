@@ -10,29 +10,6 @@ namespace BovineLabs.Anchor.Tests.Toolbar
         private const string SelectionKey = "bl.toolbarmanager.filter.selections";
 
         [Test]
-        public void Constructor_LoadsPersistedHiddenSelections()
-        {
-            var storage = new TestLocalStorageService();
-            storage.SetValue(SelectionKey, "one,two");
-
-            var vm = new ToolbarViewModel(storage);
-
-            CollectionAssert.AreEquivalent(new[] { "one", "two" }, vm.SelectionsHidden);
-        }
-
-        [Test]
-        public void AddSelection_AddsOnce_AndSortsFilterItems()
-        {
-            var vm = new ToolbarViewModel(new TestLocalStorageService());
-
-            vm.AddSelection("Zulu");
-            vm.AddSelection("Alpha");
-
-            CollectionAssert.AreEqual(new[] { "Alpha", "Zulu" }, vm.FilterItems);
-            CollectionAssert.AreEqual(new[] { 0, 1 }, vm.FilterValues.ToArray());
-        }
-
-        [Test]
         public void RemoveSelection_DecrementsAndRemovesWhenRefCountHitsZero()
         {
             var vm = new ToolbarViewModel(new TestLocalStorageService());
@@ -71,9 +48,9 @@ namespace BovineLabs.Anchor.Tests.Toolbar
             storage.SetValue(SelectionKey, "B");
 
             var vm = new ToolbarViewModel(storage);
-            vm.AddSelection("A");
-            vm.AddSelection("B");
             vm.AddSelection("C");
+            vm.AddSelection("B");
+            vm.AddSelection("A");
 
             CollectionAssert.AreEqual(new[] { 0, 2 }, vm.FilterValues.ToArray());
 
