@@ -7,7 +7,7 @@ namespace BovineLabs.Anchor.Components
 
     [VisualElementComponent]
     [RequiresElementOfType(typeof(GridView))]
-    public partial struct GridItemTemplate : IVisualElementComponent
+    public partial struct GridItemTemplate
     {
         [CreateProperty]
         [UxmlAttribute("item-template")]

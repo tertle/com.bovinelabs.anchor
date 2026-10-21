@@ -9,7 +9,7 @@ namespace BovineLabs.Anchor.Components
     using Button = Unity.AppUI.UI.Button;
 
     [VisualElementComponent]
-    public partial struct AudioFeedback : IVisualElementComponent
+    public partial struct AudioFeedback
     {
         [CreateProperty]
         [UxmlAttribute("audio-profile")]

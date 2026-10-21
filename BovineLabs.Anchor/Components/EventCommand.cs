@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Components
     using Button = Unity.AppUI.UI.Button;
 
     [VisualElementComponent]
-    public partial struct EventCommand : IVisualElementComponent
+    public partial struct EventCommand
     {
         [CreateProperty]
         public ICommand Command;

@@ -8,7 +8,7 @@ namespace BovineLabs.Anchor.Components
 
     [VisualElementComponent]
     [RequiresElementOfType(typeof(Accordion))]
-    public partial struct AccordionItems : IVisualElementComponent
+    public partial struct AccordionItems
     {
         [CreateProperty]
         [UxmlAttribute("item-template")]

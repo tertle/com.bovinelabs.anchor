@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Components
     using UnityEngine.UIElements;
 
     [VisualElementComponent]
-    public partial struct Timer : IVisualElementComponent
+    public partial struct Timer
     {
         /// <summary>Interval in milliseconds; zero disables scheduling.</summary>
         [CreateProperty]

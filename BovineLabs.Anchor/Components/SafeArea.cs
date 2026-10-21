@@ -6,7 +6,7 @@ namespace BovineLabs.Anchor.Components
 
     /// <summary>Applies safe-area padding to the unsafe edges overlapped by the owner's bounds.</summary>
     [VisualElementComponent]
-    public partial struct SafeArea : IVisualElementComponent
+    public partial struct SafeArea
     {
         [CreateProperty]
         [UxmlAttribute("edges")]
