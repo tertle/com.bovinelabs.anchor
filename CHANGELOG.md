@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.6] - Unreleased
+## [2.0.0-pre.6] - 2026-10-26
 
 ### Added
 * Optional UI particle target flights with scatter, Snapshot/Follow destinations, joined emission from source elements, and aggregate arrival feedback; includes inspector preview controls and reward-flight Showcase examples.
@@ -12,11 +12,13 @@
 * Bindable integer and floating-point text controls that format attached readouts through UI Toolkit's native text buffer.
 
 ### Changed
+* Unity 7000.0.0a11 or newer is required.
 * Breaking: removed `AnchorButton`, `AnchorActionButton`, `AnchorGridView`, `AnchorAccordion`, `AnchorSafeArea`, and `BovineLabs.Anchor.Elements.Timer`. Use stock controls/containers with `AudioFeedback`, `EventCommand`, `GridItemTemplate`, `AccordionItems`, `SafeArea`, and `BovineLabs.Anchor.Components.Timer`; move attributes and binding targets to their component fields. See the README migration table.
 * FPS toolbar readouts bind raw numeric values instead of allocating formatted strings.
 * Discarded navigation screens, toolbar visuals, and application visual generations release UI Toolkit resources after their owned lifecycle cleanup and the current UI callback have finished.
 
 ### Fixed
+* Grid item templates read their serialized UXML attributes when creating rows, preventing "Template Not Found" after component deserialization.
 * Anchor enables UI Components authoring on Editor initialization and restores it when disabled; the setting does not gate component compilation or runtime APIs.
 * Immediate navigation completion runs once, and button-driven navigation or toolbar removal no longer destroys native element resources while App UI is still processing activation.
 * Debug toolbar camera resizing checks the camera renderer directly, allowing supported overlay camera stacks to resize without a global render-pipeline gate.
