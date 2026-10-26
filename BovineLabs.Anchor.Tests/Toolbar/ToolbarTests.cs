@@ -9,6 +9,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Tests.TestDoubles;
     using BovineLabs.Core.Utility;
+    using BovineLabs.Testing;
     using NUnit.Framework;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
@@ -18,7 +19,7 @@ namespace BovineLabs.Anchor.Tests.Toolbar
     using UnityEngine.UIElements;
     using ToolbarService = BovineLabs.Anchor.Debug.Toolbar.Toolbar;
 
-    public unsafe class ToolbarTests
+    public unsafe class ToolbarTests : ECSTestsFixture
     {
         private const string ShowRibbonKey = "bl.show-ribbon";
         private const string LifecycleSaveKey = "bl.toolbar.Lifecycle.Model";
@@ -165,9 +166,8 @@ namespace BovineLabs.Anchor.Tests.Toolbar
             TestToolbarLifecycleSystem.Reset();
 
             using var scope = new TestAnchorAppScope();
-            using var world = new World(nameof(ToolbarSystemGroup_AppRecreation_StopsAndRestartsChildSystems));
-            var group = world.GetOrCreateSystemManaged<ToolbarSystemGroup>();
-            var child = world.CreateSystem<TestToolbarLifecycleSystem>();
+            var group = World.GetOrCreateSystemManaged<ToolbarSystemGroup>();
+            var child = World.CreateSystem<TestToolbarLifecycleSystem>();
             group.AddSystemToUpdateList(child);
             group.SortSystems();
 
