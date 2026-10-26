@@ -276,8 +276,7 @@ namespace BovineLabs.Anchor
                                 return;
                             }
 
-                            root.hierarchy.Clear(VisualElementClearOptions.RecursiveReleaseResources);
-                            root.ReleaseResources();
+                            root.ReleaseResourcesRecursive();
                         }
 
                         if (panelRoot != null)
