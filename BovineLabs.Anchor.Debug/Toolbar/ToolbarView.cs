@@ -383,8 +383,7 @@
                     continue;
                 }
 
-                element.hierarchy.Clear(VisualElementClearOptions.RecursiveReleaseResources);
-                element.ReleaseResources();
+                element.ReleaseResourcesRecursive();
             }
 
             _discardedElements.Clear();

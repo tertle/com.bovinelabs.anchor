@@ -1,5 +1,6 @@
 ﻿namespace BovineLabs.Anchor
 {
+    using Unity.AppUI.UI;
     using Unity.Properties;
     using UnityEngine.UIElements;
 
@@ -57,6 +58,24 @@
             {
                 SetPickingModeRecursive(child, mode);
             }
+        }
+
+        /// <summary>
+        /// Releases an element and its descendants. App UI pressables keep their command subscription after release,
+        /// and a released element throws when a later CanExecuteChanged updates it, so their commands are cleared first.
+        /// </summary>
+        public static void ReleaseResourcesRecursive(this VisualElement element)
+        {
+            element.Query<VisualElement>().ForEach(static child =>
+            {
+                if (child is IPressable pressable)
+                {
+                    pressable.clickable.command = null;
+                }
+            });
+
+            element.hierarchy.Clear(VisualElementClearOptions.RecursiveReleaseResources);
+            element.ReleaseResources();
         }
 
         public static bool TryResolveDataSource<T>(this VisualElement element, out T slot)
