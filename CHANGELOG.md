@@ -2,6 +2,9 @@
 
 ## [2.0.0-pre.7] - Unreleased
 
+### Fixed
+* Releasing navigation views, application roots, and toolbar elements clears App UI pressable commands before releasing their resources, preventing later command changes from accessing released elements.
+
 ## [2.0.0-pre.6] - 2026-10-26
 
 ### Added
