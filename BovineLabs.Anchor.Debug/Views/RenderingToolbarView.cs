@@ -1,9 +1,8 @@
-namespace BovineLabs.Anchor.Debug.Views
+﻿namespace BovineLabs.Anchor.Debug.Views
 {
-    using System;
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
-    using BovineLabs.Anchor.Elements;
-    using Unity.Properties;
+    using Unity.AppUI.UI;
     using UnityEngine.Scripting;
     using UnityEngine.UIElements;
 
@@ -18,41 +17,34 @@ namespace BovineLabs.Anchor.Debug.Views
             dataSource = viewModel;
             AddToClassList(UssClassName);
 
-            TypeConverter<long, string> countConverter = (ref long value) => FormatCount(value);
-
-            Add(KeyValueGroup.Create(viewModel,
-                new (string, string, Action<DataBinding>)[]
-                {
-                    ("Triangles", nameof(RenderingToolbarViewModel.Triangles), db => db.sourceToUiConverters.AddConverter(countConverter)),
-                    ("Vertices", nameof(RenderingToolbarViewModel.Vertices), db => db.sourceToUiConverters.AddConverter(countConverter)),
-                    ("Draw Calls", nameof(RenderingToolbarViewModel.DrawCalls), db => db.sourceToUiConverters.AddConverter(countConverter)),
-                    ("SetPass", nameof(RenderingToolbarViewModel.SetPassCalls), db => db.sourceToUiConverters.AddConverter(countConverter)),
-                    ("Instances", nameof(RenderingToolbarViewModel.Instances), db => db.sourceToUiConverters.AddConverter(countConverter)),
-                }));
-
-            schedule.Execute(UpdateModel).Every(1);
-        }
-
-        private RenderingToolbarViewModel Model => (RenderingToolbarViewModel)dataSource;
-
-        private static string FormatCount(long value)
-        {
-            if (value >= 1_000_000_000)
+            var quality = new Dropdown
             {
-                return $"{value / 1_000_000_000}B";
-            }
+                defaultMessage = string.Empty,
+                bindItem = (item, i) => item.label = viewModel.QualityChoices[i],
+            };
 
-            if (value >= 1_000_000)
+            quality.SetBindingToUI(nameof(Dropdown.sourceItems), nameof(RenderingToolbarViewModel.QualityChoices));
+            quality.SetBindingTwoWay(nameof(Dropdown.selectedIndex), nameof(RenderingToolbarViewModel.QualityValue));
+
+            var wireframe = new Dropdown(viewModel.WireframeChoices,
+                (item, i) => item.label = viewModel.WireframeChoices[i],
+                defaultIndices: new[] { viewModel.WireframeValue })
             {
-                return $"{value / 1_000_000}M";
-            }
+                name = "wireframe",
+                tooltip = "Set URP's wireframe mode for all cameras, including Entities Graphics.",
+            };
 
-            return value >= 1_000 ? $"{value / 1_000}K" : value.ToString();
-        }
+            wireframe.SetBindingTwoWay(nameof(Dropdown.selectedIndex), nameof(RenderingToolbarViewModel.WireframeValue));
 
-        private void UpdateModel()
-        {
-            Model.Update();
+#if !UNITY_ENABLE_CHECKS
+            wireframe.SetEnabled(false);
+            wireframe.tooltip = "URP wireframe requires a Checked or Debug Managed Code Variant and retained runtime debug shaders.";
+#endif
+
+            Add(new ToolbarRow("Quality", quality));
+            Add(new ToolbarRow("Wireframe", wireframe));
+
+            schedule.Execute(viewModel.Update).Every(1); // Every frame
         }
     }
 }

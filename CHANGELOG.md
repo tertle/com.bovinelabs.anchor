@@ -5,9 +5,11 @@
 ### Added
 * `AnchorApp.UIVisible`, `UIVisibilityChanged`, and Burst-compatible `AnchorApp.Burst.SetUIVisible`/`ToggleUIVisible` hide or show the navigation host without detaching screens, so games can bind a hide UI hotkey.
 * A Game UI toggle in the debug toolbar's UI group that follows `AnchorApp.UIVisible`.
+* `ToolbarRow`, a debug toolbar row with a label beside a single control.
 
 ### Changed
 * Breaking: renamed `AppUIToolbarViewModel` and `AppUIToolbarView` to `UIToolbarViewModel` and `UIToolbarView`; the view's USS class is now `bl-ui-tab`. The UI group lays out Game UI, Theme, and Scale as label and control rows.
+* Breaking: the Quality and Wireframe debug toolbar groups are merged into a Rendering group with Quality and Wireframe rows (`RenderingToolbarViewModel`/`RenderingToolbarView`); `QualityToolbarViewModel`, `QualityToolbarView`, `WireframeToolbarViewModel`, and `WireframeToolbarView` are removed. The counter group is now Render Stats (`RenderStatsToolbarViewModel`/`RenderStatsToolbarView`, USS class `bl-render-stats-tab`).
 
 ### Fixed
 * Releasing navigation views, application roots, and toolbar elements clears App UI pressable commands before releasing their resources, preventing later command changes from accessing released elements.

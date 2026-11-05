@@ -1,5 +1,6 @@
 ﻿namespace BovineLabs.Anchor.Debug.Views
 {
+    using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.ViewModels;
     using Unity.AppUI.UI;
     using Unity.Properties;
@@ -11,8 +12,6 @@
     public class UIToolbarView : VisualElement
     {
         public const string UssClassName = "bl-ui-tab";
-        public const string RowUssClassName = UssClassName + "__row";
-        public const string LabelUssClassName = UssClassName + "__label";
 
         [Preserve]
         public UIToolbarView(UIToolbarViewModel viewModel)
@@ -51,24 +50,11 @@
             var gameUI = new Toggle();
             gameUI.SetBinding(nameof(Toggle.value), new DataBinding { dataSourcePath = new PropertyPath(nameof(UIToolbarViewModel.GameUIVisible)) });
 
-            AddRow("Game UI", gameUI);
-            AddRow("Theme", theme);
-            AddRow("Scale", scale);
+            Add(new ToolbarRow("Game UI", gameUI));
+            Add(new ToolbarRow("Theme", theme));
+            Add(new ToolbarRow("Scale", scale));
         }
 
         private UIToolbarViewModel Model => (UIToolbarViewModel)dataSource;
-
-        private void AddRow(string label, VisualElement control)
-        {
-            var row = new VisualElement();
-            row.AddToClassList(RowUssClassName);
-
-            var text = new Text(label);
-            text.AddToClassList(LabelUssClassName);
-            row.Add(text);
-            row.Add(control);
-
-            Add(row);
-        }
     }
 }

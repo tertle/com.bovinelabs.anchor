@@ -97,12 +97,12 @@
     min-width: var(--appui-sizing-650);
 }
 
-.bl-ui-tab__row {
+.bl-toolbar-row {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
 }
 
-.bl-ui-tab__label {
+.bl-toolbar-row__label {
     margin-right: 4px;
 }
