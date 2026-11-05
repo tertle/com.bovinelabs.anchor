@@ -132,8 +132,24 @@ Useful app properties include:
 - `NavHost`: the current navigation host.
 - `PopupContainer`, `NotificationContainer`, and `TooltipContainer`: named containers discovered during `AnchorApp.Initialize`, when the panel supplies them.
 - `ScreenMetricsChanged` and `AnchorApp.SafeArea`: screen and safe-area information for responsive elements.
+- `UIVisible` and `UIVisibilityChanged`: whether the navigation host is displayed. See [Hide the UI](#hide-the-ui).
 
 `AnchorApp.Current` and its service provider are managed objects. Do not access them directly from Burst-compiled code; use Anchor's Burst-specific interop APIs instead.
+
+### Hide the UI
+
+`AnchorApp.UIVisible` hides or shows the navigation host, which holds the screens and their popups, by setting its `display` style to `none`. The screens stay attached, so their state, bindings, and back stack are unchanged while hidden. The debug toolbar and the panel's popup, notification, and tooltip containers are not affected. The value is durable for the app: a rebuilt visual generation, or a custom `Initialize` that assigns its own `NavHost`, receives the current value.
+
+Any code can drive it, such as a hide UI hotkey, a photo mode, or the **Game UI** toggle in the debug toolbar's UI group. Managed code sets `AnchorApp.Current.UIVisible`, and Burst-compiled systems call `AnchorApp.Burst.SetUIVisible(bool)` or `AnchorApp.Burst.ToggleUIVisible()`:
+
+```csharp
+if (SystemAPI.GetSingleton<InputHideUI>().Down)
+{
+    AnchorApp.Burst.ToggleUIVisible();
+}
+```
+
+`UIVisibilityChanged` is raised with the new value after every change, so several providers stay in sync.
 
 ## Service registrations
 

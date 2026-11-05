@@ -13,7 +13,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     [Preserve]
     [IsService]
     [AutoToolbar("UI")]
-    public class AppUIToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
+    public class UIToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
         private const string ThemeKey = "bl.options.ui.theme";
         private const string ScaleKey = "bl.options.ui-scale";
@@ -23,12 +23,13 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private readonly List<string> _themes = new();
         private readonly List<string> _scales = new();
 
+        private AnchorApp _app;
         private bool _loaded;
         private int _themeValue = -1;
         private int _scaleValue = -1;
 
         [Preserve]
-        public AppUIToolbarViewModel(ILocalStorageService localStorageService)
+        public UIToolbarViewModel(ILocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
 
@@ -69,9 +70,16 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             }
         }
 
+        [CreateProperty]
+        public bool GameUIVisible
+        {
+            get => _app.UIVisible;
+            set => _app.UIVisible = value;
+        }
+
         public VisualElement CreateElement()
         {
-            return new AppUIToolbarView(this);
+            return new UIToolbarView(this);
         }
 
         public void Load()
@@ -83,12 +91,23 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
             _loaded = true;
             RefreshSystemThemeSubscription();
+
+            _app = AnchorApp.Current;
+            _app.UIVisibilityChanged += OnUIVisibilityChanged;
         }
 
         public void Unload()
         {
             _loaded = false;
             Platform.darkModeChanged -= OnSystemThemeChanged;
+
+            _app.UIVisibilityChanged -= OnUIVisibilityChanged;
+            _app = null;
+        }
+
+        private void OnUIVisibilityChanged(bool visible)
+        {
+            OnPropertyChanged(nameof(GameUIVisible));
         }
 
         private void SetTheme(string theme)

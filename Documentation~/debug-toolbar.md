@@ -221,6 +221,10 @@ The built-in Wireframe group contains a single dropdown with Off, Wireframe, Sol
 
 In players, URP rendering diagnostics require the Checked or Debug **Managed Code Variant** (`UNITY_ENABLE_CHECKS`). The dropdown is disabled in Instrumented players. In **Project Settings > Graphics > Shader Stripping**, disable **Strip Runtime Debug Shaders** so the debug shader variants and resources survive the build. Release players omit the Anchor debug toolbar entirely.
 
+## UI
+
+The built-in UI group has three label and control rows: a Game UI toggle bound to `AnchorApp.UIVisible`, then Theme and Scale dropdowns. The toggle hides the navigation host and leaves the toolbar visible. It follows changes made by other providers, such as a game's hide UI hotkey. See [Hide the UI](app-and-services.md#hide-the-ui).
+
 ## ToolbarHelper lifecycle
 
 `Load()` performs these operations:

@@ -20,13 +20,14 @@ namespace BovineLabs.Anchor
     [Preserve]
     [UsedImplicitly]
     [Configurable]
-    public class AnchorApp : IDisposable
+    public partial class AnchorApp : IDisposable
     {
         public const string DefaultServiceTabName = "Service";
 
 #if CUSTOM_SAFE_AREA
         [ConfigVar("anchor.safe-area", 0, 0, 0, 0,
             "Custom SafeArea for testing. This is not a rect but instead offsets from each edge so will work on any resolution.")]
+        [NoAutoStaticsCleanup]
         private static readonly SharedStatic<Vector4> CustomSafeArea = SharedStatic<Vector4>.GetOrCreate<AnchorApp, SafeAreaType>();
 #endif
 
@@ -34,12 +35,16 @@ namespace BovineLabs.Anchor
         private bool _hasScreenMetrics;
         private AnchorScreenMetrics _lastScreenMetrics;
         private IAnchorToolbarHost _toolbarHost;
+        private IAnchorNavHost _navHost;
         private string _theme;
         private string _scale;
+        private bool _uiVisible = true;
 
         internal bool RestoringNavigationState { get; set; }
 
         public event Action<AnchorScreenMetrics> ScreenMetricsChanged;
+
+        public event Action<bool> UIVisibilityChanged;
 
         [NoAutoStaticsCleanup]
         public static AnchorApp Current { get; private set; }
@@ -82,7 +87,35 @@ namespace BovineLabs.Anchor
 
         public virtual string ServiceTabName => DefaultServiceTabName;
 
-        public IAnchorNavHost NavHost { get; set; }
+        public IAnchorNavHost NavHost
+        {
+            get => _navHost;
+            set
+            {
+                _navHost = value;
+                ApplyUIVisibility();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the navigation host, which holds the screens and their popups, is displayed. Hiding it keeps screen state
+        /// and leaves the debug toolbar visible. The value carries over to rebuilt visual generations.
+        /// </summary>
+        public bool UIVisible
+        {
+            get => _uiVisible;
+            set
+            {
+                if (_uiVisible == value)
+                {
+                    return;
+                }
+
+                _uiVisible = value;
+                ApplyUIVisibility();
+                UIVisibilityChanged?.Invoke(value);
+            }
+        }
 
         public VisualElement PopupContainer { get; private set; }
 
@@ -157,6 +190,7 @@ namespace BovineLabs.Anchor
             _theme = null;
             _scale = null;
             ScreenMetricsChanged = null;
+            UIVisibilityChanged = null;
 
             if (ReferenceEquals(Current, this))
             {
@@ -320,6 +354,14 @@ namespace BovineLabs.Anchor
             _lastScreenMetrics = metrics;
             ScreenMetricsChanged?.Invoke(metrics);
             return true;
+        }
+
+        private void ApplyUIVisibility()
+        {
+            if (_navHost is VisualElement navHost)
+            {
+                navHost.style.display = _uiVisible ? new StyleEnum<DisplayStyle>(StyleKeyword.Null) : DisplayStyle.None;
+            }
         }
 
         private static void SetCurrentApp(AnchorApp app)

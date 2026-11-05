@@ -96,3 +96,13 @@
 .bl-time-tab .bl-key-value-group__right {
     min-width: var(--appui-sizing-650);
 }
+
+.bl-ui-tab__row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bl-ui-tab__label {
+    margin-right: 4px;
+}
