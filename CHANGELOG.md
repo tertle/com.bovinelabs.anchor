@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.7] - Unreleased
+## [2.0.0-pre.7] - 2026-11-10
 
 ### Added
 * `AnchorApp.UIVisible`, `UIVisibilityChanged`, and Burst-compatible `AnchorApp.Burst.SetUIVisible`/`ToggleUIVisible` hide or show the navigation host without detaching screens, so games can bind a hide UI hotkey.
@@ -8,6 +8,8 @@
 * `ToolbarRow`, a debug toolbar row with a label beside a single control.
 
 ### Changed
+* Unity 7000.0.0a16 or newer is required.
+* Updated BovineLabs dependencies to `2.0.0-pre.7`.
 * Breaking: renamed `AppUIToolbarViewModel` and `AppUIToolbarView` to `UIToolbarViewModel` and `UIToolbarView`; the view's USS class is now `bl-ui-tab`. The UI group lays out Game UI, Theme, and Scale as label and control rows.
 * Breaking: the Quality and Wireframe debug toolbar groups are merged into a Rendering group with Quality and Wireframe rows (`RenderingToolbarViewModel`/`RenderingToolbarView`); `QualityToolbarViewModel`, `QualityToolbarView`, `WireframeToolbarViewModel`, and `WireframeToolbarView` are removed. The counter group is now Render Stats (`RenderStatsToolbarViewModel`/`RenderStatsToolbarView`, USS class `bl-render-stats-tab`).
 
