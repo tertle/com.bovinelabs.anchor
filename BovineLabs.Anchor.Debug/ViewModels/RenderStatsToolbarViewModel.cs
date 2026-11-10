@@ -1,5 +1,7 @@
 namespace BovineLabs.Anchor.Debug.ViewModels
 {
+    using System;
+    using System.Text;
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
@@ -17,30 +19,20 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     public class RenderStatsToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
         [NoAutoStaticsCleanup]
-        private static readonly string[] DrawCallCounterNames =
+        private static readonly string[] CounterGroups =
         {
-            "Standard Draw Calls Count",
-            "Standard Indirect Draw Calls Count",
-            "Standard Instanced Draw Calls Count",
-            "SRP Batcher Draw Calls Count",
-            "BRG Draw Calls Count",
-            "BRG Indirect Draw Calls Count",
-            "Null Geometry Draw Calls Count",
-            "Null Geometry Indirect Draw Calls Count",
+            "Standard",
+            "Standard Indirect",
+            "Standard Instanced",
+            "SRP Batcher",
+            "BRG",
+            "BRG Indirect",
+            "Null Geometry",
+            "Null Geometry Indirect",
         };
 
-        [NoAutoStaticsCleanup]
-        private static readonly string[] InstanceCounterNames =
-        {
-            "Standard Instances Count",
-            "Standard Indirect Instances Count",
-            "Standard Instanced Instances Count",
-            "SRP Batcher Instances Count",
-            "BRG Instances Count",
-            "BRG Indirect Instances Count",
-            "Null Geometry Instances Count",
-            "Null Geometry Indirect Instances Count",
-        };
+        private readonly long[] _drawCallCounts = new long[CounterGroups.Length];
+        private readonly long[] _instanceCounts = new long[CounterGroups.Length];
 
         private ProfilerRecorderGroup _trianglesRecorder;
         private ProfilerRecorderGroup _verticesRecorder;
@@ -90,6 +82,12 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             set => SetProperty(ref _instances, value);
         }
 
+        [CreateProperty(ReadOnly = true)]
+        public string DrawCallsBreakdown => FormatBreakdown(_drawCallCounts);
+
+        [CreateProperty(ReadOnly = true)]
+        public string InstancesBreakdown => FormatBreakdown(_instanceCounts);
+
         public VisualElement CreateElement()
         {
             return new RenderStatsToolbarView(this);
@@ -100,8 +98,8 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             _trianglesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Triangles Count");
             _verticesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "Vertices Count");
             _setPassCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, "SetPass Calls Count");
-            _drawCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, DrawCallCounterNames);
-            _instancesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, InstanceCounterNames);
+            _drawCallsRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, Array.ConvertAll(CounterGroups, static group => $"{group} Draw Calls Count"));
+            _instancesRecorder = new ProfilerRecorderGroup(ProfilerCategory.Render, Array.ConvertAll(CounterGroups, static group => $"{group} Instances Count"));
         }
 
         public void Unload()
@@ -126,8 +124,39 @@ namespace BovineLabs.Anchor.Debug.ViewModels
             Triangles = _trianglesRecorder.LastValue;
             Vertices = _verticesRecorder.LastValue;
             SetPassCalls = _setPassCallsRecorder.LastValue;
-            DrawCalls = _drawCallsRecorder.LastValue;
-            Instances = _instancesRecorder.LastValue;
+            DrawCalls = SampleCounters(_drawCallsRecorder, _drawCallCounts);
+            Instances = SampleCounters(_instancesRecorder, _instanceCounts);
+            OnPropertyChanged(nameof(DrawCallsBreakdown));
+            OnPropertyChanged(nameof(InstancesBreakdown));
+        }
+
+        private static long SampleCounters(ProfilerRecorderGroup recorder, long[] counts)
+        {
+            var total = 0L;
+            for (var i = 0; i < counts.Length; i++)
+            {
+                var count = recorder.GetLastValue(i);
+                counts[i] = count;
+                total += count;
+            }
+
+            return total;
+        }
+
+        private static string FormatBreakdown(long[] counts)
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < counts.Length; i++)
+            {
+                if (i > 0)
+                {
+                    builder.Append('\n');
+                }
+
+                builder.Append(CounterGroups[i]).Append(": ").Append(counts[i].ToString("N0"));
+            }
+
+            return builder.ToString();
         }
     }
 }

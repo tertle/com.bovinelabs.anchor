@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.0-pre.8] - Unreleased
+
+### Added
+* Hover over Draw Calls or Instances in Render Stats to see the count for each profiler group.
+
+### Changed
+* Updated BovineLabs dependencies to `2.0.0-pre.8`.
+
 ## [2.0.0-pre.7] - 2026-11-10
 
 ### Added

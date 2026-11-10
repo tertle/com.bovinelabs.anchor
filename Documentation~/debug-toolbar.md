@@ -219,6 +219,8 @@ Keep each toolbar group's content within the rendered height of five standard si
 
 The built-in Rendering group has two label and control rows: Quality, which selects the active quality level, and Wireframe, with Off, Wireframe, Solid Wireframe, and Shaded Wireframe modes. Both follow changes made elsewhere. Render Stats is a separate group with five counter rows.
 
+Hover over Draw Calls or Instances to see the current count for each profiler group.
+
 The Wireframe dropdown uses URP's Rendering Debugger settings, applies to all cameras including Entities Graphics, and reflects changes made in the Rendering Debugger. Off restores ordinary rendering. In players, URP rendering diagnostics require the Checked or Debug **Managed Code Variant** (`UNITY_ENABLE_CHECKS`). The Wireframe dropdown is disabled in Instrumented players. In **Project Settings > Graphics > Shader Stripping**, disable **Strip Runtime Debug Shaders** so the debug shader variants and resources survive the build. Release players omit the Anchor debug toolbar entirely.
 
 ## UI
