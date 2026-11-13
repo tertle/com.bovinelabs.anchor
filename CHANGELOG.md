@@ -4,9 +4,12 @@
 
 ### Added
 * Hover over Draw Calls or Instances in Render Stats to see the count for each profiler group.
+* Singleton and transient service factory registrations, with generic and type-based overloads, plus generic singleton-instance registration helpers.
 
 ### Changed
 * Updated BovineLabs dependencies to `2.0.0-pre.8`.
+* Unity App UI 2.3.1 or newer is required, including its current control, parsing, and lifecycle fixes.
+* Service collections become read-only when a provider is constructed; complete registrations before app initialization. This ports App UI's registration-locking fix to Anchor's container.
 
 ## [2.0.0-pre.7] - 2026-11-10
 

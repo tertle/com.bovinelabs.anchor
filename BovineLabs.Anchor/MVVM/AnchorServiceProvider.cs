@@ -4,6 +4,7 @@ namespace BovineLabs.Anchor.MVVM
     using System.Collections.Generic;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
+    using UnityEngine.UIElements;
 
     public sealed class AnchorServiceProvider : IServiceProvider, IDisposable
     {
@@ -16,6 +17,7 @@ namespace BovineLabs.Anchor.MVVM
         public AnchorServiceProvider(AnchorServiceCollection services)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
+            _services.MakeReadOnly();
         }
 
         public object GetService(Type serviceType)
@@ -161,6 +163,28 @@ namespace BovineLabs.Anchor.MVVM
             if (descriptor.IsInstance)
             {
                 return descriptor.ImplementationInstance;
+            }
+
+            if (descriptor.ImplementationFactory != null)
+            {
+                var service = descriptor.ImplementationFactory(this);
+                if (service == null)
+                {
+                    throw new InvalidOperationException($"The factory registered for '{descriptor.ServiceType.FullName}' returned null.");
+                }
+
+                if (!descriptor.ServiceType.IsInstanceOfType(service))
+                {
+                    throw new InvalidOperationException(
+                        $"The factory registered for '{descriptor.ServiceType.FullName}' returned an incompatible type '{service.GetType().FullName}'.");
+                }
+
+                if (service is VisualElement)
+                {
+                    throw new InvalidOperationException("An Anchor service factory cannot return a VisualElement because visual generations are replaceable.");
+                }
+
+                return service;
             }
 
             if (descriptor.ImplementationType == null)
@@ -314,7 +338,7 @@ namespace BovineLabs.Anchor.MVVM
                     return CanResolve(descriptor.AliasType, resolutionPath, out circularDependency);
                 }
 
-                if (descriptor.IsInstance)
+                if (descriptor.IsInstance || descriptor.ImplementationFactory != null)
                 {
                     return true;
                 }

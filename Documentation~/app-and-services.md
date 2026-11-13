@@ -153,7 +153,7 @@ if (SystemAPI.GetSingleton<InputHideUI>().Down)
 
 ## Service registrations
 
-`AnchorServiceCollection` supports singleton, transient, instance, and alias registrations. For example, inside `OnConfigureServices`:
+`AnchorServiceCollection` supports singleton, transient, factory, instance, and alias registrations. For example, inside `OnConfigureServices`:
 
 ```csharp
 services.AddSingleton(typeof(GameClock));
@@ -162,7 +162,10 @@ services.AddSingleton<IPlayerProfileService, PlayerProfileService>();
 services.AddTransient(typeof(DialogController));
 services.AddTransient<IDialogController, DialogController>();
 
-services.AddSingletonInstance(typeof(GameSession), session);
+services.AddSingletonInstance(session);
+
+services.AddSingleton<SaveCoordinator>(provider => new SaveCoordinator(provider.GetRequiredService<GameSession>(), savePath));
+services.AddTransient(typeof(DialogPresenter), provider => new DialogPresenter(provider.GetRequiredService<IDialogController>()));
 
 services.AddSingleton(typeof(GameSettings));
 services.AddAlias<IGameSettings, GameSettings>();
@@ -171,6 +174,15 @@ services.AddAlias<IGameSettings, GameSettings>();
 The provider resolves the public constructor with the most parameters whose full dependency graph can be resolved. A constructor can request `IServiceProvider` or `AnchorServiceProvider` directly. Circular dependencies throw an `InvalidOperationException`.
 
 Registrations are searched from last to first. A registration added after `base.OnConfigureServices` therefore replaces a default registration for the same service type.
+
+Creating a provider through `BuildServiceProvider` or the `AnchorServiceProvider` constructor makes the collection read-only. `IsReadOnly` reports this state,
+and subsequent registrations throw `InvalidOperationException`. Complete all registration in `OnConfigureServices`, before the app initializes.
+
+Factory registrations receive the resolving `IServiceProvider`. Singleton factories run on first resolution and cache the result; transient factories run
+on every resolution. Constructor selection recognizes factory dependencies without invoking them. Factories must return a non-null instance assignable to
+the registered service type, and cannot return a `VisualElement`, including through an interface or `object` registration. Invalid results throw
+`InvalidOperationException`; factory exceptions propagate and a failed singleton factory can be retried on the next resolution. Factories can forward to
+another singleton registration to expose the same object under another interface. Existing `AddAlias` registrations remain the simpler choice for direct forwarding.
 
 Resolve an optional service with `GetService<T>()` and a required service with `GetRequiredService<T>()`. Inside a managed method:
 

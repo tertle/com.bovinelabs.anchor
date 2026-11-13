@@ -11,6 +11,13 @@ namespace BovineLabs.Anchor.MVVM
 
     public sealed class AnchorServiceDescriptor
     {
+        public AnchorServiceDescriptor(Type serviceType, Func<IServiceProvider, object> implementationFactory, AnchorServiceLifetime lifetime)
+            : this(serviceType, null, lifetime, null, null)
+        {
+            ValidateNotVisualElement(serviceType, nameof(serviceType));
+            ImplementationFactory = implementationFactory ?? throw new ArgumentNullException(nameof(implementationFactory));
+        }
+
         private AnchorServiceDescriptor(
             Type serviceType, Type implementationType, AnchorServiceLifetime lifetime, object implementationInstance, Type aliasType)
         {
@@ -29,6 +36,8 @@ namespace BovineLabs.Anchor.MVVM
 
         public object ImplementationInstance { get; }
 
+        public Func<IServiceProvider, object> ImplementationFactory { get; }
+
         public Type AliasType { get; }
 
         public bool IsAlias => AliasType != null;
@@ -45,6 +54,34 @@ namespace BovineLabs.Anchor.MVVM
         {
             ValidateImplementation(serviceType, implementationType);
             return new AnchorServiceDescriptor(serviceType, implementationType, AnchorServiceLifetime.Transient, null, null);
+        }
+
+        public static AnchorServiceDescriptor Singleton(Type serviceType, Func<IServiceProvider, object> implementationFactory)
+        {
+            return new AnchorServiceDescriptor(serviceType, implementationFactory, AnchorServiceLifetime.Singleton);
+        }
+
+        public static AnchorServiceDescriptor Singleton<TService>(Func<IServiceProvider, TService> implementationFactory)
+            where TService : class
+        {
+            return Singleton(typeof(TService), implementationFactory);
+        }
+
+        public static AnchorServiceDescriptor Transient(Type serviceType, Func<IServiceProvider, object> implementationFactory)
+        {
+            return new AnchorServiceDescriptor(serviceType, implementationFactory, AnchorServiceLifetime.Transient);
+        }
+
+        public static AnchorServiceDescriptor Transient<TService>(Func<IServiceProvider, TService> implementationFactory)
+            where TService : class
+        {
+            return Transient(typeof(TService), implementationFactory);
+        }
+
+        public static AnchorServiceDescriptor SingletonInstance<TService>(TService implementationInstance)
+            where TService : class
+        {
+            return SingletonInstance(typeof(TService), implementationInstance);
         }
 
         public static AnchorServiceDescriptor SingletonInstance(Type serviceType, object implementationInstance)

@@ -40,6 +40,203 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void ServiceProvider_SingletonFactory_IsLazyAndReceivesResolvingProvider()
+        {
+            var services = new AnchorServiceCollection();
+            var calls = 0;
+            IServiceProvider receivedProvider = null;
+            services.AddSingleton(typeof(ConstructorDependency), provider =>
+            {
+                calls++;
+                receivedProvider = provider;
+                return new ConstructorDependency();
+            });
+
+            using var provider = services.BuildServiceProvider();
+            Assert.AreEqual(0, calls);
+
+            var first = provider.GetRequiredService<ConstructorDependency>();
+
+            Assert.AreSame(first, provider.GetRequiredService<ConstructorDependency>());
+            Assert.AreSame(provider, receivedProvider);
+            Assert.AreEqual(1, calls);
+        }
+
+        [Test]
+        public void ServiceProvider_TransientFactory_CreatesDistinctInstancesWithoutOwningDisposal()
+        {
+            var disposalOrder = new List<string>();
+            var services = new AnchorServiceCollection();
+            services.AddTransient<RecordingDisposable>(_ => new RecordingDisposable(disposalOrder));
+
+            using var provider = services.BuildServiceProvider();
+            var first = provider.GetRequiredService<RecordingDisposable>();
+            var second = provider.GetRequiredService<RecordingDisposable>();
+
+            Assert.AreNotSame(first, second);
+            provider.Dispose();
+
+            Assert.IsEmpty(disposalOrder);
+            first.Dispose();
+            second.Dispose();
+        }
+
+        [Test]
+        public void ServiceProvider_ForwardingFactories_ShareSingletonAndDisposeItOnce()
+        {
+            var disposalOrder = new List<string>();
+            var services = new AnchorServiceCollection();
+            services.AddSingleton<RecordingDisposable>(_ => new RecordingDisposable(disposalOrder));
+            services.AddSingleton<IDisposable>(provider => provider.GetRequiredService<RecordingDisposable>());
+            services.AddSingleton<object>(provider => provider.GetRequiredService<RecordingDisposable>());
+
+            using var provider = services.BuildServiceProvider();
+            var instance = provider.GetRequiredService<RecordingDisposable>();
+
+            Assert.AreSame(instance, provider.GetRequiredService<IDisposable>());
+            Assert.AreSame(instance, provider.GetRequiredService<object>());
+
+            provider.Dispose();
+
+            CollectionAssert.AreEqual(new[] { "recording" }, disposalOrder);
+        }
+
+        [Test]
+        public void ServiceProvider_FactoryDependency_ResolvesConstructorWithoutInvokingFactoryDuringSelection()
+        {
+            var services = new AnchorServiceCollection();
+            var calls = 0;
+            services.AddSingleton<ConstructorDependency>(_ =>
+            {
+                calls++;
+                return new ConstructorDependency();
+            });
+            services.AddTransient(typeof(ConstructorSelectionTarget));
+
+            using var provider = services.BuildServiceProvider();
+            var resolved = provider.GetRequiredService<ConstructorSelectionTarget>();
+
+            Assert.AreEqual(2, resolved.ConstructorParameterCount);
+            Assert.AreSame(provider.GetRequiredService<ConstructorDependency>(), resolved.Dependency);
+            Assert.AreEqual(1, calls);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServiceProvider_FactoryReturningInvalidResult_Throws(bool returnsNull)
+        {
+            var services = new AnchorServiceCollection();
+            services.AddTransient(typeof(ConstructorDependency), _ => returnsNull ? null : new object());
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.Throws<InvalidOperationException>(() => provider.GetService(typeof(ConstructorDependency)));
+        }
+
+        [Test]
+        public void ServiceProvider_FactoryFailure_PropagatesAndAllowsSingletonRetry()
+        {
+            var services = new AnchorServiceCollection();
+            var calls = 0;
+            var expectedException = new FormatException("Expected factory failure.");
+            services.AddSingleton<ConstructorDependency>(_ =>
+            {
+                if (++calls == 1)
+                {
+                    throw expectedException;
+                }
+
+                return new ConstructorDependency();
+            });
+
+            using var provider = services.BuildServiceProvider();
+            var actualException = Assert.Throws<FormatException>(() => provider.GetRequiredService<ConstructorDependency>());
+            Assert.AreSame(expectedException, actualException);
+
+            var instance = provider.GetRequiredService<ConstructorDependency>();
+
+            Assert.AreSame(instance, provider.GetRequiredService<ConstructorDependency>());
+            Assert.AreEqual(2, calls);
+        }
+
+        [Test]
+        public void ServiceProvider_FactoryCycle_ThrowsWithoutRecursingIndefinitely()
+        {
+            var services = new AnchorServiceCollection();
+            services.AddSingleton<ConstructorDependency>(provider => provider.GetRequiredService<ConstructorDependency>());
+
+            using var provider = services.BuildServiceProvider();
+            var exception = Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<ConstructorDependency>());
+
+            StringAssert.Contains("Circular dependency detected", exception!.Message);
+        }
+
+        [Test]
+        public void ServiceProvider_FactoryReturningVisualThroughObject_Throws()
+        {
+            var element = new VisualElement();
+            try
+            {
+                var services = new AnchorServiceCollection();
+                services.AddSingleton<object>(_ => element);
+                using var provider = services.BuildServiceProvider();
+
+                Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<object>());
+            }
+            finally
+            {
+                element.ReleaseResources();
+            }
+        }
+
+        [Test]
+        public void ServiceCollection_NullFactoryOrVisualServiceType_RejectsRegistration()
+        {
+            var services = new AnchorServiceCollection();
+
+            Assert.Throws<ArgumentNullException>(() => services.AddSingleton<object>(null));
+            Assert.Throws<ArgumentNullException>(() => services.AddTransient<object>(null));
+            Assert.Throws<ArgumentNullException>(() =>
+                new AnchorServiceDescriptor(typeof(object), null, AnchorServiceLifetime.Singleton));
+            Assert.Throws<ArgumentException>(() => services.AddSingleton<VisualElement>(_ => null));
+            Assert.AreEqual(0, services.Count);
+        }
+
+        [Test]
+        public void ServiceProvider_GenericSingletonInstance_IsAvailableToFactory()
+        {
+            var instance = new SharedSettings();
+            var services = new AnchorServiceCollection();
+            services.AddSingletonInstance(instance);
+            services.AddTransient<IFooSettings>(provider => provider.GetRequiredService<SharedSettings>());
+
+            using var provider = services.BuildServiceProvider();
+
+            Assert.AreSame(instance, provider.GetRequiredService<IFooSettings>());
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ServiceCollection_AfterProviderConstruction_RejectsAllRegistrationPaths(bool useBuilder)
+        {
+            var services = new AnchorServiceCollection();
+            services.AddSingleton(typeof(ConstructorDependency));
+
+            Assert.IsFalse(services.IsReadOnly);
+            using var provider = useBuilder ? services.BuildServiceProvider() : new AnchorServiceProvider(services);
+
+            Assert.IsTrue(services.IsReadOnly);
+            Assert.Throws<InvalidOperationException>(() => services.AddSingleton(typeof(SharedSettings)));
+            Assert.Throws<InvalidOperationException>(() => services.AddTransient(typeof(TransientDependency)));
+            Assert.Throws<InvalidOperationException>(() => services.AddSingleton<SharedSettings>(_ => new SharedSettings()));
+            Assert.Throws<InvalidOperationException>(() => services.AddTransient<SharedSettings>(_ => new SharedSettings()));
+            Assert.Throws<InvalidOperationException>(() => services.AddSingletonInstance(new SharedSettings()));
+            Assert.Throws<InvalidOperationException>(() => services.AddAlias<IFooSettings, SharedSettings>());
+            Assert.AreEqual(1, services.Count);
+            Assert.IsNotNull(provider.GetRequiredService<ConstructorDependency>());
+        }
+
+        [Test]
         public void ServiceProvider_SelectsLongestResolvableConstructor()
         {
             var services = new AnchorServiceCollection();
