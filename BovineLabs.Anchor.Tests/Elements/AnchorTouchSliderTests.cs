@@ -15,7 +15,7 @@ namespace BovineLabs.Anchor.Tests.Elements
             var slider = new AnchorTouchSliderFloat();
 
             AssertBindingNotifications(slider, value => slider.size = value, value => slider.label = value);
-            Assert.AreEqual(Size.L, slider.size);
+            Assert.AreEqual(Size.Lg, slider.size);
             Assert.AreEqual("Volume", slider.label);
         }
 
@@ -25,7 +25,7 @@ namespace BovineLabs.Anchor.Tests.Elements
             var slider = new AnchorTouchSliderInt();
 
             AssertBindingNotifications(slider, value => slider.size = value, value => slider.label = value);
-            Assert.AreEqual(Size.L, slider.size);
+            Assert.AreEqual(Size.Lg, slider.size);
             Assert.AreEqual("Volume", slider.label);
         }
 
@@ -34,12 +34,12 @@ namespace BovineLabs.Anchor.Tests.Elements
             var changedProperties = new List<string>();
             ((INotifyBindablePropertyChanged)slider).propertyChanged += (_, args) => changedProperties.Add(args.propertyName);
 
-            setSize(Size.L);
+            setSize(Size.Lg);
             setLabel("Volume");
 
             CollectionAssert.AreEqual(new[] { "size", "label" }, changedProperties);
 
-            setSize(Size.L);
+            setSize(Size.Lg);
             setLabel("Volume");
 
             CollectionAssert.AreEqual(new[] { "size", "label" }, changedProperties);

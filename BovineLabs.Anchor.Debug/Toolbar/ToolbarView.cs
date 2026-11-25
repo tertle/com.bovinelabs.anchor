@@ -539,13 +539,15 @@
 
         private Button CreateShowButton()
         {
-            var button = new Button(() => ShowRibbon(!IsRibbonVisible)) {
-                trailingIcon = "caret-down"
+            var button = new Button(() => ShowRibbon(!IsRibbonVisible))
+            {
+                trailingIcon = "caret-down",
+                variant = ButtonVariant.Secondary,
             };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
-            button.size = Size.S;
+            button.size = Size.Sm;
 
             var icon = button.Q<Icon>(ShowIconTargetClassName);
             icon.AddToClassList(ShowIconUssClassName);
@@ -576,20 +578,22 @@
 
             dropdown.AddToClassList(MenuButtonClassName);
             dropdown.AddToClassList(FilterUssClassName);
-            dropdown.size = Size.S;
+            dropdown.size = Size.Sm;
 
             return dropdown;
         }
 
         private Button CreateHideButton()
         {
-            var button = new Button(HideToolbar) {
-                trailingIcon = "x"
+            var button = new Button(HideToolbar)
+            {
+                trailingIcon = "x",
+                variant = ButtonVariant.Secondary,
             };
 
             button.AddToClassList(MenuButtonClassName);
             button.AddToClassList(ShowUssClassName);
-            button.size = Size.S;
+            button.size = Size.Sm;
 
             return button;
         }
@@ -665,6 +669,7 @@
             var button = new Button
             {
                 title = tabName,
+                variant = ButtonVariant.Secondary,
                 focusable = false,
             };
 
@@ -706,7 +711,7 @@
 
             if (_activeGroup != null)
             {
-                _activeGroup.Button.variant = ButtonVariant.Default;
+                _activeGroup.Button.variant = ButtonVariant.Secondary;
 
                 // something else has already removed it or moved it
                 if (_activeGroup.Parent.parent == this)
@@ -728,7 +733,7 @@
             }
 
             _activeGroup = group;
-            group.Button.variant = ButtonVariant.Accent;
+            group.Button.variant = ButtonVariant.Default;
 
             if (updateState)
             {

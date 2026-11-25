@@ -29,7 +29,11 @@ namespace BovineLabs.Anchor
                 },
             };
 
-            var query = new EntityQueryBuilder(Allocator.Temp).WithAll(ref list).WithOptions(EntityQueryOptions.IncludeSystems).Build(ref state);
+            var builder = new EntityQueryBuilder(Allocator.Temp);
+            builder.WithAll(ref list);
+            builder.WithOptions(EntityQueryOptions.IncludeSystems);
+
+            var query = builder.Build(ref state);
             state.RequireForUpdate(query);
         }
 

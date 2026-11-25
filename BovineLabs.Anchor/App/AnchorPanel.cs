@@ -75,8 +75,20 @@ namespace BovineLabs.Anchor
 
         public string Scale
         {
-            get => scale;
-            set => scale = value;
+            get => density switch
+            {
+                "compact" => "small",
+                "normal" => "medium",
+                "comfort" => "large",
+                var other => other,
+            };
+            set => density = value switch
+            {
+                "small" => "compact",
+                "medium" => "normal",
+                "large" => "comfort",
+                var other => other,
+            };
         }
     }
 }

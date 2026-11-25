@@ -33,7 +33,7 @@ namespace BovineLabs.Anchor.Elements
         {
             AddToClassList(UssClassName);
             AddToClassList(Text.ussClassName);
-            AddToClassList(Text.primaryUssClassName);
+            AddToClassList(Text.GetVariantUssClassName(TextVariant.Default));
             AddToClassList(Text.GetSizeUssClassName(TextSize.M));
             pickingMode = PickingMode.Position;
 
