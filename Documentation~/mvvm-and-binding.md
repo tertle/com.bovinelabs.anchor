@@ -267,7 +267,7 @@ For indexed row binding, set the collection as the data source and use `Property
 
 ## ECS-backed view models
 
-`SystemObservableObject<TData>` keeps an unmanaged `TData` value inside the managed view model. `[SystemProperty]` generates properties on a `partial struct` that update the field through Anchor's Burst-to-binding interop.
+`SystemObservableObject<TData>` keeps an unmanaged `TData` value inside the managed view model. `[SystemProperty]` generates properties on a `partial struct` that update the field through Anchor's Burst-to-binding interop. The generator also recognizes C# aliases of `BovineLabs.Anchor.SystemPropertyAttribute`.
 
 ```csharp
 namespace Example.UI

@@ -14,22 +14,23 @@
     [Generator]
     public class SystemPropertyGenerator : IIncrementalGenerator
     {
+        private const string AttributeMetadataName = "BovineLabs.Anchor.SystemPropertyAttribute";
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             try
             {
-                var contextProvider = context.SyntaxProvider
-                    .CreateSyntaxProvider(predicate: IsContextSyntaxTargetForGeneration, transform: GetSemanticTargetForGeneration);
+                // Roslyn supplies one node per variable in an attributed field declaration.
+                var contextProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
+                    AttributeMetadataName,
+                    static (node, _) => node is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Parent: FieldDeclarationSyntax } declaration } &&
+                        declaration.Variables[0].SpanStart == node.SpanStart,
+                    GetSemanticTargetForGeneration);
 
                 context.RegisterSourceOutput(contextProvider, (productionContext, fieldResult) =>
                 {
                     try
                     {
-                        if (fieldResult == null)
-                        {
-                            return;
-                        }
-
                         foreach (var diagnostic in fieldResult.Diagnostics)
                         {
                             productionContext.ReportDiagnostic(diagnostic);
@@ -61,46 +62,21 @@
             }
         }
 
-        public static bool IsContextSyntaxTargetForGeneration(SyntaxNode syntaxNode, CancellationToken cancellationToken)
+        private static FieldResult GetSemanticTargetForGeneration(GeneratorAttributeSyntaxContext ctx, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            try
-            {
-                if (syntaxNode is not FieldDeclarationSyntax fieldDeclarationSyntax)
-                {
-                    return false;
-                }
-
-                return fieldDeclarationSyntax.HasAttribute("SystemPropertyAttribute");
-            }
-            catch (Exception ex)
-            {
-                SourceGenHelpers.Log($"Exception occured: {ex}");
-                return false;
-            }
-        }
-
-        public static FieldResult GetSemanticTargetForGeneration(GeneratorSyntaxContext ctx, CancellationToken cancellationToken)
-        {
-            var fieldDeclarationSyntax = (FieldDeclarationSyntax)ctx.Node;
+            var variable = (VariableDeclaratorSyntax)ctx.TargetNode;
+            var fieldDeclarationSyntax = (FieldDeclarationSyntax)variable.Parent.Parent;
+            var fieldSymbol = (IFieldSymbol)ctx.TargetSymbol;
             var diagnostics = ImmutableArray.CreateBuilder<Diagnostic>();
 
             if (fieldDeclarationSyntax.Declaration.Variables.Count != 1)
             {
-                var firstName = fieldDeclarationSyntax.Declaration.Variables.FirstOrDefault()?.Identifier.ValueText ?? fieldDeclarationSyntax.Declaration.Type.ToString();
-                diagnostics.Add(SystemPropertyDiagnostics.InvalidFieldDeclaration(firstName, fieldDeclarationSyntax.Declaration.GetLocation()));
+                diagnostics.Add(SystemPropertyDiagnostics.InvalidFieldDeclaration(fieldSymbol.Name, fieldDeclarationSyntax.Declaration.GetLocation()));
                 return new FieldResult(null, diagnostics.ToImmutable());
             }
 
-            var variable = fieldDeclarationSyntax.Declaration.Variables[0];
-            if (ctx.SemanticModel.GetDeclaredSymbol(variable, cancellationToken) is not IFieldSymbol fieldSymbol)
-            {
-                return null;
-            }
-
-            StructDeclarationSyntax structDeclarationSyntax = GetEnclosingStruct(fieldDeclarationSyntax);
-            if (structDeclarationSyntax == null)
+            if (fieldDeclarationSyntax.Parent is not StructDeclarationSyntax structDeclarationSyntax)
             {
                 diagnostics.Add(SystemPropertyDiagnostics.NotInStruct(fieldSymbol, variable.GetLocation()));
                 return new FieldResult(null, diagnostics.ToImmutable());
@@ -108,11 +84,7 @@
 
             if (!IsPartial(structDeclarationSyntax))
             {
-                if (ctx.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax, cancellationToken) is INamedTypeSymbol nonPartialType)
-                {
-                    diagnostics.Add(SystemPropertyDiagnostics.MissingPartial(nonPartialType, structDeclarationSyntax.Identifier.GetLocation()));
-                }
-
+                diagnostics.Add(SystemPropertyDiagnostics.MissingPartial(fieldSymbol.ContainingType, structDeclarationSyntax.Identifier.GetLocation()));
                 return new FieldResult(null, diagnostics.ToImmutable());
             }
 
@@ -123,21 +95,12 @@
             }
 
             var namespaces = ctx.SemanticModel.GetAccessibleNamespaces(structDeclarationSyntax);
-            INamedTypeSymbol typeSymbol = ctx.SemanticModel.GetDeclaredSymbol(structDeclarationSyntax);
-
             var ancestors = structDeclarationSyntax.Ancestors()
                 .OfType<TypeDeclarationSyntax>()
-                .Select(classSyntax => ctx.SemanticModel.GetDeclaredSymbol(classSyntax))
+                .Select(classSyntax => ctx.SemanticModel.GetDeclaredSymbol(classSyntax, cancellationToken))
                 .Reverse().ToArray();
 
-            return new FieldResult(new FieldData(typeSymbol, ancestors, namespaces, fieldDeclarationSyntax), diagnostics.ToImmutable());
-        }
-
-        public static StructDeclarationSyntax GetEnclosingStruct(FieldDeclarationSyntax fieldDeclaration)
-        {
-            // Get the parent node of the field declaration
-            SyntaxNode parent = fieldDeclaration.Parent;
-            return parent as StructDeclarationSyntax;
+            return new FieldResult(new FieldData(fieldSymbol.ContainingType, ancestors, namespaces, fieldDeclarationSyntax), diagnostics.ToImmutable());
         }
 
         private static bool IsPartial(TypeDeclarationSyntax declaration)

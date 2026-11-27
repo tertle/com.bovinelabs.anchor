@@ -6,6 +6,7 @@ namespace BovineLabs.Anchor.Tests.App
     using NUnit.Framework;
     using Unity.Properties;
     using UnityEngine.UIElements;
+    using BoundSystemProperty = BovineLabs.Anchor.SystemPropertyAttribute;
 
     public partial class MvvmRuntimeTests
     {
@@ -162,6 +163,14 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void SystemProperty_AttributeAlias_GeneratesWorkingAccessors()
+        {
+            var data = new AliasedSystemPropertyData { Value = 42 };
+
+            Assert.AreEqual(42, data.Value);
+        }
+
+        [Test]
         public void GeneratedDependsOn_RaisesDependentNotificationsTransitively()
         {
             var viewModel = new GeneratedDependsOnViewModel();
@@ -208,6 +217,12 @@ namespace BovineLabs.Anchor.Tests.App
 
             Assert.AreEqual(1, eventCount);
             Assert.IsTrue(command.CanExecute(null));
+        }
+
+        public partial struct AliasedSystemPropertyData
+        {
+            [BoundSystemProperty]
+            private int _value;
         }
 
         private sealed class TestViewModel : ObservableObject

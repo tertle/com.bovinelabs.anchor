@@ -5,29 +5,6 @@
 
     public static class FieldDeclarationSyntaxExtensions
     {
-        public static bool HasAttribute(this FieldDeclarationSyntax fieldDeclaration, string attributeName)
-        {
-            foreach (var attributeList in fieldDeclaration.AttributeLists)
-            {
-                foreach (var attribute in attributeList.Attributes)
-                {
-                    var name = attribute.Name.ToString().Split('.').Last();
-
-                    if (!name.EndsWith("Attribute"))
-                    {
-                        name += "Attribute";
-                    }
-
-                    if (name.Equals(attributeName))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public static string GetFieldName(this FieldDeclarationSyntax fieldDeclaration)
         {
             // Get the variable declaration within the field declaration
