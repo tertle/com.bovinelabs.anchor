@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0-pre.8] - Unreleased
+## [2.0.0-pre.8] - 2026-11-28
 
 ### Added
 * `[ObservableProperty]` now implements partial view-model properties, including restricted setters, `init` accessors, and property initializers.
