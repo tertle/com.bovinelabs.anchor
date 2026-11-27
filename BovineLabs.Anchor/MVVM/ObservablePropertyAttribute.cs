@@ -2,12 +2,12 @@ namespace BovineLabs.Anchor.MVVM
 {
     using System;
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class ObservablePropertyAttribute : Attribute
     {
     }
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
     public sealed class AlsoNotifyChangeForAttribute : Attribute
     {
         public AlsoNotifyChangeForAttribute(string propertyName)
@@ -19,7 +19,7 @@ namespace BovineLabs.Anchor.MVVM
         }
     }
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
     public sealed class AlsoExecuteAttribute : Attribute
     {
         public AlsoExecuteAttribute(string methodName)

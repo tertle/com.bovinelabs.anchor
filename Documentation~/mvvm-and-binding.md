@@ -27,10 +27,18 @@ namespace Example.UI
     public partial class MenuViewModel : ObservableObject
     {
         [ObservableProperty]
-        private string title = "Main menu";
+        public partial string Title
+        {
+            get;
+            private set;
+        } = "Main menu";
 
         [ObservableProperty]
-        private bool hasSave;
+        public partial bool HasSave
+        {
+            get;
+            set;
+        }
 
         [DependsOn(nameof(HasSave))]
         private bool CanContinue => this.HasSave;
@@ -50,15 +58,17 @@ The generator produces bindable `Title`, `HasSave`, and `ContinueCommand` proper
 
 | Attribute | Apply to | Generated behavior |
 | --- | --- | --- |
-| `[ObservableProperty]` | Writable instance field | A public `[CreateProperty]` property that calls `SetProperty` |
-| `[AlsoNotifyChangeFor(...)]` | `[ObservableProperty]` field | Raises additional property-changed notifications after a real change |
-| `[AlsoExecute(...)]` | `[ObservableProperty]` field | Invokes parameterless, non-generic methods after a real change |
+| `[ObservableProperty]` | Partial instance property or writable instance field | Implements the declared property or generates a public property for the field. Both call `SetProperty` and expose the property to Unity binding. |
+| `[AlsoNotifyChangeFor(...)]` | `[ObservableProperty]` property or field | Raises additional property-changed notifications after a real change |
+| `[AlsoExecute(...)]` | `[ObservableProperty]` property or field | Invokes parameterless, non-generic methods after a real change |
 | `[DependsOn(...)]` | Computed property | Raises a notification for the computed property when a dependency changes |
 | `[ICommand]` | Method | A lazy, read-only `[CreateProperty]` named `<MethodName>Command` |
 
-Dependencies declared with `[DependsOn]` are expanded transitively. A dependency can name a generated property or its backing field; backing-field names are normalized to the generated property name.
+Dependencies declared with `[DependsOn]` are expanded transitively. Use `nameof` with the property name. For an annotated field, the generator also accepts its field name.
 
-All types using these attributes must be `partial`. `[ObservableProperty]` fields must not be static, const, or readonly. The field names `_title`, `m_title`, `mTitle`, and `title` all generate `Title`; a bare `m` prefix is stripped only when the next character is uppercase.
+Declare the view model and its containing types `partial`. On a partial property, declare a `get` and either a `set` or an `init` accessor. Initializers and accessor visibility work as usual. The generator supplies `[CreateProperty]` by default. Apply `[CreateProperty(ReadOnly = true)]` to expose a read-only Unity binding.
+
+An annotated field gives the view model direct access to its storage, such as when a constructor needs to initialize a value without invoking a change callback. The field must be writable and belong to the instance. The names `_title`, `m_title`, `mTitle`, and `title` all generate `Title`.
 
 `[ICommand]` methods must return `void` and accept zero or one non-`ref` parameter. Use one of the following optional gates, never both:
 
@@ -350,7 +360,7 @@ Do not mutate `data.Rows` in place and then call `Notify` as a normal update pat
 
 ## Troubleshooting
 
-- **A generated property does not exist:** make the declaring type `partial`, use a writable field, and check generator diagnostics `BLMVVM0001` through `BLMVVM0008` or `BLSYS0001` through `BLSYS0003`.
+- **Missing generated property.** Check the containing types and the property or field declaration against the requirements above. Managed MVVM reports `BLMVVM0001` through `BLMVVM0009`. System properties report `BLSYS0001` through `BLSYS0003`.
 - **UXML shows a null data source:** instantiate through `IUXMLService`, verify the `Namespace.Type, Assembly` string, and ensure the type is an Anchor service.
 - **A command stays enabled:** use `CanExecuteProperty` with an observable property, and add `[DependsOn]` when the gate is computed.
 - **An ECS value changes but the UI does not:** write the generated `TData` property while `UIHelper` is bound; assigning the backing field directly bypasses notifications.

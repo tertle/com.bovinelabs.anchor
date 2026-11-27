@@ -14,35 +14,31 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     [Preserve]
     [IsService]
     [AutoToolbar("Localization")]
-    public class LocalizationToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
+    public partial class LocalizationToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
-        private int _selectedLocale = -1;
-
-        private List<string> _locales = new();
-
         private bool _loaded;
 
         [CreateProperty]
         public int SelectedLocale
         {
-            get => _selectedLocale;
+            get;
             set
             {
-                if (SetProperty(ref _selectedLocale, value) && LocalizationSettings.HasSettings)
+                if (SetProperty(ref field, value) && LocalizationSettings.HasSettings)
                 {
                     LocalizationSettings.SelectedLocale = SelectedLocale != -1
                         ? LocalizationSettings.Instance.AvailableLocales[SelectedLocale]
                         : null;
                 }
             }
-        }
+        } = -1;
 
-        [CreateProperty]
-        public List<string> Locales
+        [ObservableProperty]
+        public partial List<string> Locales
         {
-            get => _locales;
-            set => SetProperty(ref _locales, value);
-        }
+            get;
+            set;
+        } = new();
 
         public VisualElement CreateElement()
         {

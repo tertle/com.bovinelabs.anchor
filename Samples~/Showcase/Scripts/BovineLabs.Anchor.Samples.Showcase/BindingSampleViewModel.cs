@@ -10,13 +10,25 @@ namespace BovineLabs.Anchor.Samples.Showcase
     public partial class BindingSampleViewModel : ObservableObject
     {
         [ObservableProperty]
-        private float _charge = 0.45f;
+        public partial float Charge
+        {
+            get;
+            set;
+        } = 0.45f;
 
         [ObservableProperty]
-        private bool _armed = true;
+        public partial bool Armed
+        {
+            get;
+            set;
+        } = true;
 
         [ObservableProperty]
-        private int _launches;
+        public partial int Launches
+        {
+            get;
+            set;
+        }
 
         [CreateProperty(ReadOnly = true)]
         [DependsOn(nameof(Charge))]

@@ -13,6 +13,7 @@ BLMVVM0005 | BovineLabs.Anchor.MVVM | Error | MvvmDiagnostics
 BLMVVM0006 | BovineLabs.Anchor.MVVM | Error | MvvmDiagnostics
 BLMVVM0007 | BovineLabs.Anchor.MVVM | Error | MvvmDiagnostics
 BLMVVM0008 | BovineLabs.Anchor.MVVM | Error | MvvmDiagnostics
+BLMVVM0009 | BovineLabs.Anchor.MVVM | Error | MvvmDiagnostics
 BLSYS0001 | BovineLabs.Anchor.SystemProperty | Error | SystemPropertyDiagnostics
 BLSYS0002 | BovineLabs.Anchor.SystemProperty | Error | SystemPropertyDiagnostics
 BLSYS0003 | BovineLabs.Anchor.SystemProperty | Error | SystemPropertyDiagnostics

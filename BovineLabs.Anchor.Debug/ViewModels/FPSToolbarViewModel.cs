@@ -17,14 +17,6 @@
         private const int AvgFPSSamplesCapacity = 127;
         private const int TimeToResetMinMaxFPS = 10;
 
-        private int _currentFPS;
-
-        private int _averageFPS;
-
-        private int _minFPS;
-
-        private int _maxFPS;
-
         private FPSStatistics _fps;
         private float _timeToTriggerUpdatesPassed;
 
@@ -37,34 +29,34 @@
 
         [CreateProperty(ReadOnly = true)]
         [DependsOn(nameof(CurrentFPS))]
-        public float FrameTime => _currentFPS == 0 ? 0 : 1000f / _currentFPS;
+        public float FrameTime => CurrentFPS == 0 ? 0 : 1000f / CurrentFPS;
 
-        [CreateProperty]
-        public int CurrentFPS
+        [ObservableProperty]
+        public partial int CurrentFPS
         {
-            get => _currentFPS;
-            set => SetProperty(ref _currentFPS, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public int AverageFPS
+        [ObservableProperty]
+        public partial int AverageFPS
         {
-            get => _averageFPS;
-            set => SetProperty(ref _averageFPS, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public int MinFPS
+        [ObservableProperty]
+        public partial int MinFPS
         {
-            get => _minFPS;
-            set => SetProperty(ref _minFPS, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public int MaxFPS
+        [ObservableProperty]
+        public partial int MaxFPS
         {
-            get => _maxFPS;
-            set => SetProperty(ref _maxFPS, value);
+            get;
+            set;
         }
 
         public VisualElement CreateElement()

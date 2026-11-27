@@ -14,13 +14,25 @@ namespace BovineLabs.Anchor.Samples.Showcase
         private int _nextId;
 
         [ObservableProperty]
-        private CollectionItemViewModel[] _items = Array.Empty<CollectionItemViewModel>();
+        public partial CollectionItemViewModel[] Items
+        {
+            get;
+            set;
+        } = Array.Empty<CollectionItemViewModel>();
 
         [ObservableProperty]
-        private CollectionItemViewModel _selected;
+        public partial CollectionItemViewModel Selected
+        {
+            get;
+            set;
+        }
 
         [ObservableProperty]
-        private int _revision;
+        public partial int Revision
+        {
+            get;
+            set;
+        }
 
         public CollectionSampleViewModel()
         {
@@ -140,7 +152,11 @@ namespace BovineLabs.Anchor.Samples.Showcase
         private float _charge;
 
         [ObservableProperty]
-        private bool _selected;
+        public partial bool Selected
+        {
+            get;
+            set;
+        }
 
         public CollectionItemViewModel(int id, float charge, Action<CollectionItemViewModel> onSelect, Action onChanged)
         {

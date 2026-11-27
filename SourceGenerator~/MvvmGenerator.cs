@@ -12,7 +12,7 @@ namespace BovineLabs.SystemPropertyGenerator
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     [Generator]
-    public sealed class MvvmGenerator : IIncrementalGenerator
+    public sealed partial class MvvmGenerator : IIncrementalGenerator
     {
         private const string ObservablePropertyAttributeName = "ObservableProperty";
         private const string ICommandAttributeName = "ICommand";
@@ -43,6 +43,14 @@ namespace BovineLabs.SystemPropertyGenerator
                 context.RegisterSourceOutput(
                     candidates.Collect(),
                     static (productionContext, collectedCandidates) => Execute(productionContext, collectedCandidates));
+
+                var partialProperties = context.SyntaxProvider.ForAttributeWithMetadataName(
+                    ObservablePropertyAttributeMetadataName,
+                    static (node, _) => node is PropertyDeclarationSyntax or IndexerDeclarationSyntax,
+                    static (ctx, _) => (Symbol: (IPropertySymbol)ctx.TargetSymbol, Declaration: ctx.TargetNode,
+                        Nullable: (ctx.SemanticModel.GetNullableContext(ctx.TargetNode.SpanStart) & NullableContext.AnnotationsEnabled) != 0));
+                context.RegisterSourceOutput(partialProperties, static (output, property) =>
+                    EmitPartialProperty(output, property.Symbol, property.Declaration, property.Nullable));
             }
             catch (Exception ex)
             {
@@ -665,27 +673,32 @@ namespace BovineLabs.SystemPropertyGenerator
 
             generatedProperty.WithGetterExpression($"this.{property.FieldName}");
 
-            if (property.AdditionalNotifications.Length == 0 && property.AdditionalMethods.Length == 0)
+            generatedProperty.WithSetter(writer =>
+                WriteObservableSetter(writer, $"this.{property.FieldName}", property.AdditionalMethods, property.AdditionalNotifications));
+        }
+
+        private static void WriteObservableSetter(ICodeWriter writer, string storage, ImmutableArray<IMethodSymbol> methods,
+            ImmutableArray<string> notifications)
+        {
+            var setValue = $"this.SetProperty(ref {storage}, value)";
+            if (methods.IsEmpty && notifications.IsEmpty)
             {
-                generatedProperty.WithSetterExpression($"this.SetProperty(ref this.{property.FieldName}, value)");
+                writer.AppendLine($"{setValue};");
                 return;
             }
 
-            generatedProperty.WithSetter(setterWriter =>
+            writer.If(setValue).WithBody(ifWriter =>
             {
-                setterWriter.If($"this.SetProperty(ref this.{property.FieldName}, value)").WithBody(ifWriter =>
+                foreach (var method in methods)
                 {
-                    foreach (var method in property.AdditionalMethods)
-                    {
-                        ifWriter.AppendLine($"{BuildMethodInvocation(method)};");
-                    }
+                    ifWriter.AppendLine($"{BuildMethodInvocation(method)};");
+                }
 
-                    foreach (var notification in property.AdditionalNotifications)
-                    {
-                        ifWriter.AppendLine($"this.OnPropertyChanged({BuildNameofOrStringLiteral(notification)});");
-                    }
-                }).EndIf();
-            });
+                foreach (var notification in notifications)
+                {
+                    ifWriter.AppendLine($"this.OnPropertyChanged({BuildNameofOrStringLiteral(notification)});");
+                }
+            }).EndIf();
         }
 
         private static void EmitCommand(ClassBuilder classBuilder, CommandData command)
@@ -870,17 +883,17 @@ namespace BovineLabs.SystemPropertyGenerator
             return GetStringAttributeArguments(fieldSymbol, AlsoNotifyChangeForAttributeMetadataName);
         }
 
-        private static ImmutableArray<IMethodSymbol> GetAlsoExecuteMethods(IFieldSymbol fieldSymbol, ICollection<Diagnostic> diagnostics)
+        private static ImmutableArray<IMethodSymbol> GetAlsoExecuteMethods(ISymbol member, ICollection<Diagnostic> diagnostics)
         {
             var methods = ImmutableArray.CreateBuilder<IMethodSymbol>();
             var seen = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
 
-            foreach (var methodName in GetStringAttributeArguments(fieldSymbol, AlsoExecuteAttributeMetadataName))
+            foreach (var methodName in GetStringAttributeArguments(member, AlsoExecuteAttributeMetadataName))
             {
-                var method = ResolveAlsoExecuteMethod(fieldSymbol.ContainingType, methodName);
+                var method = ResolveAlsoExecuteMethod(member.ContainingType, methodName);
                 if (method == null)
                 {
-                    diagnostics.Add(MvvmDiagnostics.InvalidAlsoExecuteMethod(fieldSymbol.ContainingType, methodName, fieldSymbol.Locations[0]));
+                    diagnostics.Add(MvvmDiagnostics.InvalidAlsoExecuteMethod(member.ContainingType, methodName, member.Locations[0]));
                     continue;
                 }
 

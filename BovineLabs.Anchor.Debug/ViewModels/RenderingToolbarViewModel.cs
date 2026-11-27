@@ -16,9 +16,6 @@
     [AutoToolbar("Rendering")]
     public class RenderingToolbarViewModel : ObservableObject, IToolbarElement
     {
-        private int _qualityValue;
-        private int _wireframeValue;
-
         [Preserve]
         public RenderingToolbarViewModel()
         {
@@ -32,12 +29,12 @@
         [CreateProperty]
         public int QualityValue
         {
-            get => _qualityValue;
+            get;
             set
             {
-                if (SetProperty(ref _qualityValue, value))
+                if (SetProperty(ref field, value))
                 {
-                    QualitySettings.SetQualityLevel(_qualityValue);
+                    QualitySettings.SetQualityLevel(field);
                 }
             }
         }
@@ -53,10 +50,10 @@
         [CreateProperty]
         public int WireframeValue
         {
-            get => _wireframeValue;
+            get;
             set
             {
-                if (SetProperty(ref _wireframeValue, value))
+                if (SetProperty(ref field, value))
                 {
                     UniversalRenderPipelineDebugDisplaySettings.Instance.renderingSettings.wireframeMode = (DebugWireframeMode)value;
                 }

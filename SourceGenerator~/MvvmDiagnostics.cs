@@ -72,6 +72,15 @@ namespace BovineLabs.SystemPropertyGenerator
             DiagnosticSeverity.Error,
             true);
 
+        internal static readonly DiagnosticDescriptor InvalidObservablePropertyDescriptor = new DiagnosticDescriptor(
+            "BLMVVM0009",
+            "ObservableProperty requires a writable partial property definition",
+            "Property '{0}' must be an instance partial property with a getter and a set or init accessor, " +
+            "without an existing implementation, in non-file-local partial types",
+            Category,
+            DiagnosticSeverity.Error,
+            true);
+
         public static Diagnostic MissingPartial(INamedTypeSymbol typeSymbol, Location location)
         {
             return Diagnostic.Create(MissingPartialDescriptor, location ?? typeSymbol.Locations[0], typeSymbol.Name);

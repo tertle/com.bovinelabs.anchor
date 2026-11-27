@@ -11,38 +11,36 @@
     [Preserve]
     [IsService]
     [AutoToolbar("Time")]
-    public class TimeToolbarViewModel : ObservableObject, IToolbarElement
+    public partial class TimeToolbarViewModel : ObservableObject, IToolbarElement
     {
-        private float _timescale;
-        private long _unscaledSeconds;
-        private long _seconds;
-
         [CreateProperty]
         public float TimeScale
         {
-            get => _timescale;
+            get;
             set
             {
                 value = Mathf.Clamp(value, 0, 100);
-                if (SetProperty(ref _timescale, value))
+                if (SetProperty(ref field, value))
                 {
                     Time.timeScale = TimeScale;
                 }
             }
         }
 
+        [ObservableProperty]
         [CreateProperty(ReadOnly = true)]
-        public long UnscaledSeconds
+        public partial long UnscaledSeconds
         {
-            get => _unscaledSeconds;
-            set => SetProperty(ref _unscaledSeconds, value);
+            get;
+            set;
         }
 
+        [ObservableProperty]
         [CreateProperty(ReadOnly = true)]
-        public long Seconds
+        public partial long Seconds
         {
-            get => _seconds;
-            set => SetProperty(ref _seconds, value);
+            get;
+            set;
         }
 
         public VisualElement CreateElement()

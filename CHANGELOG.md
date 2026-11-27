@@ -3,10 +3,12 @@
 ## [2.0.0-pre.8] - Unreleased
 
 ### Added
+* `[ObservableProperty]` now implements partial view-model properties, including restricted setters, `init` accessors, and property initializers.
 * Hover over Draw Calls or Instances in Render Stats to see the count for each profiler group.
 * Singleton and transient service factory registrations, with generic and type-based overloads, plus generic singleton-instance registration helpers.
 
 ### Changed
+* The MVVM and system-property generators build against Roslyn 5.6.0, the compiler API shipped with Unity 7000.0.0a22.
 * Unity 7000.0.0a22 or newer is required.
 * Updated BovineLabs dependencies to `2.0.0-pre.8`.
 * Unity App UI 3.0.0-pre.4 or newer is required. Text styling, toolbar controls, and panel density use its current APIs while preserving saved UI scale values.

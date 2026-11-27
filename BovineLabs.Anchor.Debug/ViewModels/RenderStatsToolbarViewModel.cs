@@ -16,7 +16,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
     [Preserve]
     [IsService]
     [AutoToolbar("Render Stats")]
-    public class RenderStatsToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
+    public partial class RenderStatsToolbarViewModel : ObservableObject, IToolbarElement, ILoadable
     {
         [NoAutoStaticsCleanup]
         private static readonly string[] CounterGroups =
@@ -41,45 +41,40 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private ProfilerRecorderGroup _instancesRecorder;
 
         private float _timeToTriggerUpdatesPassed;
-        private long _triangles;
-        private long _vertices;
-        private long _drawCalls;
-        private long _setPassCalls;
-        private long _instances;
 
-        [CreateProperty]
-        public long Triangles
+        [ObservableProperty]
+        public partial long Triangles
         {
-            get => _triangles;
-            set => SetProperty(ref _triangles, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public long Vertices
+        [ObservableProperty]
+        public partial long Vertices
         {
-            get => _vertices;
-            set => SetProperty(ref _vertices, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public long DrawCalls
+        [ObservableProperty]
+        public partial long DrawCalls
         {
-            get => _drawCalls;
-            set => SetProperty(ref _drawCalls, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public long SetPassCalls
+        [ObservableProperty]
+        public partial long SetPassCalls
         {
-            get => _setPassCalls;
-            set => SetProperty(ref _setPassCalls, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public long Instances
+        [ObservableProperty]
+        public partial long Instances
         {
-            get => _instances;
-            set => SetProperty(ref _instances, value);
+            get;
+            set;
         }
 
         [CreateProperty(ReadOnly = true)]

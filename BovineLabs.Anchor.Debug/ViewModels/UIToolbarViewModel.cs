@@ -25,8 +25,6 @@ namespace BovineLabs.Anchor.Debug.ViewModels
 
         private AnchorApp _app;
         private bool _loaded;
-        private int _themeValue = -1;
-        private int _scaleValue = -1;
 
         [Preserve]
         public UIToolbarViewModel(ILocalStorageService localStorageService)
@@ -44,15 +42,15 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public int ThemeValue
         {
-            get => _themeValue;
+            get;
             set
             {
-                if (SetProperty(ref _themeValue, value))
+                if (SetProperty(ref field, value))
                 {
-                    SetTheme(_themes[_themeValue]);
+                    SetTheme(_themes[field]);
                 }
             }
-        }
+        } = -1;
 
         [CreateProperty]
         public List<string> Scales { get; } = new();
@@ -60,15 +58,15 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         [CreateProperty]
         public int ScaleValue
         {
-            get => _scaleValue;
+            get;
             set
             {
-                if (SetProperty(ref _scaleValue, value))
+                if (SetProperty(ref field, value))
                 {
-                    SetScale(_scales[_scaleValue]);
+                    SetScale(_scales[field]);
                 }
             }
-        }
+        } = -1;
 
         [CreateProperty]
         public bool GameUIVisible
@@ -133,7 +131,7 @@ namespace BovineLabs.Anchor.Debug.ViewModels
         private void RefreshSystemThemeSubscription()
         {
             Platform.darkModeChanged -= OnSystemThemeChanged;
-            if (_themeValue != -1 && _themes[_themeValue] == "system")
+            if (ThemeValue != -1 && _themes[ThemeValue] == "system")
             {
                 Platform.darkModeChanged += OnSystemThemeChanged;
             }

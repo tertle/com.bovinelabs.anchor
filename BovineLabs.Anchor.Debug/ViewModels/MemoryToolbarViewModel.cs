@@ -3,7 +3,6 @@
     using BovineLabs.Anchor.Debug.Toolbar;
     using BovineLabs.Anchor.Debug.Views;
     using BovineLabs.Anchor.MVVM;
-    using Unity.Properties;
     using UnityEngine;
     using UnityEngine.Profiling;
     using UnityEngine.Scripting;
@@ -12,44 +11,36 @@
     [Preserve]
     [IsService]
     [AutoToolbar("Memory")]
-    public class MemoryToolbarViewModel : ObservableObject, IToolbarElement
+    public partial class MemoryToolbarViewModel : ObservableObject, IToolbarElement
     {
         private float _timeToTriggerUpdatesPassed;
 
-        private int _totalAllocatedMemoryMB;
-
-        private int _totalReservedMemoryMB;
-
-        private int _textureMemoryMB;
-
-        private int _allocatedMemoryForGraphicsMB;
-
-        [CreateProperty]
-        public int TotalAllocatedMemoryMB
+        [ObservableProperty]
+        public partial int TotalAllocatedMemoryMB
         {
-            get => _totalAllocatedMemoryMB;
-            set => SetProperty(ref _totalAllocatedMemoryMB, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public int TotalReservedMemoryMB
+        [ObservableProperty]
+        public partial int TotalReservedMemoryMB
         {
-            get => _totalReservedMemoryMB;
-            set => SetProperty(ref _totalReservedMemoryMB, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public int TextureMemoryMB
+        [ObservableProperty]
+        public partial int TextureMemoryMB
         {
-            get => _textureMemoryMB;
-            set => SetProperty(ref _textureMemoryMB, value);
+            get;
+            set;
         }
 
-        [CreateProperty]
-        public int AllocatedMemoryForGraphicsMB
+        [ObservableProperty]
+        public partial int AllocatedMemoryForGraphicsMB
         {
-            get => _allocatedMemoryForGraphicsMB;
-            set => SetProperty(ref _allocatedMemoryForGraphicsMB, value);
+            get;
+            set;
         }
 
         public VisualElement CreateElement()

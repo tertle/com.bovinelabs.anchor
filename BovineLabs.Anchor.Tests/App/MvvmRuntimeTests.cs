@@ -131,6 +131,37 @@ namespace BovineLabs.Anchor.Tests.App
         }
 
         [Test]
+        public void PartialObservableProperty_BindingNotifiesAndRunsCallbacksOnlyWhenChanged()
+        {
+            var viewModel = new GeneratedObservablePropertyViewModel();
+            var changed = new List<string>();
+            viewModel.PropertyChanged += (_, args) => changed.Add(args.PropertyName);
+            var bindableEvents = 0;
+            ((INotifyBindablePropertyChanged)viewModel).propertyChanged += (_, _) => bindableEvents++;
+
+            Assert.IsTrue(PropertyContainer.TryGetValue(ref viewModel, nameof(viewModel.Test), out int initial));
+            Assert.AreEqual(4, initial);
+            Assert.IsTrue(PropertyContainer.TrySetValue(ref viewModel, nameof(viewModel.Test), 9));
+            Assert.IsTrue(PropertyContainer.TrySetValue(ref viewModel, nameof(viewModel.Test), 9));
+
+            Assert.AreEqual(18, viewModel.Doubled);
+            Assert.AreEqual(1, viewModel.ExecuteCount);
+            CollectionAssert.AreEqual(new[] { nameof(viewModel.Test), nameof(viewModel.Doubled) }, changed);
+            Assert.AreEqual(2, bindableEvents);
+        }
+
+        [Test]
+        public void PartialObservableProperty_InitValueRespectsReadOnlyBinding()
+        {
+            var viewModel = new GeneratedObservablePropertyViewModel { InitialValue = 8 };
+
+            Assert.IsTrue(PropertyContainer.TryGetValue(ref viewModel, nameof(viewModel.InitialValue), out int actual));
+            Assert.AreEqual(8, actual);
+            Assert.IsFalse(PropertyContainer.TrySetValue(ref viewModel, nameof(viewModel.InitialValue), 9));
+            Assert.AreEqual(8, viewModel.InitialValue);
+        }
+
+        [Test]
         public void GeneratedDependsOn_RaisesDependentNotificationsTransitively()
         {
             var viewModel = new GeneratedDependsOnViewModel();
@@ -265,13 +296,40 @@ namespace BovineLabs.Anchor.Tests.App
         public partial class GeneratedObservablePropertyViewModel : ObservableObject
         {
             [ObservableProperty]
-            private int _test;
+            [AlsoNotifyChangeFor(nameof(Doubled))]
+            [AlsoExecute(nameof(CountChange))]
+            public partial int Test
+            {
+                get;
+                set;
+            } = 4;
+
+            [ObservableProperty]
+            [CreateProperty(ReadOnly = true)]
+            public partial int InitialValue
+            {
+                get;
+                init;
+            }
+
+            public int Doubled => Test * 2;
+
+            public int ExecuteCount { get; private set; }
+
+            private void CountChange()
+            {
+                ExecuteCount++;
+            }
         }
 
         public partial class GeneratedDependsOnViewModel : ObservableObject
         {
             [ObservableProperty]
-            private bool _hasSave;
+            public partial bool HasSave
+            {
+                get;
+                set;
+            }
 
             [DependsOn(nameof(HasSave))]
             public bool CanLoad => HasSave;
@@ -293,7 +351,11 @@ namespace BovineLabs.Anchor.Tests.App
         public partial class GeneratedCommandDependsOnViewModel : ObservableObject
         {
             [ObservableProperty]
-            private bool _hasSave;
+            public partial bool HasSave
+            {
+                get;
+                set;
+            }
 
             [ICommand(CanExecuteProperty = nameof(CanContinue))]
             private void Continue()
