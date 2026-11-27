@@ -14,6 +14,9 @@
 * Unity App UI 3.0.0-pre.4 or newer is required. Text styling, toolbar controls, and panel density use its current APIs while preserving saved UI scale values.
 * Service collections become read-only when a provider is constructed; complete registrations before app initialization. This ports App UI's registration-locking fix to Anchor's container.
 
+### Fixed
+* System-property generation recognizes C# aliases of `[SystemProperty]`.
+
 ## [2.0.0-pre.7] - 2026-11-10
 
 ### Added
