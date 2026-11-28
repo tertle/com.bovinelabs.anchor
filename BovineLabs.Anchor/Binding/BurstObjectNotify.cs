@@ -6,6 +6,7 @@
     using Unity.Burst;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
+    using Unity.Profiling;
     using Unity.Scripting.LifecycleManagement;
     using UnityEngine.Assertions;
 
@@ -40,9 +41,14 @@
         [NoAutoStaticsCleanup]
         internal static readonly Dictionary<IntPtr, IBindingObjectNotify> Changed = new();
 
+        [NoAutoStaticsCleanup]
+        private static readonly ProfilerMarker CodeInitializingMarker = new("BovineLabs.Anchor.BurstObjectNotify.InitializeTrampolines");
+
         [OnCodeInitializing]
         private static void InitializeTrampolines()
         {
+            using var marker = CodeInitializingMarker.Auto();
+
             Burst.SetValue.Data = new BurstTrampoline(&SetValueForwarding);
             Burst.SetListValue.Data = new BurstTrampoline(&SetListValueForwarding);
             Burst.Notify.Data = new BurstTrampoline(&NotifyForwarding);

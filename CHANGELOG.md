@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0-pre.9] - Unreleased
+
+### Changed
+* Added Unity Profiler markers for Anchor's code reload initialization hooks.
+* Updated BovineLabs dependencies to `2.0.0-pre.9`.
+
 ## [2.0.0-pre.8] - 2026-11-28
 
 ### Added

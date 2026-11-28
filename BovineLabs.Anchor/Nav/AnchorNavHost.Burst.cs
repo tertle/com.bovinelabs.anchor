@@ -3,13 +3,19 @@ namespace BovineLabs.Anchor.Nav
     using BovineLabs.Core.Utility;
     using Unity.Burst;
     using Unity.Collections;
+    using Unity.Profiling;
     using Unity.Scripting.LifecycleManagement;
 
     public unsafe partial class AnchorNavHost
     {
+        [NoAutoStaticsCleanup]
+        private static readonly ProfilerMarker CodeInitializingMarker = new("BovineLabs.Anchor.AnchorNavHost.InitializeTrampolines");
+
         [OnCodeInitializing]
         private static void InitializeTrampolines()
         {
+            using var marker = CodeInitializingMarker.Auto();
+
             Burst.NavigateFunc.Data = new BurstTrampoline(&NavigateForwardingPacked);
             Burst.ToggleFunc.Data = new BurstTrampoline(&ToggleForwardingPacked);
             Burst.CurrentFunc.Data = new BurstTrampoline(&CurrentForwardingPacked);

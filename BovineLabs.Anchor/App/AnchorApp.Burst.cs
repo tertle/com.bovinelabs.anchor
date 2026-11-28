@@ -2,13 +2,19 @@ namespace BovineLabs.Anchor
 {
     using BovineLabs.Core.Utility;
     using Unity.Burst;
+    using Unity.Profiling;
     using Unity.Scripting.LifecycleManagement;
 
     public unsafe partial class AnchorApp
     {
+        [NoAutoStaticsCleanup]
+        private static readonly ProfilerMarker CodeInitializingMarker = new("BovineLabs.Anchor.AnchorApp.InitializeTrampolines");
+
         [OnCodeInitializing]
         private static void InitializeTrampolines()
         {
+            using var marker = CodeInitializingMarker.Auto();
+
             Burst.SetUIVisibleFunc.Data = new BurstTrampoline(&SetUIVisibleForwardingPacked);
             Burst.ToggleUIVisibleFunc.Data = new BurstTrampoline(&ToggleUIVisibleForwardingPacked);
         }
